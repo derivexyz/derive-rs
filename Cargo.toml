@@ -1,11 +1,8 @@
 [workspace]
 
 members = [
-    "lyra-maker",
-    "orderbook-types",
-    "lyra-client",
-    "lyra-vaults",
-    "lyra-utils",
+    "client",
+    "types",
 ]
 
 resolver = "2"

@@ -1,7 +1,7 @@
 #![allow(unused_variables)]
 #![allow(unused_imports)]
-use serde::{Deserialize, Serialize};
 use bigdecimal;
+use serde::{Deserialize, Serialize};
 use uuid;
 ///Cancel reason, if any
 ///
@@ -27,18 +27,7 @@ use uuid;
 }*/
 /// ```
 /// </details>
-#[derive(
-    Clone,
-    Copy,
-    Debug,
-    Deserialize,
-    Eq,
-    Hash,
-    Ord,
-    PartialEq,
-    PartialOrd,
-    Serialize
-)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
 pub enum CancelReason {
     #[serde(rename = "")]
     X,
@@ -134,18 +123,7 @@ impl std::convert::TryFrom<String> for CancelReason {
 }*/
 /// ```
 /// </details>
-#[derive(
-    Clone,
-    Copy,
-    Debug,
-    Deserialize,
-    Eq,
-    Hash,
-    Ord,
-    PartialEq,
-    PartialOrd,
-    Serialize
-)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
 pub enum Direction {
     #[serde(rename = "buy")]
     Buy,
@@ -214,18 +192,7 @@ impl std::convert::TryFrom<String> for Direction {
 }*/
 /// ```
 /// </details>
-#[derive(
-    Clone,
-    Copy,
-    Debug,
-    Deserialize,
-    Eq,
-    Hash,
-    Ord,
-    PartialEq,
-    PartialOrd,
-    Serialize
-)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
 pub enum InvalidReason {
     #[serde(
         rename = "Account is currently under maintenance margin requirements, trading is frozen."
@@ -473,18 +440,7 @@ impl From<&LegUnpricedSchema> for LegUnpricedSchema {
 }*/
 /// ```
 /// </details>
-#[derive(
-    Clone,
-    Copy,
-    Debug,
-    Deserialize,
-    Eq,
-    Hash,
-    Ord,
-    PartialEq,
-    PartialOrd,
-    Serialize
-)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
 pub enum LiquidityRole {
     #[serde(rename = "maker")]
     Maker,
@@ -793,8 +749,7 @@ pub enum PrivateRfqGetBestQuoteRequestSchemaId {
     Variant0(String),
     Variant1(i64),
 }
-impl From<&PrivateRfqGetBestQuoteRequestSchemaId>
-for PrivateRfqGetBestQuoteRequestSchemaId {
+impl From<&PrivateRfqGetBestQuoteRequestSchemaId> for PrivateRfqGetBestQuoteRequestSchemaId {
     fn from(value: &PrivateRfqGetBestQuoteRequestSchemaId) -> Self {
         value.clone()
     }
@@ -884,8 +839,7 @@ pub struct PrivateRfqGetBestQuoteResponseSchema {
     ///
     pub result: PrivateRfqGetBestQuoteResultSchema,
 }
-impl From<&PrivateRfqGetBestQuoteResponseSchema>
-for PrivateRfqGetBestQuoteResponseSchema {
+impl From<&PrivateRfqGetBestQuoteResponseSchema> for PrivateRfqGetBestQuoteResponseSchema {
     fn from(value: &PrivateRfqGetBestQuoteResponseSchema) -> Self {
         value.clone()
     }
@@ -915,8 +869,7 @@ pub enum PrivateRfqGetBestQuoteResponseSchemaId {
     Variant0(String),
     Variant1(i64),
 }
-impl From<&PrivateRfqGetBestQuoteResponseSchemaId>
-for PrivateRfqGetBestQuoteResponseSchemaId {
+impl From<&PrivateRfqGetBestQuoteResponseSchemaId> for PrivateRfqGetBestQuoteResponseSchemaId {
     fn from(value: &PrivateRfqGetBestQuoteResponseSchemaId) -> Self {
         value.clone()
     }
@@ -1296,18 +1249,7 @@ impl From<&QuoteResultPublicSchema> for QuoteResultPublicSchema {
 }*/
 /// ```
 /// </details>
-#[derive(
-    Clone,
-    Copy,
-    Debug,
-    Deserialize,
-    Eq,
-    Hash,
-    Ord,
-    PartialEq,
-    PartialOrd,
-    Serialize
-)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
 pub enum Status {
     #[serde(rename = "open")]
     Open,
@@ -1382,18 +1324,7 @@ impl std::convert::TryFrom<String> for Status {
 }*/
 /// ```
 /// </details>
-#[derive(
-    Clone,
-    Copy,
-    Debug,
-    Deserialize,
-    Eq,
-    Hash,
-    Ord,
-    PartialEq,
-    PartialOrd,
-    Serialize
-)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
 pub enum TxStatus {
     #[serde(rename = "requested")]
     Requested,

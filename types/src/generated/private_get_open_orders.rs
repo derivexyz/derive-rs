@@ -1,7 +1,7 @@
 #![allow(unused_variables)]
 #![allow(unused_imports)]
-use serde::{Deserialize, Serialize};
 use bigdecimal;
+use serde::{Deserialize, Serialize};
 use uuid;
 ///If cancelled, reason behind order cancellation
 ///
@@ -27,18 +27,7 @@ use uuid;
 }*/
 /// ```
 /// </details>
-#[derive(
-    Clone,
-    Copy,
-    Debug,
-    Deserialize,
-    Eq,
-    Hash,
-    Ord,
-    PartialEq,
-    PartialOrd,
-    Serialize
-)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
 pub enum CancelReason {
     #[serde(rename = "")]
     X,
@@ -134,18 +123,7 @@ impl std::convert::TryFrom<String> for CancelReason {
 }*/
 /// ```
 /// </details>
-#[derive(
-    Clone,
-    Copy,
-    Debug,
-    Deserialize,
-    Eq,
-    Hash,
-    Ord,
-    PartialEq,
-    PartialOrd,
-    Serialize
-)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
 pub enum Direction {
     #[serde(rename = "buy")]
     Buy,
@@ -483,18 +461,7 @@ impl From<&OrderResponseSchema> for OrderResponseSchema {
 }*/
 /// ```
 /// </details>
-#[derive(
-    Clone,
-    Copy,
-    Debug,
-    Deserialize,
-    Eq,
-    Hash,
-    Ord,
-    PartialEq,
-    PartialOrd,
-    Serialize
-)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
 pub enum OrderStatus {
     #[serde(rename = "open")]
     Open,
@@ -570,18 +537,7 @@ impl std::convert::TryFrom<String> for OrderStatus {
 }*/
 /// ```
 /// </details>
-#[derive(
-    Clone,
-    Copy,
-    Debug,
-    Deserialize,
-    Eq,
-    Hash,
-    Ord,
-    PartialEq,
-    PartialOrd,
-    Serialize
-)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
 pub enum OrderType {
     #[serde(rename = "limit")]
     Limit,
@@ -936,8 +892,7 @@ pub enum PrivateGetOpenOrdersResponseSchemaId {
     Variant0(String),
     Variant1(i64),
 }
-impl From<&PrivateGetOpenOrdersResponseSchemaId>
-for PrivateGetOpenOrdersResponseSchemaId {
+impl From<&PrivateGetOpenOrdersResponseSchemaId> for PrivateGetOpenOrdersResponseSchemaId {
     fn from(value: &PrivateGetOpenOrdersResponseSchemaId) -> Self {
         value.clone()
     }
@@ -1048,18 +1003,7 @@ impl From<&PrivateGetOpenOrdersResultSchema> for PrivateGetOpenOrdersResultSchem
 }*/
 /// ```
 /// </details>
-#[derive(
-    Clone,
-    Copy,
-    Debug,
-    Deserialize,
-    Eq,
-    Hash,
-    Ord,
-    PartialEq,
-    PartialOrd,
-    Serialize
-)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
 pub enum TimeInForce {
     #[serde(rename = "gtc")]
     Gtc,

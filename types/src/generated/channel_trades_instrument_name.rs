@@ -1,7 +1,7 @@
 #![allow(unused_variables)]
 #![allow(unused_imports)]
-use serde::{Deserialize, Serialize};
 use bigdecimal;
+use serde::{Deserialize, Serialize};
 use uuid;
 ///Direction of the taker order
 ///
@@ -19,18 +19,7 @@ use uuid;
 }*/
 /// ```
 /// </details>
-#[derive(
-    Clone,
-    Copy,
-    Debug,
-    Deserialize,
-    Eq,
-    Hash,
-    Ord,
-    PartialEq,
-    PartialOrd,
-    Serialize
-)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
 pub enum Direction {
     #[serde(rename = "buy")]
     Buy,
@@ -297,7 +286,8 @@ pub struct TradesInstrumentNameNotificationParamsSchema {
     pub data: Vec<TradePublicResponseSchema>,
 }
 impl From<&TradesInstrumentNameNotificationParamsSchema>
-for TradesInstrumentNameNotificationParamsSchema {
+    for TradesInstrumentNameNotificationParamsSchema
+{
     fn from(value: &TradesInstrumentNameNotificationParamsSchema) -> Self {
         value.clone()
     }
@@ -334,8 +324,7 @@ pub struct TradesInstrumentNameNotificationSchema {
     pub method: String,
     pub params: TradesInstrumentNameNotificationParamsSchema,
 }
-impl From<&TradesInstrumentNameNotificationSchema>
-for TradesInstrumentNameNotificationSchema {
+impl From<&TradesInstrumentNameNotificationSchema> for TradesInstrumentNameNotificationSchema {
     fn from(value: &TradesInstrumentNameNotificationSchema) -> Self {
         value.clone()
     }

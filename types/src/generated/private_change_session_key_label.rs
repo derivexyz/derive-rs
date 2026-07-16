@@ -1,7 +1,7 @@
 #![allow(unused_variables)]
 #![allow(unused_imports)]
-use serde::{Deserialize, Serialize};
 use bigdecimal;
+use serde::{Deserialize, Serialize};
 use uuid;
 ///
 ///
@@ -77,7 +77,8 @@ pub struct PrivateChangeSessionKeyLabelJsonrpcSchema {
     pub response: PrivateChangeSessionKeyLabelResponseSchema,
 }
 impl From<&PrivateChangeSessionKeyLabelJsonrpcSchema>
-for PrivateChangeSessionKeyLabelJsonrpcSchema {
+    for PrivateChangeSessionKeyLabelJsonrpcSchema
+{
     fn from(value: &PrivateChangeSessionKeyLabelJsonrpcSchema) -> Self {
         value.clone()
     }
@@ -107,8 +108,7 @@ for PrivateChangeSessionKeyLabelJsonrpcSchema {
 pub struct PrivateChangeSessionKeyLabelParamsSchema {
     pub label: String,
 }
-impl From<&PrivateChangeSessionKeyLabelParamsSchema>
-for PrivateChangeSessionKeyLabelParamsSchema {
+impl From<&PrivateChangeSessionKeyLabelParamsSchema> for PrivateChangeSessionKeyLabelParamsSchema {
     fn from(value: &PrivateChangeSessionKeyLabelParamsSchema) -> Self {
         value.clone()
     }
@@ -161,7 +161,8 @@ pub struct PrivateChangeSessionKeyLabelRequestSchema {
     pub params: PrivateChangeSessionKeyLabelParamsSchema,
 }
 impl From<&PrivateChangeSessionKeyLabelRequestSchema>
-for PrivateChangeSessionKeyLabelRequestSchema {
+    for PrivateChangeSessionKeyLabelRequestSchema
+{
     fn from(value: &PrivateChangeSessionKeyLabelRequestSchema) -> Self {
         value.clone()
     }
@@ -192,7 +193,8 @@ pub enum PrivateChangeSessionKeyLabelRequestSchemaId {
     Variant1(i64),
 }
 impl From<&PrivateChangeSessionKeyLabelRequestSchemaId>
-for PrivateChangeSessionKeyLabelRequestSchemaId {
+    for PrivateChangeSessionKeyLabelRequestSchemaId
+{
     fn from(value: &PrivateChangeSessionKeyLabelRequestSchemaId) -> Self {
         value.clone()
     }
@@ -283,7 +285,8 @@ pub struct PrivateChangeSessionKeyLabelResponseSchema {
     pub result: PrivateChangeSessionKeyLabelResultSchema,
 }
 impl From<&PrivateChangeSessionKeyLabelResponseSchema>
-for PrivateChangeSessionKeyLabelResponseSchema {
+    for PrivateChangeSessionKeyLabelResponseSchema
+{
     fn from(value: &PrivateChangeSessionKeyLabelResponseSchema) -> Self {
         value.clone()
     }
@@ -314,7 +317,8 @@ pub enum PrivateChangeSessionKeyLabelResponseSchemaId {
     Variant1(i64),
 }
 impl From<&PrivateChangeSessionKeyLabelResponseSchemaId>
-for PrivateChangeSessionKeyLabelResponseSchemaId {
+    for PrivateChangeSessionKeyLabelResponseSchemaId
+{
     fn from(value: &PrivateChangeSessionKeyLabelResponseSchemaId) -> Self {
         value.clone()
     }
@@ -387,8 +391,7 @@ impl From<i64> for PrivateChangeSessionKeyLabelResponseSchemaId {
 pub struct PrivateChangeSessionKeyLabelResultSchema {
     pub label: String,
 }
-impl From<&PrivateChangeSessionKeyLabelResultSchema>
-for PrivateChangeSessionKeyLabelResultSchema {
+impl From<&PrivateChangeSessionKeyLabelResultSchema> for PrivateChangeSessionKeyLabelResultSchema {
     fn from(value: &PrivateChangeSessionKeyLabelResultSchema) -> Self {
         value.clone()
     }

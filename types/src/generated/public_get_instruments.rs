@@ -1,7 +1,7 @@
 #![allow(unused_variables)]
 #![allow(unused_imports)]
-use serde::{Deserialize, Serialize};
 use bigdecimal;
+use serde::{Deserialize, Serialize};
 use uuid;
 ///InstrumentPublicResponseSchema
 ///
@@ -236,18 +236,7 @@ impl From<&InstrumentPublicResponseSchema> for InstrumentPublicResponseSchema {
 }*/
 /// ```
 /// </details>
-#[derive(
-    Clone,
-    Copy,
-    Debug,
-    Deserialize,
-    Eq,
-    Hash,
-    Ord,
-    PartialEq,
-    PartialOrd,
-    Serialize
-)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
 pub enum InstrumentType {
     #[serde(rename = "erc20")]
     Erc20,
@@ -383,18 +372,7 @@ impl From<&OptionPublicDetailsSchema> for OptionPublicDetailsSchema {
 }*/
 /// ```
 /// </details>
-#[derive(
-    Clone,
-    Copy,
-    Debug,
-    Deserialize,
-    Eq,
-    Hash,
-    Ord,
-    PartialEq,
-    PartialOrd,
-    Serialize
-)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
 pub enum OptionType {
     C,
     P,
@@ -849,8 +827,7 @@ pub enum PublicGetInstrumentsResponseSchemaId {
     Variant0(String),
     Variant1(i64),
 }
-impl From<&PublicGetInstrumentsResponseSchemaId>
-for PublicGetInstrumentsResponseSchemaId {
+impl From<&PublicGetInstrumentsResponseSchemaId> for PublicGetInstrumentsResponseSchemaId {
     fn from(value: &PublicGetInstrumentsResponseSchemaId) -> Self {
         value.clone()
     }

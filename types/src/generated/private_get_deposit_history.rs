@@ -1,7 +1,7 @@
 #![allow(unused_variables)]
 #![allow(unused_imports)]
-use serde::{Deserialize, Serialize};
 use bigdecimal;
+use serde::{Deserialize, Serialize};
 use uuid;
 ///DepositSchema
 ///
@@ -169,8 +169,7 @@ pub struct PrivateGetDepositHistoryJsonrpcSchema {
     pub request: PrivateGetDepositHistoryRequestSchema,
     pub response: PrivateGetDepositHistoryResponseSchema,
 }
-impl From<&PrivateGetDepositHistoryJsonrpcSchema>
-for PrivateGetDepositHistoryJsonrpcSchema {
+impl From<&PrivateGetDepositHistoryJsonrpcSchema> for PrivateGetDepositHistoryJsonrpcSchema {
     fn from(value: &PrivateGetDepositHistoryJsonrpcSchema) -> Self {
         value.clone()
     }
@@ -220,8 +219,7 @@ pub struct PrivateGetDepositHistoryParamsSchema {
     ///Subaccount id
     pub subaccount_id: i64,
 }
-impl From<&PrivateGetDepositHistoryParamsSchema>
-for PrivateGetDepositHistoryParamsSchema {
+impl From<&PrivateGetDepositHistoryParamsSchema> for PrivateGetDepositHistoryParamsSchema {
     fn from(value: &PrivateGetDepositHistoryParamsSchema) -> Self {
         value.clone()
     }
@@ -273,8 +271,7 @@ pub struct PrivateGetDepositHistoryRequestSchema {
     pub method: String,
     pub params: PrivateGetDepositHistoryParamsSchema,
 }
-impl From<&PrivateGetDepositHistoryRequestSchema>
-for PrivateGetDepositHistoryRequestSchema {
+impl From<&PrivateGetDepositHistoryRequestSchema> for PrivateGetDepositHistoryRequestSchema {
     fn from(value: &PrivateGetDepositHistoryRequestSchema) -> Self {
         value.clone()
     }
@@ -304,8 +301,7 @@ pub enum PrivateGetDepositHistoryRequestSchemaId {
     Variant0(String),
     Variant1(i64),
 }
-impl From<&PrivateGetDepositHistoryRequestSchemaId>
-for PrivateGetDepositHistoryRequestSchemaId {
+impl From<&PrivateGetDepositHistoryRequestSchemaId> for PrivateGetDepositHistoryRequestSchemaId {
     fn from(value: &PrivateGetDepositHistoryRequestSchemaId) -> Self {
         value.clone()
     }
@@ -395,8 +391,7 @@ pub struct PrivateGetDepositHistoryResponseSchema {
     ///
     pub result: PrivateGetDepositHistoryResultSchema,
 }
-impl From<&PrivateGetDepositHistoryResponseSchema>
-for PrivateGetDepositHistoryResponseSchema {
+impl From<&PrivateGetDepositHistoryResponseSchema> for PrivateGetDepositHistoryResponseSchema {
     fn from(value: &PrivateGetDepositHistoryResponseSchema) -> Self {
         value.clone()
     }
@@ -426,8 +421,7 @@ pub enum PrivateGetDepositHistoryResponseSchemaId {
     Variant0(String),
     Variant1(i64),
 }
-impl From<&PrivateGetDepositHistoryResponseSchemaId>
-for PrivateGetDepositHistoryResponseSchemaId {
+impl From<&PrivateGetDepositHistoryResponseSchemaId> for PrivateGetDepositHistoryResponseSchemaId {
     fn from(value: &PrivateGetDepositHistoryResponseSchemaId) -> Self {
         value.clone()
     }
@@ -507,8 +501,7 @@ pub struct PrivateGetDepositHistoryResultSchema {
     ///List of deposit payments
     pub events: Vec<DepositSchema>,
 }
-impl From<&PrivateGetDepositHistoryResultSchema>
-for PrivateGetDepositHistoryResultSchema {
+impl From<&PrivateGetDepositHistoryResultSchema> for PrivateGetDepositHistoryResultSchema {
     fn from(value: &PrivateGetDepositHistoryResultSchema) -> Self {
         value.clone()
     }
@@ -532,18 +525,7 @@ for PrivateGetDepositHistoryResultSchema {
 }*/
 /// ```
 /// </details>
-#[derive(
-    Clone,
-    Copy,
-    Debug,
-    Deserialize,
-    Eq,
-    Hash,
-    Ord,
-    PartialEq,
-    PartialOrd,
-    Serialize
-)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
 pub enum TxStatus {
     #[serde(rename = "requested")]
     Requested,

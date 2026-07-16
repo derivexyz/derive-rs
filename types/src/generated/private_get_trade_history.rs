@@ -1,7 +1,7 @@
 #![allow(unused_variables)]
 #![allow(unused_imports)]
-use serde::{Deserialize, Serialize};
 use bigdecimal;
+use serde::{Deserialize, Serialize};
 use uuid;
 ///Order direction
 ///
@@ -19,18 +19,7 @@ use uuid;
 }*/
 /// ```
 /// </details>
-#[derive(
-    Clone,
-    Copy,
-    Debug,
-    Deserialize,
-    Eq,
-    Hash,
-    Ord,
-    PartialEq,
-    PartialOrd,
-    Serialize
-)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
 pub enum Direction {
     #[serde(rename = "buy")]
     Buy,
@@ -94,18 +83,7 @@ impl std::convert::TryFrom<String> for Direction {
 }*/
 /// ```
 /// </details>
-#[derive(
-    Clone,
-    Copy,
-    Debug,
-    Deserialize,
-    Eq,
-    Hash,
-    Ord,
-    PartialEq,
-    PartialOrd,
-    Serialize
-)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
 pub enum LiquidityRole {
     #[serde(rename = "maker")]
     Maker,
@@ -438,8 +416,7 @@ pub enum PrivateGetTradeHistoryRequestSchemaId {
     Variant0(String),
     Variant1(i64),
 }
-impl From<&PrivateGetTradeHistoryRequestSchemaId>
-for PrivateGetTradeHistoryRequestSchemaId {
+impl From<&PrivateGetTradeHistoryRequestSchemaId> for PrivateGetTradeHistoryRequestSchemaId {
     fn from(value: &PrivateGetTradeHistoryRequestSchemaId) -> Self {
         value.clone()
     }
@@ -529,8 +506,7 @@ pub struct PrivateGetTradeHistoryResponseSchema {
     ///
     pub result: PrivateGetTradeHistoryResultSchema,
 }
-impl From<&PrivateGetTradeHistoryResponseSchema>
-for PrivateGetTradeHistoryResponseSchema {
+impl From<&PrivateGetTradeHistoryResponseSchema> for PrivateGetTradeHistoryResponseSchema {
     fn from(value: &PrivateGetTradeHistoryResponseSchema) -> Self {
         value.clone()
     }
@@ -560,8 +536,7 @@ pub enum PrivateGetTradeHistoryResponseSchemaId {
     Variant0(String),
     Variant1(i64),
 }
-impl From<&PrivateGetTradeHistoryResponseSchemaId>
-for PrivateGetTradeHistoryResponseSchemaId {
+impl From<&PrivateGetTradeHistoryResponseSchemaId> for PrivateGetTradeHistoryResponseSchemaId {
     fn from(value: &PrivateGetTradeHistoryResponseSchemaId) -> Self {
         value.clone()
     }
@@ -878,18 +853,7 @@ impl From<&TradeResponseSchema> for TradeResponseSchema {
 }*/
 /// ```
 /// </details>
-#[derive(
-    Clone,
-    Copy,
-    Debug,
-    Deserialize,
-    Eq,
-    Hash,
-    Ord,
-    PartialEq,
-    PartialOrd,
-    Serialize
-)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
 pub enum TxStatus {
     #[serde(rename = "requested")]
     Requested,

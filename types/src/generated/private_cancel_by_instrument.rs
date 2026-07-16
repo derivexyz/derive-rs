@@ -1,7 +1,7 @@
 #![allow(unused_variables)]
 #![allow(unused_imports)]
-use serde::{Deserialize, Serialize};
 use bigdecimal;
+use serde::{Deserialize, Serialize};
 use uuid;
 ///Cancel all open orders for a given subaccount and a given instrument.
 ///
@@ -76,8 +76,7 @@ pub struct PrivateCancelByInstrumentJsonrpcSchema {
     pub request: PrivateCancelByInstrumentRequestSchema,
     pub response: PrivateCancelByInstrumentResponseSchema,
 }
-impl From<&PrivateCancelByInstrumentJsonrpcSchema>
-for PrivateCancelByInstrumentJsonrpcSchema {
+impl From<&PrivateCancelByInstrumentJsonrpcSchema> for PrivateCancelByInstrumentJsonrpcSchema {
     fn from(value: &PrivateCancelByInstrumentJsonrpcSchema) -> Self {
         value.clone()
     }
@@ -117,8 +116,7 @@ pub struct PrivateCancelByInstrumentParamsSchema {
     ///Subaccount ID
     pub subaccount_id: i64,
 }
-impl From<&PrivateCancelByInstrumentParamsSchema>
-for PrivateCancelByInstrumentParamsSchema {
+impl From<&PrivateCancelByInstrumentParamsSchema> for PrivateCancelByInstrumentParamsSchema {
     fn from(value: &PrivateCancelByInstrumentParamsSchema) -> Self {
         value.clone()
     }
@@ -170,8 +168,7 @@ pub struct PrivateCancelByInstrumentRequestSchema {
     pub method: String,
     pub params: PrivateCancelByInstrumentParamsSchema,
 }
-impl From<&PrivateCancelByInstrumentRequestSchema>
-for PrivateCancelByInstrumentRequestSchema {
+impl From<&PrivateCancelByInstrumentRequestSchema> for PrivateCancelByInstrumentRequestSchema {
     fn from(value: &PrivateCancelByInstrumentRequestSchema) -> Self {
         value.clone()
     }
@@ -201,8 +198,7 @@ pub enum PrivateCancelByInstrumentRequestSchemaId {
     Variant0(String),
     Variant1(i64),
 }
-impl From<&PrivateCancelByInstrumentRequestSchemaId>
-for PrivateCancelByInstrumentRequestSchemaId {
+impl From<&PrivateCancelByInstrumentRequestSchemaId> for PrivateCancelByInstrumentRequestSchemaId {
     fn from(value: &PrivateCancelByInstrumentRequestSchemaId) -> Self {
         value.clone()
     }
@@ -292,8 +288,7 @@ pub struct PrivateCancelByInstrumentResponseSchema {
     ///
     pub result: PrivateCancelByInstrumentResultSchema,
 }
-impl From<&PrivateCancelByInstrumentResponseSchema>
-for PrivateCancelByInstrumentResponseSchema {
+impl From<&PrivateCancelByInstrumentResponseSchema> for PrivateCancelByInstrumentResponseSchema {
     fn from(value: &PrivateCancelByInstrumentResponseSchema) -> Self {
         value.clone()
     }
@@ -324,7 +319,8 @@ pub enum PrivateCancelByInstrumentResponseSchemaId {
     Variant1(i64),
 }
 impl From<&PrivateCancelByInstrumentResponseSchemaId>
-for PrivateCancelByInstrumentResponseSchemaId {
+    for PrivateCancelByInstrumentResponseSchemaId
+{
     fn from(value: &PrivateCancelByInstrumentResponseSchemaId) -> Self {
         value.clone()
     }
@@ -399,8 +395,7 @@ pub struct PrivateCancelByInstrumentResultSchema {
     ///Number of cancelled orders
     pub cancelled_orders: i64,
 }
-impl From<&PrivateCancelByInstrumentResultSchema>
-for PrivateCancelByInstrumentResultSchema {
+impl From<&PrivateCancelByInstrumentResultSchema> for PrivateCancelByInstrumentResultSchema {
     fn from(value: &PrivateCancelByInstrumentResultSchema) -> Self {
         value.clone()
     }

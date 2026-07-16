@@ -1,7 +1,7 @@
 #![allow(unused_variables)]
 #![allow(unused_imports)]
-use serde::{Deserialize, Serialize};
 use bigdecimal;
+use serde::{Deserialize, Serialize};
 use uuid;
 /**Calculates margin for a given subaccount and (optionally) a simulated state change. Does not take into account
 open orders margin requirements.*/

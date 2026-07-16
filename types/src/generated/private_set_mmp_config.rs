@@ -1,7 +1,7 @@
 #![allow(unused_variables)]
 #![allow(unused_imports)]
-use serde::{Deserialize, Serialize};
 use bigdecimal;
+use serde::{Deserialize, Serialize};
 use uuid;
 ///Set the mmp config for the subaccount and currency
 ///
@@ -479,13 +479,15 @@ impl From<&PrivateSetMmpConfigResultSchema> for PrivateSetMmpConfigResultSchema 
     }
 }
 pub mod defaults {
-    pub(super) fn private_set_mmp_config_params_schema_mmp_amount_limit() -> bigdecimal::BigDecimal {
+    pub(super) fn private_set_mmp_config_params_schema_mmp_amount_limit() -> bigdecimal::BigDecimal
+    {
         serde_json::from_str::<bigdecimal::BigDecimal>("\"0\"").unwrap()
     }
     pub(super) fn private_set_mmp_config_params_schema_mmp_delta_limit() -> bigdecimal::BigDecimal {
         serde_json::from_str::<bigdecimal::BigDecimal>("\"0\"").unwrap()
     }
-    pub(super) fn private_set_mmp_config_result_schema_mmp_amount_limit() -> bigdecimal::BigDecimal {
+    pub(super) fn private_set_mmp_config_result_schema_mmp_amount_limit() -> bigdecimal::BigDecimal
+    {
         serde_json::from_str::<bigdecimal::BigDecimal>("\"0\"").unwrap()
     }
     pub(super) fn private_set_mmp_config_result_schema_mmp_delta_limit() -> bigdecimal::BigDecimal {

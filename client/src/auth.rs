@@ -1,8 +1,8 @@
 use crate::json_rpc::WsClient;
+use derive_types::generated::public_login::PublicLoginParamsSchema;
 use ethers::prelude::{LocalWallet, Signer};
 use ethers::utils::hex;
 use log::info;
-use orderbook_types::generated::public_login::PublicLoginParamsSchema;
 use reqwest::header::HeaderMap;
 use serde_json::{json, Value};
 

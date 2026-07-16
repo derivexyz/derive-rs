@@ -1,7 +1,7 @@
 #![allow(unused_variables)]
 #![allow(unused_imports)]
-use serde::{Deserialize, Serialize};
 use bigdecimal;
+use serde::{Deserialize, Serialize};
 use uuid;
 ///Order direction
 ///
@@ -19,18 +19,7 @@ use uuid;
 }*/
 /// ```
 /// </details>
-#[derive(
-    Clone,
-    Copy,
-    Debug,
-    Deserialize,
-    Eq,
-    Hash,
-    Ord,
-    PartialEq,
-    PartialOrd,
-    Serialize
-)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
 pub enum Direction {
     #[serde(rename = "buy")]
     Buy,
@@ -94,18 +83,7 @@ impl std::convert::TryFrom<String> for Direction {
 }*/
 /// ```
 /// </details>
-#[derive(
-    Clone,
-    Copy,
-    Debug,
-    Deserialize,
-    Eq,
-    Hash,
-    Ord,
-    PartialEq,
-    PartialOrd,
-    Serialize
-)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
 pub enum LiquidityRole {
     #[serde(rename = "maker")]
     Maker,
@@ -232,8 +210,7 @@ pub struct SubaccountIdTradesTxStatusChannelSchema {
     ///Transaction status (`settled` or `reverted`)
     pub tx_status: TxStatus,
 }
-impl From<&SubaccountIdTradesTxStatusChannelSchema>
-for SubaccountIdTradesTxStatusChannelSchema {
+impl From<&SubaccountIdTradesTxStatusChannelSchema> for SubaccountIdTradesTxStatusChannelSchema {
     fn from(value: &SubaccountIdTradesTxStatusChannelSchema) -> Self {
         value.clone()
     }
@@ -277,7 +254,8 @@ pub struct SubaccountIdTradesTxStatusNotificationParamsSchema {
     pub data: Vec<TradeResponseSchema>,
 }
 impl From<&SubaccountIdTradesTxStatusNotificationParamsSchema>
-for SubaccountIdTradesTxStatusNotificationParamsSchema {
+    for SubaccountIdTradesTxStatusNotificationParamsSchema
+{
     fn from(value: &SubaccountIdTradesTxStatusNotificationParamsSchema) -> Self {
         value.clone()
     }
@@ -315,7 +293,8 @@ pub struct SubaccountIdTradesTxStatusNotificationSchema {
     pub params: SubaccountIdTradesTxStatusNotificationParamsSchema,
 }
 impl From<&SubaccountIdTradesTxStatusNotificationSchema>
-for SubaccountIdTradesTxStatusNotificationSchema {
+    for SubaccountIdTradesTxStatusNotificationSchema
+{
     fn from(value: &SubaccountIdTradesTxStatusNotificationSchema) -> Self {
         value.clone()
     }
@@ -353,8 +332,7 @@ pub struct SubaccountIdTradesTxStatusPubSubSchema {
     pub channel_params: SubaccountIdTradesTxStatusChannelSchema,
     pub notification: SubaccountIdTradesTxStatusNotificationSchema,
 }
-impl From<&SubaccountIdTradesTxStatusPubSubSchema>
-for SubaccountIdTradesTxStatusPubSubSchema {
+impl From<&SubaccountIdTradesTxStatusPubSubSchema> for SubaccountIdTradesTxStatusPubSubSchema {
     fn from(value: &SubaccountIdTradesTxStatusPubSubSchema) -> Self {
         value.clone()
     }
@@ -571,18 +549,7 @@ impl From<&TradeResponseSchema> for TradeResponseSchema {
 }*/
 /// ```
 /// </details>
-#[derive(
-    Clone,
-    Copy,
-    Debug,
-    Deserialize,
-    Eq,
-    Hash,
-    Ord,
-    PartialEq,
-    PartialOrd,
-    Serialize
-)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
 pub enum TxStatus {
     #[serde(rename = "settled")]
     Settled,

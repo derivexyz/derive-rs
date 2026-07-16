@@ -1,11 +1,11 @@
 use crate::json_rpc::http_rpc;
 use anyhow::Result;
 use bigdecimal::{BigDecimal, RoundingMode};
-use ethers::prelude::{I256, U256};
-use orderbook_types::generated::public_get_transaction::{
+use derive_types::generated::public_get_transaction::{
     PublicGetTransactionParamsSchema, PublicGetTransactionResponseSchema,
     PublicGetTransactionResultSchema, Status,
 };
+use ethers::prelude::{I256, U256};
 use std::str::FromStr;
 use uuid::Uuid;
 

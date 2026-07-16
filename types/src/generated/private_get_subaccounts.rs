@@ -1,7 +1,7 @@
 #![allow(unused_variables)]
 #![allow(unused_imports)]
-use serde::{Deserialize, Serialize};
 use bigdecimal;
+use serde::{Deserialize, Serialize};
 use uuid;
 ///Get all subaccounts of an account / wallet
 ///
@@ -190,8 +190,7 @@ pub enum PrivateGetSubaccountsRequestSchemaId {
     Variant0(String),
     Variant1(i64),
 }
-impl From<&PrivateGetSubaccountsRequestSchemaId>
-for PrivateGetSubaccountsRequestSchemaId {
+impl From<&PrivateGetSubaccountsRequestSchemaId> for PrivateGetSubaccountsRequestSchemaId {
     fn from(value: &PrivateGetSubaccountsRequestSchemaId) -> Self {
         value.clone()
     }
@@ -311,8 +310,7 @@ pub enum PrivateGetSubaccountsResponseSchemaId {
     Variant0(String),
     Variant1(i64),
 }
-impl From<&PrivateGetSubaccountsResponseSchemaId>
-for PrivateGetSubaccountsResponseSchemaId {
+impl From<&PrivateGetSubaccountsResponseSchemaId> for PrivateGetSubaccountsResponseSchemaId {
     fn from(value: &PrivateGetSubaccountsResponseSchemaId) -> Self {
         value.clone()
     }

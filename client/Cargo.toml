@@ -1,5 +1,5 @@
 [package]
-name = "lyra-client"
+name = "derive-rs"
 version = "0.1.0"
 edition = "2021"
 
@@ -7,7 +7,7 @@ edition = "2021"
 
 [dependencies]
 # internal
-orderbook-types = { version = "0.0.1", path = "../orderbook-types" }
+derive-types = { version = "0.0.1", path = "../types" }
 
 reqwest = { version = "0.12", features = ["json"] }
 tokio = { version = "1", features = ["full"] }

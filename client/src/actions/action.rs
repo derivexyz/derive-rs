@@ -1,16 +1,16 @@
 use crate::actions::helpers::ModuleData;
 use anyhow::Result;
 use bigdecimal::BigDecimal;
+pub use derive_types::types::orders::{
+    Direction, LiquidityRole, OrderParams, OrderResponse, OrderStatus, OrderType, ReplaceParams,
+    TimeInForce,
+};
 use ethers::abi::{AbiDecode, AbiEncode};
 use ethers::prelude::{
     Address, EthAbiCodec, EthAbiType, LocalWallet, Signature, Signer, I256, U256,
 };
 use ethers::utils::hex;
 use log::debug;
-pub use orderbook_types::types::orders::{
-    Direction, LiquidityRole, OrderParams, OrderResponse, OrderStatus, OrderType, ReplaceParams,
-    TimeInForce,
-};
 use serde::Deserialize;
 
 #[derive(Clone, Debug, Default, PartialEq, EthAbiType, EthAbiCodec)]

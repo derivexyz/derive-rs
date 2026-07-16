@@ -1,5 +1,5 @@
+pub use derive_types::generated::private_get_subaccount::MarginType;
 use ethers::prelude::Address;
-pub use orderbook_types::generated::private_get_subaccount::MarginType;
 
 pub trait ModuleData {
     fn address(&self) -> Address;

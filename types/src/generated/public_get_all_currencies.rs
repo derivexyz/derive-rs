@@ -1,7 +1,7 @@
 #![allow(unused_variables)]
 #![allow(unused_imports)]
-use serde::{Deserialize, Serialize};
 use bigdecimal;
+use serde::{Deserialize, Serialize};
 use uuid;
 ///CurrencyResponseSchema
 ///
@@ -232,8 +232,7 @@ pub enum PublicGetAllCurrenciesRequestSchemaId {
     Variant0(String),
     Variant1(i64),
 }
-impl From<&PublicGetAllCurrenciesRequestSchemaId>
-for PublicGetAllCurrenciesRequestSchemaId {
+impl From<&PublicGetAllCurrenciesRequestSchemaId> for PublicGetAllCurrenciesRequestSchemaId {
     fn from(value: &PublicGetAllCurrenciesRequestSchemaId) -> Self {
         value.clone()
     }
@@ -327,8 +326,7 @@ pub struct PublicGetAllCurrenciesResponseSchema {
     ///
     pub result: Vec<CurrencyResponseSchema>,
 }
-impl From<&PublicGetAllCurrenciesResponseSchema>
-for PublicGetAllCurrenciesResponseSchema {
+impl From<&PublicGetAllCurrenciesResponseSchema> for PublicGetAllCurrenciesResponseSchema {
     fn from(value: &PublicGetAllCurrenciesResponseSchema) -> Self {
         value.clone()
     }
@@ -358,8 +356,7 @@ pub enum PublicGetAllCurrenciesResponseSchemaId {
     Variant0(String),
     Variant1(i64),
 }
-impl From<&PublicGetAllCurrenciesResponseSchemaId>
-for PublicGetAllCurrenciesResponseSchemaId {
+impl From<&PublicGetAllCurrenciesResponseSchemaId> for PublicGetAllCurrenciesResponseSchemaId {
     fn from(value: &PublicGetAllCurrenciesResponseSchemaId) -> Self {
         value.clone()
     }

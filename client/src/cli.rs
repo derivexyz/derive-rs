@@ -20,17 +20,17 @@ use crossterm::{
 
 use crate::utils::await_tx_settlement;
 use crossterm::event::KeyEvent;
-use log::{error, info, warn};
-use orderbook_types::generated::channel_orderbook_instrument_name_group_depth::OrderbookInstrumentNameGroupDepthPublisherDataSchema;
-use orderbook_types::generated::private_get_subaccount::{
+use derive_types::generated::channel_orderbook_instrument_name_group_depth::OrderbookInstrumentNameGroupDepthPublisherDataSchema;
+use derive_types::generated::private_get_subaccount::{
     PrivateGetSubaccount, PrivateGetSubaccountParamsSchema, PrivateGetSubaccountResponseSchema,
 };
-use orderbook_types::generated::public_login::PublicLoginResponseSchema;
-use orderbook_types::types::liquidations::{
+use derive_types::generated::public_login::PublicLoginResponseSchema;
+use derive_types::types::liquidations::{
     AuctionState, AuctionsWatchData, AuctionsWatchResultSchema,
 };
-use orderbook_types::types::rfqs::{PollQuotesResponse, PollQuotesResult, QuoteResultPublic};
-use orderbook_types::types::tickers::{InstrumentTicker, TickerResponse};
+use derive_types::types::rfqs::{PollQuotesResponse, PollQuotesResult, QuoteResultPublic};
+use derive_types::types::tickers::{InstrumentTicker, TickerResponse};
+use log::{error, info, warn};
 use serde_json::{json, Value};
 use std::collections::HashMap;
 use std::io::stdout;

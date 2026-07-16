@@ -1,7 +1,7 @@
 #![allow(unused_variables)]
 #![allow(unused_imports)]
-use serde::{Deserialize, Serialize};
 use bigdecimal;
+use serde::{Deserialize, Serialize};
 use uuid;
 ///Get subaccount withdrawal history.
 ///
@@ -76,8 +76,7 @@ pub struct PrivateGetWithdrawalHistoryJsonrpcSchema {
     pub request: PrivateGetWithdrawalHistoryRequestSchema,
     pub response: PrivateGetWithdrawalHistoryResponseSchema,
 }
-impl From<&PrivateGetWithdrawalHistoryJsonrpcSchema>
-for PrivateGetWithdrawalHistoryJsonrpcSchema {
+impl From<&PrivateGetWithdrawalHistoryJsonrpcSchema> for PrivateGetWithdrawalHistoryJsonrpcSchema {
     fn from(value: &PrivateGetWithdrawalHistoryJsonrpcSchema) -> Self {
         value.clone()
     }
@@ -127,8 +126,7 @@ pub struct PrivateGetWithdrawalHistoryParamsSchema {
     ///Subaccount id
     pub subaccount_id: i64,
 }
-impl From<&PrivateGetWithdrawalHistoryParamsSchema>
-for PrivateGetWithdrawalHistoryParamsSchema {
+impl From<&PrivateGetWithdrawalHistoryParamsSchema> for PrivateGetWithdrawalHistoryParamsSchema {
     fn from(value: &PrivateGetWithdrawalHistoryParamsSchema) -> Self {
         value.clone()
     }
@@ -180,8 +178,7 @@ pub struct PrivateGetWithdrawalHistoryRequestSchema {
     pub method: String,
     pub params: PrivateGetWithdrawalHistoryParamsSchema,
 }
-impl From<&PrivateGetWithdrawalHistoryRequestSchema>
-for PrivateGetWithdrawalHistoryRequestSchema {
+impl From<&PrivateGetWithdrawalHistoryRequestSchema> for PrivateGetWithdrawalHistoryRequestSchema {
     fn from(value: &PrivateGetWithdrawalHistoryRequestSchema) -> Self {
         value.clone()
     }
@@ -212,7 +209,8 @@ pub enum PrivateGetWithdrawalHistoryRequestSchemaId {
     Variant1(i64),
 }
 impl From<&PrivateGetWithdrawalHistoryRequestSchemaId>
-for PrivateGetWithdrawalHistoryRequestSchemaId {
+    for PrivateGetWithdrawalHistoryRequestSchemaId
+{
     fn from(value: &PrivateGetWithdrawalHistoryRequestSchemaId) -> Self {
         value.clone()
     }
@@ -303,7 +301,8 @@ pub struct PrivateGetWithdrawalHistoryResponseSchema {
     pub result: PrivateGetWithdrawalHistoryResultSchema,
 }
 impl From<&PrivateGetWithdrawalHistoryResponseSchema>
-for PrivateGetWithdrawalHistoryResponseSchema {
+    for PrivateGetWithdrawalHistoryResponseSchema
+{
     fn from(value: &PrivateGetWithdrawalHistoryResponseSchema) -> Self {
         value.clone()
     }
@@ -334,7 +333,8 @@ pub enum PrivateGetWithdrawalHistoryResponseSchemaId {
     Variant1(i64),
 }
 impl From<&PrivateGetWithdrawalHistoryResponseSchemaId>
-for PrivateGetWithdrawalHistoryResponseSchemaId {
+    for PrivateGetWithdrawalHistoryResponseSchemaId
+{
     fn from(value: &PrivateGetWithdrawalHistoryResponseSchemaId) -> Self {
         value.clone()
     }
@@ -414,8 +414,7 @@ pub struct PrivateGetWithdrawalHistoryResultSchema {
     ///List of withdrawals
     pub events: Vec<WithdrawalSchema>,
 }
-impl From<&PrivateGetWithdrawalHistoryResultSchema>
-for PrivateGetWithdrawalHistoryResultSchema {
+impl From<&PrivateGetWithdrawalHistoryResultSchema> for PrivateGetWithdrawalHistoryResultSchema {
     fn from(value: &PrivateGetWithdrawalHistoryResultSchema) -> Self {
         value.clone()
     }

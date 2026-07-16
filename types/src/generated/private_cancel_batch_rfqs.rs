@@ -1,7 +1,7 @@
 #![allow(unused_variables)]
 #![allow(unused_imports)]
-use serde::{Deserialize, Serialize};
 use bigdecimal;
+use serde::{Deserialize, Serialize};
 use uuid;
 /**Cancels RFQs given optional filters. If no filters are provided, all RFQs for the subaccount are cancelled.
 All filters are combined using `AND` logic, so mutually exclusive filters will result in no RFQs being cancelled.*/
@@ -224,8 +224,7 @@ pub enum PrivateCancelBatchRfqsRequestSchemaId {
     Variant0(String),
     Variant1(i64),
 }
-impl From<&PrivateCancelBatchRfqsRequestSchemaId>
-for PrivateCancelBatchRfqsRequestSchemaId {
+impl From<&PrivateCancelBatchRfqsRequestSchemaId> for PrivateCancelBatchRfqsRequestSchemaId {
     fn from(value: &PrivateCancelBatchRfqsRequestSchemaId) -> Self {
         value.clone()
     }
@@ -315,8 +314,7 @@ pub struct PrivateCancelBatchRfqsResponseSchema {
     ///
     pub result: PrivateCancelBatchRfqsResultSchema,
 }
-impl From<&PrivateCancelBatchRfqsResponseSchema>
-for PrivateCancelBatchRfqsResponseSchema {
+impl From<&PrivateCancelBatchRfqsResponseSchema> for PrivateCancelBatchRfqsResponseSchema {
     fn from(value: &PrivateCancelBatchRfqsResponseSchema) -> Self {
         value.clone()
     }
@@ -346,8 +344,7 @@ pub enum PrivateCancelBatchRfqsResponseSchemaId {
     Variant0(String),
     Variant1(i64),
 }
-impl From<&PrivateCancelBatchRfqsResponseSchemaId>
-for PrivateCancelBatchRfqsResponseSchemaId {
+impl From<&PrivateCancelBatchRfqsResponseSchemaId> for PrivateCancelBatchRfqsResponseSchemaId {
     fn from(value: &PrivateCancelBatchRfqsResponseSchemaId) -> Self {
         value.clone()
     }

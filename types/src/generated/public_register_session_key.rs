@@ -1,7 +1,7 @@
 #![allow(unused_variables)]
 #![allow(unused_imports)]
-use serde::{Deserialize, Serialize};
 use bigdecimal;
+use serde::{Deserialize, Serialize};
 use uuid;
 ///Register or update expiry of an existing session key.
 ///
@@ -76,8 +76,7 @@ pub struct PublicRegisterSessionKeyJsonrpcSchema {
     pub request: PublicRegisterSessionKeyRequestSchema,
     pub response: PublicRegisterSessionKeyResponseSchema,
 }
-impl From<&PublicRegisterSessionKeyJsonrpcSchema>
-for PublicRegisterSessionKeyJsonrpcSchema {
+impl From<&PublicRegisterSessionKeyJsonrpcSchema> for PublicRegisterSessionKeyJsonrpcSchema {
     fn from(value: &PublicRegisterSessionKeyJsonrpcSchema) -> Self {
         value.clone()
     }
@@ -141,8 +140,7 @@ pub struct PublicRegisterSessionKeyParamsSchema {
     ///Ethereum wallet address of account
     pub wallet: String,
 }
-impl From<&PublicRegisterSessionKeyParamsSchema>
-for PublicRegisterSessionKeyParamsSchema {
+impl From<&PublicRegisterSessionKeyParamsSchema> for PublicRegisterSessionKeyParamsSchema {
     fn from(value: &PublicRegisterSessionKeyParamsSchema) -> Self {
         value.clone()
     }
@@ -194,8 +192,7 @@ pub struct PublicRegisterSessionKeyRequestSchema {
     pub method: String,
     pub params: PublicRegisterSessionKeyParamsSchema,
 }
-impl From<&PublicRegisterSessionKeyRequestSchema>
-for PublicRegisterSessionKeyRequestSchema {
+impl From<&PublicRegisterSessionKeyRequestSchema> for PublicRegisterSessionKeyRequestSchema {
     fn from(value: &PublicRegisterSessionKeyRequestSchema) -> Self {
         value.clone()
     }
@@ -225,8 +222,7 @@ pub enum PublicRegisterSessionKeyRequestSchemaId {
     Variant0(String),
     Variant1(i64),
 }
-impl From<&PublicRegisterSessionKeyRequestSchemaId>
-for PublicRegisterSessionKeyRequestSchemaId {
+impl From<&PublicRegisterSessionKeyRequestSchemaId> for PublicRegisterSessionKeyRequestSchemaId {
     fn from(value: &PublicRegisterSessionKeyRequestSchemaId) -> Self {
         value.clone()
     }
@@ -316,8 +312,7 @@ pub struct PublicRegisterSessionKeyResponseSchema {
     ///
     pub result: PublicRegisterSessionKeyResultSchema,
 }
-impl From<&PublicRegisterSessionKeyResponseSchema>
-for PublicRegisterSessionKeyResponseSchema {
+impl From<&PublicRegisterSessionKeyResponseSchema> for PublicRegisterSessionKeyResponseSchema {
     fn from(value: &PublicRegisterSessionKeyResponseSchema) -> Self {
         value.clone()
     }
@@ -347,8 +342,7 @@ pub enum PublicRegisterSessionKeyResponseSchemaId {
     Variant0(String),
     Variant1(i64),
 }
-impl From<&PublicRegisterSessionKeyResponseSchemaId>
-for PublicRegisterSessionKeyResponseSchemaId {
+impl From<&PublicRegisterSessionKeyResponseSchemaId> for PublicRegisterSessionKeyResponseSchemaId {
     fn from(value: &PublicRegisterSessionKeyResponseSchemaId) -> Self {
         value.clone()
     }
@@ -440,8 +434,7 @@ pub struct PublicRegisterSessionKeyResultSchema {
     ///ID to lookup status of transaction
     pub transaction_id: uuid::Uuid,
 }
-impl From<&PublicRegisterSessionKeyResultSchema>
-for PublicRegisterSessionKeyResultSchema {
+impl From<&PublicRegisterSessionKeyResultSchema> for PublicRegisterSessionKeyResultSchema {
     fn from(value: &PublicRegisterSessionKeyResultSchema) -> Self {
         value.clone()
     }

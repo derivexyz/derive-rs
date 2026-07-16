@@ -1,41 +1,41 @@
 use anyhow::format_err;
 use anyhow::{Error, Result};
 use bigdecimal::BigDecimal;
+use derive_types::generated::private_cancel::{
+    PrivateCancelParamsSchema, PrivateCancelResponseSchema,
+};
+use derive_types::generated::private_cancel_all::PrivateCancelAllParamsSchema;
+use derive_types::generated::private_cancel_batch_quotes::{
+    PrivateCancelBatchQuotesParamsSchema, PrivateCancelBatchQuotesResponseSchema,
+};
+use derive_types::generated::private_cancel_by_instrument::{
+    PrivateCancelByInstrumentParamsSchema, PrivateCancelByInstrumentResponseSchema,
+};
+use derive_types::generated::private_cancel_by_nonce::{
+    PrivateCancelByNonceParamsSchema, PrivateCancelByNonceResponseSchema,
+};
+use derive_types::generated::private_deposit::PrivateDepositResponseSchema;
+use derive_types::generated::private_get_subaccount::MarginType;
+use derive_types::generated::private_set_cancel_on_disconnect::{
+    PrivateSetCancelOnDisconnectParamsSchema, PrivateSetCancelOnDisconnectResponseSchema,
+};
+use derive_types::generated::private_withdraw::PrivateWithdrawResponseSchema;
+use derive_types::generated::public_login::PublicLoginResponseSchema;
+use derive_types::generated::subscribe::{SubscribeParamsSchema, SubscribeResponseSchema};
+use derive_types::types::liquidations::{
+    AuctionDetailsSchema, LiquidationParams, SendLiquidateResponse,
+};
+use derive_types::types::orders::{ReplaceResponse, SendOrderResponse};
+use derive_types::types::rfqs::{
+    ExecuteQuoteParams, QuoteParams, QuoteResultPublic, ReplaceQuoteResponse,
+};
+use derive_types::types::tickers::InstrumentTicker;
+use derive_types::types::RPCErrorResponse;
 use ethers::prelude::{LocalWallet, Signer};
 use ethers::utils::hex;
 use futures::channel;
 use futures_util::{FutureExt, SinkExt, StreamExt};
 use log::{debug, error, info, warn};
-use orderbook_types::generated::private_cancel::{
-    PrivateCancelParamsSchema, PrivateCancelResponseSchema,
-};
-use orderbook_types::generated::private_cancel_all::PrivateCancelAllParamsSchema;
-use orderbook_types::generated::private_cancel_batch_quotes::{
-    PrivateCancelBatchQuotesParamsSchema, PrivateCancelBatchQuotesResponseSchema,
-};
-use orderbook_types::generated::private_cancel_by_instrument::{
-    PrivateCancelByInstrumentParamsSchema, PrivateCancelByInstrumentResponseSchema,
-};
-use orderbook_types::generated::private_cancel_by_nonce::{
-    PrivateCancelByNonceParamsSchema, PrivateCancelByNonceResponseSchema,
-};
-use orderbook_types::generated::private_deposit::PrivateDepositResponseSchema;
-use orderbook_types::generated::private_get_subaccount::MarginType;
-use orderbook_types::generated::private_set_cancel_on_disconnect::{
-    PrivateSetCancelOnDisconnectParamsSchema, PrivateSetCancelOnDisconnectResponseSchema,
-};
-use orderbook_types::generated::private_withdraw::PrivateWithdrawResponseSchema;
-use orderbook_types::generated::public_login::PublicLoginResponseSchema;
-use orderbook_types::generated::subscribe::{SubscribeParamsSchema, SubscribeResponseSchema};
-use orderbook_types::types::liquidations::{
-    AuctionDetailsSchema, LiquidationParams, SendLiquidateResponse,
-};
-use orderbook_types::types::orders::{ReplaceResponse, SendOrderResponse};
-use orderbook_types::types::rfqs::{
-    ExecuteQuoteParams, QuoteParams, QuoteResultPublic, ReplaceQuoteResponse,
-};
-use orderbook_types::types::tickers::InstrumentTicker;
-use orderbook_types::types::RPCErrorResponse;
 use reqwest::{header::HeaderMap, Client};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
@@ -634,13 +634,8 @@ impl WsClientExt for WsClient {
         label: Option<String>,
         quote_id: Option<Uuid>,
     ) -> Result<Response<PrivateCancelBatchQuotesResponseSchema>> {
-        let cancel_params = PrivateCancelBatchQuotesParamsSchema {
-            subaccount_id,
-            rfq_id,
-            nonce,
-            label,
-            quote_id,
-        };
+        let cancel_params =
+            PrivateCancelBatchQuotesParamsSchema { subaccount_id, rfq_id, nonce, label, quote_id };
         self.send_rpc("private/cancel_batch_quotes", cancel_params).await
     }
     async fn cancel_quotes_nowait(
@@ -651,13 +646,8 @@ impl WsClientExt for WsClient {
         label: Option<String>,
         quote_id: Option<Uuid>,
     ) -> Result<Uuid> {
-        let cancel_params = PrivateCancelBatchQuotesParamsSchema {
-            subaccount_id,
-            rfq_id,
-            nonce,
-            label,
-            quote_id,
-        };
+        let cancel_params =
+            PrivateCancelBatchQuotesParamsSchema { subaccount_id, rfq_id, nonce, label, quote_id };
         WsClientState::send_to_socket(self, "private/cancel_batch_quotes", cancel_params).await
     }
     async fn subscribe<Fut, Data>(
@@ -828,7 +818,7 @@ impl WsClientState {
         quote_id_to_cancel: Option<Uuid>,
         nonce_to_cancel: Option<i64>,
         args: QuoteArgs,
-    ) -> Result<orderbook_types::types::rfqs::ReplaceQuoteParams> {
+    ) -> Result<derive_types::types::rfqs::ReplaceQuoteParams> {
         let client_guard = client.lock().await;
         if let Some(signer) = &client_guard.signer {
             Ok(new_replace_quote_params(

@@ -1,7 +1,7 @@
 #![allow(unused_variables)]
 #![allow(unused_imports)]
-use serde::{Deserialize, Serialize};
 use bigdecimal;
+use serde::{Deserialize, Serialize};
 use uuid;
 ///RPC to mark specified notifications as seen for a given subaccount.
 ///
@@ -76,8 +76,7 @@ pub struct PrivateUpdateNotificationsJsonrpcSchema {
     pub request: PrivateUpdateNotificationsRequestSchema,
     pub response: PrivateUpdateNotificationsResponseSchema,
 }
-impl From<&PrivateUpdateNotificationsJsonrpcSchema>
-for PrivateUpdateNotificationsJsonrpcSchema {
+impl From<&PrivateUpdateNotificationsJsonrpcSchema> for PrivateUpdateNotificationsJsonrpcSchema {
     fn from(value: &PrivateUpdateNotificationsJsonrpcSchema) -> Self {
         value.clone()
     }
@@ -135,8 +134,7 @@ pub struct PrivateUpdateNotificationsParamsSchema {
     ///Subaccount_id
     pub subaccount_id: i64,
 }
-impl From<&PrivateUpdateNotificationsParamsSchema>
-for PrivateUpdateNotificationsParamsSchema {
+impl From<&PrivateUpdateNotificationsParamsSchema> for PrivateUpdateNotificationsParamsSchema {
     fn from(value: &PrivateUpdateNotificationsParamsSchema) -> Self {
         value.clone()
     }
@@ -188,8 +186,7 @@ pub struct PrivateUpdateNotificationsRequestSchema {
     pub method: String,
     pub params: PrivateUpdateNotificationsParamsSchema,
 }
-impl From<&PrivateUpdateNotificationsRequestSchema>
-for PrivateUpdateNotificationsRequestSchema {
+impl From<&PrivateUpdateNotificationsRequestSchema> for PrivateUpdateNotificationsRequestSchema {
     fn from(value: &PrivateUpdateNotificationsRequestSchema) -> Self {
         value.clone()
     }
@@ -220,7 +217,8 @@ pub enum PrivateUpdateNotificationsRequestSchemaId {
     Variant1(i64),
 }
 impl From<&PrivateUpdateNotificationsRequestSchemaId>
-for PrivateUpdateNotificationsRequestSchemaId {
+    for PrivateUpdateNotificationsRequestSchemaId
+{
     fn from(value: &PrivateUpdateNotificationsRequestSchemaId) -> Self {
         value.clone()
     }
@@ -310,8 +308,7 @@ pub struct PrivateUpdateNotificationsResponseSchema {
     ///
     pub result: PrivateUpdateNotificationsResultSchema,
 }
-impl From<&PrivateUpdateNotificationsResponseSchema>
-for PrivateUpdateNotificationsResponseSchema {
+impl From<&PrivateUpdateNotificationsResponseSchema> for PrivateUpdateNotificationsResponseSchema {
     fn from(value: &PrivateUpdateNotificationsResponseSchema) -> Self {
         value.clone()
     }
@@ -342,7 +339,8 @@ pub enum PrivateUpdateNotificationsResponseSchemaId {
     Variant1(i64),
 }
 impl From<&PrivateUpdateNotificationsResponseSchemaId>
-for PrivateUpdateNotificationsResponseSchemaId {
+    for PrivateUpdateNotificationsResponseSchemaId
+{
     fn from(value: &PrivateUpdateNotificationsResponseSchemaId) -> Self {
         value.clone()
     }
@@ -417,8 +415,7 @@ pub struct PrivateUpdateNotificationsResultSchema {
     ///Number of notifications marked as seen
     pub updated_count: i64,
 }
-impl From<&PrivateUpdateNotificationsResultSchema>
-for PrivateUpdateNotificationsResultSchema {
+impl From<&PrivateUpdateNotificationsResultSchema> for PrivateUpdateNotificationsResultSchema {
     fn from(value: &PrivateUpdateNotificationsResultSchema) -> Self {
         value.clone()
     }
@@ -441,18 +438,7 @@ for PrivateUpdateNotificationsResultSchema {
 }*/
 /// ```
 /// </details>
-#[derive(
-    Clone,
-    Copy,
-    Debug,
-    Deserialize,
-    Eq,
-    Hash,
-    Ord,
-    PartialEq,
-    PartialOrd,
-    Serialize
-)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
 pub enum Status {
     #[serde(rename = "unseen")]
     Unseen,

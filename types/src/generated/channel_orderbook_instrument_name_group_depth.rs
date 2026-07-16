@@ -1,7 +1,7 @@
 #![allow(unused_variables)]
 #![allow(unused_imports)]
-use serde::{Deserialize, Serialize};
 use bigdecimal;
+use serde::{Deserialize, Serialize};
 use uuid;
 ///Number of price levels returned
 ///
@@ -21,18 +21,7 @@ use uuid;
 }*/
 /// ```
 /// </details>
-#[derive(
-    Clone,
-    Copy,
-    Debug,
-    Deserialize,
-    Eq,
-    Hash,
-    Ord,
-    PartialEq,
-    PartialOrd,
-    Serialize
-)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
 pub enum Depth {
     #[serde(rename = "1")]
     _1,
@@ -105,18 +94,7 @@ impl std::convert::TryFrom<String> for Depth {
 }*/
 /// ```
 /// </details>
-#[derive(
-    Clone,
-    Copy,
-    Debug,
-    Deserialize,
-    Eq,
-    Hash,
-    Ord,
-    PartialEq,
-    PartialOrd,
-    Serialize
-)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
 pub enum Group {
     #[serde(rename = "1")]
     _1,
@@ -186,17 +164,14 @@ impl std::convert::TryFrom<String> for Group {
 /// ```
 /// </details>
 #[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct OrderbookInstrumentNameGroupDepth(
-    pub OrderbookInstrumentNameGroupDepthPubSubSchema,
-);
+pub struct OrderbookInstrumentNameGroupDepth(pub OrderbookInstrumentNameGroupDepthPubSubSchema);
 impl std::ops::Deref for OrderbookInstrumentNameGroupDepth {
     type Target = OrderbookInstrumentNameGroupDepthPubSubSchema;
     fn deref(&self) -> &OrderbookInstrumentNameGroupDepthPubSubSchema {
         &self.0
     }
 }
-impl From<OrderbookInstrumentNameGroupDepth>
-for OrderbookInstrumentNameGroupDepthPubSubSchema {
+impl From<OrderbookInstrumentNameGroupDepth> for OrderbookInstrumentNameGroupDepthPubSubSchema {
     fn from(value: OrderbookInstrumentNameGroupDepth) -> Self {
         value.0
     }
@@ -206,8 +181,7 @@ impl From<&OrderbookInstrumentNameGroupDepth> for OrderbookInstrumentNameGroupDe
         value.clone()
     }
 }
-impl From<OrderbookInstrumentNameGroupDepthPubSubSchema>
-for OrderbookInstrumentNameGroupDepth {
+impl From<OrderbookInstrumentNameGroupDepthPubSubSchema> for OrderbookInstrumentNameGroupDepth {
     fn from(value: OrderbookInstrumentNameGroupDepthPubSubSchema) -> Self {
         Self(value)
     }
@@ -267,7 +241,8 @@ pub struct OrderbookInstrumentNameGroupDepthChannelSchema {
     pub instrument_name: String,
 }
 impl From<&OrderbookInstrumentNameGroupDepthChannelSchema>
-for OrderbookInstrumentNameGroupDepthChannelSchema {
+    for OrderbookInstrumentNameGroupDepthChannelSchema
+{
     fn from(value: &OrderbookInstrumentNameGroupDepthChannelSchema) -> Self {
         value.clone()
     }
@@ -307,7 +282,8 @@ pub struct OrderbookInstrumentNameGroupDepthNotificationParamsSchema {
     pub data: OrderbookInstrumentNameGroupDepthPublisherDataSchema,
 }
 impl From<&OrderbookInstrumentNameGroupDepthNotificationParamsSchema>
-for OrderbookInstrumentNameGroupDepthNotificationParamsSchema {
+    for OrderbookInstrumentNameGroupDepthNotificationParamsSchema
+{
     fn from(value: &OrderbookInstrumentNameGroupDepthNotificationParamsSchema) -> Self {
         value.clone()
     }
@@ -345,7 +321,8 @@ pub struct OrderbookInstrumentNameGroupDepthNotificationSchema {
     pub params: OrderbookInstrumentNameGroupDepthNotificationParamsSchema,
 }
 impl From<&OrderbookInstrumentNameGroupDepthNotificationSchema>
-for OrderbookInstrumentNameGroupDepthNotificationSchema {
+    for OrderbookInstrumentNameGroupDepthNotificationSchema
+{
     fn from(value: &OrderbookInstrumentNameGroupDepthNotificationSchema) -> Self {
         value.clone()
     }
@@ -384,7 +361,8 @@ pub struct OrderbookInstrumentNameGroupDepthPubSubSchema {
     pub notification: OrderbookInstrumentNameGroupDepthNotificationSchema,
 }
 impl From<&OrderbookInstrumentNameGroupDepthPubSubSchema>
-for OrderbookInstrumentNameGroupDepthPubSubSchema {
+    for OrderbookInstrumentNameGroupDepthPubSubSchema
+{
     fn from(value: &OrderbookInstrumentNameGroupDepthPubSubSchema) -> Self {
         value.clone()
     }
@@ -467,7 +445,8 @@ pub struct OrderbookInstrumentNameGroupDepthPublisherDataSchema {
     pub timestamp: i64,
 }
 impl From<&OrderbookInstrumentNameGroupDepthPublisherDataSchema>
-for OrderbookInstrumentNameGroupDepthPublisherDataSchema {
+    for OrderbookInstrumentNameGroupDepthPublisherDataSchema
+{
     fn from(value: &OrderbookInstrumentNameGroupDepthPublisherDataSchema) -> Self {
         value.clone()
     }

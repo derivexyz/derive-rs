@@ -1,7 +1,7 @@
 #![allow(unused_variables)]
 #![allow(unused_imports)]
-use serde::{Deserialize, Serialize};
 use bigdecimal;
+use serde::{Deserialize, Serialize};
 use uuid;
 /**Get spot feed history by currency
 
@@ -78,8 +78,7 @@ pub struct PublicGetSpotFeedHistoryJsonrpcSchema {
     pub request: PublicGetSpotFeedHistoryRequestSchema,
     pub response: PublicGetSpotFeedHistoryResponseSchema,
 }
-impl From<&PublicGetSpotFeedHistoryJsonrpcSchema>
-for PublicGetSpotFeedHistoryJsonrpcSchema {
+impl From<&PublicGetSpotFeedHistoryJsonrpcSchema> for PublicGetSpotFeedHistoryJsonrpcSchema {
     fn from(value: &PublicGetSpotFeedHistoryJsonrpcSchema) -> Self {
         value.clone()
     }
@@ -135,8 +134,7 @@ pub struct PublicGetSpotFeedHistoryParamsSchema {
     ///Start timestamp
     pub start_timestamp: i64,
 }
-impl From<&PublicGetSpotFeedHistoryParamsSchema>
-for PublicGetSpotFeedHistoryParamsSchema {
+impl From<&PublicGetSpotFeedHistoryParamsSchema> for PublicGetSpotFeedHistoryParamsSchema {
     fn from(value: &PublicGetSpotFeedHistoryParamsSchema) -> Self {
         value.clone()
     }
@@ -188,8 +186,7 @@ pub struct PublicGetSpotFeedHistoryRequestSchema {
     pub method: String,
     pub params: PublicGetSpotFeedHistoryParamsSchema,
 }
-impl From<&PublicGetSpotFeedHistoryRequestSchema>
-for PublicGetSpotFeedHistoryRequestSchema {
+impl From<&PublicGetSpotFeedHistoryRequestSchema> for PublicGetSpotFeedHistoryRequestSchema {
     fn from(value: &PublicGetSpotFeedHistoryRequestSchema) -> Self {
         value.clone()
     }
@@ -219,8 +216,7 @@ pub enum PublicGetSpotFeedHistoryRequestSchemaId {
     Variant0(String),
     Variant1(i64),
 }
-impl From<&PublicGetSpotFeedHistoryRequestSchemaId>
-for PublicGetSpotFeedHistoryRequestSchemaId {
+impl From<&PublicGetSpotFeedHistoryRequestSchemaId> for PublicGetSpotFeedHistoryRequestSchemaId {
     fn from(value: &PublicGetSpotFeedHistoryRequestSchemaId) -> Self {
         value.clone()
     }
@@ -310,8 +306,7 @@ pub struct PublicGetSpotFeedHistoryResponseSchema {
     ///
     pub result: PublicGetSpotFeedHistoryResultSchema,
 }
-impl From<&PublicGetSpotFeedHistoryResponseSchema>
-for PublicGetSpotFeedHistoryResponseSchema {
+impl From<&PublicGetSpotFeedHistoryResponseSchema> for PublicGetSpotFeedHistoryResponseSchema {
     fn from(value: &PublicGetSpotFeedHistoryResponseSchema) -> Self {
         value.clone()
     }
@@ -341,8 +336,7 @@ pub enum PublicGetSpotFeedHistoryResponseSchemaId {
     Variant0(String),
     Variant1(i64),
 }
-impl From<&PublicGetSpotFeedHistoryResponseSchemaId>
-for PublicGetSpotFeedHistoryResponseSchemaId {
+impl From<&PublicGetSpotFeedHistoryResponseSchemaId> for PublicGetSpotFeedHistoryResponseSchemaId {
     fn from(value: &PublicGetSpotFeedHistoryResponseSchemaId) -> Self {
         value.clone()
     }
@@ -430,8 +424,7 @@ pub struct PublicGetSpotFeedHistoryResultSchema {
     ///Spot feed history
     pub spot_feed_history: Vec<SpotFeedHistoryResponseSchema>,
 }
-impl From<&PublicGetSpotFeedHistoryResultSchema>
-for PublicGetSpotFeedHistoryResultSchema {
+impl From<&PublicGetSpotFeedHistoryResultSchema> for PublicGetSpotFeedHistoryResultSchema {
     fn from(value: &PublicGetSpotFeedHistoryResultSchema) -> Self {
         value.clone()
     }

@@ -1,7 +1,7 @@
 #![allow(unused_variables)]
 #![allow(unused_imports)]
-use serde::{Deserialize, Serialize};
 use bigdecimal;
+use serde::{Deserialize, Serialize};
 use uuid;
 ///Type of asset collateral (currently always `erc20`)
 ///
@@ -20,18 +20,7 @@ use uuid;
 }*/
 /// ```
 /// </details>
-#[derive(
-    Clone,
-    Copy,
-    Debug,
-    Deserialize,
-    Eq,
-    Hash,
-    Ord,
-    PartialEq,
-    PartialOrd,
-    Serialize
-)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
 pub enum AssetType {
     #[serde(rename = "erc20")]
     Erc20,
@@ -386,8 +375,7 @@ pub enum PrivateGetCollateralsRequestSchemaId {
     Variant0(String),
     Variant1(i64),
 }
-impl From<&PrivateGetCollateralsRequestSchemaId>
-for PrivateGetCollateralsRequestSchemaId {
+impl From<&PrivateGetCollateralsRequestSchemaId> for PrivateGetCollateralsRequestSchemaId {
     fn from(value: &PrivateGetCollateralsRequestSchemaId) -> Self {
         value.clone()
     }
@@ -507,8 +495,7 @@ pub enum PrivateGetCollateralsResponseSchemaId {
     Variant0(String),
     Variant1(i64),
 }
-impl From<&PrivateGetCollateralsResponseSchemaId>
-for PrivateGetCollateralsResponseSchemaId {
+impl From<&PrivateGetCollateralsResponseSchemaId> for PrivateGetCollateralsResponseSchemaId {
     fn from(value: &PrivateGetCollateralsResponseSchemaId) -> Self {
         value.clone()
     }

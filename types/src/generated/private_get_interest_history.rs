@@ -1,7 +1,7 @@
 #![allow(unused_variables)]
 #![allow(unused_imports)]
-use serde::{Deserialize, Serialize};
 use bigdecimal;
+use serde::{Deserialize, Serialize};
 use uuid;
 ///InterestPaymentSchema
 ///
@@ -117,8 +117,7 @@ pub struct PrivateGetInterestHistoryJsonrpcSchema {
     pub request: PrivateGetInterestHistoryRequestSchema,
     pub response: PrivateGetInterestHistoryResponseSchema,
 }
-impl From<&PrivateGetInterestHistoryJsonrpcSchema>
-for PrivateGetInterestHistoryJsonrpcSchema {
+impl From<&PrivateGetInterestHistoryJsonrpcSchema> for PrivateGetInterestHistoryJsonrpcSchema {
     fn from(value: &PrivateGetInterestHistoryJsonrpcSchema) -> Self {
         value.clone()
     }
@@ -168,8 +167,7 @@ pub struct PrivateGetInterestHistoryParamsSchema {
     ///Subaccount id
     pub subaccount_id: i64,
 }
-impl From<&PrivateGetInterestHistoryParamsSchema>
-for PrivateGetInterestHistoryParamsSchema {
+impl From<&PrivateGetInterestHistoryParamsSchema> for PrivateGetInterestHistoryParamsSchema {
     fn from(value: &PrivateGetInterestHistoryParamsSchema) -> Self {
         value.clone()
     }
@@ -221,8 +219,7 @@ pub struct PrivateGetInterestHistoryRequestSchema {
     pub method: String,
     pub params: PrivateGetInterestHistoryParamsSchema,
 }
-impl From<&PrivateGetInterestHistoryRequestSchema>
-for PrivateGetInterestHistoryRequestSchema {
+impl From<&PrivateGetInterestHistoryRequestSchema> for PrivateGetInterestHistoryRequestSchema {
     fn from(value: &PrivateGetInterestHistoryRequestSchema) -> Self {
         value.clone()
     }
@@ -252,8 +249,7 @@ pub enum PrivateGetInterestHistoryRequestSchemaId {
     Variant0(String),
     Variant1(i64),
 }
-impl From<&PrivateGetInterestHistoryRequestSchemaId>
-for PrivateGetInterestHistoryRequestSchemaId {
+impl From<&PrivateGetInterestHistoryRequestSchemaId> for PrivateGetInterestHistoryRequestSchemaId {
     fn from(value: &PrivateGetInterestHistoryRequestSchemaId) -> Self {
         value.clone()
     }
@@ -343,8 +339,7 @@ pub struct PrivateGetInterestHistoryResponseSchema {
     ///
     pub result: PrivateGetInterestHistoryResultSchema,
 }
-impl From<&PrivateGetInterestHistoryResponseSchema>
-for PrivateGetInterestHistoryResponseSchema {
+impl From<&PrivateGetInterestHistoryResponseSchema> for PrivateGetInterestHistoryResponseSchema {
     fn from(value: &PrivateGetInterestHistoryResponseSchema) -> Self {
         value.clone()
     }
@@ -375,7 +370,8 @@ pub enum PrivateGetInterestHistoryResponseSchemaId {
     Variant1(i64),
 }
 impl From<&PrivateGetInterestHistoryResponseSchemaId>
-for PrivateGetInterestHistoryResponseSchemaId {
+    for PrivateGetInterestHistoryResponseSchemaId
+{
     fn from(value: &PrivateGetInterestHistoryResponseSchemaId) -> Self {
         value.clone()
     }
@@ -455,8 +451,7 @@ pub struct PrivateGetInterestHistoryResultSchema {
     ///List of interest payments
     pub events: Vec<InterestPaymentSchema>,
 }
-impl From<&PrivateGetInterestHistoryResultSchema>
-for PrivateGetInterestHistoryResultSchema {
+impl From<&PrivateGetInterestHistoryResultSchema> for PrivateGetInterestHistoryResultSchema {
     fn from(value: &PrivateGetInterestHistoryResultSchema) -> Self {
         value.clone()
     }

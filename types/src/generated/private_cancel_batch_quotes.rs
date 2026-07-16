@@ -1,7 +1,7 @@
 #![allow(unused_variables)]
 #![allow(unused_imports)]
-use serde::{Deserialize, Serialize};
 use bigdecimal;
+use serde::{Deserialize, Serialize};
 use uuid;
 /**Cancels quotes given optional filters. If no filters are provided, all quotes by the subaccount are cancelled.
 All filters are combined using `AND` logic, so mutually exclusive filters will result in no quotes being cancelled.*/
@@ -77,8 +77,7 @@ pub struct PrivateCancelBatchQuotesJsonrpcSchema {
     pub request: PrivateCancelBatchQuotesRequestSchema,
     pub response: PrivateCancelBatchQuotesResponseSchema,
 }
-impl From<&PrivateCancelBatchQuotesJsonrpcSchema>
-for PrivateCancelBatchQuotesJsonrpcSchema {
+impl From<&PrivateCancelBatchQuotesJsonrpcSchema> for PrivateCancelBatchQuotesJsonrpcSchema {
     fn from(value: &PrivateCancelBatchQuotesJsonrpcSchema) -> Self {
         value.clone()
     }
@@ -156,8 +155,7 @@ pub struct PrivateCancelBatchQuotesParamsSchema {
     ///Subaccount ID
     pub subaccount_id: i64,
 }
-impl From<&PrivateCancelBatchQuotesParamsSchema>
-for PrivateCancelBatchQuotesParamsSchema {
+impl From<&PrivateCancelBatchQuotesParamsSchema> for PrivateCancelBatchQuotesParamsSchema {
     fn from(value: &PrivateCancelBatchQuotesParamsSchema) -> Self {
         value.clone()
     }
@@ -209,8 +207,7 @@ pub struct PrivateCancelBatchQuotesRequestSchema {
     pub method: String,
     pub params: PrivateCancelBatchQuotesParamsSchema,
 }
-impl From<&PrivateCancelBatchQuotesRequestSchema>
-for PrivateCancelBatchQuotesRequestSchema {
+impl From<&PrivateCancelBatchQuotesRequestSchema> for PrivateCancelBatchQuotesRequestSchema {
     fn from(value: &PrivateCancelBatchQuotesRequestSchema) -> Self {
         value.clone()
     }
@@ -240,8 +237,7 @@ pub enum PrivateCancelBatchQuotesRequestSchemaId {
     Variant0(String),
     Variant1(i64),
 }
-impl From<&PrivateCancelBatchQuotesRequestSchemaId>
-for PrivateCancelBatchQuotesRequestSchemaId {
+impl From<&PrivateCancelBatchQuotesRequestSchemaId> for PrivateCancelBatchQuotesRequestSchemaId {
     fn from(value: &PrivateCancelBatchQuotesRequestSchemaId) -> Self {
         value.clone()
     }
@@ -331,8 +327,7 @@ pub struct PrivateCancelBatchQuotesResponseSchema {
     ///
     pub result: PrivateCancelBatchQuotesResultSchema,
 }
-impl From<&PrivateCancelBatchQuotesResponseSchema>
-for PrivateCancelBatchQuotesResponseSchema {
+impl From<&PrivateCancelBatchQuotesResponseSchema> for PrivateCancelBatchQuotesResponseSchema {
     fn from(value: &PrivateCancelBatchQuotesResponseSchema) -> Self {
         value.clone()
     }
@@ -362,8 +357,7 @@ pub enum PrivateCancelBatchQuotesResponseSchemaId {
     Variant0(String),
     Variant1(i64),
 }
-impl From<&PrivateCancelBatchQuotesResponseSchemaId>
-for PrivateCancelBatchQuotesResponseSchemaId {
+impl From<&PrivateCancelBatchQuotesResponseSchemaId> for PrivateCancelBatchQuotesResponseSchemaId {
     fn from(value: &PrivateCancelBatchQuotesResponseSchemaId) -> Self {
         value.clone()
     }
@@ -443,8 +437,7 @@ pub struct PrivateCancelBatchQuotesResultSchema {
     ///Quote IDs of the cancelled quotes
     pub cancelled_ids: Vec<uuid::Uuid>,
 }
-impl From<&PrivateCancelBatchQuotesResultSchema>
-for PrivateCancelBatchQuotesResultSchema {
+impl From<&PrivateCancelBatchQuotesResultSchema> for PrivateCancelBatchQuotesResultSchema {
     fn from(value: &PrivateCancelBatchQuotesResultSchema) -> Self {
         value.clone()
     }

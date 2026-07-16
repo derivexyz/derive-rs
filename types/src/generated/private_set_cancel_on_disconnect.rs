@@ -1,7 +1,7 @@
 #![allow(unused_variables)]
 #![allow(unused_imports)]
-use serde::{Deserialize, Serialize};
 use bigdecimal;
+use serde::{Deserialize, Serialize};
 use uuid;
 ///Enables cancel on disconnect for the account
 ///
@@ -77,7 +77,8 @@ pub struct PrivateSetCancelOnDisconnectJsonrpcSchema {
     pub response: PrivateSetCancelOnDisconnectResponseSchema,
 }
 impl From<&PrivateSetCancelOnDisconnectJsonrpcSchema>
-for PrivateSetCancelOnDisconnectJsonrpcSchema {
+    for PrivateSetCancelOnDisconnectJsonrpcSchema
+{
     fn from(value: &PrivateSetCancelOnDisconnectJsonrpcSchema) -> Self {
         value.clone()
     }
@@ -117,8 +118,7 @@ pub struct PrivateSetCancelOnDisconnectParamsSchema {
     ///Public key (wallet) of the account
     pub wallet: String,
 }
-impl From<&PrivateSetCancelOnDisconnectParamsSchema>
-for PrivateSetCancelOnDisconnectParamsSchema {
+impl From<&PrivateSetCancelOnDisconnectParamsSchema> for PrivateSetCancelOnDisconnectParamsSchema {
     fn from(value: &PrivateSetCancelOnDisconnectParamsSchema) -> Self {
         value.clone()
     }
@@ -171,7 +171,8 @@ pub struct PrivateSetCancelOnDisconnectRequestSchema {
     pub params: PrivateSetCancelOnDisconnectParamsSchema,
 }
 impl From<&PrivateSetCancelOnDisconnectRequestSchema>
-for PrivateSetCancelOnDisconnectRequestSchema {
+    for PrivateSetCancelOnDisconnectRequestSchema
+{
     fn from(value: &PrivateSetCancelOnDisconnectRequestSchema) -> Self {
         value.clone()
     }
@@ -202,7 +203,8 @@ pub enum PrivateSetCancelOnDisconnectRequestSchemaId {
     Variant1(i64),
 }
 impl From<&PrivateSetCancelOnDisconnectRequestSchemaId>
-for PrivateSetCancelOnDisconnectRequestSchemaId {
+    for PrivateSetCancelOnDisconnectRequestSchemaId
+{
     fn from(value: &PrivateSetCancelOnDisconnectRequestSchemaId) -> Self {
         value.clone()
     }
@@ -293,7 +295,8 @@ pub struct PrivateSetCancelOnDisconnectResponseSchema {
     pub result: String,
 }
 impl From<&PrivateSetCancelOnDisconnectResponseSchema>
-for PrivateSetCancelOnDisconnectResponseSchema {
+    for PrivateSetCancelOnDisconnectResponseSchema
+{
     fn from(value: &PrivateSetCancelOnDisconnectResponseSchema) -> Self {
         value.clone()
     }
@@ -324,7 +327,8 @@ pub enum PrivateSetCancelOnDisconnectResponseSchemaId {
     Variant1(i64),
 }
 impl From<&PrivateSetCancelOnDisconnectResponseSchemaId>
-for PrivateSetCancelOnDisconnectResponseSchemaId {
+    for PrivateSetCancelOnDisconnectResponseSchemaId
+{
     fn from(value: &PrivateSetCancelOnDisconnectResponseSchemaId) -> Self {
         value.clone()
     }

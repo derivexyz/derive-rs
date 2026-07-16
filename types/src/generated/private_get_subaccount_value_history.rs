@@ -1,7 +1,7 @@
 #![allow(unused_variables)]
 #![allow(unused_imports)]
-use serde::{Deserialize, Serialize};
 use bigdecimal;
+use serde::{Deserialize, Serialize};
 use uuid;
 ///Get the value history of a subaccount
 ///
@@ -21,17 +21,14 @@ use uuid;
 /// ```
 /// </details>
 #[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct PrivateGetSubaccountValueHistory(
-    pub PrivateGetSubaccountValueHistoryJsonrpcSchema,
-);
+pub struct PrivateGetSubaccountValueHistory(pub PrivateGetSubaccountValueHistoryJsonrpcSchema);
 impl std::ops::Deref for PrivateGetSubaccountValueHistory {
     type Target = PrivateGetSubaccountValueHistoryJsonrpcSchema;
     fn deref(&self) -> &PrivateGetSubaccountValueHistoryJsonrpcSchema {
         &self.0
     }
 }
-impl From<PrivateGetSubaccountValueHistory>
-for PrivateGetSubaccountValueHistoryJsonrpcSchema {
+impl From<PrivateGetSubaccountValueHistory> for PrivateGetSubaccountValueHistoryJsonrpcSchema {
     fn from(value: PrivateGetSubaccountValueHistory) -> Self {
         value.0
     }
@@ -41,8 +38,7 @@ impl From<&PrivateGetSubaccountValueHistory> for PrivateGetSubaccountValueHistor
         value.clone()
     }
 }
-impl From<PrivateGetSubaccountValueHistoryJsonrpcSchema>
-for PrivateGetSubaccountValueHistory {
+impl From<PrivateGetSubaccountValueHistoryJsonrpcSchema> for PrivateGetSubaccountValueHistory {
     fn from(value: PrivateGetSubaccountValueHistoryJsonrpcSchema) -> Self {
         Self(value)
     }
@@ -81,7 +77,8 @@ pub struct PrivateGetSubaccountValueHistoryJsonrpcSchema {
     pub response: PrivateGetSubaccountValueHistoryResponseSchema,
 }
 impl From<&PrivateGetSubaccountValueHistoryJsonrpcSchema>
-for PrivateGetSubaccountValueHistoryJsonrpcSchema {
+    for PrivateGetSubaccountValueHistoryJsonrpcSchema
+{
     fn from(value: &PrivateGetSubaccountValueHistoryJsonrpcSchema) -> Self {
         value.clone()
     }
@@ -138,7 +135,8 @@ pub struct PrivateGetSubaccountValueHistoryParamsSchema {
     pub subaccount_id: i64,
 }
 impl From<&PrivateGetSubaccountValueHistoryParamsSchema>
-for PrivateGetSubaccountValueHistoryParamsSchema {
+    for PrivateGetSubaccountValueHistoryParamsSchema
+{
     fn from(value: &PrivateGetSubaccountValueHistoryParamsSchema) -> Self {
         value.clone()
     }
@@ -191,7 +189,8 @@ pub struct PrivateGetSubaccountValueHistoryRequestSchema {
     pub params: PrivateGetSubaccountValueHistoryParamsSchema,
 }
 impl From<&PrivateGetSubaccountValueHistoryRequestSchema>
-for PrivateGetSubaccountValueHistoryRequestSchema {
+    for PrivateGetSubaccountValueHistoryRequestSchema
+{
     fn from(value: &PrivateGetSubaccountValueHistoryRequestSchema) -> Self {
         value.clone()
     }
@@ -222,7 +221,8 @@ pub enum PrivateGetSubaccountValueHistoryRequestSchemaId {
     Variant1(i64),
 }
 impl From<&PrivateGetSubaccountValueHistoryRequestSchemaId>
-for PrivateGetSubaccountValueHistoryRequestSchemaId {
+    for PrivateGetSubaccountValueHistoryRequestSchemaId
+{
     fn from(value: &PrivateGetSubaccountValueHistoryRequestSchemaId) -> Self {
         value.clone()
     }
@@ -313,7 +313,8 @@ pub struct PrivateGetSubaccountValueHistoryResponseSchema {
     pub result: PrivateGetSubaccountValueHistoryResultSchema,
 }
 impl From<&PrivateGetSubaccountValueHistoryResponseSchema>
-for PrivateGetSubaccountValueHistoryResponseSchema {
+    for PrivateGetSubaccountValueHistoryResponseSchema
+{
     fn from(value: &PrivateGetSubaccountValueHistoryResponseSchema) -> Self {
         value.clone()
     }
@@ -344,7 +345,8 @@ pub enum PrivateGetSubaccountValueHistoryResponseSchemaId {
     Variant1(i64),
 }
 impl From<&PrivateGetSubaccountValueHistoryResponseSchemaId>
-for PrivateGetSubaccountValueHistoryResponseSchemaId {
+    for PrivateGetSubaccountValueHistoryResponseSchemaId
+{
     fn from(value: &PrivateGetSubaccountValueHistoryResponseSchemaId) -> Self {
         value.clone()
     }
@@ -367,8 +369,7 @@ impl std::convert::TryFrom<&str> for PrivateGetSubaccountValueHistoryResponseSch
         value.parse()
     }
 }
-impl std::convert::TryFrom<&String>
-for PrivateGetSubaccountValueHistoryResponseSchemaId {
+impl std::convert::TryFrom<&String> for PrivateGetSubaccountValueHistoryResponseSchemaId {
     type Error = &'static str;
     fn try_from(value: &String) -> Result<Self, &'static str> {
         value.parse()
@@ -434,7 +435,8 @@ pub struct PrivateGetSubaccountValueHistoryResultSchema {
     pub subaccount_value_history: Vec<SubAccountValueHistoryResponseSchema>,
 }
 impl From<&PrivateGetSubaccountValueHistoryResultSchema>
-for PrivateGetSubaccountValueHistoryResultSchema {
+    for PrivateGetSubaccountValueHistoryResultSchema
+{
     fn from(value: &PrivateGetSubaccountValueHistoryResultSchema) -> Self {
         value.clone()
     }
@@ -475,8 +477,7 @@ pub struct SubAccountValueHistoryResponseSchema {
     ///Timestamp of when the subaccount value was recorded into the database
     pub timestamp: i64,
 }
-impl From<&SubAccountValueHistoryResponseSchema>
-for SubAccountValueHistoryResponseSchema {
+impl From<&SubAccountValueHistoryResponseSchema> for SubAccountValueHistoryResponseSchema {
     fn from(value: &SubAccountValueHistoryResponseSchema) -> Self {
         value.clone()
     }

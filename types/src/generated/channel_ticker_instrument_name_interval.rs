@@ -1,7 +1,7 @@
 #![allow(unused_variables)]
 #![allow(unused_imports)]
-use serde::{Deserialize, Serialize};
 use bigdecimal;
+use serde::{Deserialize, Serialize};
 use uuid;
 ///AggregateTradingStatsSchema
 ///
@@ -431,18 +431,7 @@ impl From<&InstrumentTickerSchema> for InstrumentTickerSchema {
 }*/
 /// ```
 /// </details>
-#[derive(
-    Clone,
-    Copy,
-    Debug,
-    Deserialize,
-    Eq,
-    Hash,
-    Ord,
-    PartialEq,
-    PartialOrd,
-    Serialize
-)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
 pub enum InstrumentType {
     #[serde(rename = "erc20")]
     Erc20,
@@ -510,18 +499,7 @@ impl std::convert::TryFrom<String> for InstrumentType {
 }*/
 /// ```
 /// </details>
-#[derive(
-    Clone,
-    Copy,
-    Debug,
-    Deserialize,
-    Eq,
-    Hash,
-    Ord,
-    PartialEq,
-    PartialOrd,
-    Serialize
-)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
 pub enum Interval {
     #[serde(rename = "100")]
     _100,
@@ -767,18 +745,7 @@ impl From<&OptionPublicDetailsSchema> for OptionPublicDetailsSchema {
 }*/
 /// ```
 /// </details>
-#[derive(
-    Clone,
-    Copy,
-    Debug,
-    Deserialize,
-    Eq,
-    Hash,
-    Ord,
-    PartialEq,
-    PartialOrd,
-    Serialize
-)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
 pub enum OptionType {
     C,
     P,
@@ -981,7 +948,8 @@ pub struct TickerInstrumentNameIntervalChannelSchema {
     pub interval: Interval,
 }
 impl From<&TickerInstrumentNameIntervalChannelSchema>
-for TickerInstrumentNameIntervalChannelSchema {
+    for TickerInstrumentNameIntervalChannelSchema
+{
     fn from(value: &TickerInstrumentNameIntervalChannelSchema) -> Self {
         value.clone()
     }
@@ -1021,7 +989,8 @@ pub struct TickerInstrumentNameIntervalNotificationParamsSchema {
     pub data: TickerInstrumentNameIntervalPublisherDataSchema,
 }
 impl From<&TickerInstrumentNameIntervalNotificationParamsSchema>
-for TickerInstrumentNameIntervalNotificationParamsSchema {
+    for TickerInstrumentNameIntervalNotificationParamsSchema
+{
     fn from(value: &TickerInstrumentNameIntervalNotificationParamsSchema) -> Self {
         value.clone()
     }
@@ -1059,7 +1028,8 @@ pub struct TickerInstrumentNameIntervalNotificationSchema {
     pub params: TickerInstrumentNameIntervalNotificationParamsSchema,
 }
 impl From<&TickerInstrumentNameIntervalNotificationSchema>
-for TickerInstrumentNameIntervalNotificationSchema {
+    for TickerInstrumentNameIntervalNotificationSchema
+{
     fn from(value: &TickerInstrumentNameIntervalNotificationSchema) -> Self {
         value.clone()
     }
@@ -1097,8 +1067,7 @@ pub struct TickerInstrumentNameIntervalPubSubSchema {
     pub channel_params: TickerInstrumentNameIntervalChannelSchema,
     pub notification: TickerInstrumentNameIntervalNotificationSchema,
 }
-impl From<&TickerInstrumentNameIntervalPubSubSchema>
-for TickerInstrumentNameIntervalPubSubSchema {
+impl From<&TickerInstrumentNameIntervalPubSubSchema> for TickerInstrumentNameIntervalPubSubSchema {
     fn from(value: &TickerInstrumentNameIntervalPubSubSchema) -> Self {
         value.clone()
     }
@@ -1140,7 +1109,8 @@ pub struct TickerInstrumentNameIntervalPublisherDataSchema {
     pub timestamp: i64,
 }
 impl From<&TickerInstrumentNameIntervalPublisherDataSchema>
-for TickerInstrumentNameIntervalPublisherDataSchema {
+    for TickerInstrumentNameIntervalPublisherDataSchema
+{
     fn from(value: &TickerInstrumentNameIntervalPublisherDataSchema) -> Self {
         value.clone()
     }

@@ -1,7 +1,7 @@
 #![allow(unused_variables)]
 #![allow(unused_imports)]
-use serde::{Deserialize, Serialize};
 use bigdecimal;
+use serde::{Deserialize, Serialize};
 use uuid;
 /**Transfer ERC20 assets from one subaccount to another (e.g. USDC or ETH).
 
@@ -347,8 +347,7 @@ pub enum PrivateTransferErc20ResponseSchemaId {
     Variant0(String),
     Variant1(i64),
 }
-impl From<&PrivateTransferErc20ResponseSchemaId>
-for PrivateTransferErc20ResponseSchemaId {
+impl From<&PrivateTransferErc20ResponseSchemaId> for PrivateTransferErc20ResponseSchemaId {
     fn from(value: &PrivateTransferErc20ResponseSchemaId) -> Self {
         value.clone()
     }

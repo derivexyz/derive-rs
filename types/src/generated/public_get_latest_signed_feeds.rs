@@ -1,7 +1,7 @@
 #![allow(unused_variables)]
 #![allow(unused_imports)]
-use serde::{Deserialize, Serialize};
 use bigdecimal;
+use serde::{Deserialize, Serialize};
 use uuid;
 ///ForwardFeedDataSchema
 ///
@@ -312,8 +312,7 @@ pub struct PublicGetLatestSignedFeedsJsonrpcSchema {
     pub request: PublicGetLatestSignedFeedsRequestSchema,
     pub response: PublicGetLatestSignedFeedsResponseSchema,
 }
-impl From<&PublicGetLatestSignedFeedsJsonrpcSchema>
-for PublicGetLatestSignedFeedsJsonrpcSchema {
+impl From<&PublicGetLatestSignedFeedsJsonrpcSchema> for PublicGetLatestSignedFeedsJsonrpcSchema {
     fn from(value: &PublicGetLatestSignedFeedsJsonrpcSchema) -> Self {
         value.clone()
     }
@@ -357,8 +356,7 @@ pub struct PublicGetLatestSignedFeedsParamsSchema {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub expiry: Option<i64>,
 }
-impl From<&PublicGetLatestSignedFeedsParamsSchema>
-for PublicGetLatestSignedFeedsParamsSchema {
+impl From<&PublicGetLatestSignedFeedsParamsSchema> for PublicGetLatestSignedFeedsParamsSchema {
     fn from(value: &PublicGetLatestSignedFeedsParamsSchema) -> Self {
         value.clone()
     }
@@ -410,8 +408,7 @@ pub struct PublicGetLatestSignedFeedsRequestSchema {
     pub method: String,
     pub params: PublicGetLatestSignedFeedsParamsSchema,
 }
-impl From<&PublicGetLatestSignedFeedsRequestSchema>
-for PublicGetLatestSignedFeedsRequestSchema {
+impl From<&PublicGetLatestSignedFeedsRequestSchema> for PublicGetLatestSignedFeedsRequestSchema {
     fn from(value: &PublicGetLatestSignedFeedsRequestSchema) -> Self {
         value.clone()
     }
@@ -442,7 +439,8 @@ pub enum PublicGetLatestSignedFeedsRequestSchemaId {
     Variant1(i64),
 }
 impl From<&PublicGetLatestSignedFeedsRequestSchemaId>
-for PublicGetLatestSignedFeedsRequestSchemaId {
+    for PublicGetLatestSignedFeedsRequestSchemaId
+{
     fn from(value: &PublicGetLatestSignedFeedsRequestSchemaId) -> Self {
         value.clone()
     }
@@ -532,8 +530,7 @@ pub struct PublicGetLatestSignedFeedsResponseSchema {
     ///
     pub result: PublicGetLatestSignedFeedsResultSchema,
 }
-impl From<&PublicGetLatestSignedFeedsResponseSchema>
-for PublicGetLatestSignedFeedsResponseSchema {
+impl From<&PublicGetLatestSignedFeedsResponseSchema> for PublicGetLatestSignedFeedsResponseSchema {
     fn from(value: &PublicGetLatestSignedFeedsResponseSchema) -> Self {
         value.clone()
     }
@@ -564,7 +561,8 @@ pub enum PublicGetLatestSignedFeedsResponseSchemaId {
     Variant1(i64),
 }
 impl From<&PublicGetLatestSignedFeedsResponseSchemaId>
-for PublicGetLatestSignedFeedsResponseSchemaId {
+    for PublicGetLatestSignedFeedsResponseSchemaId
+{
     fn from(value: &PublicGetLatestSignedFeedsResponseSchemaId) -> Self {
         value.clone()
     }
@@ -687,25 +685,18 @@ impl From<i64> for PublicGetLatestSignedFeedsResponseSchemaId {
 
 pub struct PublicGetLatestSignedFeedsResultSchema {
     ///currency -> expiry -> latest forward feed data
-    pub fwd_data: std::collections::HashMap<
-        String,
-        std::collections::HashMap<String, ForwardFeedDataSchema>,
-    >,
+    pub fwd_data:
+        std::collections::HashMap<String, std::collections::HashMap<String, ForwardFeedDataSchema>>,
     ///currency -> feed type -> latest perp feed data
-    pub perp_data: std::collections::HashMap<
-        String,
-        std::collections::HashMap<String, PerpFeedDataSchema>,
-    >,
+    pub perp_data:
+        std::collections::HashMap<String, std::collections::HashMap<String, PerpFeedDataSchema>>,
     ///currency -> latest spot feed data
     pub spot_data: std::collections::HashMap<String, SpotFeedDataSchema>,
     ///currency -> expiry -> latest vol feed data
-    pub vol_data: std::collections::HashMap<
-        String,
-        std::collections::HashMap<String, VolFeedDataSchema>,
-    >,
+    pub vol_data:
+        std::collections::HashMap<String, std::collections::HashMap<String, VolFeedDataSchema>>,
 }
-impl From<&PublicGetLatestSignedFeedsResultSchema>
-for PublicGetLatestSignedFeedsResultSchema {
+impl From<&PublicGetLatestSignedFeedsResultSchema> for PublicGetLatestSignedFeedsResultSchema {
     fn from(value: &PublicGetLatestSignedFeedsResultSchema) -> Self {
         value.clone()
     }
@@ -802,18 +793,7 @@ impl From<&SpotFeedDataSchema> for SpotFeedDataSchema {
 }*/
 /// ```
 /// </details>
-#[derive(
-    Clone,
-    Copy,
-    Debug,
-    Deserialize,
-    Eq,
-    Hash,
-    Ord,
-    PartialEq,
-    PartialOrd,
-    Serialize
-)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
 pub enum Type {
     P,
     A,

@@ -5,20 +5,20 @@ use crate::utils::{decimal_to_i256, decimal_to_u256, decimal_to_u256_with_prec};
 
 use anyhow::Result;
 use bigdecimal::BigDecimal;
+pub use derive_types::types::orders::{
+    Direction, LiquidityRole, OrderParams, OrderResponse, OrderStatus, OrderType, ReplaceParams,
+    TimeInForce,
+};
 use ethers::abi::{AbiDecode, AbiEncode};
 use ethers::prelude::{
     Address, EthAbiCodec, EthAbiType, LocalWallet, Signature, Signer, I256, U256,
 };
 use ethers::utils::hex;
-pub use orderbook_types::types::orders::{
-    Direction, LiquidityRole, OrderParams, OrderResponse, OrderStatus, OrderType, ReplaceParams,
-    TimeInForce,
-};
 use serde::Deserialize;
 
 use crate::actions::helpers::ModuleData;
 use crate::actions::ActionData;
-use orderbook_types::generated::private_deposit::PrivateDepositParamsSchema;
+use derive_types::generated::private_deposit::PrivateDepositParamsSchema;
 
 pub type DepositParams = PrivateDepositParamsSchema;
 

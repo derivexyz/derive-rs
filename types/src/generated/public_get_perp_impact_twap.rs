@@ -1,7 +1,7 @@
 #![allow(unused_variables)]
 #![allow(unused_imports)]
-use serde::{Deserialize, Serialize};
 use bigdecimal;
+use serde::{Deserialize, Serialize};
 use uuid;
 ///Get the TWAPs for the perp mid price, ask impact price, and bid impact price
 ///
@@ -76,8 +76,7 @@ pub struct PublicGetPerpImpactTwapJsonrpcSchema {
     pub request: PublicGetPerpImpactTwapRequestSchema,
     pub response: PublicGetPerpImpactTwapResponseSchema,
 }
-impl From<&PublicGetPerpImpactTwapJsonrpcSchema>
-for PublicGetPerpImpactTwapJsonrpcSchema {
+impl From<&PublicGetPerpImpactTwapJsonrpcSchema> for PublicGetPerpImpactTwapJsonrpcSchema {
     fn from(value: &PublicGetPerpImpactTwapJsonrpcSchema) -> Self {
         value.clone()
     }
@@ -177,8 +176,7 @@ pub struct PublicGetPerpImpactTwapRequestSchema {
     pub method: String,
     pub params: PublicGetPerpImpactTwapParamsSchema,
 }
-impl From<&PublicGetPerpImpactTwapRequestSchema>
-for PublicGetPerpImpactTwapRequestSchema {
+impl From<&PublicGetPerpImpactTwapRequestSchema> for PublicGetPerpImpactTwapRequestSchema {
     fn from(value: &PublicGetPerpImpactTwapRequestSchema) -> Self {
         value.clone()
     }
@@ -208,8 +206,7 @@ pub enum PublicGetPerpImpactTwapRequestSchemaId {
     Variant0(String),
     Variant1(i64),
 }
-impl From<&PublicGetPerpImpactTwapRequestSchemaId>
-for PublicGetPerpImpactTwapRequestSchemaId {
+impl From<&PublicGetPerpImpactTwapRequestSchemaId> for PublicGetPerpImpactTwapRequestSchemaId {
     fn from(value: &PublicGetPerpImpactTwapRequestSchemaId) -> Self {
         value.clone()
     }
@@ -299,8 +296,7 @@ pub struct PublicGetPerpImpactTwapResponseSchema {
     ///
     pub result: PublicGetPerpImpactTwapResultSchema,
 }
-impl From<&PublicGetPerpImpactTwapResponseSchema>
-for PublicGetPerpImpactTwapResponseSchema {
+impl From<&PublicGetPerpImpactTwapResponseSchema> for PublicGetPerpImpactTwapResponseSchema {
     fn from(value: &PublicGetPerpImpactTwapResponseSchema) -> Self {
         value.clone()
     }
@@ -330,8 +326,7 @@ pub enum PublicGetPerpImpactTwapResponseSchemaId {
     Variant0(String),
     Variant1(i64),
 }
-impl From<&PublicGetPerpImpactTwapResponseSchemaId>
-for PublicGetPerpImpactTwapResponseSchemaId {
+impl From<&PublicGetPerpImpactTwapResponseSchemaId> for PublicGetPerpImpactTwapResponseSchemaId {
     fn from(value: &PublicGetPerpImpactTwapResponseSchemaId) -> Self {
         value.clone()
     }

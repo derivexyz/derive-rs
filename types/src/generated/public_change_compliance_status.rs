@@ -1,7 +1,7 @@
 #![allow(unused_variables)]
 #![allow(unused_imports)]
-use serde::{Deserialize, Serialize};
 use bigdecimal;
+use serde::{Deserialize, Serialize};
 use uuid;
 ///Get the value history of a subaccount
 ///
@@ -77,7 +77,8 @@ pub struct PublicChangeComplianceStatusJsonrpcSchema {
     pub response: PublicChangeComplianceStatusResponseSchema,
 }
 impl From<&PublicChangeComplianceStatusJsonrpcSchema>
-for PublicChangeComplianceStatusJsonrpcSchema {
+    for PublicChangeComplianceStatusJsonrpcSchema
+{
     fn from(value: &PublicChangeComplianceStatusJsonrpcSchema) -> Self {
         value.clone()
     }
@@ -121,8 +122,7 @@ pub struct PublicChangeComplianceStatusParamsSchema {
     ///Wallet address of the account owner
     pub wallet: String,
 }
-impl From<&PublicChangeComplianceStatusParamsSchema>
-for PublicChangeComplianceStatusParamsSchema {
+impl From<&PublicChangeComplianceStatusParamsSchema> for PublicChangeComplianceStatusParamsSchema {
     fn from(value: &PublicChangeComplianceStatusParamsSchema) -> Self {
         value.clone()
     }
@@ -175,7 +175,8 @@ pub struct PublicChangeComplianceStatusRequestSchema {
     pub params: PublicChangeComplianceStatusParamsSchema,
 }
 impl From<&PublicChangeComplianceStatusRequestSchema>
-for PublicChangeComplianceStatusRequestSchema {
+    for PublicChangeComplianceStatusRequestSchema
+{
     fn from(value: &PublicChangeComplianceStatusRequestSchema) -> Self {
         value.clone()
     }
@@ -206,7 +207,8 @@ pub enum PublicChangeComplianceStatusRequestSchemaId {
     Variant1(i64),
 }
 impl From<&PublicChangeComplianceStatusRequestSchemaId>
-for PublicChangeComplianceStatusRequestSchemaId {
+    for PublicChangeComplianceStatusRequestSchemaId
+{
     fn from(value: &PublicChangeComplianceStatusRequestSchemaId) -> Self {
         value.clone()
     }
@@ -297,7 +299,8 @@ pub struct PublicChangeComplianceStatusResponseSchema {
     pub result: PublicChangeComplianceStatusResultSchema,
 }
 impl From<&PublicChangeComplianceStatusResponseSchema>
-for PublicChangeComplianceStatusResponseSchema {
+    for PublicChangeComplianceStatusResponseSchema
+{
     fn from(value: &PublicChangeComplianceStatusResponseSchema) -> Self {
         value.clone()
     }
@@ -328,7 +331,8 @@ pub enum PublicChangeComplianceStatusResponseSchemaId {
     Variant1(i64),
 }
 impl From<&PublicChangeComplianceStatusResponseSchemaId>
-for PublicChangeComplianceStatusResponseSchemaId {
+    for PublicChangeComplianceStatusResponseSchemaId
+{
     fn from(value: &PublicChangeComplianceStatusResponseSchemaId) -> Self {
         value.clone()
     }
@@ -421,8 +425,7 @@ pub struct PublicChangeComplianceStatusResultSchema {
     #[serde(default)]
     pub subaccounts_affected: i64,
 }
-impl From<&PublicChangeComplianceStatusResultSchema>
-for PublicChangeComplianceStatusResultSchema {
+impl From<&PublicChangeComplianceStatusResultSchema> for PublicChangeComplianceStatusResultSchema {
     fn from(value: &PublicChangeComplianceStatusResultSchema) -> Self {
         value.clone()
     }
@@ -443,18 +446,7 @@ for PublicChangeComplianceStatusResultSchema {
 }*/
 /// ```
 /// </details>
-#[derive(
-    Clone,
-    Copy,
-    Debug,
-    Deserialize,
-    Eq,
-    Hash,
-    Ord,
-    PartialEq,
-    PartialOrd,
-    Serialize
-)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
 pub enum Status {
     #[serde(rename = "enabled")]
     Enabled,

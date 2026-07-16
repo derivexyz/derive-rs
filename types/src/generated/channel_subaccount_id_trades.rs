@@ -1,7 +1,7 @@
 #![allow(unused_variables)]
 #![allow(unused_imports)]
-use serde::{Deserialize, Serialize};
 use bigdecimal;
+use serde::{Deserialize, Serialize};
 use uuid;
 ///Order direction
 ///
@@ -19,18 +19,7 @@ use uuid;
 }*/
 /// ```
 /// </details>
-#[derive(
-    Clone,
-    Copy,
-    Debug,
-    Deserialize,
-    Eq,
-    Hash,
-    Ord,
-    PartialEq,
-    PartialOrd,
-    Serialize
-)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
 pub enum Direction {
     #[serde(rename = "buy")]
     Buy,
@@ -94,18 +83,7 @@ impl std::convert::TryFrom<String> for Direction {
 }*/
 /// ```
 /// </details>
-#[derive(
-    Clone,
-    Copy,
-    Debug,
-    Deserialize,
-    Eq,
-    Hash,
-    Ord,
-    PartialEq,
-    PartialOrd,
-    Serialize
-)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
 pub enum LiquidityRole {
     #[serde(rename = "maker")]
     Maker,
@@ -264,7 +242,8 @@ pub struct SubaccountIdTradesNotificationParamsSchema {
     pub data: Vec<TradeResponseSchema>,
 }
 impl From<&SubaccountIdTradesNotificationParamsSchema>
-for SubaccountIdTradesNotificationParamsSchema {
+    for SubaccountIdTradesNotificationParamsSchema
+{
     fn from(value: &SubaccountIdTradesNotificationParamsSchema) -> Self {
         value.clone()
     }
@@ -301,8 +280,7 @@ pub struct SubaccountIdTradesNotificationSchema {
     pub method: String,
     pub params: SubaccountIdTradesNotificationParamsSchema,
 }
-impl From<&SubaccountIdTradesNotificationSchema>
-for SubaccountIdTradesNotificationSchema {
+impl From<&SubaccountIdTradesNotificationSchema> for SubaccountIdTradesNotificationSchema {
     fn from(value: &SubaccountIdTradesNotificationSchema) -> Self {
         value.clone()
     }
@@ -560,18 +538,7 @@ impl From<&TradeResponseSchema> for TradeResponseSchema {
 }*/
 /// ```
 /// </details>
-#[derive(
-    Clone,
-    Copy,
-    Debug,
-    Deserialize,
-    Eq,
-    Hash,
-    Ord,
-    PartialEq,
-    PartialOrd,
-    Serialize
-)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
 pub enum TxStatus {
     #[serde(rename = "requested")]
     Requested,

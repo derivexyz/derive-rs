@@ -1,7 +1,7 @@
 #![allow(unused_variables)]
 #![allow(unused_imports)]
-use serde::{Deserialize, Serialize};
 use bigdecimal;
+use serde::{Deserialize, Serialize};
 use uuid;
 ///AuctionBidEventSchema
 ///
@@ -92,10 +92,7 @@ pub struct AuctionBidEventSchema {
     ///Percent of the subaccount that was liquidated
     pub percent_liquidated: bigdecimal::BigDecimal,
     ///Realized PnL of each position that was closed
-    pub positions_realized_pnl: std::collections::HashMap<
-        String,
-        bigdecimal::BigDecimal,
-    >,
+    pub positions_realized_pnl: std::collections::HashMap<String, bigdecimal::BigDecimal>,
     ///Realized PnL of the auction bid, assuming positions are closed at mark price at the time of the liquidation
     pub realized_pnl: bigdecimal::BigDecimal,
     ///Timestamp of the bid (in ms since UNIX epoch)
@@ -217,18 +214,7 @@ impl From<&AuctionResultSchema> for AuctionResultSchema {
 }*/
 /// ```
 /// </details>
-#[derive(
-    Clone,
-    Copy,
-    Debug,
-    Deserialize,
-    Eq,
-    Hash,
-    Ord,
-    PartialEq,
-    PartialOrd,
-    Serialize
-)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
 pub enum AuctionType {
     #[serde(rename = "solvent")]
     Solvent,
@@ -350,7 +336,8 @@ pub struct PrivateGetLiquidationHistoryJsonrpcSchema {
     pub response: PrivateGetLiquidationHistoryResponseSchema,
 }
 impl From<&PrivateGetLiquidationHistoryJsonrpcSchema>
-for PrivateGetLiquidationHistoryJsonrpcSchema {
+    for PrivateGetLiquidationHistoryJsonrpcSchema
+{
     fn from(value: &PrivateGetLiquidationHistoryJsonrpcSchema) -> Self {
         value.clone()
     }
@@ -400,8 +387,7 @@ pub struct PrivateGetLiquidationHistoryParamsSchema {
     ///Subaccount id
     pub subaccount_id: i64,
 }
-impl From<&PrivateGetLiquidationHistoryParamsSchema>
-for PrivateGetLiquidationHistoryParamsSchema {
+impl From<&PrivateGetLiquidationHistoryParamsSchema> for PrivateGetLiquidationHistoryParamsSchema {
     fn from(value: &PrivateGetLiquidationHistoryParamsSchema) -> Self {
         value.clone()
     }
@@ -454,7 +440,8 @@ pub struct PrivateGetLiquidationHistoryRequestSchema {
     pub params: PrivateGetLiquidationHistoryParamsSchema,
 }
 impl From<&PrivateGetLiquidationHistoryRequestSchema>
-for PrivateGetLiquidationHistoryRequestSchema {
+    for PrivateGetLiquidationHistoryRequestSchema
+{
     fn from(value: &PrivateGetLiquidationHistoryRequestSchema) -> Self {
         value.clone()
     }
@@ -485,7 +472,8 @@ pub enum PrivateGetLiquidationHistoryRequestSchemaId {
     Variant1(i64),
 }
 impl From<&PrivateGetLiquidationHistoryRequestSchemaId>
-for PrivateGetLiquidationHistoryRequestSchemaId {
+    for PrivateGetLiquidationHistoryRequestSchemaId
+{
     fn from(value: &PrivateGetLiquidationHistoryRequestSchemaId) -> Self {
         value.clone()
     }
@@ -580,7 +568,8 @@ pub struct PrivateGetLiquidationHistoryResponseSchema {
     pub result: Vec<AuctionResultSchema>,
 }
 impl From<&PrivateGetLiquidationHistoryResponseSchema>
-for PrivateGetLiquidationHistoryResponseSchema {
+    for PrivateGetLiquidationHistoryResponseSchema
+{
     fn from(value: &PrivateGetLiquidationHistoryResponseSchema) -> Self {
         value.clone()
     }
@@ -611,7 +600,8 @@ pub enum PrivateGetLiquidationHistoryResponseSchemaId {
     Variant1(i64),
 }
 impl From<&PrivateGetLiquidationHistoryResponseSchemaId>
-for PrivateGetLiquidationHistoryResponseSchemaId {
+    for PrivateGetLiquidationHistoryResponseSchemaId
+{
     fn from(value: &PrivateGetLiquidationHistoryResponseSchemaId) -> Self {
         value.clone()
     }

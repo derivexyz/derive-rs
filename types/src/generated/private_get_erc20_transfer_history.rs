@@ -1,7 +1,7 @@
 #![allow(unused_variables)]
 #![allow(unused_imports)]
-use serde::{Deserialize, Serialize};
 use bigdecimal;
+use serde::{Deserialize, Serialize};
 use uuid;
 ///Erc20TransferSchema
 ///
@@ -96,17 +96,14 @@ Position transfers (e.g. options or perps) are treated as trades. Use `private/g
 /// ```
 /// </details>
 #[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct PrivateGetErc20TransferHistory(
-    pub PrivateGetErc20TransferHistoryJsonrpcSchema,
-);
+pub struct PrivateGetErc20TransferHistory(pub PrivateGetErc20TransferHistoryJsonrpcSchema);
 impl std::ops::Deref for PrivateGetErc20TransferHistory {
     type Target = PrivateGetErc20TransferHistoryJsonrpcSchema;
     fn deref(&self) -> &PrivateGetErc20TransferHistoryJsonrpcSchema {
         &self.0
     }
 }
-impl From<PrivateGetErc20TransferHistory>
-for PrivateGetErc20TransferHistoryJsonrpcSchema {
+impl From<PrivateGetErc20TransferHistory> for PrivateGetErc20TransferHistoryJsonrpcSchema {
     fn from(value: PrivateGetErc20TransferHistory) -> Self {
         value.0
     }
@@ -116,8 +113,7 @@ impl From<&PrivateGetErc20TransferHistory> for PrivateGetErc20TransferHistory {
         value.clone()
     }
 }
-impl From<PrivateGetErc20TransferHistoryJsonrpcSchema>
-for PrivateGetErc20TransferHistory {
+impl From<PrivateGetErc20TransferHistoryJsonrpcSchema> for PrivateGetErc20TransferHistory {
     fn from(value: PrivateGetErc20TransferHistoryJsonrpcSchema) -> Self {
         Self(value)
     }
@@ -156,7 +152,8 @@ pub struct PrivateGetErc20TransferHistoryJsonrpcSchema {
     pub response: PrivateGetErc20TransferHistoryResponseSchema,
 }
 impl From<&PrivateGetErc20TransferHistoryJsonrpcSchema>
-for PrivateGetErc20TransferHistoryJsonrpcSchema {
+    for PrivateGetErc20TransferHistoryJsonrpcSchema
+{
     fn from(value: &PrivateGetErc20TransferHistoryJsonrpcSchema) -> Self {
         value.clone()
     }
@@ -207,7 +204,8 @@ pub struct PrivateGetErc20TransferHistoryParamsSchema {
     pub subaccount_id: i64,
 }
 impl From<&PrivateGetErc20TransferHistoryParamsSchema>
-for PrivateGetErc20TransferHistoryParamsSchema {
+    for PrivateGetErc20TransferHistoryParamsSchema
+{
     fn from(value: &PrivateGetErc20TransferHistoryParamsSchema) -> Self {
         value.clone()
     }
@@ -260,7 +258,8 @@ pub struct PrivateGetErc20TransferHistoryRequestSchema {
     pub params: PrivateGetErc20TransferHistoryParamsSchema,
 }
 impl From<&PrivateGetErc20TransferHistoryRequestSchema>
-for PrivateGetErc20TransferHistoryRequestSchema {
+    for PrivateGetErc20TransferHistoryRequestSchema
+{
     fn from(value: &PrivateGetErc20TransferHistoryRequestSchema) -> Self {
         value.clone()
     }
@@ -291,7 +290,8 @@ pub enum PrivateGetErc20TransferHistoryRequestSchemaId {
     Variant1(i64),
 }
 impl From<&PrivateGetErc20TransferHistoryRequestSchemaId>
-for PrivateGetErc20TransferHistoryRequestSchemaId {
+    for PrivateGetErc20TransferHistoryRequestSchemaId
+{
     fn from(value: &PrivateGetErc20TransferHistoryRequestSchemaId) -> Self {
         value.clone()
     }
@@ -382,7 +382,8 @@ pub struct PrivateGetErc20TransferHistoryResponseSchema {
     pub result: PrivateGetErc20TransferHistoryResultSchema,
 }
 impl From<&PrivateGetErc20TransferHistoryResponseSchema>
-for PrivateGetErc20TransferHistoryResponseSchema {
+    for PrivateGetErc20TransferHistoryResponseSchema
+{
     fn from(value: &PrivateGetErc20TransferHistoryResponseSchema) -> Self {
         value.clone()
     }
@@ -413,7 +414,8 @@ pub enum PrivateGetErc20TransferHistoryResponseSchemaId {
     Variant1(i64),
 }
 impl From<&PrivateGetErc20TransferHistoryResponseSchemaId>
-for PrivateGetErc20TransferHistoryResponseSchemaId {
+    for PrivateGetErc20TransferHistoryResponseSchemaId
+{
     fn from(value: &PrivateGetErc20TransferHistoryResponseSchemaId) -> Self {
         value.clone()
     }
@@ -494,7 +496,8 @@ pub struct PrivateGetErc20TransferHistoryResultSchema {
     pub events: Vec<Erc20TransferSchema>,
 }
 impl From<&PrivateGetErc20TransferHistoryResultSchema>
-for PrivateGetErc20TransferHistoryResultSchema {
+    for PrivateGetErc20TransferHistoryResultSchema
+{
     fn from(value: &PrivateGetErc20TransferHistoryResultSchema) -> Self {
         value.clone()
     }

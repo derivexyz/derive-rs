@@ -1,7 +1,7 @@
 #![allow(unused_variables)]
 #![allow(unused_imports)]
-use serde::{Deserialize, Serialize};
 use bigdecimal;
+use serde::{Deserialize, Serialize};
 use uuid;
 ///Order direction
 ///
@@ -19,18 +19,7 @@ use uuid;
 }*/
 /// ```
 /// </details>
-#[derive(
-    Clone,
-    Copy,
-    Debug,
-    Deserialize,
-    Eq,
-    Hash,
-    Ord,
-    PartialEq,
-    PartialOrd,
-    Serialize
-)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
 pub enum Direction {
     #[serde(rename = "buy")]
     Buy,
@@ -95,18 +84,7 @@ impl std::convert::TryFrom<String> for Direction {
 }*/
 /// ```
 /// </details>
-#[derive(
-    Clone,
-    Copy,
-    Debug,
-    Deserialize,
-    Eq,
-    Hash,
-    Ord,
-    PartialEq,
-    PartialOrd,
-    Serialize
-)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
 pub enum InstrumentType {
     #[serde(rename = "erc20")]
     Erc20,
@@ -174,18 +152,7 @@ impl std::convert::TryFrom<String> for InstrumentType {
 }*/
 /// ```
 /// </details>
-#[derive(
-    Clone,
-    Copy,
-    Debug,
-    Deserialize,
-    Eq,
-    Hash,
-    Ord,
-    PartialEq,
-    PartialOrd,
-    Serialize
-)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
 pub enum LiquidityRole {
     #[serde(rename = "maker")]
     Maker,
@@ -435,19 +402,20 @@ impl std::ops::Deref for TradesInstrumentTypeCurrencyTxStatus {
     }
 }
 impl From<TradesInstrumentTypeCurrencyTxStatus>
-for TradesInstrumentTypeCurrencyTxStatusPubSubSchema {
+    for TradesInstrumentTypeCurrencyTxStatusPubSubSchema
+{
     fn from(value: TradesInstrumentTypeCurrencyTxStatus) -> Self {
         value.0
     }
 }
-impl From<&TradesInstrumentTypeCurrencyTxStatus>
-for TradesInstrumentTypeCurrencyTxStatus {
+impl From<&TradesInstrumentTypeCurrencyTxStatus> for TradesInstrumentTypeCurrencyTxStatus {
     fn from(value: &TradesInstrumentTypeCurrencyTxStatus) -> Self {
         value.clone()
     }
 }
 impl From<TradesInstrumentTypeCurrencyTxStatusPubSubSchema>
-for TradesInstrumentTypeCurrencyTxStatus {
+    for TradesInstrumentTypeCurrencyTxStatus
+{
     fn from(value: TradesInstrumentTypeCurrencyTxStatusPubSubSchema) -> Self {
         Self(value)
     }
@@ -505,7 +473,8 @@ pub struct TradesInstrumentTypeCurrencyTxStatusChannelSchema {
     pub tx_status: TxStatus,
 }
 impl From<&TradesInstrumentTypeCurrencyTxStatusChannelSchema>
-for TradesInstrumentTypeCurrencyTxStatusChannelSchema {
+    for TradesInstrumentTypeCurrencyTxStatusChannelSchema
+{
     fn from(value: &TradesInstrumentTypeCurrencyTxStatusChannelSchema) -> Self {
         value.clone()
     }
@@ -549,10 +518,9 @@ pub struct TradesInstrumentTypeCurrencyTxStatusNotificationParamsSchema {
     pub data: Vec<TradeSettledPublicResponseSchema>,
 }
 impl From<&TradesInstrumentTypeCurrencyTxStatusNotificationParamsSchema>
-for TradesInstrumentTypeCurrencyTxStatusNotificationParamsSchema {
-    fn from(
-        value: &TradesInstrumentTypeCurrencyTxStatusNotificationParamsSchema,
-    ) -> Self {
+    for TradesInstrumentTypeCurrencyTxStatusNotificationParamsSchema
+{
+    fn from(value: &TradesInstrumentTypeCurrencyTxStatusNotificationParamsSchema) -> Self {
         value.clone()
     }
 }
@@ -589,7 +557,8 @@ pub struct TradesInstrumentTypeCurrencyTxStatusNotificationSchema {
     pub params: TradesInstrumentTypeCurrencyTxStatusNotificationParamsSchema,
 }
 impl From<&TradesInstrumentTypeCurrencyTxStatusNotificationSchema>
-for TradesInstrumentTypeCurrencyTxStatusNotificationSchema {
+    for TradesInstrumentTypeCurrencyTxStatusNotificationSchema
+{
     fn from(value: &TradesInstrumentTypeCurrencyTxStatusNotificationSchema) -> Self {
         value.clone()
     }
@@ -628,7 +597,8 @@ pub struct TradesInstrumentTypeCurrencyTxStatusPubSubSchema {
     pub notification: TradesInstrumentTypeCurrencyTxStatusNotificationSchema,
 }
 impl From<&TradesInstrumentTypeCurrencyTxStatusPubSubSchema>
-for TradesInstrumentTypeCurrencyTxStatusPubSubSchema {
+    for TradesInstrumentTypeCurrencyTxStatusPubSubSchema
+{
     fn from(value: &TradesInstrumentTypeCurrencyTxStatusPubSubSchema) -> Self {
         value.clone()
     }
@@ -649,18 +619,7 @@ for TradesInstrumentTypeCurrencyTxStatusPubSubSchema {
 }*/
 /// ```
 /// </details>
-#[derive(
-    Clone,
-    Copy,
-    Debug,
-    Deserialize,
-    Eq,
-    Hash,
-    Ord,
-    PartialEq,
-    PartialOrd,
-    Serialize
-)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
 pub enum TxStatus {
     #[serde(rename = "settled")]
     Settled,

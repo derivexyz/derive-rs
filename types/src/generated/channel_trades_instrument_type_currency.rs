@@ -1,7 +1,7 @@
 #![allow(unused_variables)]
 #![allow(unused_imports)]
-use serde::{Deserialize, Serialize};
 use bigdecimal;
+use serde::{Deserialize, Serialize};
 use uuid;
 ///Direction of the taker order
 ///
@@ -19,18 +19,7 @@ use uuid;
 }*/
 /// ```
 /// </details>
-#[derive(
-    Clone,
-    Copy,
-    Debug,
-    Deserialize,
-    Eq,
-    Hash,
-    Ord,
-    PartialEq,
-    PartialOrd,
-    Serialize
-)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
 pub enum Direction {
     #[serde(rename = "buy")]
     Buy,
@@ -95,18 +84,7 @@ impl std::convert::TryFrom<String> for Direction {
 }*/
 /// ```
 /// </details>
-#[derive(
-    Clone,
-    Copy,
-    Debug,
-    Deserialize,
-    Eq,
-    Hash,
-    Ord,
-    PartialEq,
-    PartialOrd,
-    Serialize
-)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
 pub enum InstrumentType {
     #[serde(rename = "erc20")]
     Erc20,
@@ -347,7 +325,8 @@ pub struct TradesInstrumentTypeCurrencyChannelSchema {
     pub instrument_type: InstrumentType,
 }
 impl From<&TradesInstrumentTypeCurrencyChannelSchema>
-for TradesInstrumentTypeCurrencyChannelSchema {
+    for TradesInstrumentTypeCurrencyChannelSchema
+{
     fn from(value: &TradesInstrumentTypeCurrencyChannelSchema) -> Self {
         value.clone()
     }
@@ -391,7 +370,8 @@ pub struct TradesInstrumentTypeCurrencyNotificationParamsSchema {
     pub data: Vec<TradePublicResponseSchema>,
 }
 impl From<&TradesInstrumentTypeCurrencyNotificationParamsSchema>
-for TradesInstrumentTypeCurrencyNotificationParamsSchema {
+    for TradesInstrumentTypeCurrencyNotificationParamsSchema
+{
     fn from(value: &TradesInstrumentTypeCurrencyNotificationParamsSchema) -> Self {
         value.clone()
     }
@@ -429,7 +409,8 @@ pub struct TradesInstrumentTypeCurrencyNotificationSchema {
     pub params: TradesInstrumentTypeCurrencyNotificationParamsSchema,
 }
 impl From<&TradesInstrumentTypeCurrencyNotificationSchema>
-for TradesInstrumentTypeCurrencyNotificationSchema {
+    for TradesInstrumentTypeCurrencyNotificationSchema
+{
     fn from(value: &TradesInstrumentTypeCurrencyNotificationSchema) -> Self {
         value.clone()
     }
@@ -467,8 +448,7 @@ pub struct TradesInstrumentTypeCurrencyPubSubSchema {
     pub channel_params: TradesInstrumentTypeCurrencyChannelSchema,
     pub notification: TradesInstrumentTypeCurrencyNotificationSchema,
 }
-impl From<&TradesInstrumentTypeCurrencyPubSubSchema>
-for TradesInstrumentTypeCurrencyPubSubSchema {
+impl From<&TradesInstrumentTypeCurrencyPubSubSchema> for TradesInstrumentTypeCurrencyPubSubSchema {
     fn from(value: &TradesInstrumentTypeCurrencyPubSubSchema) -> Self {
         value.clone()
     }

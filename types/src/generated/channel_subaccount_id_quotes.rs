@@ -1,7 +1,7 @@
 #![allow(unused_variables)]
 #![allow(unused_imports)]
-use serde::{Deserialize, Serialize};
 use bigdecimal;
+use serde::{Deserialize, Serialize};
 use uuid;
 ///Cancel reason, if any
 ///
@@ -27,18 +27,7 @@ use uuid;
 }*/
 /// ```
 /// </details>
-#[derive(
-    Clone,
-    Copy,
-    Debug,
-    Deserialize,
-    Eq,
-    Hash,
-    Ord,
-    PartialEq,
-    PartialOrd,
-    Serialize
-)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
 pub enum CancelReason {
     #[serde(rename = "")]
     X,
@@ -134,18 +123,7 @@ impl std::convert::TryFrom<String> for CancelReason {
 }*/
 /// ```
 /// </details>
-#[derive(
-    Clone,
-    Copy,
-    Debug,
-    Deserialize,
-    Eq,
-    Hash,
-    Ord,
-    PartialEq,
-    PartialOrd,
-    Serialize
-)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
 pub enum Direction {
     #[serde(rename = "buy")]
     Buy,
@@ -271,18 +249,7 @@ impl From<&LegPricedSchema> for LegPricedSchema {
 }*/
 /// ```
 /// </details>
-#[derive(
-    Clone,
-    Copy,
-    Debug,
-    Deserialize,
-    Eq,
-    Hash,
-    Ord,
-    PartialEq,
-    PartialOrd,
-    Serialize
-)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
 pub enum LiquidityRole {
     #[serde(rename = "maker")]
     Maker,
@@ -589,18 +556,7 @@ impl From<&QuoteResultSchema> for QuoteResultSchema {
 }*/
 /// ```
 /// </details>
-#[derive(
-    Clone,
-    Copy,
-    Debug,
-    Deserialize,
-    Eq,
-    Hash,
-    Ord,
-    PartialEq,
-    PartialOrd,
-    Serialize
-)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
 pub enum Status {
     #[serde(rename = "open")]
     Open,
@@ -767,7 +723,8 @@ pub struct SubaccountIdQuotesNotificationParamsSchema {
     pub data: Vec<QuoteResultSchema>,
 }
 impl From<&SubaccountIdQuotesNotificationParamsSchema>
-for SubaccountIdQuotesNotificationParamsSchema {
+    for SubaccountIdQuotesNotificationParamsSchema
+{
     fn from(value: &SubaccountIdQuotesNotificationParamsSchema) -> Self {
         value.clone()
     }
@@ -804,8 +761,7 @@ pub struct SubaccountIdQuotesNotificationSchema {
     pub method: String,
     pub params: SubaccountIdQuotesNotificationParamsSchema,
 }
-impl From<&SubaccountIdQuotesNotificationSchema>
-for SubaccountIdQuotesNotificationSchema {
+impl From<&SubaccountIdQuotesNotificationSchema> for SubaccountIdQuotesNotificationSchema {
     fn from(value: &SubaccountIdQuotesNotificationSchema) -> Self {
         value.clone()
     }
@@ -867,18 +823,7 @@ impl From<&SubaccountIdQuotesPubSubSchema> for SubaccountIdQuotesPubSubSchema {
 }*/
 /// ```
 /// </details>
-#[derive(
-    Clone,
-    Copy,
-    Debug,
-    Deserialize,
-    Eq,
-    Hash,
-    Ord,
-    PartialEq,
-    PartialOrd,
-    Serialize
-)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
 pub enum TxStatus {
     #[serde(rename = "requested")]
     Requested,

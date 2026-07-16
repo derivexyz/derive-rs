@@ -1,7 +1,7 @@
 #![allow(unused_variables)]
 #![allow(unused_imports)]
-use serde::{Deserialize, Serialize};
 use bigdecimal;
+use serde::{Deserialize, Serialize};
 use uuid;
 ///OptionSettlementResponseSchema
 ///
@@ -136,17 +136,14 @@ impl From<&PaginationInfoSchema> for PaginationInfoSchema {
 /// ```
 /// </details>
 #[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct PublicGetOptionSettlementHistory(
-    pub PublicGetOptionSettlementHistoryJsonrpcSchema,
-);
+pub struct PublicGetOptionSettlementHistory(pub PublicGetOptionSettlementHistoryJsonrpcSchema);
 impl std::ops::Deref for PublicGetOptionSettlementHistory {
     type Target = PublicGetOptionSettlementHistoryJsonrpcSchema;
     fn deref(&self) -> &PublicGetOptionSettlementHistoryJsonrpcSchema {
         &self.0
     }
 }
-impl From<PublicGetOptionSettlementHistory>
-for PublicGetOptionSettlementHistoryJsonrpcSchema {
+impl From<PublicGetOptionSettlementHistory> for PublicGetOptionSettlementHistoryJsonrpcSchema {
     fn from(value: PublicGetOptionSettlementHistory) -> Self {
         value.0
     }
@@ -156,8 +153,7 @@ impl From<&PublicGetOptionSettlementHistory> for PublicGetOptionSettlementHistor
         value.clone()
     }
 }
-impl From<PublicGetOptionSettlementHistoryJsonrpcSchema>
-for PublicGetOptionSettlementHistory {
+impl From<PublicGetOptionSettlementHistoryJsonrpcSchema> for PublicGetOptionSettlementHistory {
     fn from(value: PublicGetOptionSettlementHistoryJsonrpcSchema) -> Self {
         Self(value)
     }
@@ -196,7 +192,8 @@ pub struct PublicGetOptionSettlementHistoryJsonrpcSchema {
     pub response: PublicGetOptionSettlementHistoryResponseSchema,
 }
 impl From<&PublicGetOptionSettlementHistoryJsonrpcSchema>
-for PublicGetOptionSettlementHistoryJsonrpcSchema {
+    for PublicGetOptionSettlementHistoryJsonrpcSchema
+{
     fn from(value: &PublicGetOptionSettlementHistoryJsonrpcSchema) -> Self {
         value.clone()
     }
@@ -248,7 +245,8 @@ pub struct PublicGetOptionSettlementHistoryParamsSchema {
     pub subaccount_id: Option<i64>,
 }
 impl From<&PublicGetOptionSettlementHistoryParamsSchema>
-for PublicGetOptionSettlementHistoryParamsSchema {
+    for PublicGetOptionSettlementHistoryParamsSchema
+{
     fn from(value: &PublicGetOptionSettlementHistoryParamsSchema) -> Self {
         value.clone()
     }
@@ -301,7 +299,8 @@ pub struct PublicGetOptionSettlementHistoryRequestSchema {
     pub params: PublicGetOptionSettlementHistoryParamsSchema,
 }
 impl From<&PublicGetOptionSettlementHistoryRequestSchema>
-for PublicGetOptionSettlementHistoryRequestSchema {
+    for PublicGetOptionSettlementHistoryRequestSchema
+{
     fn from(value: &PublicGetOptionSettlementHistoryRequestSchema) -> Self {
         value.clone()
     }
@@ -332,7 +331,8 @@ pub enum PublicGetOptionSettlementHistoryRequestSchemaId {
     Variant1(i64),
 }
 impl From<&PublicGetOptionSettlementHistoryRequestSchemaId>
-for PublicGetOptionSettlementHistoryRequestSchemaId {
+    for PublicGetOptionSettlementHistoryRequestSchemaId
+{
     fn from(value: &PublicGetOptionSettlementHistoryRequestSchemaId) -> Self {
         value.clone()
     }
@@ -423,7 +423,8 @@ pub struct PublicGetOptionSettlementHistoryResponseSchema {
     pub result: PublicGetOptionSettlementHistoryResultSchema,
 }
 impl From<&PublicGetOptionSettlementHistoryResponseSchema>
-for PublicGetOptionSettlementHistoryResponseSchema {
+    for PublicGetOptionSettlementHistoryResponseSchema
+{
     fn from(value: &PublicGetOptionSettlementHistoryResponseSchema) -> Self {
         value.clone()
     }
@@ -454,7 +455,8 @@ pub enum PublicGetOptionSettlementHistoryResponseSchemaId {
     Variant1(i64),
 }
 impl From<&PublicGetOptionSettlementHistoryResponseSchemaId>
-for PublicGetOptionSettlementHistoryResponseSchemaId {
+    for PublicGetOptionSettlementHistoryResponseSchemaId
+{
     fn from(value: &PublicGetOptionSettlementHistoryResponseSchemaId) -> Self {
         value.clone()
     }
@@ -477,8 +479,7 @@ impl std::convert::TryFrom<&str> for PublicGetOptionSettlementHistoryResponseSch
         value.parse()
     }
 }
-impl std::convert::TryFrom<&String>
-for PublicGetOptionSettlementHistoryResponseSchemaId {
+impl std::convert::TryFrom<&String> for PublicGetOptionSettlementHistoryResponseSchemaId {
     type Error = &'static str;
     fn try_from(value: &String) -> Result<Self, &'static str> {
         value.parse()
@@ -545,7 +546,8 @@ pub struct PublicGetOptionSettlementHistoryResultSchema {
     pub settlements: Vec<OptionSettlementResponseSchema>,
 }
 impl From<&PublicGetOptionSettlementHistoryResultSchema>
-for PublicGetOptionSettlementHistoryResultSchema {
+    for PublicGetOptionSettlementHistoryResultSchema
+{
     fn from(value: &PublicGetOptionSettlementHistoryResultSchema) -> Self {
         value.clone()
     }

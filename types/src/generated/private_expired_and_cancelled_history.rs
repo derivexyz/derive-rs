@@ -1,7 +1,7 @@
 #![allow(unused_variables)]
 #![allow(unused_imports)]
-use serde::{Deserialize, Serialize};
 use bigdecimal;
+use serde::{Deserialize, Serialize};
 use uuid;
 ///Generate a list of URLs to retrieve archived orders
 ///
@@ -21,17 +21,14 @@ use uuid;
 /// ```
 /// </details>
 #[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct PrivateExpiredAndCancelledHistory(
-    pub PrivateExpiredAndCancelledHistoryJsonrpcSchema,
-);
+pub struct PrivateExpiredAndCancelledHistory(pub PrivateExpiredAndCancelledHistoryJsonrpcSchema);
 impl std::ops::Deref for PrivateExpiredAndCancelledHistory {
     type Target = PrivateExpiredAndCancelledHistoryJsonrpcSchema;
     fn deref(&self) -> &PrivateExpiredAndCancelledHistoryJsonrpcSchema {
         &self.0
     }
 }
-impl From<PrivateExpiredAndCancelledHistory>
-for PrivateExpiredAndCancelledHistoryJsonrpcSchema {
+impl From<PrivateExpiredAndCancelledHistory> for PrivateExpiredAndCancelledHistoryJsonrpcSchema {
     fn from(value: PrivateExpiredAndCancelledHistory) -> Self {
         value.0
     }
@@ -41,8 +38,7 @@ impl From<&PrivateExpiredAndCancelledHistory> for PrivateExpiredAndCancelledHist
         value.clone()
     }
 }
-impl From<PrivateExpiredAndCancelledHistoryJsonrpcSchema>
-for PrivateExpiredAndCancelledHistory {
+impl From<PrivateExpiredAndCancelledHistoryJsonrpcSchema> for PrivateExpiredAndCancelledHistory {
     fn from(value: PrivateExpiredAndCancelledHistoryJsonrpcSchema) -> Self {
         Self(value)
     }
@@ -81,7 +77,8 @@ pub struct PrivateExpiredAndCancelledHistoryJsonrpcSchema {
     pub response: PrivateExpiredAndCancelledHistoryResponseSchema,
 }
 impl From<&PrivateExpiredAndCancelledHistoryJsonrpcSchema>
-for PrivateExpiredAndCancelledHistoryJsonrpcSchema {
+    for PrivateExpiredAndCancelledHistoryJsonrpcSchema
+{
     fn from(value: &PrivateExpiredAndCancelledHistoryJsonrpcSchema) -> Self {
         value.clone()
     }
@@ -146,7 +143,8 @@ pub struct PrivateExpiredAndCancelledHistoryParamsSchema {
     pub wallet: String,
 }
 impl From<&PrivateExpiredAndCancelledHistoryParamsSchema>
-for PrivateExpiredAndCancelledHistoryParamsSchema {
+    for PrivateExpiredAndCancelledHistoryParamsSchema
+{
     fn from(value: &PrivateExpiredAndCancelledHistoryParamsSchema) -> Self {
         value.clone()
     }
@@ -199,7 +197,8 @@ pub struct PrivateExpiredAndCancelledHistoryRequestSchema {
     pub params: PrivateExpiredAndCancelledHistoryParamsSchema,
 }
 impl From<&PrivateExpiredAndCancelledHistoryRequestSchema>
-for PrivateExpiredAndCancelledHistoryRequestSchema {
+    for PrivateExpiredAndCancelledHistoryRequestSchema
+{
     fn from(value: &PrivateExpiredAndCancelledHistoryRequestSchema) -> Self {
         value.clone()
     }
@@ -230,7 +229,8 @@ pub enum PrivateExpiredAndCancelledHistoryRequestSchemaId {
     Variant1(i64),
 }
 impl From<&PrivateExpiredAndCancelledHistoryRequestSchemaId>
-for PrivateExpiredAndCancelledHistoryRequestSchemaId {
+    for PrivateExpiredAndCancelledHistoryRequestSchemaId
+{
     fn from(value: &PrivateExpiredAndCancelledHistoryRequestSchemaId) -> Self {
         value.clone()
     }
@@ -253,8 +253,7 @@ impl std::convert::TryFrom<&str> for PrivateExpiredAndCancelledHistoryRequestSch
         value.parse()
     }
 }
-impl std::convert::TryFrom<&String>
-for PrivateExpiredAndCancelledHistoryRequestSchemaId {
+impl std::convert::TryFrom<&String> for PrivateExpiredAndCancelledHistoryRequestSchemaId {
     type Error = &'static str;
     fn try_from(value: &String) -> Result<Self, &'static str> {
         value.parse()
@@ -322,7 +321,8 @@ pub struct PrivateExpiredAndCancelledHistoryResponseSchema {
     pub result: PrivateExpiredAndCancelledHistoryResultSchema,
 }
 impl From<&PrivateExpiredAndCancelledHistoryResponseSchema>
-for PrivateExpiredAndCancelledHistoryResponseSchema {
+    for PrivateExpiredAndCancelledHistoryResponseSchema
+{
     fn from(value: &PrivateExpiredAndCancelledHistoryResponseSchema) -> Self {
         value.clone()
     }
@@ -353,7 +353,8 @@ pub enum PrivateExpiredAndCancelledHistoryResponseSchemaId {
     Variant1(i64),
 }
 impl From<&PrivateExpiredAndCancelledHistoryResponseSchemaId>
-for PrivateExpiredAndCancelledHistoryResponseSchemaId {
+    for PrivateExpiredAndCancelledHistoryResponseSchemaId
+{
     fn from(value: &PrivateExpiredAndCancelledHistoryResponseSchemaId) -> Self {
         value.clone()
     }
@@ -376,15 +377,13 @@ impl std::convert::TryFrom<&str> for PrivateExpiredAndCancelledHistoryResponseSc
         value.parse()
     }
 }
-impl std::convert::TryFrom<&String>
-for PrivateExpiredAndCancelledHistoryResponseSchemaId {
+impl std::convert::TryFrom<&String> for PrivateExpiredAndCancelledHistoryResponseSchemaId {
     type Error = &'static str;
     fn try_from(value: &String) -> Result<Self, &'static str> {
         value.parse()
     }
 }
-impl std::convert::TryFrom<String>
-for PrivateExpiredAndCancelledHistoryResponseSchemaId {
+impl std::convert::TryFrom<String> for PrivateExpiredAndCancelledHistoryResponseSchemaId {
     type Error = &'static str;
     fn try_from(value: String) -> Result<Self, &'static str> {
         value.parse()
@@ -435,7 +434,8 @@ pub struct PrivateExpiredAndCancelledHistoryResultSchema {
     pub presigned_urls: Vec<String>,
 }
 impl From<&PrivateExpiredAndCancelledHistoryResultSchema>
-for PrivateExpiredAndCancelledHistoryResultSchema {
+    for PrivateExpiredAndCancelledHistoryResultSchema
+{
     fn from(value: &PrivateExpiredAndCancelledHistoryResultSchema) -> Self {
         value.clone()
     }

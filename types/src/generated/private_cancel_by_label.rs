@@ -1,7 +1,7 @@
 #![allow(unused_variables)]
 #![allow(unused_imports)]
-use serde::{Deserialize, Serialize};
 use bigdecimal;
+use serde::{Deserialize, Serialize};
 use uuid;
 ///Cancel all open orders for a given subaccount and a given label.
 ///
@@ -318,8 +318,7 @@ pub enum PrivateCancelByLabelResponseSchemaId {
     Variant0(String),
     Variant1(i64),
 }
-impl From<&PrivateCancelByLabelResponseSchemaId>
-for PrivateCancelByLabelResponseSchemaId {
+impl From<&PrivateCancelByLabelResponseSchemaId> for PrivateCancelByLabelResponseSchemaId {
     fn from(value: &PrivateCancelByLabelResponseSchemaId) -> Self {
         value.clone()
     }

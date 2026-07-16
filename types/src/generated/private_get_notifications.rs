@@ -1,7 +1,7 @@
 #![allow(unused_variables)]
 #![allow(unused_imports)]
-use serde::{Deserialize, Serialize};
 use bigdecimal;
+use serde::{Deserialize, Serialize};
 use uuid;
 ///NotificationResponseSchema
 ///
@@ -171,8 +171,7 @@ pub struct PrivateGetNotificationsJsonrpcSchema {
     pub request: PrivateGetNotificationsRequestSchema,
     pub response: PrivateGetNotificationsResponseSchema,
 }
-impl From<&PrivateGetNotificationsJsonrpcSchema>
-for PrivateGetNotificationsJsonrpcSchema {
+impl From<&PrivateGetNotificationsJsonrpcSchema> for PrivateGetNotificationsJsonrpcSchema {
     fn from(value: &PrivateGetNotificationsJsonrpcSchema) -> Self {
         value.clone()
     }
@@ -310,8 +309,7 @@ pub struct PrivateGetNotificationsRequestSchema {
     pub method: String,
     pub params: PrivateGetNotificationsParamsSchema,
 }
-impl From<&PrivateGetNotificationsRequestSchema>
-for PrivateGetNotificationsRequestSchema {
+impl From<&PrivateGetNotificationsRequestSchema> for PrivateGetNotificationsRequestSchema {
     fn from(value: &PrivateGetNotificationsRequestSchema) -> Self {
         value.clone()
     }
@@ -341,8 +339,7 @@ pub enum PrivateGetNotificationsRequestSchemaId {
     Variant0(String),
     Variant1(i64),
 }
-impl From<&PrivateGetNotificationsRequestSchemaId>
-for PrivateGetNotificationsRequestSchemaId {
+impl From<&PrivateGetNotificationsRequestSchemaId> for PrivateGetNotificationsRequestSchemaId {
     fn from(value: &PrivateGetNotificationsRequestSchemaId) -> Self {
         value.clone()
     }
@@ -432,8 +429,7 @@ pub struct PrivateGetNotificationsResponseSchema {
     ///
     pub result: PrivateGetNotificationsResultSchema,
 }
-impl From<&PrivateGetNotificationsResponseSchema>
-for PrivateGetNotificationsResponseSchema {
+impl From<&PrivateGetNotificationsResponseSchema> for PrivateGetNotificationsResponseSchema {
     fn from(value: &PrivateGetNotificationsResponseSchema) -> Self {
         value.clone()
     }
@@ -463,8 +459,7 @@ pub enum PrivateGetNotificationsResponseSchemaId {
     Variant0(String),
     Variant1(i64),
 }
-impl From<&PrivateGetNotificationsResponseSchemaId>
-for PrivateGetNotificationsResponseSchemaId {
+impl From<&PrivateGetNotificationsResponseSchemaId> for PrivateGetNotificationsResponseSchemaId {
     fn from(value: &PrivateGetNotificationsResponseSchemaId) -> Self {
         value.clone()
     }
@@ -574,18 +569,7 @@ impl From<&PrivateGetNotificationsResultSchema> for PrivateGetNotificationsResul
 }*/
 /// ```
 /// </details>
-#[derive(
-    Clone,
-    Copy,
-    Debug,
-    Deserialize,
-    Eq,
-    Hash,
-    Ord,
-    PartialEq,
-    PartialOrd,
-    Serialize
-)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
 pub enum Status {
     #[serde(rename = "unseen")]
     Unseen,
@@ -658,18 +642,7 @@ impl std::convert::TryFrom<String> for Status {
 }*/
 /// ```
 /// </details>
-#[derive(
-    Clone,
-    Copy,
-    Debug,
-    Deserialize,
-    Eq,
-    Hash,
-    Ord,
-    PartialEq,
-    PartialOrd,
-    Serialize
-)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
 pub enum Type {
     #[serde(rename = "deposit")]
     Deposit,

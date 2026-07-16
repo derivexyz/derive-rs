@@ -1,7 +1,7 @@
 #![allow(unused_variables)]
 #![allow(unused_imports)]
-use serde::{Deserialize, Serialize};
 use bigdecimal;
+use serde::{Deserialize, Serialize};
 use uuid;
 ///`PM` (Portfolio Margin) or `SM` (Standard Margin)
 ///
@@ -19,18 +19,7 @@ use uuid;
 }*/
 /// ```
 /// </details>
-#[derive(
-    Clone,
-    Copy,
-    Debug,
-    Deserialize,
-    Eq,
-    Hash,
-    Ord,
-    PartialEq,
-    PartialOrd,
-    Serialize
-)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
 pub enum MarginType {
     #[serde(rename = "PM")]
     Pm,
@@ -151,8 +140,7 @@ pub struct PrivateCreateSubaccountJsonrpcSchema {
     pub request: PrivateCreateSubaccountRequestSchema,
     pub response: PrivateCreateSubaccountResponseSchema,
 }
-impl From<&PrivateCreateSubaccountJsonrpcSchema>
-for PrivateCreateSubaccountJsonrpcSchema {
+impl From<&PrivateCreateSubaccountJsonrpcSchema> for PrivateCreateSubaccountJsonrpcSchema {
     fn from(value: &PrivateCreateSubaccountJsonrpcSchema) -> Self {
         value.clone()
     }
@@ -308,8 +296,7 @@ pub struct PrivateCreateSubaccountRequestSchema {
     pub method: String,
     pub params: PrivateCreateSubaccountParamsSchema,
 }
-impl From<&PrivateCreateSubaccountRequestSchema>
-for PrivateCreateSubaccountRequestSchema {
+impl From<&PrivateCreateSubaccountRequestSchema> for PrivateCreateSubaccountRequestSchema {
     fn from(value: &PrivateCreateSubaccountRequestSchema) -> Self {
         value.clone()
     }
@@ -339,8 +326,7 @@ pub enum PrivateCreateSubaccountRequestSchemaId {
     Variant0(String),
     Variant1(i64),
 }
-impl From<&PrivateCreateSubaccountRequestSchemaId>
-for PrivateCreateSubaccountRequestSchemaId {
+impl From<&PrivateCreateSubaccountRequestSchemaId> for PrivateCreateSubaccountRequestSchemaId {
     fn from(value: &PrivateCreateSubaccountRequestSchemaId) -> Self {
         value.clone()
     }
@@ -430,8 +416,7 @@ pub struct PrivateCreateSubaccountResponseSchema {
     ///
     pub result: PrivateCreateSubaccountResultSchema,
 }
-impl From<&PrivateCreateSubaccountResponseSchema>
-for PrivateCreateSubaccountResponseSchema {
+impl From<&PrivateCreateSubaccountResponseSchema> for PrivateCreateSubaccountResponseSchema {
     fn from(value: &PrivateCreateSubaccountResponseSchema) -> Self {
         value.clone()
     }
@@ -461,8 +446,7 @@ pub enum PrivateCreateSubaccountResponseSchemaId {
     Variant0(String),
     Variant1(i64),
 }
-impl From<&PrivateCreateSubaccountResponseSchemaId>
-for PrivateCreateSubaccountResponseSchemaId {
+impl From<&PrivateCreateSubaccountResponseSchemaId> for PrivateCreateSubaccountResponseSchemaId {
     fn from(value: &PrivateCreateSubaccountResponseSchemaId) -> Self {
         value.clone()
     }

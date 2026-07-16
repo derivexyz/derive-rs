@@ -3,19 +3,19 @@ use std::str::FromStr;
 
 use anyhow::Result;
 use bigdecimal::BigDecimal;
+pub use derive_types::types::orders::{
+    Direction, LiquidityRole, OrderParams, OrderResponse, OrderStatus, OrderType, ReplaceParams,
+    TimeInForce,
+};
 use ethers::abi::{AbiDecode, AbiEncode};
 use ethers::prelude::{
     Address, EthAbiCodec, EthAbiType, LocalWallet, Signature, Signer, I256, U256,
 };
 use ethers::utils::hex;
-pub use orderbook_types::types::orders::{
-    Direction, LiquidityRole, OrderParams, OrderResponse, OrderStatus, OrderType, ReplaceParams,
-    TimeInForce,
-};
 
 use crate::actions::helpers::ModuleData;
 use crate::actions::ActionData;
-use orderbook_types::types::liquidations::{AuctionDetailsSchema, LiquidationParams};
+use derive_types::types::liquidations::{AuctionDetailsSchema, LiquidationParams};
 
 #[derive(Clone, Debug, Default, PartialEq, EthAbiType, EthAbiCodec)]
 pub struct LiquidateData {

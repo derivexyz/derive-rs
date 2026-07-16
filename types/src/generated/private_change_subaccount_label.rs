@@ -1,7 +1,7 @@
 #![allow(unused_variables)]
 #![allow(unused_imports)]
-use serde::{Deserialize, Serialize};
 use bigdecimal;
+use serde::{Deserialize, Serialize};
 use uuid;
 ///Change a user defined label for given subaccount
 ///
@@ -77,7 +77,8 @@ pub struct PrivateChangeSubaccountLabelJsonrpcSchema {
     pub response: PrivateChangeSubaccountLabelResponseSchema,
 }
 impl From<&PrivateChangeSubaccountLabelJsonrpcSchema>
-for PrivateChangeSubaccountLabelJsonrpcSchema {
+    for PrivateChangeSubaccountLabelJsonrpcSchema
+{
     fn from(value: &PrivateChangeSubaccountLabelJsonrpcSchema) -> Self {
         value.clone()
     }
@@ -117,8 +118,7 @@ pub struct PrivateChangeSubaccountLabelParamsSchema {
     ///Subaccount_id
     pub subaccount_id: i64,
 }
-impl From<&PrivateChangeSubaccountLabelParamsSchema>
-for PrivateChangeSubaccountLabelParamsSchema {
+impl From<&PrivateChangeSubaccountLabelParamsSchema> for PrivateChangeSubaccountLabelParamsSchema {
     fn from(value: &PrivateChangeSubaccountLabelParamsSchema) -> Self {
         value.clone()
     }
@@ -171,7 +171,8 @@ pub struct PrivateChangeSubaccountLabelRequestSchema {
     pub params: PrivateChangeSubaccountLabelParamsSchema,
 }
 impl From<&PrivateChangeSubaccountLabelRequestSchema>
-for PrivateChangeSubaccountLabelRequestSchema {
+    for PrivateChangeSubaccountLabelRequestSchema
+{
     fn from(value: &PrivateChangeSubaccountLabelRequestSchema) -> Self {
         value.clone()
     }
@@ -202,7 +203,8 @@ pub enum PrivateChangeSubaccountLabelRequestSchemaId {
     Variant1(i64),
 }
 impl From<&PrivateChangeSubaccountLabelRequestSchemaId>
-for PrivateChangeSubaccountLabelRequestSchemaId {
+    for PrivateChangeSubaccountLabelRequestSchemaId
+{
     fn from(value: &PrivateChangeSubaccountLabelRequestSchemaId) -> Self {
         value.clone()
     }
@@ -293,7 +295,8 @@ pub struct PrivateChangeSubaccountLabelResponseSchema {
     pub result: PrivateChangeSubaccountLabelResultSchema,
 }
 impl From<&PrivateChangeSubaccountLabelResponseSchema>
-for PrivateChangeSubaccountLabelResponseSchema {
+    for PrivateChangeSubaccountLabelResponseSchema
+{
     fn from(value: &PrivateChangeSubaccountLabelResponseSchema) -> Self {
         value.clone()
     }
@@ -324,7 +327,8 @@ pub enum PrivateChangeSubaccountLabelResponseSchemaId {
     Variant1(i64),
 }
 impl From<&PrivateChangeSubaccountLabelResponseSchemaId>
-for PrivateChangeSubaccountLabelResponseSchemaId {
+    for PrivateChangeSubaccountLabelResponseSchemaId
+{
     fn from(value: &PrivateChangeSubaccountLabelResponseSchemaId) -> Self {
         value.clone()
     }
@@ -407,8 +411,7 @@ pub struct PrivateChangeSubaccountLabelResultSchema {
     ///Subaccount_id
     pub subaccount_id: i64,
 }
-impl From<&PrivateChangeSubaccountLabelResultSchema>
-for PrivateChangeSubaccountLabelResultSchema {
+impl From<&PrivateChangeSubaccountLabelResultSchema> for PrivateChangeSubaccountLabelResultSchema {
     fn from(value: &PrivateChangeSubaccountLabelResultSchema) -> Self {
         value.clone()
     }

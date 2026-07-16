@@ -1,7 +1,7 @@
 #![allow(unused_variables)]
 #![allow(unused_imports)]
-use serde::{Deserialize, Serialize};
 use bigdecimal;
+use serde::{Deserialize, Serialize};
 use uuid;
 ///
 ///
@@ -109,8 +109,7 @@ pub struct SpotFeedCurrencyNotificationParamsSchema {
     pub channel: String,
     pub data: SpotFeedCurrencyPublisherDataSchema,
 }
-impl From<&SpotFeedCurrencyNotificationParamsSchema>
-for SpotFeedCurrencyNotificationParamsSchema {
+impl From<&SpotFeedCurrencyNotificationParamsSchema> for SpotFeedCurrencyNotificationParamsSchema {
     fn from(value: &SpotFeedCurrencyNotificationParamsSchema) -> Self {
         value.clone()
     }

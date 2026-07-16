@@ -1,7 +1,7 @@
 #![allow(unused_variables)]
 #![allow(unused_imports)]
-use serde::{Deserialize, Serialize};
 use bigdecimal;
+use serde::{Deserialize, Serialize};
 use uuid;
 ///`PM` (Portfolio Margin) or `SM` (Standard Margin)
 ///
@@ -19,18 +19,7 @@ use uuid;
 }*/
 /// ```
 /// </details>
-#[derive(
-    Clone,
-    Copy,
-    Debug,
-    Deserialize,
-    Eq,
-    Hash,
-    Ord,
-    PartialEq,
-    PartialOrd,
-    Serialize
-)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
 pub enum MarginType {
     #[serde(rename = "PM")]
     Pm,
@@ -151,8 +140,7 @@ pub struct PublicCreateSubaccountDebugJsonrpcSchema {
     pub request: PublicCreateSubaccountDebugRequestSchema,
     pub response: PublicCreateSubaccountDebugResponseSchema,
 }
-impl From<&PublicCreateSubaccountDebugJsonrpcSchema>
-for PublicCreateSubaccountDebugJsonrpcSchema {
+impl From<&PublicCreateSubaccountDebugJsonrpcSchema> for PublicCreateSubaccountDebugJsonrpcSchema {
     fn from(value: &PublicCreateSubaccountDebugJsonrpcSchema) -> Self {
         value.clone()
     }
@@ -248,8 +236,7 @@ pub struct PublicCreateSubaccountDebugParamsSchema {
     ///Ethereum wallet address
     pub wallet: String,
 }
-impl From<&PublicCreateSubaccountDebugParamsSchema>
-for PublicCreateSubaccountDebugParamsSchema {
+impl From<&PublicCreateSubaccountDebugParamsSchema> for PublicCreateSubaccountDebugParamsSchema {
     fn from(value: &PublicCreateSubaccountDebugParamsSchema) -> Self {
         value.clone()
     }
@@ -301,8 +288,7 @@ pub struct PublicCreateSubaccountDebugRequestSchema {
     pub method: String,
     pub params: PublicCreateSubaccountDebugParamsSchema,
 }
-impl From<&PublicCreateSubaccountDebugRequestSchema>
-for PublicCreateSubaccountDebugRequestSchema {
+impl From<&PublicCreateSubaccountDebugRequestSchema> for PublicCreateSubaccountDebugRequestSchema {
     fn from(value: &PublicCreateSubaccountDebugRequestSchema) -> Self {
         value.clone()
     }
@@ -333,7 +319,8 @@ pub enum PublicCreateSubaccountDebugRequestSchemaId {
     Variant1(i64),
 }
 impl From<&PublicCreateSubaccountDebugRequestSchemaId>
-for PublicCreateSubaccountDebugRequestSchemaId {
+    for PublicCreateSubaccountDebugRequestSchemaId
+{
     fn from(value: &PublicCreateSubaccountDebugRequestSchemaId) -> Self {
         value.clone()
     }
@@ -424,7 +411,8 @@ pub struct PublicCreateSubaccountDebugResponseSchema {
     pub result: PublicCreateSubaccountDebugResultSchema,
 }
 impl From<&PublicCreateSubaccountDebugResponseSchema>
-for PublicCreateSubaccountDebugResponseSchema {
+    for PublicCreateSubaccountDebugResponseSchema
+{
     fn from(value: &PublicCreateSubaccountDebugResponseSchema) -> Self {
         value.clone()
     }
@@ -455,7 +443,8 @@ pub enum PublicCreateSubaccountDebugResponseSchemaId {
     Variant1(i64),
 }
 impl From<&PublicCreateSubaccountDebugResponseSchemaId>
-for PublicCreateSubaccountDebugResponseSchemaId {
+    for PublicCreateSubaccountDebugResponseSchemaId
+{
     fn from(value: &PublicCreateSubaccountDebugResponseSchemaId) -> Self {
         value.clone()
     }
@@ -554,8 +543,7 @@ pub struct PublicCreateSubaccountDebugResultSchema {
     ///EIP 712 typed data hash
     pub typed_data_hash: String,
 }
-impl From<&PublicCreateSubaccountDebugResultSchema>
-for PublicCreateSubaccountDebugResultSchema {
+impl From<&PublicCreateSubaccountDebugResultSchema> for PublicCreateSubaccountDebugResultSchema {
     fn from(value: &PublicCreateSubaccountDebugResultSchema) -> Self {
         value.clone()
     }

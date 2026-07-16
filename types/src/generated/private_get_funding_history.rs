@@ -1,7 +1,7 @@
 #![allow(unused_variables)]
 #![allow(unused_imports)]
-use serde::{Deserialize, Serialize};
 use bigdecimal;
+use serde::{Deserialize, Serialize};
 use uuid;
 ///FundingPaymentSchema
 ///
@@ -127,8 +127,7 @@ pub struct PrivateGetFundingHistoryJsonrpcSchema {
     pub request: PrivateGetFundingHistoryRequestSchema,
     pub response: PrivateGetFundingHistoryResponseSchema,
 }
-impl From<&PrivateGetFundingHistoryJsonrpcSchema>
-for PrivateGetFundingHistoryJsonrpcSchema {
+impl From<&PrivateGetFundingHistoryJsonrpcSchema> for PrivateGetFundingHistoryJsonrpcSchema {
     fn from(value: &PrivateGetFundingHistoryJsonrpcSchema) -> Self {
         value.clone()
     }
@@ -189,8 +188,7 @@ pub struct PrivateGetFundingHistoryParamsSchema {
     ///Subaccount id
     pub subaccount_id: i64,
 }
-impl From<&PrivateGetFundingHistoryParamsSchema>
-for PrivateGetFundingHistoryParamsSchema {
+impl From<&PrivateGetFundingHistoryParamsSchema> for PrivateGetFundingHistoryParamsSchema {
     fn from(value: &PrivateGetFundingHistoryParamsSchema) -> Self {
         value.clone()
     }
@@ -242,8 +240,7 @@ pub struct PrivateGetFundingHistoryRequestSchema {
     pub method: String,
     pub params: PrivateGetFundingHistoryParamsSchema,
 }
-impl From<&PrivateGetFundingHistoryRequestSchema>
-for PrivateGetFundingHistoryRequestSchema {
+impl From<&PrivateGetFundingHistoryRequestSchema> for PrivateGetFundingHistoryRequestSchema {
     fn from(value: &PrivateGetFundingHistoryRequestSchema) -> Self {
         value.clone()
     }
@@ -273,8 +270,7 @@ pub enum PrivateGetFundingHistoryRequestSchemaId {
     Variant0(String),
     Variant1(i64),
 }
-impl From<&PrivateGetFundingHistoryRequestSchemaId>
-for PrivateGetFundingHistoryRequestSchemaId {
+impl From<&PrivateGetFundingHistoryRequestSchemaId> for PrivateGetFundingHistoryRequestSchemaId {
     fn from(value: &PrivateGetFundingHistoryRequestSchemaId) -> Self {
         value.clone()
     }
@@ -364,8 +360,7 @@ pub struct PrivateGetFundingHistoryResponseSchema {
     ///
     pub result: PrivateGetFundingHistoryResultSchema,
 }
-impl From<&PrivateGetFundingHistoryResponseSchema>
-for PrivateGetFundingHistoryResponseSchema {
+impl From<&PrivateGetFundingHistoryResponseSchema> for PrivateGetFundingHistoryResponseSchema {
     fn from(value: &PrivateGetFundingHistoryResponseSchema) -> Self {
         value.clone()
     }
@@ -395,8 +390,7 @@ pub enum PrivateGetFundingHistoryResponseSchemaId {
     Variant0(String),
     Variant1(i64),
 }
-impl From<&PrivateGetFundingHistoryResponseSchemaId>
-for PrivateGetFundingHistoryResponseSchemaId {
+impl From<&PrivateGetFundingHistoryResponseSchemaId> for PrivateGetFundingHistoryResponseSchemaId {
     fn from(value: &PrivateGetFundingHistoryResponseSchemaId) -> Self {
         value.clone()
     }
@@ -476,8 +470,7 @@ pub struct PrivateGetFundingHistoryResultSchema {
     ///List of funding payments
     pub events: Vec<FundingPaymentSchema>,
 }
-impl From<&PrivateGetFundingHistoryResultSchema>
-for PrivateGetFundingHistoryResultSchema {
+impl From<&PrivateGetFundingHistoryResultSchema> for PrivateGetFundingHistoryResultSchema {
     fn from(value: &PrivateGetFundingHistoryResultSchema) -> Self {
         value.clone()
     }

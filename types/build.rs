@@ -28,17 +28,9 @@ fn main() {
     for schema in schemas {
         let schema = schema.unwrap();
         let path = schema.path();
-        let file_name = path
-            .file_name()
-            .expect("file_name")
-            .to_str()
-            .expect("to_str");
+        let file_name = path.file_name().expect("file_name").to_str().expect("to_str");
         println!("Processing: {}", file_name);
-        let ext = path
-            .extension()
-            .unwrap_or_default()
-            .to_str()
-            .unwrap_or_default();
+        let ext = path.extension().unwrap_or_default().to_str().unwrap_or_default();
         if ext != "json" {
             continue;
         }
@@ -56,17 +48,15 @@ fn main() {
 
         // create a new type space
         let mut type_space = TypeSpace::new(
-            TypeSpaceSettings::default()
-                .with_struct_builder(false)
-                .with_conversion(
-                    SchemaObject {
-                        instance_type: Some(InstanceType::String.into()),
-                        format: Some("decimal".to_string()),
-                        ..Default::default()
-                    },
-                    "bigdecimal::BigDecimal",
-                    [].into_iter(),
-                ),
+            TypeSpaceSettings::default().with_struct_builder(false).with_conversion(
+                SchemaObject {
+                    instance_type: Some(InstanceType::String.into()),
+                    format: Some("decimal".to_string()),
+                    ..Default::default()
+                },
+                "bigdecimal::BigDecimal",
+                [].into_iter(),
+            ),
         );
         match type_space.add_root_schema(schema) {
             Ok(_) => {}
