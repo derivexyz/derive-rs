@@ -1,0 +1,13 @@
+[workspace]
+
+members = [
+    "lyra-maker",
+    "orderbook-types",
+    "lyra-client",
+    "lyra-vaults",
+    "lyra-utils",
+]
+
+resolver = "2"
+license = "MIT OR Apache-2.0"
+keywords = ["crypto", "trading", "sdk"]

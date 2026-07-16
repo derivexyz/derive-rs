@@ -1,0 +1,369 @@
+use crate::types::orders::{OrderResponse, TradeResponse};
+pub use crate::types::rfqs::enums::{
+    CancelReason, Direction, LiquidityRole, OrderStatus, TxStatus,
+};
+pub use crate::types::rfqs::params::LegPriced;
+pub use crate::types::rfqs::LegUnpriced;
+pub use crate::types::shared::PaginationInfoSchema;
+use crate::types::shared::RPCError;
+use crate::types::RPCId;
+use bigdecimal::BigDecimal;
+use serde::{Deserialize, Serialize};
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct RFQResultPrivate {
+    pub rfq_id: uuid::Uuid,
+    #[serde(default)]
+    pub label: String,
+    pub legs: Vec<LegUnpriced>,
+    ///An optional max total cost for the RFQ. Only used when the RFQ sender executes as buyer. Polling endpoints and channels will ignore quotes where the total cost across all legs is above this value. Positive values mean the RFQ sender expects to pay $, negative mean the RFQ sender expects to receive $.This field is not disclosed to the market makers.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub max_total_cost: Option<bigdecimal::BigDecimal>,
+    ///An optional min total cost for the RFQ. Only used when the RFQ sender executes as seller. Polling endpoints and channels will ignore quotes where the total cost across all legs is below this value. Positive values mean the RFQ sender expects to receive $, negative mean the RFQ sender expects to pay $.This field is not disclosed to the market makers.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub min_total_cost: Option<bigdecimal::BigDecimal>,
+    pub subaccount_id: i64,
+    pub status: OrderStatus,
+    pub cancel_reason: CancelReason,
+    pub creation_timestamp: i64,
+    pub last_update_timestamp: i64,
+    pub valid_until: i64,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub counterparties: Option<Vec<String>>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub filled_direction: Option<Direction>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub reducing_direction: Option<Direction>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub preferred_direction: Option<Direction>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub total_cost: Option<bigdecimal::BigDecimal>,
+}
+
+impl From<&RFQResultPrivate> for RFQResultPrivate {
+    fn from(value: &RFQResultPrivate) -> Self {
+        value.clone()
+    }
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct RFQResponsePrivate {
+    pub id: RPCId,
+    pub result: RFQResultPrivate,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct GetRFQsResult {
+    pub rfqs: Vec<RFQResultPrivate>,
+    pub pagination: PaginationInfoSchema,
+}
+
+impl From<&GetRFQsResult> for GetRFQsResult {
+    fn from(value: &GetRFQsResult) -> Self {
+        value.clone()
+    }
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct GetRFQsResponse {
+    pub id: RPCId,
+    pub result: GetRFQsResult,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct QuoteResultPublic {
+    ///Cancel reason, if any
+    pub cancel_reason: CancelReason,
+    ///Creation timestamp in ms since Unix epoch
+    pub creation_timestamp: i64,
+    ///Quote direction
+    pub direction: Direction,
+    ///Percentage of the RFQ that this quote would fill, from 0 to 1.
+    #[serde(default)]
+    pub fill_pct: BigDecimal,
+    ///Last update timestamp in ms since Unix epoch
+    pub last_update_timestamp: i64,
+    ///Quote legs
+    pub legs: Vec<LegPriced>,
+    ///Hash of the legs of the best quote to be signed by the taker.
+    pub legs_hash: String,
+    ///Liquidity role
+    pub liquidity_role: LiquidityRole,
+    ///Quote ID
+    pub quote_id: uuid::Uuid,
+    ///RFQ ID
+    pub rfq_id: uuid::Uuid,
+    ///Status
+    pub status: OrderStatus,
+    ///Subaccount ID
+    pub subaccount_id: i64,
+    ///Blockchain transaction hash (only for executed quotes)
+    pub tx_hash: Option<String>,
+    ///Blockchain transaction status (only for executed quotes)
+    pub tx_status: Option<TxStatus>,
+    ///Wallet of the sender
+    pub wallet: String,
+}
+impl From<&QuoteResultPublic> for QuoteResultPublic {
+    fn from(value: &QuoteResultPublic) -> Self {
+        value.clone()
+    }
+}
+
+impl QuoteResultPublic {
+    pub fn total_cost(&self) -> BigDecimal {
+        self.legs
+            .iter()
+            .map(|leg| leg.direction.sign() * &leg.amount * &leg.price)
+            .sum::<BigDecimal>()
+            * self.direction.sign()
+    }
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct PollQuotesResult {
+    ///Pagination info
+    pub pagination: PaginationInfoSchema,
+    ///Quotes matching filter criteria
+    pub quotes: Vec<QuoteResultPublic>,
+}
+impl From<&PollQuotesResult> for PollQuotesResult {
+    fn from(value: &PollQuotesResult) -> Self {
+        value.clone()
+    }
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct PollQuotesResponse {
+    pub id: RPCId,
+    pub result: PollQuotesResult,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct RfqResultPublicSchema {
+    ///Cancel reason, if any
+    pub cancel_reason: CancelReason,
+    ///Creation timestamp in ms since Unix epoch
+    pub creation_timestamp: i64,
+    ///Last update timestamp in ms since Unix epoch
+    pub last_update_timestamp: i64,
+    ///RFQ legs
+    pub legs: Vec<LegUnpriced>,
+    ///RFQ ID
+    pub rfq_id: uuid::Uuid,
+    ///Status
+    pub status: OrderStatus,
+    ///Subaccount ID
+    pub subaccount_id: i64,
+    ///RFQ expiry timestamp in ms since Unix epoch
+    pub valid_until: i64,
+    ///Direction at which the RFQ was filled (only if filled)
+    pub filled_direction: Option<Direction>,
+    pub reducing_direction: Option<Direction>,
+    pub preferred_direction: Option<Direction>,
+    ///Total cost for the RFQ (only if filled)
+    pub total_cost: Option<bigdecimal::BigDecimal>,
+    ///Step size for partial fills (default: 1)
+    pub partial_fill_step: bigdecimal::BigDecimal,
+    ///Percentage of the RFQ that has been filled, from 0 to 1.
+    pub filled_pct: bigdecimal::BigDecimal,
+    ///Average taker fill rate, from 0 to 1. Returns null for users with insufficient RFQ history.
+    pub fill_rate: Option<bigdecimal::BigDecimal>,
+    ///Taker fill rate, weighted towards the recent several days of activity, from 0 to 1. Returns null for users with insufficient recent RFQ history.
+    pub recent_fill_rate: Option<bigdecimal::BigDecimal>,
+    ///Wallet address of the RFQ sender
+    #[serde(default)]
+    pub wallet: String,
+}
+
+impl From<&RfqResultPublicSchema> for RfqResultPublicSchema {
+    fn from(value: &RfqResultPublicSchema) -> Self {
+        value.clone()
+    }
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct WalletRfqsNotificationParamsSchema {
+    ///Subscribed channel name
+    pub channel: String,
+    pub data: RfqNotificationData,
+}
+impl From<&WalletRfqsNotificationParamsSchema> for WalletRfqsNotificationParamsSchema {
+    fn from(value: &WalletRfqsNotificationParamsSchema) -> Self {
+        value.clone()
+    }
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct WalletRfqsNotificationSchema {
+    pub method: String,
+    pub params: WalletRfqsNotificationParamsSchema,
+}
+impl From<&WalletRfqsNotificationSchema> for WalletRfqsNotificationSchema {
+    fn from(value: &WalletRfqsNotificationSchema) -> Self {
+        value.clone()
+    }
+}
+
+/// Quote result for subaccount_id.quotes channel notification
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct QuoteResultSchema {
+    /// Cancel reason, if any
+    pub cancel_reason: CancelReason,
+    /// Creation timestamp in ms since Unix epoch
+    pub creation_timestamp: i64,
+    /// Quote direction
+    pub direction: Direction,
+    /// Extra fee in USDC added by the referring client (included in quote fee)
+    #[serde(default)]
+    pub extra_fee: BigDecimal,
+    /// Fee paid for this quote (if executed)
+    pub fee: BigDecimal,
+    /// Percentage of the RFQ that this quote would fill, from 0 to 1.
+    #[serde(default)]
+    pub fill_pct: BigDecimal,
+    /// Whether the order was generated through `private/transfer_position`
+    #[serde(default)]
+    pub is_transfer: bool,
+    /// User-defined label, if any
+    #[serde(default)]
+    pub label: String,
+    /// Last update timestamp in ms since Unix epoch
+    pub last_update_timestamp: i64,
+    /// Quote legs
+    pub legs: Vec<LegPriced>,
+    /// Hash of the legs of the best quote to be signed by the taker.
+    pub legs_hash: String,
+    /// Liquidity role
+    pub liquidity_role: LiquidityRole,
+    /// Signed max fee
+    pub max_fee: BigDecimal,
+    /// Whether the quote is tagged for market maker protections (default false)
+    #[serde(default)]
+    pub mmp: bool,
+    /// Nonce
+    pub nonce: i64,
+    /// Quote ID
+    pub quote_id: uuid::Uuid,
+    /// RFQ ID
+    pub rfq_id: uuid::Uuid,
+    /// Etherium signature of the quote
+    pub signature: String,
+    /// Unix timestamp in seconds
+    pub signature_expiry_sec: i64,
+    /// Owner wallet address or registered session key that signed the quote
+    pub signer: String,
+    /// Status
+    pub status: OrderStatus,
+    /// Subaccount ID
+    pub subaccount_id: i64,
+    /// Blockchain transaction hash (only for executed quotes)
+    #[serde(default)]
+    pub tx_hash: Option<String>,
+    /// Blockchain transaction status (only for executed quotes)
+    #[serde(default)]
+    pub tx_status: Option<TxStatus>,
+}
+
+impl From<&QuoteResultSchema> for QuoteResultSchema {
+    fn from(value: &QuoteResultSchema) -> Self {
+        value.clone()
+    }
+}
+
+/// Notification params for subaccount_id.quotes channel
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct SubaccountIdQuotesNotificationParamsSchema {
+    /// Subscribed channel name
+    pub channel: String,
+    /// Quote result data
+    pub data: QuoteNotificationData,
+}
+
+impl From<&SubaccountIdQuotesNotificationParamsSchema>
+    for SubaccountIdQuotesNotificationParamsSchema
+{
+    fn from(value: &SubaccountIdQuotesNotificationParamsSchema) -> Self {
+        value.clone()
+    }
+}
+
+/// Notification schema for subaccount_id.quotes channel
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct SubaccountIdQuotesNotificationSchema {
+    pub method: String,
+    pub params: SubaccountIdQuotesNotificationParamsSchema,
+}
+
+impl From<&SubaccountIdQuotesNotificationSchema> for SubaccountIdQuotesNotificationSchema {
+    fn from(value: &SubaccountIdQuotesNotificationSchema) -> Self {
+        value.clone()
+    }
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct ReplaceQuoteResult {
+    ///Quote that was cancelled
+    pub cancelled_quote: QuoteResultSchema,
+    ///Optional. Returns error during new quote creation
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub create_quote_error: Option<RPCError>,
+    ///New quote that was created
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub quote: Option<QuoteResultSchema>,
+}
+
+impl From<&ReplaceQuoteResult> for ReplaceQuoteResult {
+    fn from(value: &ReplaceQuoteResult) -> Self {
+        value.clone()
+    }
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct ReplaceQuoteResponse {
+    pub id: RPCId,
+    pub result: ReplaceQuoteResult,
+}
+
+pub type RfqNotificationData = Vec<RfqResultPublicSchema>;
+pub type QuoteNotificationData = Vec<QuoteResultSchema>;
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct PollRfqsResult {
+    /// Pagination info
+    pub pagination: PaginationInfoSchema,
+    /// RFQs matching filter criteria
+    pub rfqs: Vec<RfqResultPublicSchema>,
+}
+
+impl From<&PollRfqsResult> for PollRfqsResult {
+    fn from(value: &PollRfqsResult) -> Self {
+        value.clone()
+    }
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct PollRfqsResponse {
+    pub id: RPCId,
+    pub result: PollRfqsResult,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct GetQuotesResult {
+    /// Pagination info
+    pub pagination: PaginationInfoSchema,
+    /// Quotes matching filter criteria
+    pub quotes: Vec<QuoteResultSchema>,
+}
+
+impl From<&GetQuotesResult> for GetQuotesResult {
+    fn from(value: &GetQuotesResult) -> Self {
+        value.clone()
+    }
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct GetQuotesResponse {
+    pub id: RPCId,
+    pub result: GetQuotesResult,
+}
