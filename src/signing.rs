@@ -1,5 +1,4 @@
 use ethers::{
-    abi::Address,
     signers::{LocalWallet, Signer},
     utils::hex,
 };
@@ -13,7 +12,7 @@ fn utc_now_ms() -> u128 {
         .as_millis()
 }
 
-pub async fn sign_ws_login(smart_contract_wallet: Address, wallet: &LocalWallet) -> Value {
+pub async fn sign_ws_login(smart_contract_wallet: &str, wallet: &LocalWallet) -> Value {
     // Parse private key into a LocalWallet
     let timestamp = utc_now_ms().to_string();
     let signature = wallet
@@ -23,7 +22,8 @@ pub async fn sign_ws_login(smart_contract_wallet: Address, wallet: &LocalWallet)
     let signature_hex = hex::encode(signature.to_vec());
 
     let result = serde_json::json!({
-        "wallet": format!("{:#x}", smart_contract_wallet),
+        "wallet": smart_contract_wallet.to_string(),
+        // "wallet": format!("{:#x}", smart_contract_wallet),
         "timestamp": timestamp,
         "signature": signature_hex,
     });

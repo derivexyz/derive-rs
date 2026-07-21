@@ -104,24 +104,6 @@ pub enum SubscribeResponse {
 }
 
 #[derive(Deserialize, Debug)]
-pub struct LoginSuccess {
-    pub id: u64,
-    pub result: Vec<u64>,
-}
-#[derive(Deserialize, Debug)]
-pub struct LoginError {
-    pub id: u64,
-    pub error: Value,
-    pub jsonrpc: String,
-}
-#[derive(Deserialize, Debug)]
-#[serde(untagged)]
-pub enum LoginResponse {
-    Success(LoginSuccess),
-    Error(LoginError),
-}
-
-#[derive(Deserialize, Debug)]
 pub struct Pagination {
     #[allow(dead_code)]
     count: u64,

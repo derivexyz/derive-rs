@@ -126,6 +126,203 @@ impl ::std::default::Default for LoginRequest {
         }
     }
 }
+///`PrivateSetCancelOnDisconnectRequest`
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "type": "object",
+///  "required": [
+///    "id",
+///    "method",
+///    "params"
+///  ],
+///  "properties": {
+///    "headers": {
+///      "description": "Non-standard; used by `auth/login`.",
+///      "type": [
+///        "object",
+///        "null"
+///      ],
+///      "additionalProperties": true
+///    },
+///    "id": {
+///      "$ref": "#/definitions/JsonRpcId"
+///    },
+///    "method": {
+///      "type": "string",
+///      "const": "private/set_cancel_on_disconnect"
+///    },
+///    "params": {
+///      "$ref": "#/definitions/SetCancelOnDisconnectRequest"
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct PrivateSetCancelOnDisconnectRequest {
+    ///Non-standard; used by `auth/login`.
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub headers: ::std::option::Option<
+        ::serde_json::Map<::std::string::String, ::serde_json::Value>,
+    >,
+    pub id: JsonRpcId,
+    pub method: ::std::string::String,
+    pub params: SetCancelOnDisconnectRequest,
+}
+///`PrivateSetCancelOnDisconnectResponse`
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "type": "object",
+///  "anyOf": [
+///    {
+///      "title": "Success",
+///      "type": "object",
+///      "required": [
+///        "result"
+///      ],
+///      "properties": {
+///        "result": {
+///          "$ref": "#/definitions/SetCancelOnDisconnectResponse"
+///        }
+///      }
+///    },
+///    {
+///      "title": "Error",
+///      "type": "object",
+///      "required": [
+///        "error"
+///      ],
+///      "properties": {
+///        "error": {
+///          "$ref": "#/definitions/RPCError"
+///        }
+///      }
+///    }
+///  ],
+///  "required": [
+///    "id"
+///  ],
+///  "properties": {
+///    "id": {
+///      "$ref": "#/definitions/JsonRpcId"
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+#[serde(untagged)]
+pub enum PrivateSetCancelOnDisconnectResponse {
+    Variant0 { id: JsonRpcId, result: SetCancelOnDisconnectResponse },
+    Variant1 { error: RpcError, id: JsonRpcId },
+}
+///`PublicLoginRequest`
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "type": "object",
+///  "required": [
+///    "id",
+///    "method",
+///    "params"
+///  ],
+///  "properties": {
+///    "headers": {
+///      "description": "Non-standard; used by `auth/login`.",
+///      "type": [
+///        "object",
+///        "null"
+///      ],
+///      "additionalProperties": true
+///    },
+///    "id": {
+///      "$ref": "#/definitions/JsonRpcId"
+///    },
+///    "method": {
+///      "type": "string",
+///      "const": "public/login"
+///    },
+///    "params": {
+///      "$ref": "#/definitions/LoginRequest"
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct PublicLoginRequest {
+    ///Non-standard; used by `auth/login`.
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub headers: ::std::option::Option<
+        ::serde_json::Map<::std::string::String, ::serde_json::Value>,
+    >,
+    pub id: JsonRpcId,
+    pub method: ::std::string::String,
+    pub params: LoginRequest,
+}
+///`PublicLoginResponse`
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "type": "object",
+///  "anyOf": [
+///    {
+///      "title": "Success",
+///      "type": "object",
+///      "required": [
+///        "result"
+///      ],
+///      "properties": {
+///        "result": {
+///          "type": "array",
+///          "items": {
+///            "type": "integer",
+///            "format": "uint64",
+///            "minimum": 0.0
+///          }
+///        }
+///      }
+///    },
+///    {
+///      "title": "Error",
+///      "type": "object",
+///      "required": [
+///        "error"
+///      ],
+///      "properties": {
+///        "error": {
+///          "$ref": "#/definitions/RPCError"
+///        }
+///      }
+///    }
+///  ],
+///  "required": [
+///    "id"
+///  ],
+///  "properties": {
+///    "id": {
+///      "$ref": "#/definitions/JsonRpcId"
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+#[serde(untagged)]
+pub enum PublicLoginResponse {
+    Variant0 { id: JsonRpcId, result: ::std::vec::Vec<u64> },
+    Variant1 { error: RpcError, id: JsonRpcId },
+}
 ///`RpcError`
 ///
 /// <details><summary>JSON schema</summary>
@@ -306,6 +503,102 @@ impl ::std::convert::TryFrom<::std::string::String> for SetCancelOnDisconnectRes
 pub struct SubscribeParams {
     pub channels: ::std::vec::Vec<::std::string::String>,
 }
+///`SubscribeRequest`
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "type": "object",
+///  "required": [
+///    "id",
+///    "method",
+///    "params"
+///  ],
+///  "properties": {
+///    "headers": {
+///      "description": "Non-standard; used by `auth/login`.",
+///      "type": [
+///        "object",
+///        "null"
+///      ],
+///      "additionalProperties": true
+///    },
+///    "id": {
+///      "$ref": "#/definitions/JsonRpcId"
+///    },
+///    "method": {
+///      "type": "string",
+///      "const": "subscribe"
+///    },
+///    "params": {
+///      "$ref": "#/definitions/SubscribeParams"
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct SubscribeRequest {
+    ///Non-standard; used by `auth/login`.
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub headers: ::std::option::Option<
+        ::serde_json::Map<::std::string::String, ::serde_json::Value>,
+    >,
+    pub id: JsonRpcId,
+    pub method: ::std::string::String,
+    pub params: SubscribeParams,
+}
+///`SubscribeResponse`
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "type": "object",
+///  "anyOf": [
+///    {
+///      "title": "Success",
+///      "type": "object",
+///      "required": [
+///        "result"
+///      ],
+///      "properties": {
+///        "result": {
+///          "$ref": "#/definitions/SubscribeResult"
+///        }
+///      }
+///    },
+///    {
+///      "title": "Error",
+///      "type": "object",
+///      "required": [
+///        "error"
+///      ],
+///      "properties": {
+///        "error": {
+///          "$ref": "#/definitions/RPCError"
+///        }
+///      }
+///    }
+///  ],
+///  "required": [
+///    "id"
+///  ],
+///  "properties": {
+///    "id": {
+///      "$ref": "#/definitions/JsonRpcId"
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+#[serde(untagged)]
+pub enum SubscribeResponse {
+    Variant0 { id: JsonRpcId, result: SubscribeResult },
+    Variant1 { error: RpcError, id: JsonRpcId },
+}
 ///Result for `subscribe`. `status` maps each requested channel to `"ok"` or an error string; `current_subscriptions` is the full set of channels the connection is subscribed to after the operation.
 ///
 /// <details><summary>JSON schema</summary>
@@ -375,6 +668,102 @@ impl ::std::default::Default for UnsubscribeParams {
             channels: Default::default(),
         }
     }
+}
+///`UnsubscribeRequest`
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "type": "object",
+///  "required": [
+///    "id",
+///    "method",
+///    "params"
+///  ],
+///  "properties": {
+///    "headers": {
+///      "description": "Non-standard; used by `auth/login`.",
+///      "type": [
+///        "object",
+///        "null"
+///      ],
+///      "additionalProperties": true
+///    },
+///    "id": {
+///      "$ref": "#/definitions/JsonRpcId"
+///    },
+///    "method": {
+///      "type": "string",
+///      "const": "unsubscribe"
+///    },
+///    "params": {
+///      "$ref": "#/definitions/UnsubscribeParams"
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct UnsubscribeRequest {
+    ///Non-standard; used by `auth/login`.
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub headers: ::std::option::Option<
+        ::serde_json::Map<::std::string::String, ::serde_json::Value>,
+    >,
+    pub id: JsonRpcId,
+    pub method: ::std::string::String,
+    pub params: UnsubscribeParams,
+}
+///`UnsubscribeResponse`
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "type": "object",
+///  "anyOf": [
+///    {
+///      "title": "Success",
+///      "type": "object",
+///      "required": [
+///        "result"
+///      ],
+///      "properties": {
+///        "result": {
+///          "$ref": "#/definitions/UnsubscribeResult"
+///        }
+///      }
+///    },
+///    {
+///      "title": "Error",
+///      "type": "object",
+///      "required": [
+///        "error"
+///      ],
+///      "properties": {
+///        "error": {
+///          "$ref": "#/definitions/RPCError"
+///        }
+///      }
+///    }
+///  ],
+///  "required": [
+///    "id"
+///  ],
+///  "properties": {
+///    "id": {
+///      "$ref": "#/definitions/JsonRpcId"
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+#[serde(untagged)]
+pub enum UnsubscribeResponse {
+    Variant0 { id: JsonRpcId, result: UnsubscribeResult },
+    Variant1 { error: RpcError, id: JsonRpcId },
 }
 ///Result for `unsubscribe`. `status` maps each requested channel to `"ok"` or an error string; `remaining_subscriptions` is the set of channels the connection is still subscribed to after the operation.
 ///

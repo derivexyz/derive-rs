@@ -10,7 +10,7 @@ use tokio::{
 
 use anyhow::anyhow;
 use ethers::{
-    abi::Address,
+    // abi::Address,
     signers::{LocalWallet, Signer},
 };
 use futures_util::{SinkExt, StreamExt};
@@ -24,17 +24,12 @@ use tracing::{error, info, warn};
 use yawc::{Frame, OpCode};
 
 use crate::{
-    // models::{InstrumentPublicResponseSchema, PublicGetAllInstrumentsResultSchema},
-    // namespaces::{
-    //     account::AccountNamespace, collaterals::CollateralsNamespace, orders::OrdersNamespace,
-    //     positions::PositionsNamespace, subaccount::SubaccountNamespace,
-    // },
+    models::asyncapi_rpc::{SetCancelOnDisconnectRequest, SetCancelOnDisconnectResponse},
     routing::{extract_channel, extract_id, extract_id_tail},
     signing::sign_ws_login,
-    // subscriptions::Subscriptions,
     types::{
         ChannelResponse, ChannelSender, ClientError, Environment, Error, ExternalEvent,
-        InternalCommand, LoginSuccess, RequestScope, ResponseSender, RpcError, RpcResult, WsStream,
+        InternalCommand, RequestScope, ResponseSender, RpcError, RpcResult, WsStream,
     },
 };
 
@@ -70,7 +65,7 @@ pub struct WsClient {
     subscription_tasks: Arc<Mutex<Vec<JoinHandle<()>>>>,
     pub wallet: Option<LocalWallet>,
     pub public_address: Option<String>,
-    pub smart_contract_wallet_address: Option<Address>,
+    pub smart_contract_wallet_address: Option<String>,
     pub subaccount_id: Option<i64>,
     pub environment: Environment,
 }
@@ -193,8 +188,8 @@ impl WsClient {
             subscription_tasks: Arc::new(Mutex::new(Vec::new())),
             wallet,
             public_address,
-            smart_contract_wallet_address: smart_contract_wallet_address
-                .and_then(|addr| addr.parse::<Address>().ok()),
+            smart_contract_wallet_address,
+            // .and_then(|addr| addr.parse::<Address>().ok()),
             subaccount_id,
             // instruments_cache,
             environment: env,
@@ -431,7 +426,7 @@ impl WsClient {
         }
     }
 
-    pub async fn login(&self) -> Result<LoginSuccess, ClientError> {
+    pub async fn login(&self) -> Result<Vec<u64>, ClientError> {
         if self.wallet.is_none() {
             warn!("No wallet available for login");
             return Err(ClientError::Rpc(serde_json::json!({
@@ -444,16 +439,35 @@ impl WsClient {
                 "message": "No smart contract wallet available for login"
             })));
         }
+        let scw = self.smart_contract_wallet_address.as_ref().unwrap();
         let wallet = self.wallet.as_ref().unwrap();
-        let login_data = sign_ws_login(self.smart_contract_wallet_address.unwrap(), wallet).await;
+        let login_data = sign_ws_login(scw, wallet).await;
 
-        let result: Vec<u64> = self.send_rpc("public/login", login_data).await?;
-        let success = LoginSuccess {
-            id: self.next_id.load(Ordering::Relaxed).saturating_sub(1),
-            result,
+        self.send_rpc("public/login", login_data).await
+    }
+
+    pub async fn set_cancel_on_disconnect(
+        &self,
+        enabled: bool,
+    ) -> Result<SetCancelOnDisconnectResponse, ClientError> {
+        let scw = match &self.smart_contract_wallet_address {
+            Some(addr) => addr.clone(),
+            None => {
+                warn!("No smart contract wallet available for set_cancel_on_disconnect");
+                return Err(ClientError::Rpc(serde_json::json!({
+                    "message": "No smart contract wallet available for set_cancel_on_disconnect"
+                })));
+            }
         };
-        info!("Login successful: {success:?}");
-        Ok(success)
+        let msg = SetCancelOnDisconnectRequest {
+            enabled: Some(enabled),
+            wallet: Some(scw),
+        };
+        self.send_rpc(
+            "private/set_cancel_on_disconnect",
+            serde_json::to_value(msg).map_err(ClientError::Parse)?,
+        )
+        .await
     }
 
     pub fn is_connected(&self) -> bool {

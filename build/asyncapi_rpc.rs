@@ -19,11 +19,25 @@ pub fn generate() {
         .and_then(Value::as_object)
         .expect("Unable to extract schemas.");
 
+    let messages = document
+        .pointer("/components/messages")
+        .and_then(Value::as_object)
+        .expect("Unable to extract messages.");
+
     let mut definitions: Map<String, Value> = schemas.clone();
 
     // for schema in definitions.values_mut() {
     //     rewrite_component_refs(schema);
     // }
+
+    for (message_name, message) in messages {
+        let payload = message
+            .get("payload")
+            .cloned()
+            .unwrap_or_else(|| panic!("message `{message_name}` has no payload"));
+
+        definitions.insert(message_name.clone(), payload);
+    }
 
     for schema in definitions.values_mut() {
         normalize_schema(schema);
@@ -93,6 +107,8 @@ fn normalize_schema(value: &mut Value) {
                 *reference = format!("#/definitions/{schema_name}");
             }
 
+            name_union_variants(object);
+
             // Normalise nested schemas first.
             for nested in object.values_mut() {
                 normalize_schema(nested);
@@ -113,6 +129,46 @@ fn normalize_schema(value: &mut Value) {
         }
 
         _ => {}
+    }
+}
+
+fn name_union_variants(object: &mut Map<String, Value>) {
+    let union_key = if object.contains_key("oneOf") {
+        "oneOf"
+    } else if object.contains_key("anyOf") {
+        "anyOf"
+    } else {
+        return;
+    };
+
+    let Some(variants) = object.get_mut(union_key).and_then(Value::as_array_mut) else {
+        return;
+    };
+
+    for variant in variants {
+        let Some(variant_object) = variant.as_object_mut() else {
+            continue;
+        };
+
+        if variant_object.contains_key("title") {
+            continue;
+        }
+
+        let Some(properties) = variant_object.get("properties").and_then(Value::as_object) else {
+            continue;
+        };
+
+        let title = if properties.contains_key("result") {
+            Some("Success")
+        } else if properties.contains_key("error") {
+            Some("Error")
+        } else {
+            None
+        };
+
+        if let Some(title) = title {
+            variant_object.insert("title".to_owned(), Value::String(title.to_owned()));
+        }
     }
 }
 
