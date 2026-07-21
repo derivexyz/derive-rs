@@ -5,12 +5,13 @@ edition = "2024"
 
 [dependencies]
 anyhow = "1.0.104"
-bigdecimal = { version = "0.4.10", features = ["serde"] }
+bigdecimal = { version = "0.4.10", features = ["serde", "serde-json"] }
 bytes = "1.12.1"
 chrono = { version = "0.4.45", features = ["serde"] }
 dashmap = "6.2.1"
 ethers = { version = "2.0.14", features = ["eip712"] }
 futures-util = "0.3.33"
+regress = "0.11.1"
 reqwest = { version = "0.13.4", features = ["json", "query"] }
 serde = { version = "1.0.229", features = ["derive"] }
 serde_json = "1.0.151"
@@ -19,7 +20,14 @@ thiserror = "2.0.19"
 tokio = { version = "1.53.1", features = ["macros", "rt", "rt-multi-thread"] }
 tracing = "0.1.44"
 tracing-subscriber = "0.3.23"
-uuid = "1.24.0"
+uuid = { version = "1.24.0", features = ["serde"] }
 yawc = "0.3.3"
 
 [workspace]
+
+[build-dependencies]
+prettyplease = "0.3.0"
+schemars = "0.8"
+serde_json = "1.0.151"
+syn = "3.0.2"
+typify = "0.7.0"
