@@ -1,0 +1,159 @@
+use bytes::Bytes;
+use serde::Deserialize;
+use serde_json::Value;
+use std::fmt;
+use std::str::FromStr;
+use thiserror::Error;
+use tokio::sync::oneshot;
+use yawc::Frame;
+
+pub type WsStream = yawc::TcpWebSocket;
+pub type ResponseSender = oneshot::Sender<Bytes>;
+pub type ChannelSender = tokio::sync::mpsc::UnboundedSender<Bytes>;
+pub type Error = Box<dyn std::error::Error + Send + Sync>;
+
+pub enum InternalCommand {
+    Send(Frame),
+    Close,
+}
+
+#[derive(PartialEq, Clone, Debug, Copy)]
+pub enum ExternalEvent {
+    Connected,
+    Disconnected,
+    Exited,
+}
+
+#[derive(Clone, Debug, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum RequestScope {
+    Public,
+    Private,
+}
+
+impl fmt::Display for RequestScope {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            RequestScope::Public => write!(f, "public"),
+            RequestScope::Private => write!(f, "private"),
+        }
+    }
+}
+
+#[derive(Debug, Error)]
+pub enum ClientError {
+    #[error("RPC error: {0:?}")]
+    Rpc(Value),
+
+    #[error("transport error")]
+    Transport(#[from] Box<dyn std::error::Error + Send + Sync>),
+
+    #[error("JSON parse error")]
+    Parse(#[from] serde_json::Error),
+
+    #[error("oneshot receive error")]
+    Recv(#[from] oneshot::error::RecvError),
+
+    #[error("Anyhow error: {0}")]
+    Anyhow(#[from] anyhow::Error),
+
+    #[error("Environment variable error: {0}")]
+    EnvVar(#[from] std::env::VarError),
+
+    #[error("Rpc error {error:?}")]
+    RpcError { error: Value },
+}
+
+// environment enum
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub enum Environment {
+    Mainnet,
+    #[default]
+    Testnet,
+}
+impl Environment {
+    pub fn get_url(&self) -> &str {
+        match self {
+            Environment::Mainnet => "wss://api.lyra.finance/ws",
+            Environment::Testnet => "wss://api-demo.lyra.finance/ws",
+        }
+    }
+}
+impl FromStr for Environment {
+    type Err = ();
+    fn from_str(env: &str) -> Result<Self, Self::Err> {
+        match env.to_lowercase().as_str() {
+            "mainnet" => Ok(Environment::Mainnet),
+            "testnet" => Ok(Environment::Testnet),
+            _ => Err(()),
+        }
+    }
+}
+
+#[derive(Deserialize, Debug)]
+pub struct ChannelResponse {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub current_subscriptions: Option<Vec<String>>,
+
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub remaining_subscriptions: Option<Vec<String>>,
+
+    #[serde(default)]
+    pub status: Value,
+}
+
+#[derive(Deserialize, Debug)]
+#[serde(untagged)]
+pub enum SubscribeResponse {
+    Ok { id: u64, result: ChannelResponse },
+    Err { id: u64, error: Value },
+}
+
+#[derive(Deserialize, Debug)]
+pub struct LoginSuccess {
+    pub id: u64,
+    pub result: Vec<u64>,
+}
+#[derive(Deserialize, Debug)]
+pub struct LoginError {
+    pub id: u64,
+    pub error: Value,
+    pub jsonrpc: String,
+}
+#[derive(Deserialize, Debug)]
+#[serde(untagged)]
+pub enum LoginResponse {
+    Success(LoginSuccess),
+    Error(LoginError),
+}
+
+#[derive(Deserialize, Debug)]
+pub struct Pagination {
+    #[allow(dead_code)]
+    count: u64,
+    #[allow(dead_code)]
+    num_pages: u64,
+}
+// a genertic Response struct allowing a type parameter T
+#[derive(Deserialize, Debug)]
+pub struct RpcResult<T> {
+    pub id: u64,
+    pub result: T,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub pagination: Option<Pagination>,
+}
+#[derive(Deserialize, Debug)]
+pub struct RpcError {
+    pub id: u64,
+    pub error: Value,
+    #[serde(default)]
+    pub jsonrpc: Option<String>,
+}
+#[derive(Deserialize, Debug)]
+#[serde(untagged)]
+pub enum RpcResponse<T> {
+    Ok(RpcResult<T>),
+    // Err(RpcError),
+}
+
+pub type RpcResponseResult<T> = Result<RpcResult<T>, ClientError>;
