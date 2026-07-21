@@ -56,43 +56,11 @@ run:
 codegen:
 
 	curl https://v3.docs.derive.xyz/openapi.json | yq '.' > openapi.json
+	curl https://v3.docs.derive.xyz/websocket.asyncapi.json | yq '.' > ws_asyncapi_rpc.json
+	curl https://v3.docs.derive.xyz/subscriptions.asyncapi.json | yq '.' > ws_asyncapi_subscriptions.json
 
-	openapi-generator-cli version
-# 	python build_script/patch_spec.py
 
-	# REST API generation
-	openapi-generator-cli generate \
-	  -i openapi.json \
-	  -g rust \
-	  -o ./generated \
-	  --type-mappings decimal=bigdecimal::BigDecimal \
-	  --additional-properties=supportAsync=true,useSingleRequestParameter=true,avoidBoxedModels=true,generateAliasAsModel=false,preserveOriginalNames=true,supportNullable=true,library=reqwest-trait,topLevelApiClient=true,reqwestDefaultFeatures=rustls-tls-webpki-roots \
- 	  --skip-validate-spec	
-	rm -rf ./src/models/*
-	cp ./generated/src/models/* ./src/models/
-	# cp -r ./generated/src/apis ./src
-	rm -rf ./generated
-
-	# WebSocket OpenAPI generation (ticker)
-	# redocly bundle ws_openapi.json -o bundled.yaml --ext yaml
-	# openapi-generator-cli generate \
-	  # -i bundled.yaml \
-	  # -g rust \
-	  # -o ./generated \
-	  # --type-mappings decimal=bigdecimal::BigDecimal \
-	  # --additional-properties=supportAsync=true,useSingleRequestParameter=true,avoidBoxedModels=true,generateAliasAsModel=false,preserveOriginalNames=true,supportNullable=true,library=reqwest-trait,topLevelApiClient=true,reqwestDefaultFeatures=rustls-tls-webpki-roots 
-# #  	  --skip-validate-spec
-
-	# cp ./generated/src/models/interval.rs src/models/interval.rs
-	# cp ./generated/src/models/group.rs src/models/group.rs
-	# cp ./generated/src/models/depth.rs src/models/depth.rs
-	# cp ./generated/src/models/orderbook_*.rs src/models/
-	# cp ./generated/src/models/*balance* src/models/
-	# cp ./generated/src/models/*notification* src/models/
 	cp build_script/models/ticker_slim_schema.rs src/models/ticker_slim_schema.rs
-	# rm -rf bundled.yaml generated
-
-	# python build_script/post_processing.py
 
 
 all: codegen fmt lint build test
