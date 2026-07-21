@@ -61,7 +61,7 @@ codegen:
 
 	redocly lint schemas/openapi.json --lint-config=error
 
-	cp build_script/models/ticker_slim_schema.rs src/models/ticker_slim_schema.rs
+	cp build/models/ticker_slim_schema.rs src/models/ticker_slim_schema.rs
 
 
 all: codegen fmt lint build test
