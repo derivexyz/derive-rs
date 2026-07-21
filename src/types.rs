@@ -44,22 +44,16 @@ impl fmt::Display for RequestScope {
 pub enum ClientError {
     #[error("RPC error: {0:?}")]
     Rpc(Value),
-
     #[error("transport error")]
     Transport(#[from] Box<dyn std::error::Error + Send + Sync>),
-
     #[error("JSON parse error")]
     Parse(#[from] serde_json::Error),
-
     #[error("oneshot receive error")]
     Recv(#[from] oneshot::error::RecvError),
-
     #[error("Anyhow error: {0}")]
     Anyhow(#[from] anyhow::Error),
-
     #[error("Environment variable error: {0}")]
     EnvVar(#[from] std::env::VarError),
-
     #[error("Rpc error {error:?}")]
     RpcError { error: Value },
 }

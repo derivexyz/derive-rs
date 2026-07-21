@@ -55,10 +55,11 @@ run:
 
 codegen:
 
-	curl https://v3.docs.derive.xyz/openapi.json | yq '.' > openapi.json
-	curl https://v3.docs.derive.xyz/websocket.asyncapi.json | yq '.' > ws_asyncapi_rpc.json
-	curl https://v3.docs.derive.xyz/subscriptions.asyncapi.json | yq '.' > ws_asyncapi_subscriptions.json
+	curl https://v3.docs.derive.xyz/openapi.json | yq '.' > schemas/openapi.json
+	curl https://v3.docs.derive.xyz/websocket.asyncapi.json | yq '.' > schemas/ws_asyncapi_rpc.json
+	curl https://v3.docs.derive.xyz/subscriptions.asyncapi.json | yq '.' > schemas/ws_asyncapi_subscriptions.json
 
+	redocly lint schemas/openapi.json --lint-config=error
 
 	cp build_script/models/ticker_slim_schema.rs src/models/ticker_slim_schema.rs
 
