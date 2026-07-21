@@ -1,10 +1,9 @@
 use derive_rs::{types::Environment, ws_client::WsClient};
 
 pub async fn get_test_ws_client() -> WsClient {
-    let private_key = "0x2ae8be44db8a590d20bffbe3b6872df9b569147d3bf6801a35a28281a4816bbd";
-    let derive_wallet = "0xA419f70C696a4b449a4A24F92e955D91482d44e9"; // Replace with your wallet address
-    let subaccount_id = 137627; // Replace with your subaccount ID
-
+    let private_key = "0xf20701f7e29ce946e79a70cb53067f837950841f77edb3e685ce370db7ed7bdd";
+    let derive_wallet = "0x5cb67F7829d01d9C75385A920De5E51060663374";
+    let subaccount_id = 75723;
     let env = Environment::Testnet;
 
     WsClient::new(
