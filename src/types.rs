@@ -69,7 +69,7 @@ impl Environment {
     pub fn get_url(&self) -> &str {
         match self {
             Environment::Mainnet => "wss://api.lyra.finance/ws",
-            Environment::Testnet => "wss://api-demo.lyra.finance/ws",
+            Environment::Testnet => "wss://testnet.api.derive.xyz/v3/ws",
         }
     }
 }
