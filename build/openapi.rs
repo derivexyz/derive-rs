@@ -47,7 +47,7 @@ pub fn generate() {
     let mut settings = TypeSpaceSettings::default();
 
     settings
-        .with_struct_builder(false)
+        .with_struct_builder(true)
         // .with_derive("Default".to_owned())
         .with_crate(
             "bigdecimal",
@@ -80,7 +80,13 @@ pub fn generate() {
         });
     }
 
-    let header = "#![allow(clippy::derivable_impls)]";
+    let headers = [
+        "#![allow(clippy::derivable_impls)]",
+        "#![allow(clippy::type_complexity)]",
+        "#![allow(clippy::should_implement_trait)]",
+    ];
+
+    let header = headers.join("\n");
 
     let contents = format!("{header}\n\n{contents}");
 
