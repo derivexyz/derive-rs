@@ -2,11 +2,11 @@ use std::{fs, path::Path, println};
 
 use schemars::schema::RootSchema;
 use serde_json::{Map, Value};
-use typify::{TypeSpace, TypeSpaceSettings};
+use typify::{TypeSpace, TypeSpaceImpl, TypeSpaceSettings};
 
 pub fn generate() {
-    let source_path = "schemas/ws_asyncapi_rpc.json";
-    let output_path = "src/models/asyncapi_rpc.rs";
+    let source_path = "schemas/ws_asyncapi_subscriptions.json";
+    let output_path = "src/models/asyncapi_subs.rs";
 
     println!("cargo:rerun-if-changed={source_path}");
 
@@ -47,11 +47,20 @@ pub fn generate() {
         "definitions": definitions,
     });
 
+    println!("About to convert AsyncAPI schemas into a JSON Schema root");
     let root_schema: RootSchema = serde_json::from_value(root_schema_value)
         .expect("failed to convert AsyncAPI schemas into a JSON Schema root");
 
-    let settings = TypeSpaceSettings::default();
+    let mut settings = TypeSpaceSettings::default();
+
+    settings.with_replacement(
+        "TickerSlimSnapshot",
+        "crate::models::ticker_slim_schema::TickerSlimSchema",
+        std::iter::empty::<TypeSpaceImpl>(),
+    );
+
     let mut type_space = TypeSpace::new(&settings);
+    println!("About to add root schema to type space");
 
     // we print out the schemas.
 
@@ -61,6 +70,7 @@ pub fn generate() {
         .add_root_schema(root_schema)
         .expect("Typify failed to generate types from the AsyncAPI schemas");
 
+    println!("About to convert type space to Rust syntax tree");
     let syntax_tree: syn::File =
         syn::parse2(type_space.to_stream()).expect("Typify generated invalid Rust syntax");
 

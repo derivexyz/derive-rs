@@ -54,14 +54,9 @@ run:
 	cargo run --all-features
 
 codegen:
-
 	curl https://v3.docs.derive.xyz/openapi.json | yq '.' > schemas/openapi.json
 	curl https://v3.docs.derive.xyz/websocket.asyncapi.json | yq '.' > schemas/ws_asyncapi_rpc.json
 	curl https://v3.docs.derive.xyz/subscriptions.asyncapi.json | yq '.' > schemas/ws_asyncapi_subscriptions.json
-
 	redocly lint schemas/openapi.json --lint-config=error
 
-	cp build/models/ticker_slim_schema.rs src/models/ticker_slim_schema.rs
-
-
-all: codegen fmt lint build test
+all: codegen build fmt lint test
