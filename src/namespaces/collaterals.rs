@@ -17,9 +17,7 @@ impl<'a> CollateralsNamespace<'a> {
             .unwrap();
 
         let params = PrivateGetCollateralsParamsSchema { subaccount_id };
-
         let params_json = serde_json::to_value(&params)?;
-
         self.ws_client
             .send_rpc("private/get_collaterals", params_json)
             .await

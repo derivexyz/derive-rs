@@ -9,4 +9,5 @@ pub mod types;
 pub mod utils;
 pub mod ws_client;
 
+pub mod rpc;
 pub mod subscriptions;

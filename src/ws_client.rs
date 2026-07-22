@@ -26,6 +26,7 @@ use yawc::{Frame, OpCode};
 use crate::{
     models::asyncapi_rpc::{SetCancelOnDisconnectRequest, SetCancelOnDisconnectResponse},
     routing::{extract_channel, extract_id, extract_id_tail},
+    rpc::Rpc,
     signing::sign_ws_login,
     subscriptions::Subscriptions,
     types::{
@@ -75,6 +76,9 @@ pub struct WsClient {
 impl WsClient {
     pub fn subscriptions(&self) -> Subscriptions<'_> {
         Subscriptions { client: self }
+    }
+    pub fn rpc(&self) -> Rpc<'_> {
+        Rpc { client: self }
     }
 
     pub async fn from_env(environment: Environment) -> Result<Self, ClientError> {
