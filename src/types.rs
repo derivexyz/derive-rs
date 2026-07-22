@@ -1,15 +1,16 @@
 use bytes::Bytes;
 use serde::Deserialize;
+use serde::de::DeserializeOwned;
 use serde_json::Value;
 use std::fmt;
 use std::str::FromStr;
+use std::sync::Arc;
 use thiserror::Error;
 use tokio::sync::oneshot;
 use yawc::Frame;
 
 pub type WsStream = yawc::TcpWebSocket;
 pub type ResponseSender = oneshot::Sender<Bytes>;
-pub type ChannelSender = tokio::sync::mpsc::UnboundedSender<Bytes>;
 pub type Error = Box<dyn std::error::Error + Send + Sync>;
 
 pub enum InternalCommand {
@@ -133,3 +134,49 @@ pub enum RpcResponse<T> {
 }
 
 pub type RpcResponseResult<T> = Result<RpcResult<T>, ClientError>;
+
+pub type EventSender<T> = tokio::sync::broadcast::Sender<T>;
+pub type EventStream<T> = tokio_stream::wrappers::BroadcastStream<T>;
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum DispatchResult {
+    Delivered,
+    NoReceivers,
+    DecodeError,
+}
+
+pub struct SubscriptionRoute {
+    pub type_name: &'static str,
+    pub dispatch: Arc<dyn Fn(&Bytes) -> DispatchResult + Send + Sync>,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct SubscriptionNotification<T> {
+    pub params: SubscriptionParams<T>,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct SubscriptionParams<T> {
+    #[allow(dead_code)]
+    pub channel: String,
+    pub data: T,
+}
+
+pub fn decode_subscription_data<T>(bytes: &Bytes) -> Result<T, ClientError>
+where
+    T: DeserializeOwned,
+{
+    let notification: SubscriptionNotification<T> = serde_json::from_slice(bytes)?;
+    Ok(notification.params.data)
+}
+
+pub trait ChannelSpec {
+    type Output: DeserializeOwned + Send + Clone + 'static;
+
+    fn scope(&self) -> RequestScope;
+    fn channel(&self) -> String;
+
+    fn decode(bytes: &Bytes) -> Result<Self::Output, ClientError> {
+        decode_subscription_data(bytes)
+    }
+}

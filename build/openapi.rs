@@ -5,13 +5,16 @@ use std::{
 };
 
 use serde_json::{Map, Value, json, map::Entry as JsonMapEntry};
-use typify::{CrateVers, TypeSpace, TypeSpaceSettings};
+use typify::{CrateVers, TypeSpace, TypeSpaceImpl, TypeSpaceSettings};
 
 pub fn generate() {
     let paths = ["schemas/openapi.json"];
 
     let output_path = "src/models/openapi.rs";
-    let models_to_skip = ["TickerSlimSnapshot", "PublicVaultActionResponse"];
+    let models_to_skip = [
+        // "TickerSlimSnapshot", 
+        // "PublicVaultActionResponse"
+        ];
     let models_to_rename = [("ERC20Details", "Erc20CompleteDetails")];
 
     let mut definitions: HashMap<String, Value> = HashMap::new();
@@ -50,6 +53,11 @@ pub fn generate() {
             "bigdecimal",
             CrateVers::parse("0.4.10").expect("invalid BigDecimal crate version"),
             None,
+        )
+        .with_replacement(
+            "TickerSlimSnapshot",
+            "crate::models::ticker_slim_schema::TickerSlimSchema",
+            std::iter::empty::<TypeSpaceImpl>(),
         );
 
     let mut type_space = TypeSpace::new(&settings);

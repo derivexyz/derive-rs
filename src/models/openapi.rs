@@ -442,7 +442,7 @@ impl ::std::convert::TryFrom<::std::string::String> for AlgoType {
 ///    "erc20_details": {
 ///      "anyOf": [
 ///        {
-///          "$ref": "#/definitions/Erc20CompleteDetails"
+///          "$ref": "#/definitions/SpotPublicDetails"
 ///        },
 ///        {
 ///          "type": "null"
@@ -490,7 +490,7 @@ pub struct Asset {
     pub asset_type: AssetType,
     pub currency: ::std::string::String,
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
-    pub erc20_details: ::std::option::Option<Erc20CompleteDetails>,
+    pub erc20_details: ::std::option::Option<SpotPublicDetails>,
     pub is_collateral: bool,
     pub is_position: bool,
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
@@ -1192,10 +1192,19 @@ impl ::std::convert::TryFrom<::std::string::String> for CancelAllTriggerOrdersRe
 ///  ],
 ///  "properties": {
 ///    "label": {
-///      "default": null
+///      "default": null,
+///      "type": [
+///        "string",
+///        "null"
+///      ]
 ///    },
 ///    "nonce": {
-///      "default": null
+///      "default": null,
+///      "type": [
+///        "integer",
+///        "null"
+///      ],
+///      "format": "int64"
 ///    },
 ///    "quote_id": {
 ///      "description": "Optional UUID v4 string",
@@ -1226,10 +1235,10 @@ impl ::std::convert::TryFrom<::std::string::String> for CancelAllTriggerOrdersRe
 /// </details>
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
 pub struct CancelBatchQuotesRequest {
-    #[serde(default = "defaults::cancel_batch_quotes_request_label")]
-    pub label: ::serde_json::Value,
-    #[serde(default = "defaults::cancel_batch_quotes_request_nonce")]
-    pub nonce: ::serde_json::Value,
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub label: ::std::option::Option<::std::string::String>,
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub nonce: ::std::option::Option<i64>,
     ///Optional UUID v4 string
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub quote_id: ::std::option::Option<::uuid::Uuid>,
@@ -1276,10 +1285,19 @@ pub struct CancelBatchResult {
 ///  ],
 ///  "properties": {
 ///    "label": {
-///      "default": null
+///      "default": null,
+///      "type": [
+///        "string",
+///        "null"
+///      ]
 ///    },
 ///    "nonce": {
-///      "default": null
+///      "default": null,
+///      "type": [
+///        "integer",
+///        "null"
+///      ],
+///      "format": "int64"
 ///    },
 ///    "rfq_id": {
 ///      "description": "Optional UUID v4 string",
@@ -1301,10 +1319,10 @@ pub struct CancelBatchResult {
 /// </details>
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
 pub struct CancelBatchRfqsRequest {
-    #[serde(default = "defaults::cancel_batch_rfqs_request_label")]
-    pub label: ::serde_json::Value,
-    #[serde(default = "defaults::cancel_batch_rfqs_request_nonce")]
-    pub nonce: ::serde_json::Value,
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub label: ::std::option::Option<::std::string::String>,
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub nonce: ::std::option::Option<i64>,
     ///Optional UUID v4 string
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub rfq_id: ::std::option::Option<::uuid::Uuid>,
@@ -1553,10 +1571,19 @@ pub struct CancelOrderRequest {
 ///  ],
 ///  "properties": {
 ///    "label": {
-///      "default": null
+///      "default": null,
+///      "type": [
+///        "string",
+///        "null"
+///      ]
 ///    },
 ///    "nonce": {
-///      "default": null
+///      "default": null,
+///      "type": [
+///        "integer",
+///        "null"
+///      ],
+///      "format": "int64"
 ///    },
 ///    "quote_id": {
 ///      "description": "UUID v4 string",
@@ -1583,10 +1610,10 @@ pub struct CancelOrderRequest {
 /// </details>
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
 pub struct CancelQuoteRequest {
-    #[serde(default = "defaults::cancel_quote_request_label")]
-    pub label: ::serde_json::Value,
-    #[serde(default = "defaults::cancel_quote_request_nonce")]
-    pub nonce: ::serde_json::Value,
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub label: ::std::option::Option<::std::string::String>,
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub nonce: ::std::option::Option<i64>,
     ///UUID v4 string
     pub quote_id: ::uuid::Uuid,
     ///Optional UUID v4 string
@@ -3210,45 +3237,6 @@ impl ::std::convert::From<()> for EmptyRequest {
         Self(value)
     }
 }
-///`Erc20CompleteDetails`
-///
-/// <details><summary>JSON schema</summary>
-///
-/// ```json
-///{
-///  "type": "object",
-///  "required": [
-///    "borrow_index",
-///    "decimals",
-///    "supply_index",
-///    "underlying_erc20_address"
-///  ],
-///  "properties": {
-///    "borrow_index": {
-///      "type": "string"
-///    },
-///    "decimals": {
-///      "type": "integer",
-///      "format": "uint8",
-///      "minimum": 0.0
-///    },
-///    "supply_index": {
-///      "type": "string"
-///    },
-///    "underlying_erc20_address": {
-///      "type": "string"
-///    }
-///  }
-///}
-/// ```
-/// </details>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
-pub struct Erc20CompleteDetails {
-    pub borrow_index: ::std::string::String,
-    pub decimals: u8,
-    pub supply_index: ::std::string::String,
-    pub underlying_erc20_address: ::std::string::String,
-}
 ///`Erc20Details`
 ///
 /// <details><summary>JSON schema</summary>
@@ -3307,7 +3295,9 @@ pub struct Erc20Details {
 ///      "default": "",
 ///      "type": "string"
 ///    },
-///    "direction": true,
+///    "direction": {
+///      "$ref": "#/definitions/Direction"
+///    },
 ///    "enable_taker_protection": {
 ///      "default": false,
 ///      "type": "boolean"
@@ -3316,7 +3306,12 @@ pub struct Erc20Details {
 ///      "default": "",
 ///      "type": "string"
 ///    },
-///    "legs": true,
+///    "legs": {
+///      "type": "array",
+///      "items": {
+///        "$ref": "#/definitions/PricedLegParamsAndResponse"
+///      }
+///    },
 ///    "max_fee": {
 ///      "description": "Non-negative decimal string of the human value (e.g. `\"1.5\"`), up to 12 fractional digits; a string or JSON number is accepted",
 ///      "type": "string",
@@ -3327,7 +3322,10 @@ pub struct Erc20Details {
 ///        "version": ">=0.4.0, <0.5.0"
 ///      }
 ///    },
-///    "nonce": true,
+///    "nonce": {
+///      "type": "integer",
+///      "format": "int64"
+///    },
 ///    "quote_id": {
 ///      "description": "UUID v4 string",
 ///      "type": "string",
@@ -3342,9 +3340,16 @@ pub struct Erc20Details {
 ///      "type": "string",
 ///      "format": "uuid"
 ///    },
-///    "signature": true,
-///    "signature_expiry_sec": true,
-///    "signer": true,
+///    "signature": {
+///      "type": "string"
+///    },
+///    "signature_expiry_sec": {
+///      "type": "integer",
+///      "format": "int64"
+///    },
+///    "signer": {
+///      "$ref": "#/definitions/Address"
+///    },
 ///    "subaccount_id": {
 ///      "type": "integer",
 ///      "format": "uint64",
@@ -3358,24 +3363,24 @@ pub struct Erc20Details {
 pub struct ExecuteQuoteRequest {
     #[serde(default)]
     pub client: ::std::string::String,
-    pub direction: ::serde_json::Value,
+    pub direction: Direction,
     #[serde(default)]
     pub enable_taker_protection: bool,
     #[serde(default)]
     pub label: ::std::string::String,
-    pub legs: ::serde_json::Value,
+    pub legs: ::std::vec::Vec<PricedLegParamsAndResponse>,
     ///Non-negative decimal string of the human value (e.g. `"1.5"`), up to 12 fractional digits; a string or JSON number is accepted
     pub max_fee: ::bigdecimal::BigDecimal,
-    pub nonce: ::serde_json::Value,
+    pub nonce: i64,
     ///UUID v4 string
     pub quote_id: ::uuid::Uuid,
     #[serde(default)]
     pub referral_code: ::std::string::String,
     ///UUID v4 string
     pub rfq_id: ::uuid::Uuid,
-    pub signature: ::serde_json::Value,
-    pub signature_expiry_sec: ::serde_json::Value,
-    pub signer: ::serde_json::Value,
+    pub signature: ::std::string::String,
+    pub signature_expiry_sec: i64,
+    pub signer: Address,
     pub subaccount_id: u64,
 }
 ///One settled expiry and its settlement price.
@@ -5572,7 +5577,12 @@ pub struct GetTickerRequest {
 ///      ]
 ///    },
 ///    "expiry_date": {
-///      "default": null
+///      "default": null,
+///      "type": [
+///        "integer",
+///        "null"
+///      ],
+///      "format": "int64"
 ///    },
 ///    "instrument_type": {
 ///      "$ref": "#/definitions/AssetType"
@@ -5585,8 +5595,8 @@ pub struct GetTickerRequest {
 pub struct GetTickersRequest {
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub currency: ::std::option::Option<::std::string::String>,
-    #[serde(default = "defaults::get_tickers_request_expiry_date")]
-    pub expiry_date: ::serde_json::Value,
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub expiry_date: ::std::option::Option<i64>,
     pub instrument_type: AssetType,
 }
 ///A map of instrument name to ticker: `{"tickers": {<instrument_name>: <ticker_data>}}`. Each ticker value matches the payload of a `ticker_slim.{instrument_name}.{interval}` subscription update.
@@ -5603,7 +5613,9 @@ pub struct GetTickersRequest {
 ///  "properties": {
 ///    "tickers": {
 ///      "type": "object",
-///      "additionalProperties": true
+///      "additionalProperties": {
+///        "$ref": "#/definitions/TickerSlimSnapshot"
+///      }
 ///    }
 ///  }
 ///}
@@ -5611,7 +5623,10 @@ pub struct GetTickersRequest {
 /// </details>
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
 pub struct GetTickersResponse {
-    pub tickers: ::serde_json::Map<::std::string::String, ::serde_json::Value>,
+    pub tickers: ::std::collections::HashMap<
+        ::std::string::String,
+        crate::models::ticker_slim_schema::TickerSlimSchema,
+    >,
 }
 ///`GetTradeHistoryRequest`
 ///
@@ -6337,7 +6352,7 @@ pub struct IndexCandle {
 ///    "erc20_details": {
 ///      "anyOf": [
 ///        {
-///          "$ref": "#/definitions/Erc20CompleteDetails"
+///          "$ref": "#/definitions/SpotPublicDetails"
 ///        },
 ///        {
 ///          "type": "null"
@@ -6428,7 +6443,7 @@ pub struct Instrument {
     pub base_currency: ::std::string::String,
     pub base_fee: ::std::string::String,
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
-    pub erc20_details: ::std::option::Option<Erc20CompleteDetails>,
+    pub erc20_details: ::std::option::Option<SpotPublicDetails>,
     pub fifo_min_allocation: ::std::string::String,
     pub instrument_name: ::std::string::String,
     pub instrument_type: AssetType,
@@ -8967,7 +8982,44 @@ pub struct PaginatedTradesResult {
     pub subaccount_id: i64,
     pub trades: ::std::vec::Vec<TradeHistoryResponse>,
 }
-///`PaginatedVaultActions`
+///`PaginatedVaultActionHistory`
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "type": "object",
+///  "required": [
+///    "events",
+///    "pagination",
+///    "subaccount_id"
+///  ],
+///  "properties": {
+///    "events": {
+///      "type": "array",
+///      "items": {
+///        "$ref": "#/definitions/PublicVaultActionResponse"
+///      }
+///    },
+///    "pagination": {
+///      "$ref": "#/definitions/Pagination"
+///    },
+///    "subaccount_id": {
+///      "type": "integer",
+///      "format": "uint64",
+///      "minimum": 0.0
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct PaginatedVaultActionHistory {
+    pub events: ::std::vec::Vec<PublicVaultActionResponse>,
+    pub pagination: Pagination,
+    pub subaccount_id: u64,
+}
+///`PaginatedVaultRequestHistory`
 ///
 /// <details><summary>JSON schema</summary>
 ///
@@ -8997,7 +9049,7 @@ pub struct PaginatedTradesResult {
 /// ```
 /// </details>
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
-pub struct PaginatedVaultActions {
+pub struct PaginatedVaultRequestHistory {
     pub actions: ::std::vec::Vec<VaultActionResponse>,
     pub pagination: Pagination,
     pub wallet: ::std::string::String,
@@ -11085,6 +11137,195 @@ pub struct PublicTradesResult {
     pub pagination: Pagination,
     pub trades: ::std::vec::Vec<SettledTrade>,
 }
+///A vault action at the aggregate, vault level. Per-holder position details (entry/exit price, before/after balances) are omitted — those are available on the private endpoints. Monetary fields (share price, NAV, high-water marks) are decimal strings.
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "description": "A vault action at the aggregate, vault level. Per-holder position details (entry/exit price, before/after balances) are omitted — those are available on the private endpoints. Monetary fields (share price, NAV, high-water marks) are decimal strings.",
+///  "type": "object",
+///  "required": [
+///    "curator_shares_minted",
+///    "event_ts",
+///    "event_type",
+///    "holder",
+///    "management_shares_minted",
+///    "nav",
+///    "new_high_water_mark",
+///    "old_high_water_mark",
+///    "operation_uuid",
+///    "performance_shares_minted",
+///    "protocol_shares_minted",
+///    "share_price",
+///    "shares_delta",
+///    "status",
+///    "subaccount_id",
+///    "total_shares"
+///  ],
+///  "properties": {
+///    "curator_shares_minted": {
+///      "description": "Non-negative decimal string of the human value (e.g. `\"1.5\"`), up to 12 fractional digits; a string or JSON number is accepted",
+///      "type": "string",
+///      "format": "decimal",
+///      "x-rust-type": {
+///        "crate": "bigdecimal",
+///        "path": "bigdecimal::BigDecimal",
+///        "version": ">=0.4.0, <0.5.0"
+///      }
+///    },
+///    "event_ts": {
+///      "description": "Timestamp of this event (ms).",
+///      "type": "integer",
+///      "format": "int64"
+///    },
+///    "event_type": {
+///      "description": "\"vault_deposit\" | \"vault_withdraw\" | \"vault_force_withdraw\".",
+///      "type": "string"
+///    },
+///    "holder": {
+///      "type": "string"
+///    },
+///    "management_shares_minted": {
+///      "description": "Non-negative decimal string of the human value (e.g. `\"1.5\"`), up to 12 fractional digits; a string or JSON number is accepted",
+///      "type": "string",
+///      "format": "decimal",
+///      "x-rust-type": {
+///        "crate": "bigdecimal",
+///        "path": "bigdecimal::BigDecimal",
+///        "version": ">=0.4.0, <0.5.0"
+///      }
+///    },
+///    "nav": {
+///      "description": "Non-negative decimal string of the human value (e.g. `\"1.5\"`), up to 12 fractional digits; a string or JSON number is accepted",
+///      "type": "string",
+///      "format": "decimal",
+///      "x-rust-type": {
+///        "crate": "bigdecimal",
+///        "path": "bigdecimal::BigDecimal",
+///        "version": ">=0.4.0, <0.5.0"
+///      }
+///    },
+///    "new_high_water_mark": {
+///      "description": "Non-negative decimal string of the human value (e.g. `\"1.5\"`), up to 12 fractional digits; a string or JSON number is accepted",
+///      "type": "string",
+///      "format": "decimal",
+///      "x-rust-type": {
+///        "crate": "bigdecimal",
+///        "path": "bigdecimal::BigDecimal",
+///        "version": ">=0.4.0, <0.5.0"
+///      }
+///    },
+///    "old_high_water_mark": {
+///      "description": "Non-negative decimal string of the human value (e.g. `\"1.5\"`), up to 12 fractional digits; a string or JSON number is accepted",
+///      "type": "string",
+///      "format": "decimal",
+///      "x-rust-type": {
+///        "crate": "bigdecimal",
+///        "path": "bigdecimal::BigDecimal",
+///        "version": ">=0.4.0, <0.5.0"
+///      }
+///    },
+///    "operation_uuid": {
+///      "type": "string"
+///    },
+///    "performance_shares_minted": {
+///      "description": "Non-negative decimal string of the human value (e.g. `\"1.5\"`), up to 12 fractional digits; a string or JSON number is accepted",
+///      "type": "string",
+///      "format": "decimal",
+///      "x-rust-type": {
+///        "crate": "bigdecimal",
+///        "path": "bigdecimal::BigDecimal",
+///        "version": ">=0.4.0, <0.5.0"
+///      }
+///    },
+///    "protocol_shares_minted": {
+///      "description": "Non-negative decimal string of the human value (e.g. `\"1.5\"`), up to 12 fractional digits; a string or JSON number is accepted",
+///      "type": "string",
+///      "format": "decimal",
+///      "x-rust-type": {
+///        "crate": "bigdecimal",
+///        "path": "bigdecimal::BigDecimal",
+///        "version": ">=0.4.0, <0.5.0"
+///      }
+///    },
+///    "share_price": {
+///      "description": "Non-negative decimal string of the human value (e.g. `\"1.5\"`), up to 12 fractional digits; a string or JSON number is accepted",
+///      "type": "string",
+///      "format": "decimal",
+///      "x-rust-type": {
+///        "crate": "bigdecimal",
+///        "path": "bigdecimal::BigDecimal",
+///        "version": ">=0.4.0, <0.5.0"
+///      }
+///    },
+///    "shares_delta": {
+///      "description": "Non-negative decimal string of the human value (e.g. `\"1.5\"`), up to 12 fractional digits; a string or JSON number is accepted",
+///      "type": "string",
+///      "format": "decimal",
+///      "x-rust-type": {
+///        "crate": "bigdecimal",
+///        "path": "bigdecimal::BigDecimal",
+///        "version": ">=0.4.0, <0.5.0"
+///      }
+///    },
+///    "status": {
+///      "description": "While the action is in the queue, one of: \"enqueued\" | \"sequencer_applied\" | \"user_cancel\" | \"curator_reject\" | \"protocol_reject\" | \"expired\".\n\nOnce the action is in the protocol, the status takes on `BatchStatus` values: \"Batching\" | \"Executing\" | \"Proving\" | \"Settling\" | \"Settled\" or an error.",
+///      "type": "string"
+///    },
+///    "subaccount_id": {
+///      "type": "integer",
+///      "format": "uint64",
+///      "minimum": 0.0
+///    },
+///    "total_shares": {
+///      "description": "Non-negative decimal string of the human value (e.g. `\"1.5\"`), up to 12 fractional digits; a string or JSON number is accepted",
+///      "type": "string",
+///      "format": "decimal",
+///      "x-rust-type": {
+///        "crate": "bigdecimal",
+///        "path": "bigdecimal::BigDecimal",
+///        "version": ">=0.4.0, <0.5.0"
+///      }
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct PublicVaultActionResponse {
+    ///Non-negative decimal string of the human value (e.g. `"1.5"`), up to 12 fractional digits; a string or JSON number is accepted
+    pub curator_shares_minted: ::bigdecimal::BigDecimal,
+    ///Timestamp of this event (ms).
+    pub event_ts: i64,
+    ///"vault_deposit" | "vault_withdraw" | "vault_force_withdraw".
+    pub event_type: ::std::string::String,
+    pub holder: ::std::string::String,
+    ///Non-negative decimal string of the human value (e.g. `"1.5"`), up to 12 fractional digits; a string or JSON number is accepted
+    pub management_shares_minted: ::bigdecimal::BigDecimal,
+    ///Non-negative decimal string of the human value (e.g. `"1.5"`), up to 12 fractional digits; a string or JSON number is accepted
+    pub nav: ::bigdecimal::BigDecimal,
+    ///Non-negative decimal string of the human value (e.g. `"1.5"`), up to 12 fractional digits; a string or JSON number is accepted
+    pub new_high_water_mark: ::bigdecimal::BigDecimal,
+    ///Non-negative decimal string of the human value (e.g. `"1.5"`), up to 12 fractional digits; a string or JSON number is accepted
+    pub old_high_water_mark: ::bigdecimal::BigDecimal,
+    pub operation_uuid: ::std::string::String,
+    ///Non-negative decimal string of the human value (e.g. `"1.5"`), up to 12 fractional digits; a string or JSON number is accepted
+    pub performance_shares_minted: ::bigdecimal::BigDecimal,
+    ///Non-negative decimal string of the human value (e.g. `"1.5"`), up to 12 fractional digits; a string or JSON number is accepted
+    pub protocol_shares_minted: ::bigdecimal::BigDecimal,
+    ///Non-negative decimal string of the human value (e.g. `"1.5"`), up to 12 fractional digits; a string or JSON number is accepted
+    pub share_price: ::bigdecimal::BigDecimal,
+    ///Non-negative decimal string of the human value (e.g. `"1.5"`), up to 12 fractional digits; a string or JSON number is accepted
+    pub shares_delta: ::bigdecimal::BigDecimal,
+    /**While the action is in the queue, one of: "enqueued" | "sequencer_applied" | "user_cancel" | "curator_reject" | "protocol_reject" | "expired".
+
+Once the action is in the protocol, the status takes on `BatchStatus` values: "Batching" | "Executing" | "Proving" | "Settling" | "Settled" or an error.*/
+    pub status: ::std::string::String,
+    pub subaccount_id: u64,
+    ///Non-negative decimal string of the human value (e.g. `"1.5"`), up to 12 fractional digits; a string or JSON number is accepted
+    pub total_shares: ::bigdecimal::BigDecimal,
+}
 ///`PublicWithdrawDebugRequest`
 ///
 /// <details><summary>JSON schema</summary>
@@ -12496,7 +12737,9 @@ pub struct ReplaceOrderResponse {
 ///      "default": "",
 ///      "type": "string"
 ///    },
-///    "direction": true,
+///    "direction": {
+///      "$ref": "#/definitions/Direction"
+///    },
 ///    "extra_fee": {
 ///      "description": "Non-negative decimal string of the human value (e.g. `\"1.5\"`), up to 12 fractional digits; a string or JSON number is accepted",
 ///      "default": "0",
@@ -12512,7 +12755,12 @@ pub struct ReplaceOrderResponse {
 ///      "default": "",
 ///      "type": "string"
 ///    },
-///    "legs": true,
+///    "legs": {
+///      "type": "array",
+///      "items": {
+///        "$ref": "#/definitions/PricedLegParamsAndResponse"
+///      }
+///    },
 ///    "max_fee": {
 ///      "description": "Non-negative decimal string of the human value (e.g. `\"1.5\"`), up to 12 fractional digits; a string or JSON number is accepted",
 ///      "type": "string",
@@ -12527,9 +12775,17 @@ pub struct ReplaceOrderResponse {
 ///      "default": false,
 ///      "type": "boolean"
 ///    },
-///    "nonce": true,
+///    "nonce": {
+///      "type": "integer",
+///      "format": "int64"
+///    },
 ///    "nonce_to_cancel": {
-///      "default": null
+///      "default": null,
+///      "type": [
+///        "integer",
+///        "null"
+///      ],
+///      "format": "int64"
 ///    },
 ///    "quote_id_to_cancel": {
 ///      "description": "Optional UUID v4 string",
@@ -12549,9 +12805,16 @@ pub struct ReplaceOrderResponse {
 ///      "type": "string",
 ///      "format": "uuid"
 ///    },
-///    "signature": true,
-///    "signature_expiry_sec": true,
-///    "signer": true,
+///    "signature": {
+///      "type": "string"
+///    },
+///    "signature_expiry_sec": {
+///      "type": "integer",
+///      "format": "int64"
+///    },
+///    "signer": {
+///      "$ref": "#/definitions/Address"
+///    },
 ///    "subaccount_id": {
 ///      "type": "integer",
 ///      "format": "uint64",
@@ -12565,20 +12828,20 @@ pub struct ReplaceOrderResponse {
 pub struct ReplaceQuoteRequest {
     #[serde(default)]
     pub client: ::std::string::String,
-    pub direction: ::serde_json::Value,
+    pub direction: Direction,
     ///Non-negative decimal string of the human value (e.g. `"1.5"`), up to 12 fractional digits; a string or JSON number is accepted
     #[serde(default = "defaults::replace_quote_request_extra_fee")]
     pub extra_fee: ::bigdecimal::BigDecimal,
     #[serde(default)]
     pub label: ::std::string::String,
-    pub legs: ::serde_json::Value,
+    pub legs: ::std::vec::Vec<PricedLegParamsAndResponse>,
     ///Non-negative decimal string of the human value (e.g. `"1.5"`), up to 12 fractional digits; a string or JSON number is accepted
     pub max_fee: ::bigdecimal::BigDecimal,
     #[serde(default)]
     pub mmp: bool,
-    pub nonce: ::serde_json::Value,
-    #[serde(default = "defaults::replace_quote_request_nonce_to_cancel")]
-    pub nonce_to_cancel: ::serde_json::Value,
+    pub nonce: i64,
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub nonce_to_cancel: ::std::option::Option<i64>,
     ///Optional UUID v4 string
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub quote_id_to_cancel: ::std::option::Option<::uuid::Uuid>,
@@ -12586,9 +12849,9 @@ pub struct ReplaceQuoteRequest {
     pub referral_code: ::std::string::String,
     ///UUID v4 string
     pub rfq_id: ::uuid::Uuid,
-    pub signature: ::serde_json::Value,
-    pub signature_expiry_sec: ::serde_json::Value,
-    pub signer: ::serde_json::Value,
+    pub signature: ::std::string::String,
+    pub signature_expiry_sec: i64,
+    pub signer: Address,
     pub subaccount_id: u64,
 }
 ///Fields common to every signed vault action. They appear alongside each endpoint's action-specific parameters in the same request object.
@@ -13189,13 +13452,44 @@ impl ::std::convert::TryFrom<::std::string::String> for RfqCancelReason {
 ///{
 ///  "type": "object",
 ///  "required": [
-///    "direction",
-///    "legs",
 ///    "subaccount_id"
 ///  ],
 ///  "properties": {
-///    "direction": true,
-///    "legs": true,
+///    "client": {
+///      "default": "",
+///      "type": "string"
+///    },
+///    "direction": {
+///      "default": "buy",
+///      "$ref": "#/definitions/Direction"
+///    },
+///    "extra_fee": {
+///      "description": "Non-negative decimal string of the human value (e.g. `\"1.5\"`), up to 12 fractional digits; a string or JSON number is accepted",
+///      "default": "0",
+///      "type": "string",
+///      "format": "decimal",
+///      "x-rust-type": {
+///        "crate": "bigdecimal",
+///        "path": "bigdecimal::BigDecimal",
+///        "version": ">=0.4.0, <0.5.0"
+///      }
+///    },
+///    "legs": {
+///      "default": [],
+///      "type": "array",
+///      "items": {
+///        "$ref": "#/definitions/LegUnpricedParams"
+///      }
+///    },
+///    "rfq_id": {
+///      "description": "RFQ ID to get best quote for.\n\nIf not provided, will return estimates based on mark prices.",
+///      "default": null,
+///      "type": [
+///        "string",
+///        "null"
+///      ],
+///      "format": "uuid"
+///    },
 ///    "subaccount_id": {
 ///      "type": "integer",
 ///      "format": "uint64",
@@ -13207,8 +13501,20 @@ impl ::std::convert::TryFrom<::std::string::String> for RfqCancelReason {
 /// </details>
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
 pub struct RfqGetBestQuoteRequest {
-    pub direction: ::serde_json::Value,
-    pub legs: ::serde_json::Value,
+    #[serde(default)]
+    pub client: ::std::string::String,
+    #[serde(default = "defaults::rfq_get_best_quote_request_direction")]
+    pub direction: Direction,
+    ///Non-negative decimal string of the human value (e.g. `"1.5"`), up to 12 fractional digits; a string or JSON number is accepted
+    #[serde(default = "defaults::rfq_get_best_quote_request_extra_fee")]
+    pub extra_fee: ::bigdecimal::BigDecimal,
+    #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
+    pub legs: ::std::vec::Vec<LegUnpricedParams>,
+    /**RFQ ID to get best quote for.
+
+If not provided, will return estimates based on mark prices.*/
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub rfq_id: ::std::option::Option<::uuid::Uuid>,
     pub subaccount_id: u64,
 }
 ///`RfqGetBestQuoteResponse`
@@ -13938,7 +14244,12 @@ pub struct SendQuoteRequest {
 ///      "default": "",
 ///      "type": "string"
 ///    },
-///    "legs": true,
+///    "legs": {
+///      "type": "array",
+///      "items": {
+///        "$ref": "#/definitions/LegUnpricedParams"
+///      }
+///    },
 ///    "max_total_cost": {
 ///      "description": "Optional decimal string of the human value (e.g. `\"1.5\"`), up to 12 fractional digits, or null; a string or JSON number is accepted",
 ///      "default": null,
@@ -14014,7 +14325,7 @@ pub struct SendRfqRequest {
     pub extra_fee: ::bigdecimal::BigDecimal,
     #[serde(default)]
     pub label: ::std::string::String,
-    pub legs: ::serde_json::Value,
+    pub legs: ::std::vec::Vec<LegUnpricedParams>,
     ///Optional decimal string of the human value (e.g. `"1.5"`), up to 12 fractional digits, or null; a string or JSON number is accepted
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub max_total_cost: ::std::option::Option<::bigdecimal::BigDecimal>,
@@ -14684,6 +14995,45 @@ pub struct SpotFeedDataResponse {
     pub price: ::std::string::String,
     pub signatures: OracleSignatureDataResponse,
     pub timestamp: u64,
+}
+///`SpotPublicDetails`
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "type": "object",
+///  "required": [
+///    "borrow_index",
+///    "decimals",
+///    "supply_index",
+///    "underlying_erc20_address"
+///  ],
+///  "properties": {
+///    "borrow_index": {
+///      "type": "string"
+///    },
+///    "decimals": {
+///      "type": "integer",
+///      "format": "uint8",
+///      "minimum": 0.0
+///    },
+///    "supply_index": {
+///      "type": "string"
+///    },
+///    "underlying_erc20_address": {
+///      "type": "string"
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct SpotPublicDetails {
+    pub borrow_index: ::std::string::String,
+    pub decimals: u8,
+    pub supply_index: ::std::string::String,
+    pub underlying_erc20_address: ::std::string::String,
 }
 ///Risk details for a single `(spot_asset, universe)` pair.
 ///
@@ -17515,32 +17865,11 @@ pub mod defaults {
     {
         T::try_from(V).unwrap()
     }
-    pub(super) fn cancel_batch_quotes_request_label() -> ::serde_json::Value {
-        ::serde_json::from_str::<::serde_json::Value>("null").unwrap()
-    }
-    pub(super) fn cancel_batch_quotes_request_nonce() -> ::serde_json::Value {
-        ::serde_json::from_str::<::serde_json::Value>("null").unwrap()
-    }
-    pub(super) fn cancel_batch_rfqs_request_label() -> ::serde_json::Value {
-        ::serde_json::from_str::<::serde_json::Value>("null").unwrap()
-    }
-    pub(super) fn cancel_batch_rfqs_request_nonce() -> ::serde_json::Value {
-        ::serde_json::from_str::<::serde_json::Value>("null").unwrap()
-    }
-    pub(super) fn cancel_quote_request_label() -> ::serde_json::Value {
-        ::serde_json::from_str::<::serde_json::Value>("null").unwrap()
-    }
-    pub(super) fn cancel_quote_request_nonce() -> ::serde_json::Value {
-        ::serde_json::from_str::<::serde_json::Value>("null").unwrap()
-    }
     pub(super) fn create_order_request_order_type() -> super::OrderType {
         super::OrderType::Limit
     }
     pub(super) fn create_order_request_time_in_force() -> super::TimeInForce {
         super::TimeInForce::Gtc
-    }
-    pub(super) fn get_tickers_request_expiry_date() -> ::serde_json::Value {
-        ::serde_json::from_str::<::serde_json::Value>("null").unwrap()
     }
     pub(super) fn order_cancel_reason() -> super::CancelReason {
         super::CancelReason::X
@@ -17560,8 +17889,11 @@ pub mod defaults {
     pub(super) fn replace_quote_request_extra_fee() -> ::bigdecimal::BigDecimal {
         ::serde_json::from_str::<::bigdecimal::BigDecimal>("\"0\"").unwrap()
     }
-    pub(super) fn replace_quote_request_nonce_to_cancel() -> ::serde_json::Value {
-        ::serde_json::from_str::<::serde_json::Value>("null").unwrap()
+    pub(super) fn rfq_get_best_quote_request_direction() -> super::Direction {
+        super::Direction::Buy
+    }
+    pub(super) fn rfq_get_best_quote_request_extra_fee() -> ::bigdecimal::BigDecimal {
+        ::serde_json::from_str::<::bigdecimal::BigDecimal>("\"0\"").unwrap()
     }
     pub(super) fn send_quote_request_extra_fee() -> ::bigdecimal::BigDecimal {
         ::serde_json::from_str::<::bigdecimal::BigDecimal>("\"0\"").unwrap()

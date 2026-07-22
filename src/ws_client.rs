@@ -27,9 +27,11 @@ use crate::{
     models::asyncapi_rpc::{SetCancelOnDisconnectRequest, SetCancelOnDisconnectResponse},
     routing::{extract_channel, extract_id, extract_id_tail},
     signing::sign_ws_login,
+    subscriptions::Subscriptions,
     types::{
-        ChannelResponse, ChannelSender, ClientError, Environment, Error, ExternalEvent,
-        InternalCommand, RequestScope, ResponseSender, RpcError, RpcResult, WsStream,
+        ChannelResponse, ChannelSpec, ClientError, DispatchResult, Environment, Error, EventStream,
+        ExternalEvent, InternalCommand, RequestScope, ResponseSender, RpcError, RpcResult,
+        SubscriptionRoute, WsStream,
     },
 };
 
@@ -54,8 +56,8 @@ where
 pub struct WsClient {
     write_tx: mpsc::UnboundedSender<InternalCommand>,
     pending_requests: Arc<DashMap<u64, ResponseSender>>,
-    pub public_subscriptions: Arc<DashMap<String, ChannelSender>>,
-    pub private_subscriptions: Arc<DashMap<String, ChannelSender>>,
+    pub public_subscriptions: Arc<DashMap<String, SubscriptionRoute>>,
+    pub private_subscriptions: Arc<DashMap<String, SubscriptionRoute>>,
     next_id: Arc<AtomicU64>,
     shutdown_tx: watch::Sender<bool>,
     // pub instruments_cache: Arc<DashMap<String, InstrumentPublicResponseSchema>>,
@@ -71,9 +73,9 @@ pub struct WsClient {
 }
 
 impl WsClient {
-    // pub fn subscriptions(&self) -> Subscriptions<'_> {
-    //     Subscriptions { client: self }
-    // }
+    pub fn subscriptions(&self) -> Subscriptions<'_> {
+        Subscriptions { client: self }
+    }
 
     pub async fn from_env(environment: Environment) -> Result<Self, ClientError> {
         let private_key = match var("DERIVE_PRIVATE_KEY") {
@@ -154,8 +156,10 @@ impl WsClient {
         let (shutdown_tx, shutdown_rx) = watch::channel(false);
 
         let pending_requests = Arc::new(DashMap::new());
-        let public_subscriptions: Arc<DashMap<String, ChannelSender>> = Arc::new(DashMap::new());
-        let private_subscriptions: Arc<DashMap<String, ChannelSender>> = Arc::new(DashMap::new());
+        let public_subscriptions: Arc<DashMap<String, SubscriptionRoute>> =
+            Arc::new(DashMap::new());
+        let private_subscriptions: Arc<DashMap<String, SubscriptionRoute>> =
+            Arc::new(DashMap::new());
         let next_id = Arc::new(AtomicU64::new(1));
 
         let (connection_state_tx, connection_state_rx) =
@@ -280,17 +284,13 @@ impl WsClient {
         Ok(())
     }
 
-    pub async fn subscribe_channel<P, F, Fut>(
-        &self,
-        scope: RequestScope,
-        channel: String,
-        mut callback: F,
-    ) -> Result<String, ClientError>
+    pub async fn subscribe<C>(&self, spec: C) -> Result<EventStream<C::Output>, ClientError>
     where
-        P: DeserializeOwned + Send + 'static,
-        F: FnMut(P) -> Fut + Send + 'static,
-        Fut: std::future::Future<Output = ()> + Send + 'static,
+        C: ChannelSpec,
     {
+        let channel = spec.channel();
+        let scope = spec.scope();
+
         let _sub_result: ChannelResponse = self
             .send_rpc(
                 "subscribe",
@@ -300,43 +300,41 @@ impl WsClient {
             )
             .await?;
 
-        let (tx, mut rx) = mpsc::unbounded_channel::<Bytes>();
+        let (tx, rx) = tokio::sync::broadcast::channel::<C::Output>(100);
+        let route = SubscriptionRoute {
+            type_name: std::any::type_name::<C::Output>(),
+            dispatch: Arc::new(move |bytes: &Bytes| match C::decode(bytes) {
+                Ok(parsed) => {
+                    if tx.send(parsed).is_ok() {
+                        DispatchResult::Delivered
+                    } else {
+                        DispatchResult::NoReceivers
+                    }
+                }
+                Err(e) => {
+                    warn!("Failed to decode subscription payload: {e:?}");
+                    DispatchResult::DecodeError
+                }
+            }),
+        };
 
         {
             match scope {
                 RequestScope::Public => {
-                    self.public_subscriptions.insert(channel.clone(), tx);
+                    self.public_subscriptions.insert(channel.clone(), route);
                     info!("Subscribed to public channel: {channel}");
                 }
                 RequestScope::Private => {
-                    self.private_subscriptions.insert(channel.clone(), tx);
+                    self.private_subscriptions.insert(channel.clone(), route);
                     info!("Subscribed to private channel: {channel}");
                 }
             }
         }
-
-        let handle = tokio::spawn(async move {
-            while let Some(msg) = rx.recv().await {
-                let parsed: P = match deserialise_to_type(&msg) {
-                    Ok(m) => m,
-                    Err(e) => {
-                        warn!("Failed to parse channel message: {e}; raw: {msg:?}");
-                        continue;
-                    }
-                };
-
-                callback(parsed).await;
-            }
-        });
-        self.subscription_tasks.lock().await.push(handle);
-        Ok(channel)
+        Ok(tokio_stream::wrappers::BroadcastStream::new(rx))
     }
 
     pub async fn unsubscribe(&self, channel: &str) -> Result<(), ClientError> {
         let channel = channel.to_string();
-        if let Some(task) = self.subscription_tasks.lock().await.pop() {
-            task.abort();
-        }
         {
             if self.public_subscriptions.remove(&channel).is_some() {
                 let _: ChannelResponse = self
@@ -369,48 +367,48 @@ impl WsClient {
         Err(ClientError::Rpc(serde_json::json!({})))
     }
 
-    pub async fn resubscribe_all(&self) -> Result<(), ClientError> {
-        let public_channels: Vec<String> = self
-            .public_subscriptions
-            .iter()
-            .map(|e| e.key().clone())
-            .collect();
-        let private_channels: Vec<String> = self
-            .private_subscriptions
-            .iter()
-            .map(|e| e.key().clone())
-            .collect();
-        let all_channels: Vec<String> = public_channels
-            .iter()
-            .chain(private_channels.iter())
-            .cloned()
-            .collect();
-        for attempt in 1..=5 {
-            let res = self
-                .send_rpc::<ChannelResponse>(
-                    "subscribe",
-                    serde_json::json!({
-                        "channels": all_channels
-                    }),
-                )
-                .await;
-            match res {
-                Ok(res) => {
-                    info!(
-                        "Re-subscribed to all channels: {all_channels:?}: response: {res:?} on attempt {attempt}"
-                    );
-                    return Ok(());
-                }
-                Err(e) => {
-                    warn!("Failed to re-subscribe to channels: {e:?}; attempt {attempt}");
-                    tokio::time::sleep(Duration::from_secs(2)).await;
-                }
-            }
-        }
-        Err(ClientError::Rpc(serde_json::json!({
-            "message": "Failed to re-subscribe to channels after multiple attempts"
-        })))
-    }
+    // pub async fn resubscribe_all(&self) -> Result<(), ClientError> {
+    //     let public_channels: Vec<String> = self
+    //         .public_subscriptions
+    //         .iter()
+    //         .map(|e| e.key().clone())
+    //         .collect();
+    //     let private_channels: Vec<String> = self
+    //         .private_subscriptions
+    //         .iter()
+    //         .map(|e| e.key().clone())
+    //         .collect();
+    //     let all_channels: Vec<String> = public_channels
+    //         .iter()
+    //         .chain(private_channels.iter())
+    //         .cloned()
+    //         .collect();
+    //     for attempt in 1..=5 {
+    //         let res = self
+    //             .send_rpc::<ChannelResponse>(
+    //                 "subscribe",
+    //                 serde_json::json!({
+    //                     "channels": all_channels
+    //                 }),
+    //             )
+    //             .await;
+    //         match res {
+    //             Ok(res) => {
+    //                 info!(
+    //                     "Re-subscribed to all channels: {all_channels:?}: response: {res:?} on attempt {attempt}"
+    //                 );
+    //                 return Ok(());
+    //             }
+    //             Err(e) => {
+    //                 warn!("Failed to re-subscribe to channels: {e:?}; attempt {attempt}");
+    //                 tokio::time::sleep(Duration::from_secs(2)).await;
+    //             }
+    //         }
+    //     }
+    //     Err(ClientError::Rpc(serde_json::json!({
+    //         "message": "Failed to re-subscribe to channels after multiple attempts"
+    //     })))
+    // }
 
     pub async fn run_till_event(&self) -> ExternalEvent {
         let mut rx = self.connection_state_rx.clone();
@@ -521,8 +519,8 @@ async fn connection_supervisor(
     mut cmd_rx: mpsc::UnboundedReceiver<InternalCommand>,
     mut shutdown_rx: watch::Receiver<bool>,
     pending_requests: Arc<DashMap<u64, ResponseSender>>,
-    public_subscriptions: Arc<DashMap<String, ChannelSender>>,
-    private_subscriptions: Arc<DashMap<String, ChannelSender>>,
+    public_subscriptions: Arc<DashMap<String, SubscriptionRoute>>,
+    private_subscriptions: Arc<DashMap<String, SubscriptionRoute>>,
     connection_state_tx: watch::Sender<ExternalEvent>,
 ) {
     info!("Connection supervisor started for {url}");
@@ -601,8 +599,8 @@ async fn run_single_connection(
     cmd_rx: &mut mpsc::UnboundedReceiver<InternalCommand>,
     shutdown_rx: &mut watch::Receiver<bool>,
     pending_requests: &Arc<DashMap<u64, ResponseSender>>,
-    public_subscriptions: &Arc<DashMap<String, ChannelSender>>,
-    private_subscriptions: &Arc<DashMap<String, ChannelSender>>,
+    public_subscriptions: &Arc<DashMap<String, SubscriptionRoute>>,
+    private_subscriptions: &Arc<DashMap<String, SubscriptionRoute>>,
 ) -> Result<(), Error> {
     let mut ping_interval = interval(PING_INTERVAL);
     ping_interval.set_missed_tick_behavior(MissedTickBehavior::Delay);
@@ -685,9 +683,10 @@ async fn run_single_connection(
 pub fn handle_incoming(
     bytes: Bytes,
     pending_requests: &Arc<DashMap<u64, ResponseSender>>,
-    public_subscriptions: &Arc<DashMap<String, ChannelSender>>,
-    private_subscriptions: &Arc<DashMap<String, ChannelSender>>,
+    public_subscriptions: &Arc<DashMap<String, SubscriptionRoute>>,
+    private_subscriptions: &Arc<DashMap<String, SubscriptionRoute>>,
 ) {
+    println!("Received message: {}", String::from_utf8_lossy(&bytes));
     if let Some(id) = extract_id(&bytes)
         && let Some((_, tx)) = pending_requests.remove(&id)
     {
@@ -696,10 +695,21 @@ pub fn handle_incoming(
     }
 
     if let Some(channel) = extract_channel(&bytes) {
+        println!("Received message for channel: {channel}");
         for routes in [private_subscriptions, public_subscriptions] {
-            if let Some(sender) = routes.get(channel) {
-                if sender.send(bytes.clone()).is_err() {
-                    routes.remove(channel);
+            if let Some(route) = routes.get(channel) {
+                match (route.dispatch)(&bytes) {
+                    DispatchResult::Delivered => {}
+                    DispatchResult::DecodeError => {
+                        warn!(
+                            "Decode error for channel {channel} as type {}",
+                            route.type_name
+                        );
+                    }
+                    DispatchResult::NoReceivers => {
+                        warn!("No receivers for channel {channel}, removing subscription");
+                        routes.remove(channel);
+                    }
                 }
                 return;
             }
