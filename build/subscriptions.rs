@@ -4,6 +4,8 @@ use std::{
     fs, println,
 };
 
+use heck::ToSnakeCase;
+use heck::ToUpperCamelCase;
 use proc_macro2::{Literal, TokenStream};
 use quote::{format_ident, quote};
 use serde_json::Value;
@@ -142,21 +144,31 @@ pub fn generate_subscriptions() {
 
     // collect all channel definitions into a single vector
     let mut all_channel_definitions: Vec<ChannelDefinition> = Vec::new();
-    for (_, channel_definitions) in ns_to_channel_definitions {
+    for (namespace, channel_definitions) in ns_to_channel_definitions {
+        let generated = generate_subscription_client(&channel_definitions, &namespace);
+        let subscriptions_output_path =
+            format!("src/subscriptions/{}.rs", namespace.to_snake_case());
+
+        println!("{}", &generated.to_string());
+        let syntax_tree = syn::parse_file(&generated.to_string())
+            .expect("generated subscription clients contained invalid Rust");
+
+        let formatted = prettyplease::unparse(&syntax_tree);
+
+        fs::write(&subscriptions_output_path, formatted)
+            .unwrap_or_else(|error| panic!("failed to write {subscriptions_output_path}: {error}"));
+
         all_channel_definitions.extend(channel_definitions);
+        // println!("Generated subscription clients for namespace: {namespace}");
     }
 
     let generated = generate_channel_specs(&all_channel_definitions);
-    let output_path = "src/subscriptions/channel_specs.rs";
-
+    let channel_spec_output_path = "src/subscriptions/channel_specs.rs";
     let syntax_tree = syn::parse_file(&generated.to_string())
         .expect("generated channel specs contained invalid Rust");
-
     let formatted = prettyplease::unparse(&syntax_tree);
-
-    fs::write(output_path, formatted).expect("failed to write generated channel specs");
-
-    // panic!("generate_subscriptions is not implemented yet. Please implement it to generate subscription models from the asyncapi_subs.json schema.");
+    fs::write(channel_spec_output_path, formatted)
+        .expect("failed to write generated channel specs");
 }
 
 fn generate_channel_specs(definitions: &[ChannelDefinition]) -> TokenStream {
@@ -280,5 +292,74 @@ fn upper_first(value: &str) -> String {
     match chars.next() {
         Some(first) => first.to_uppercase().collect::<String>() + chars.as_str(),
         None => String::new(),
+    }
+}
+
+fn generate_subscription_client(definitions: &[ChannelDefinition], namespace: &str) -> TokenStream {
+    let namespace_subscriptions = generate_namespace_subscriptions(namespace, definitions);
+    let namespace_ident = format_ident!("{}", namespace.to_snake_case());
+
+    quote! {
+        use crate::{
+            models::asyncapi_subs::*,
+            subscriptions::channel_specs::#namespace_ident::*,
+            types::{ClientError, EventStream},
+            ws_client::WsClient,
+        };
+
+        #namespace_subscriptions
+    }
+}
+
+fn generate_namespace_subscriptions(
+    namespace: &str,
+    definitions: &[ChannelDefinition],
+) -> TokenStream {
+    let subscriptions_ident = format_ident!("{}Subscriptions", namespace.to_upper_camel_case());
+
+    let methods = definitions.iter().map(generate_subscription_method);
+
+    quote! {
+        pub struct #subscriptions_ident<'a> {
+            client: &'a WsClient,
+        }
+
+        impl<'a> #subscriptions_ident<'a> {
+            pub fn new(client: &'a WsClient) -> Self {
+                Self { client }
+            }
+
+            #(#methods)*
+        }
+    }
+}
+
+fn generate_subscription_method(definition: &ChannelDefinition) -> TokenStream {
+    let method_ident = format_ident!("{}", definition.name.to_snake_case());
+
+    let spec_ident = format_ident!("{}ChannelSpec", definition.name.to_upper_camel_case());
+
+    let output_ident = format_ident!("{}", definition.notification_model.to_upper_camel_case());
+
+    let parameter_idents: Vec<_> = definition
+        .params
+        .iter()
+        .map(|param| format_ident!("{}", param.to_snake_case()))
+        .collect();
+
+    quote! {
+        pub async fn #method_ident(
+            &self,
+            #(#parameter_idents: &str),*
+        ) -> Result<EventStream<#output_ident>, ClientError> {
+            self.client
+                .subscribe(#spec_ident {
+                    #(
+                        #parameter_idents:
+                            #parameter_idents.to_owned()
+                    ),*
+                })
+                .await
+        }
     }
 }

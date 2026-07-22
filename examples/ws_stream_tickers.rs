@@ -14,13 +14,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut eth_ticker_stream: BroadcastStream<TickerSlimNotification> = ws_client
         .subscriptions()
         .market_data()
-        .ticker("ETH-USD", "100")
+        .ticker_slim("ETH-USD", "100")
         .await?;
 
     let mut btc_ticker_stream: BroadcastStream<TickerSlimNotification> = ws_client
         .subscriptions()
         .market_data()
-        .ticker("BTC-USD", "100")
+        .ticker_slim("BTC-USD", "100")
         .await?;
 
     loop {

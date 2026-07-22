@@ -27,6 +27,7 @@ yawc = "0.3.3"
 [workspace]
 
 [build-dependencies]
+heck = "0.5.0"
 prettyplease = "0.3.0"
 proc-macro2 = "1.0.107"
 quote = "1.0.47"
