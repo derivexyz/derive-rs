@@ -68,21 +68,4 @@ impl<'a> MarketDataSubscriptions<'a> {
             })
             .await
     }
-    pub async fn trades_by_instrument_type_currency_tx_status(
-        &self,
-        instrument_type: &str,
-        currency: &str,
-        tx_status: &str,
-    ) -> Result<
-        EventStream<TradesByInstrumentTypeCurrencyTxStatusNotification>,
-        ClientError,
-    > {
-        self.client
-            .subscribe(TradesByInstrumentTypeCurrencyTxStatusChannelSpec {
-                instrument_type: instrument_type.to_owned(),
-                currency: currency.to_owned(),
-                tx_status: tx_status.to_owned(),
-            })
-            .await
-    }
 }

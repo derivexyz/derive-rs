@@ -5444,6 +5444,17 @@ impl GetPositionsRequest {
 ///{
 ///  "type": "object",
 ///  "properties": {
+///    "batch_status": {
+///      "default": null,
+///      "anyOf": [
+///        {
+///          "$ref": "#/definitions/BatchStatus"
+///        },
+///        {
+///          "type": "null"
+///        }
+///      ]
+///    },
 ///    "currency": {
 ///      "default": null,
 ///      "type": [
@@ -5468,9 +5479,13 @@ impl GetPositionsRequest {
 ///    },
 ///    "instrument_type": {
 ///      "default": null,
-///      "type": [
-///        "string",
-///        "null"
+///      "anyOf": [
+///        {
+///          "$ref": "#/definitions/AssetType"
+///        },
+///        {
+///          "type": "null"
+///        }
 ///      ]
 ///    },
 ///    "page": {
@@ -5513,13 +5528,6 @@ impl GetPositionsRequest {
 ///        "string",
 ///        "null"
 ///      ]
-///    },
-///    "tx_status": {
-///      "default": null,
-///      "type": [
-///        "string",
-///        "null"
-///      ]
 ///    }
 ///  }
 ///}
@@ -5528,13 +5536,15 @@ impl GetPositionsRequest {
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
 pub struct GetPublicTradeHistoryRequest {
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub batch_status: ::std::option::Option<BatchStatus>,
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub currency: ::std::option::Option<::std::string::String>,
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub from_timestamp: ::std::option::Option<i64>,
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub instrument_name: ::std::option::Option<::std::string::String>,
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
-    pub instrument_type: ::std::option::Option<::std::string::String>,
+    pub instrument_type: ::std::option::Option<AssetType>,
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub page: ::std::option::Option<u32>,
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
@@ -5545,12 +5555,11 @@ pub struct GetPublicTradeHistoryRequest {
     pub to_timestamp: ::std::option::Option<i64>,
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub trade_id: ::std::option::Option<::std::string::String>,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
-    pub tx_status: ::std::option::Option<::std::string::String>,
 }
 impl ::std::default::Default for GetPublicTradeHistoryRequest {
     fn default() -> Self {
         Self {
+            batch_status: Default::default(),
             currency: Default::default(),
             from_timestamp: Default::default(),
             instrument_name: Default::default(),
@@ -5560,7 +5569,6 @@ impl ::std::default::Default for GetPublicTradeHistoryRequest {
             subaccount_id: Default::default(),
             to_timestamp: Default::default(),
             trade_id: Default::default(),
-            tx_status: Default::default(),
         }
     }
 }
@@ -5623,7 +5631,7 @@ impl GetPublicTradeHistoryRequest {
 ///      "format": "int64"
 ///    },
 ///    "to_timestamp": {
-///      "default": 9223372036854775807,
+///      "default": 9223372036854776000,
 ///      "type": "integer",
 ///      "format": "int64"
 ///    }
@@ -5646,7 +5654,7 @@ pub struct GetQuotesRequest {
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub status: ::std::option::Option<::std::string::String>,
     pub subaccount_id: i64,
-    #[serde(default = "defaults::default_u64::<i64, 9223372036854775807>")]
+    #[serde(default = "defaults::default_u64::<i64, 9223372036854776000>")]
     pub to_timestamp: i64,
 }
 impl GetQuotesRequest {
@@ -5843,7 +5851,7 @@ impl GetReferralPerformanceResult {
 ///      "format": "int64"
 ///    },
 ///    "to_timestamp": {
-///      "default": 9223372036854775807,
+///      "default": 9223372036854776000,
 ///      "type": "integer",
 ///      "format": "int64"
 ///    }
@@ -5864,7 +5872,7 @@ pub struct GetRfqsRequest {
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub status: ::std::option::Option<::std::string::String>,
     pub subaccount_id: i64,
-    #[serde(default = "defaults::default_u64::<i64, 9223372036854775807>")]
+    #[serde(default = "defaults::default_u64::<i64, 9223372036854776000>")]
     pub to_timestamp: i64,
 }
 impl GetRfqsRequest {
@@ -9160,7 +9168,7 @@ impl OrderDebugResponse {
 ///      "type": "boolean"
 ///    },
 ///    "reject_timestamp": {
-///      "default": 9223372036854775807,
+///      "default": 9223372036854776000,
 ///      "type": "integer",
 ///      "format": "int64"
 ///    },
@@ -9263,7 +9271,7 @@ pub struct OrderQuoteRequest {
     pub referral_code: ::std::string::String,
     #[serde(default = "defaults::default_bool::<true>")]
     pub reject_post_only: bool,
-    #[serde(default = "defaults::default_u64::<i64, 9223372036854775807>")]
+    #[serde(default = "defaults::default_u64::<i64, 9223372036854776000>")]
     pub reject_timestamp: i64,
     ///Ethereum signature of the order.
     pub signature: ::std::string::String,
@@ -10247,7 +10255,7 @@ impl PerpSettlementHistoryResponse {
 ///      "format": "int64"
 ///    },
 ///    "to_timestamp": {
-///      "default": 9223372036854775807,
+///      "default": 9223372036854776000,
 ///      "type": "integer",
 ///      "format": "int64"
 ///    }
@@ -10270,7 +10278,7 @@ pub struct PollQuotesRequest {
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub status: ::std::option::Option<::std::string::String>,
     pub subaccount_id: i64,
-    #[serde(default = "defaults::default_u64::<i64, 9223372036854775807>")]
+    #[serde(default = "defaults::default_u64::<i64, 9223372036854776000>")]
     pub to_timestamp: i64,
 }
 impl PollQuotesRequest {
@@ -10333,7 +10341,7 @@ impl PollQuotesRequest {
 ///      "format": "int64"
 ///    },
 ///    "to_timestamp": {
-///      "default": 9223372036854775807,
+///      "default": 9223372036854776000,
 ///      "type": "integer",
 ///      "format": "int64"
 ///    }
@@ -10356,7 +10364,7 @@ pub struct PollRfqsRequest {
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub status: ::std::option::Option<::std::string::String>,
     pub subaccount_id: i64,
-    #[serde(default = "defaults::default_u64::<i64, 9223372036854775807>")]
+    #[serde(default = "defaults::default_u64::<i64, 9223372036854776000>")]
     pub to_timestamp: i64,
 }
 impl PollRfqsRequest {
@@ -10434,7 +10442,7 @@ impl PollRfqsRequest {
 ///      "type": "string"
 ///    },
 ///    "instrument_type": {
-///      "type": "string"
+///      "$ref": "#/definitions/AssetType"
 ///    },
 ///    "leverage": {
 ///      "type": [
@@ -10504,7 +10512,7 @@ pub struct Position {
     pub index_price: ::std::string::String,
     pub initial_margin: ::std::string::String,
     pub instrument_name: ::std::string::String,
-    pub instrument_type: ::std::string::String,
+    pub instrument_type: AssetType,
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub leverage: ::std::option::Option<::std::string::String>,
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
@@ -12258,6 +12266,17 @@ impl PublicWithdrawDebugRequest {
 ///    "subaccount_id"
 ///  ],
 ///  "properties": {
+///    "batch_status": {
+///      "description": "Settlement batch status (only for executed quotes).",
+///      "anyOf": [
+///        {
+///          "$ref": "#/definitions/BatchStatus"
+///        },
+///        {
+///          "type": "null"
+///        }
+///      ]
+///    },
 ///    "cancel_reason": {
 ///      "$ref": "#/definitions/RFQCancelReason"
 ///    },
@@ -12363,17 +12382,6 @@ impl PublicWithdrawDebugRequest {
 ///        "string",
 ///        "null"
 ///      ]
-///    },
-///    "tx_status": {
-///      "description": "Blockchain transaction status (only for executed quotes).",
-///      "anyOf": [
-///        {
-///          "$ref": "#/definitions/TxStatus"
-///        },
-///        {
-///          "type": "null"
-///        }
-///      ]
 ///    }
 ///  }
 ///}
@@ -12381,6 +12389,9 @@ impl PublicWithdrawDebugRequest {
 /// </details>
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
 pub struct Quote {
+    ///Settlement batch status (only for executed quotes).
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub batch_status: ::std::option::Option<BatchStatus>,
     pub cancel_reason: RfqCancelReason,
     pub creation_timestamp: i64,
     pub direction: Direction,
@@ -12410,9 +12421,6 @@ pub struct Quote {
     ///Blockchain transaction hash (only for executed quotes).
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub tx_hash: ::std::option::Option<::std::string::String>,
-    ///Blockchain transaction status (only for executed quotes).
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
-    pub tx_status: ::std::option::Option<TxStatus>,
 }
 impl Quote {
     pub fn builder() -> builder::Quote {
@@ -15605,6 +15613,16 @@ impl SetMmpConfigResponse {
 ///    "wallet"
 ///  ],
 ///  "properties": {
+///    "batch_status": {
+///      "anyOf": [
+///        {
+///          "$ref": "#/definitions/BatchStatus"
+///        },
+///        {
+///          "type": "null"
+///        }
+///      ]
+///    },
 ///    "direction": {
 ///      "$ref": "#/definitions/Direction"
 ///    },
@@ -15734,16 +15752,6 @@ impl SetMmpConfigResponse {
 ///    "tx_hash": {
 ///      "type": "string"
 ///    },
-///    "tx_status": {
-///      "anyOf": [
-///        {
-///          "$ref": "#/definitions/BatchStatus"
-///        },
-///        {
-///          "type": "null"
-///        }
-///      ]
-///    },
 ///    "wallet": {
 ///      "type": "string"
 ///    }
@@ -15753,6 +15761,8 @@ impl SetMmpConfigResponse {
 /// </details>
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
 pub struct SettledTrade {
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub batch_status: ::std::option::Option<BatchStatus>,
     pub direction: Direction,
     ///Decimal string of the human value (e.g. `"1.5"`), up to 12 fractional digits; a string or JSON number is accepted
     pub expected_rebate: ::bigdecimal::BigDecimal,
@@ -15782,8 +15792,6 @@ pub struct SettledTrade {
     ///Decimal string of the human value (e.g. `"1.5"`), up to 12 fractional digits; a string or JSON number is accepted
     pub trade_price: ::bigdecimal::BigDecimal,
     pub tx_hash: ::std::string::String,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
-    pub tx_status: ::std::option::Option<BatchStatus>,
     pub wallet: ::std::string::String,
 }
 impl SettledTrade {
@@ -16421,10 +16429,20 @@ impl ::std::convert::TryFrom<::std::string::String> for TimeInForce {
 ///    "trade_amount",
 ///    "trade_fee",
 ///    "trade_id",
-///    "trade_price",
-///    "tx_status"
+///    "trade_price"
 ///  ],
 ///  "properties": {
+///    "batch_status": {
+///      "description": "Settlement batch status; `null` if processed by sequencer.",
+///      "anyOf": [
+///        {
+///          "$ref": "#/definitions/BatchStatus"
+///        },
+///        {
+///          "type": "null"
+///        }
+///      ]
+///    },
 ///    "direction": {
 ///      "$ref": "#/definitions/Direction"
 ///    },
@@ -16569,9 +16587,6 @@ impl ::std::convert::TryFrom<::std::string::String> for TimeInForce {
 ///        "string",
 ///        "null"
 ///      ]
-///    },
-///    "tx_status": {
-///      "$ref": "#/definitions/TxStatus"
 ///    }
 ///  }
 ///}
@@ -16579,6 +16594,9 @@ impl ::std::convert::TryFrom<::std::string::String> for TimeInForce {
 /// </details>
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
 pub struct Trade {
+    ///Settlement batch status; `null` if processed by sequencer.
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub batch_status: ::std::option::Option<BatchStatus>,
     pub direction: Direction,
     ///Decimal string of the human value (e.g. `"1.5"`), up to 12 fractional digits; a string or JSON number is accepted
     pub expected_rebate: ::bigdecimal::BigDecimal,
@@ -16614,20 +16632,19 @@ pub struct Trade {
     pub trade_price: ::bigdecimal::BigDecimal,
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub tx_hash: ::std::option::Option<::std::string::String>,
-    pub tx_status: TxStatus,
 }
 impl Trade {
     pub fn builder() -> builder::Trade {
         Default::default()
     }
 }
-///A trade as returned by `private/get_trade_history`. Mirrors a private trades subscription event, except `tx_status` is the settlement status (`null` until the batch settles).
+///A trade as returned by `private/get_trade_history`. Mirrors a private trades subscription event, except `batch_status` is the settlement status (`null` until the batch settles).
 ///
 /// <details><summary>JSON schema</summary>
 ///
 /// ```json
 ///{
-///  "description": "A trade as returned by `private/get_trade_history`. Mirrors a private trades subscription event, except `tx_status` is the settlement status (`null` until the batch settles).",
+///  "description": "A trade as returned by `private/get_trade_history`. Mirrors a private trades subscription event, except `batch_status` is the settlement status (`null` until the batch settles).",
 ///  "type": "object",
 ///  "required": [
 ///    "direction",
@@ -16653,6 +16670,16 @@ impl Trade {
 ///    "trade_price"
 ///  ],
 ///  "properties": {
+///    "batch_status": {
+///      "anyOf": [
+///        {
+///          "$ref": "#/definitions/BatchStatus"
+///        },
+///        {
+///          "type": "null"
+///        }
+///      ]
+///    },
 ///    "direction": {
 ///      "$ref": "#/definitions/Direction"
 ///    },
@@ -16796,16 +16823,6 @@ impl Trade {
 ///        "string",
 ///        "null"
 ///      ]
-///    },
-///    "tx_status": {
-///      "anyOf": [
-///        {
-///          "$ref": "#/definitions/BatchStatus"
-///        },
-///        {
-///          "type": "null"
-///        }
-///      ]
 ///    }
 ///  }
 ///}
@@ -16813,6 +16830,8 @@ impl Trade {
 /// </details>
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
 pub struct TradeHistoryResponse {
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub batch_status: ::std::option::Option<BatchStatus>,
     pub direction: Direction,
     ///Decimal string of the human value (e.g. `"1.5"`), up to 12 fractional digits; a string or JSON number is accepted
     pub expected_rebate: ::bigdecimal::BigDecimal,
@@ -16847,8 +16866,6 @@ pub struct TradeHistoryResponse {
     pub trade_price: ::bigdecimal::BigDecimal,
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub tx_hash: ::std::option::Option<::std::string::String>,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
-    pub tx_status: ::std::option::Option<BatchStatus>,
 }
 impl TradeHistoryResponse {
     pub fn builder() -> builder::TradeHistoryResponse {
@@ -17279,154 +17296,6 @@ impl ::std::convert::TryFrom<&::std::string::String> for TriggerType {
     }
 }
 impl ::std::convert::TryFrom<::std::string::String> for TriggerType {
-    type Error = self::error::ConversionError;
-    fn try_from(
-        value: ::std::string::String,
-    ) -> ::std::result::Result<Self, self::error::ConversionError> {
-        value.parse()
-    }
-}
-///`TxStatus`
-///
-/// <details><summary>JSON schema</summary>
-///
-/// ```json
-///{
-///  "oneOf": [
-///    {
-///      "type": "string",
-///      "enum": [
-///        "requested",
-///        "pending",
-///        "settled",
-///        "reverted",
-///        "ignored",
-///        "timed_out"
-///      ]
-///    },
-///    {
-///      "description": "Applied off-chain; not yet included in an on-chain settlement batch.",
-///      "type": "string",
-///      "enum": [
-///        "applied"
-///      ]
-///    },
-///    {
-///      "description": "Included in a settlement batch and executing.",
-///      "type": "string",
-///      "enum": [
-///        "in_batch"
-///      ]
-///    },
-///    {
-///      "description": "Settlement proof in progress.",
-///      "type": "string",
-///      "enum": [
-///        "proving"
-///      ]
-///    },
-///    {
-///      "description": "Settlement transaction broadcast on-chain; awaiting confirmation.",
-///      "type": "string",
-///      "enum": [
-///        "submitted"
-///      ]
-///    }
-///  ]
-///}
-/// ```
-/// </details>
-#[derive(
-    ::serde::Deserialize,
-    ::serde::Serialize,
-    Clone,
-    Copy,
-    Debug,
-    Eq,
-    Hash,
-    Ord,
-    PartialEq,
-    PartialOrd
-)]
-pub enum TxStatus {
-    #[serde(rename = "requested")]
-    Requested,
-    #[serde(rename = "pending")]
-    Pending,
-    #[serde(rename = "settled")]
-    Settled,
-    #[serde(rename = "reverted")]
-    Reverted,
-    #[serde(rename = "ignored")]
-    Ignored,
-    #[serde(rename = "timed_out")]
-    TimedOut,
-    ///Applied off-chain; not yet included in an on-chain settlement batch.
-    #[serde(rename = "applied")]
-    Applied,
-    ///Included in a settlement batch and executing.
-    #[serde(rename = "in_batch")]
-    InBatch,
-    ///Settlement proof in progress.
-    #[serde(rename = "proving")]
-    Proving,
-    ///Settlement transaction broadcast on-chain; awaiting confirmation.
-    #[serde(rename = "submitted")]
-    Submitted,
-}
-impl ::std::fmt::Display for TxStatus {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        match *self {
-            Self::Requested => f.write_str("requested"),
-            Self::Pending => f.write_str("pending"),
-            Self::Settled => f.write_str("settled"),
-            Self::Reverted => f.write_str("reverted"),
-            Self::Ignored => f.write_str("ignored"),
-            Self::TimedOut => f.write_str("timed_out"),
-            Self::Applied => f.write_str("applied"),
-            Self::InBatch => f.write_str("in_batch"),
-            Self::Proving => f.write_str("proving"),
-            Self::Submitted => f.write_str("submitted"),
-        }
-    }
-}
-impl ::std::str::FromStr for TxStatus {
-    type Err = self::error::ConversionError;
-    fn from_str(
-        value: &str,
-    ) -> ::std::result::Result<Self, self::error::ConversionError> {
-        match value {
-            "requested" => Ok(Self::Requested),
-            "pending" => Ok(Self::Pending),
-            "settled" => Ok(Self::Settled),
-            "reverted" => Ok(Self::Reverted),
-            "ignored" => Ok(Self::Ignored),
-            "timed_out" => Ok(Self::TimedOut),
-            "applied" => Ok(Self::Applied),
-            "in_batch" => Ok(Self::InBatch),
-            "proving" => Ok(Self::Proving),
-            "submitted" => Ok(Self::Submitted),
-            _ => Err("invalid value".into()),
-        }
-    }
-}
-impl ::std::convert::TryFrom<&str> for TxStatus {
-    type Error = self::error::ConversionError;
-    fn try_from(
-        value: &str,
-    ) -> ::std::result::Result<Self, self::error::ConversionError> {
-        value.parse()
-    }
-}
-impl ::std::convert::TryFrom<&::std::string::String> for TxStatus {
-    type Error = self::error::ConversionError;
-    fn try_from(
-        value: &::std::string::String,
-    ) -> ::std::result::Result<Self, self::error::ConversionError> {
-        value.parse()
-    }
-}
-impl ::std::convert::TryFrom<::std::string::String> for TxStatus {
     type Error = self::error::ConversionError;
     fn try_from(
         value: ::std::string::String,
@@ -26814,6 +26683,10 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct GetPublicTradeHistoryRequest {
+        batch_status: ::std::result::Result<
+            ::std::option::Option<super::BatchStatus>,
+            ::std::string::String,
+        >,
         currency: ::std::result::Result<
             ::std::option::Option<::std::string::String>,
             ::std::string::String,
@@ -26827,7 +26700,7 @@ pub mod builder {
             ::std::string::String,
         >,
         instrument_type: ::std::result::Result<
-            ::std::option::Option<::std::string::String>,
+            ::std::option::Option<super::AssetType>,
             ::std::string::String,
         >,
         page: ::std::result::Result<::std::option::Option<u32>, ::std::string::String>,
@@ -26847,14 +26720,11 @@ pub mod builder {
             ::std::option::Option<::std::string::String>,
             ::std::string::String,
         >,
-        tx_status: ::std::result::Result<
-            ::std::option::Option<::std::string::String>,
-            ::std::string::String,
-        >,
     }
     impl ::std::default::Default for GetPublicTradeHistoryRequest {
         fn default() -> Self {
             Self {
+                batch_status: Ok(Default::default()),
                 currency: Ok(Default::default()),
                 from_timestamp: Ok(Default::default()),
                 instrument_name: Ok(Default::default()),
@@ -26864,11 +26734,22 @@ pub mod builder {
                 subaccount_id: Ok(Default::default()),
                 to_timestamp: Ok(Default::default()),
                 trade_id: Ok(Default::default()),
-                tx_status: Ok(Default::default()),
             }
         }
     }
     impl GetPublicTradeHistoryRequest {
+        pub fn batch_status<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<super::BatchStatus>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.batch_status = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for batch_status: {e}")
+                });
+            self
+        }
         pub fn currency<T>(mut self, value: T) -> Self
         where
             T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
@@ -26907,7 +26788,7 @@ pub mod builder {
         }
         pub fn instrument_type<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+            T: ::std::convert::TryInto<::std::option::Option<super::AssetType>>,
             T::Error: ::std::fmt::Display,
         {
             self.instrument_type = value
@@ -26975,18 +26856,6 @@ pub mod builder {
                 });
             self
         }
-        pub fn tx_status<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.tx_status = value
-                .try_into()
-                .map_err(|e| {
-                    format!("error converting supplied value for tx_status: {e}")
-                });
-            self
-        }
     }
     impl ::std::convert::TryFrom<GetPublicTradeHistoryRequest>
     for super::GetPublicTradeHistoryRequest {
@@ -26995,6 +26864,7 @@ pub mod builder {
             value: GetPublicTradeHistoryRequest,
         ) -> ::std::result::Result<Self, super::error::ConversionError> {
             Ok(Self {
+                batch_status: value.batch_status?,
                 currency: value.currency?,
                 from_timestamp: value.from_timestamp?,
                 instrument_name: value.instrument_name?,
@@ -27004,7 +26874,6 @@ pub mod builder {
                 subaccount_id: value.subaccount_id?,
                 to_timestamp: value.to_timestamp?,
                 trade_id: value.trade_id?,
-                tx_status: value.tx_status?,
             })
         }
     }
@@ -27012,6 +26881,7 @@ pub mod builder {
     for GetPublicTradeHistoryRequest {
         fn from(value: super::GetPublicTradeHistoryRequest) -> Self {
             Self {
+                batch_status: Ok(value.batch_status),
                 currency: Ok(value.currency),
                 from_timestamp: Ok(value.from_timestamp),
                 instrument_name: Ok(value.instrument_name),
@@ -27021,7 +26891,6 @@ pub mod builder {
                 subaccount_id: Ok(value.subaccount_id),
                 to_timestamp: Ok(value.to_timestamp),
                 trade_id: Ok(value.trade_id),
-                tx_status: Ok(value.tx_status),
             }
         }
     }
@@ -27056,7 +26925,7 @@ pub mod builder {
                 status: Ok(Default::default()),
                 subaccount_id: Err("no value supplied for subaccount_id".to_string()),
                 to_timestamp: Ok(
-                    super::defaults::default_u64::<i64, 9223372036854775807>(),
+                    super::defaults::default_u64::<i64, 9223372036854776000>(),
                 ),
             }
         }
@@ -27522,7 +27391,7 @@ pub mod builder {
                 status: Ok(Default::default()),
                 subaccount_id: Err("no value supplied for subaccount_id".to_string()),
                 to_timestamp: Ok(
-                    super::defaults::default_u64::<i64, 9223372036854775807>(),
+                    super::defaults::default_u64::<i64, 9223372036854776000>(),
                 ),
             }
         }
@@ -32995,7 +32864,7 @@ pub mod builder {
                 referral_code: Ok(Default::default()),
                 reject_post_only: Ok(super::defaults::default_bool::<true>()),
                 reject_timestamp: Ok(
-                    super::defaults::default_u64::<i64, 9223372036854775807>(),
+                    super::defaults::default_u64::<i64, 9223372036854776000>(),
                 ),
                 signature: Err("no value supplied for signature".to_string()),
                 signature_expiry_sec: Err(
@@ -34819,7 +34688,7 @@ pub mod builder {
                 status: Ok(Default::default()),
                 subaccount_id: Err("no value supplied for subaccount_id".to_string()),
                 to_timestamp: Ok(
-                    super::defaults::default_u64::<i64, 9223372036854775807>(),
+                    super::defaults::default_u64::<i64, 9223372036854776000>(),
                 ),
             }
         }
@@ -34978,7 +34847,7 @@ pub mod builder {
                 status: Ok(Default::default()),
                 subaccount_id: Err("no value supplied for subaccount_id".to_string()),
                 to_timestamp: Ok(
-                    super::defaults::default_u64::<i64, 9223372036854775807>(),
+                    super::defaults::default_u64::<i64, 9223372036854776000>(),
                 ),
             }
         }
@@ -35134,10 +35003,7 @@ pub mod builder {
             ::std::string::String,
             ::std::string::String,
         >,
-        instrument_type: ::std::result::Result<
-            ::std::string::String,
-            ::std::string::String,
-        >,
+        instrument_type: ::std::result::Result<super::AssetType, ::std::string::String>,
         leverage: ::std::result::Result<
             ::std::option::Option<::std::string::String>,
             ::std::string::String,
@@ -35374,7 +35240,7 @@ pub mod builder {
         }
         pub fn instrument_type<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::std::string::String>,
+            T: ::std::convert::TryInto<super::AssetType>,
             T::Error: ::std::fmt::Display,
         {
             self.instrument_type = value
@@ -38898,6 +38764,10 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct Quote {
+        batch_status: ::std::result::Result<
+            ::std::option::Option<super::BatchStatus>,
+            ::std::string::String,
+        >,
         cancel_reason: ::std::result::Result<
             super::RfqCancelReason,
             ::std::string::String,
@@ -38934,14 +38804,11 @@ pub mod builder {
             ::std::option::Option<::std::string::String>,
             ::std::string::String,
         >,
-        tx_status: ::std::result::Result<
-            ::std::option::Option<super::TxStatus>,
-            ::std::string::String,
-        >,
     }
     impl ::std::default::Default for Quote {
         fn default() -> Self {
             Self {
+                batch_status: Ok(Default::default()),
                 cancel_reason: Err("no value supplied for cancel_reason".to_string()),
                 creation_timestamp: Err(
                     "no value supplied for creation_timestamp".to_string(),
@@ -38969,11 +38836,22 @@ pub mod builder {
                 status: Err("no value supplied for status".to_string()),
                 subaccount_id: Err("no value supplied for subaccount_id".to_string()),
                 tx_hash: Ok(Default::default()),
-                tx_status: Ok(Default::default()),
             }
         }
     }
     impl Quote {
+        pub fn batch_status<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<super::BatchStatus>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.batch_status = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for batch_status: {e}")
+                });
+            self
+        }
         pub fn cancel_reason<T>(mut self, value: T) -> Self
         where
             T: ::std::convert::TryInto<super::RfqCancelReason>,
@@ -39220,18 +39098,6 @@ pub mod builder {
                 });
             self
         }
-        pub fn tx_status<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::std::option::Option<super::TxStatus>>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.tx_status = value
-                .try_into()
-                .map_err(|e| {
-                    format!("error converting supplied value for tx_status: {e}")
-                });
-            self
-        }
     }
     impl ::std::convert::TryFrom<Quote> for super::Quote {
         type Error = super::error::ConversionError;
@@ -39239,6 +39105,7 @@ pub mod builder {
             value: Quote,
         ) -> ::std::result::Result<Self, super::error::ConversionError> {
             Ok(Self {
+                batch_status: value.batch_status?,
                 cancel_reason: value.cancel_reason?,
                 creation_timestamp: value.creation_timestamp?,
                 direction: value.direction?,
@@ -39260,13 +39127,13 @@ pub mod builder {
                 status: value.status?,
                 subaccount_id: value.subaccount_id?,
                 tx_hash: value.tx_hash?,
-                tx_status: value.tx_status?,
             })
         }
     }
     impl ::std::convert::From<super::Quote> for Quote {
         fn from(value: super::Quote) -> Self {
             Self {
+                batch_status: Ok(value.batch_status),
                 cancel_reason: Ok(value.cancel_reason),
                 creation_timestamp: Ok(value.creation_timestamp),
                 direction: Ok(value.direction),
@@ -39288,7 +39155,6 @@ pub mod builder {
                 status: Ok(value.status),
                 subaccount_id: Ok(value.subaccount_id),
                 tx_hash: Ok(value.tx_hash),
-                tx_status: Ok(value.tx_status),
             }
         }
     }
@@ -44496,6 +44362,10 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct SettledTrade {
+        batch_status: ::std::result::Result<
+            ::std::option::Option<super::BatchStatus>,
+            ::std::string::String,
+        >,
         direction: ::std::result::Result<super::Direction, ::std::string::String>,
         expected_rebate: ::std::result::Result<
             ::bigdecimal::BigDecimal,
@@ -44553,15 +44423,12 @@ pub mod builder {
             ::std::string::String,
         >,
         tx_hash: ::std::result::Result<::std::string::String, ::std::string::String>,
-        tx_status: ::std::result::Result<
-            ::std::option::Option<super::BatchStatus>,
-            ::std::string::String,
-        >,
         wallet: ::std::result::Result<::std::string::String, ::std::string::String>,
     }
     impl ::std::default::Default for SettledTrade {
         fn default() -> Self {
             Self {
+                batch_status: Ok(Default::default()),
                 direction: Err("no value supplied for direction".to_string()),
                 expected_rebate: Err(
                     "no value supplied for expected_rebate".to_string(),
@@ -44586,12 +44453,23 @@ pub mod builder {
                 trade_id: Err("no value supplied for trade_id".to_string()),
                 trade_price: Err("no value supplied for trade_price".to_string()),
                 tx_hash: Err("no value supplied for tx_hash".to_string()),
-                tx_status: Ok(Default::default()),
                 wallet: Err("no value supplied for wallet".to_string()),
             }
         }
     }
     impl SettledTrade {
+        pub fn batch_status<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<super::BatchStatus>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.batch_status = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for batch_status: {e}")
+                });
+            self
+        }
         pub fn direction<T>(mut self, value: T) -> Self
         where
             T: ::std::convert::TryInto<super::Direction>,
@@ -44808,18 +44686,6 @@ pub mod builder {
                 });
             self
         }
-        pub fn tx_status<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::std::option::Option<super::BatchStatus>>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.tx_status = value
-                .try_into()
-                .map_err(|e| {
-                    format!("error converting supplied value for tx_status: {e}")
-                });
-            self
-        }
         pub fn wallet<T>(mut self, value: T) -> Self
         where
             T: ::std::convert::TryInto<::std::string::String>,
@@ -44837,6 +44703,7 @@ pub mod builder {
             value: SettledTrade,
         ) -> ::std::result::Result<Self, super::error::ConversionError> {
             Ok(Self {
+                batch_status: value.batch_status?,
                 direction: value.direction?,
                 expected_rebate: value.expected_rebate?,
                 extra_fee: value.extra_fee?,
@@ -44855,7 +44722,6 @@ pub mod builder {
                 trade_id: value.trade_id?,
                 trade_price: value.trade_price?,
                 tx_hash: value.tx_hash?,
-                tx_status: value.tx_status?,
                 wallet: value.wallet?,
             })
         }
@@ -44863,6 +44729,7 @@ pub mod builder {
     impl ::std::convert::From<super::SettledTrade> for SettledTrade {
         fn from(value: super::SettledTrade) -> Self {
             Self {
+                batch_status: Ok(value.batch_status),
                 direction: Ok(value.direction),
                 expected_rebate: Ok(value.expected_rebate),
                 extra_fee: Ok(value.extra_fee),
@@ -44881,7 +44748,6 @@ pub mod builder {
                 trade_id: Ok(value.trade_id),
                 trade_price: Ok(value.trade_price),
                 tx_hash: Ok(value.tx_hash),
-                tx_status: Ok(value.tx_status),
                 wallet: Ok(value.wallet),
             }
         }
@@ -46103,6 +45969,10 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct Trade {
+        batch_status: ::std::result::Result<
+            ::std::option::Option<super::BatchStatus>,
+            ::std::string::String,
+        >,
         direction: ::std::result::Result<super::Direction, ::std::string::String>,
         expected_rebate: ::std::result::Result<
             ::bigdecimal::BigDecimal,
@@ -46167,11 +46037,11 @@ pub mod builder {
             ::std::option::Option<::std::string::String>,
             ::std::string::String,
         >,
-        tx_status: ::std::result::Result<super::TxStatus, ::std::string::String>,
     }
     impl ::std::default::Default for Trade {
         fn default() -> Self {
             Self {
+                batch_status: Ok(Default::default()),
                 direction: Err("no value supplied for direction".to_string()),
                 expected_rebate: Err(
                     "no value supplied for expected_rebate".to_string(),
@@ -46200,11 +46070,22 @@ pub mod builder {
                 trade_id: Err("no value supplied for trade_id".to_string()),
                 trade_price: Err("no value supplied for trade_price".to_string()),
                 tx_hash: Ok(Default::default()),
-                tx_status: Err("no value supplied for tx_status".to_string()),
             }
         }
     }
     impl Trade {
+        pub fn batch_status<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<super::BatchStatus>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.batch_status = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for batch_status: {e}")
+                });
+            self
+        }
         pub fn direction<T>(mut self, value: T) -> Self
         where
             T: ::std::convert::TryInto<super::Direction>,
@@ -46467,18 +46348,6 @@ pub mod builder {
                 });
             self
         }
-        pub fn tx_status<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<super::TxStatus>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.tx_status = value
-                .try_into()
-                .map_err(|e| {
-                    format!("error converting supplied value for tx_status: {e}")
-                });
-            self
-        }
     }
     impl ::std::convert::TryFrom<Trade> for super::Trade {
         type Error = super::error::ConversionError;
@@ -46486,6 +46355,7 @@ pub mod builder {
             value: Trade,
         ) -> ::std::result::Result<Self, super::error::ConversionError> {
             Ok(Self {
+                batch_status: value.batch_status?,
                 direction: value.direction?,
                 expected_rebate: value.expected_rebate?,
                 extra_fee: value.extra_fee?,
@@ -46508,13 +46378,13 @@ pub mod builder {
                 trade_id: value.trade_id?,
                 trade_price: value.trade_price?,
                 tx_hash: value.tx_hash?,
-                tx_status: value.tx_status?,
             })
         }
     }
     impl ::std::convert::From<super::Trade> for Trade {
         fn from(value: super::Trade) -> Self {
             Self {
+                batch_status: Ok(value.batch_status),
                 direction: Ok(value.direction),
                 expected_rebate: Ok(value.expected_rebate),
                 extra_fee: Ok(value.extra_fee),
@@ -46537,12 +46407,15 @@ pub mod builder {
                 trade_id: Ok(value.trade_id),
                 trade_price: Ok(value.trade_price),
                 tx_hash: Ok(value.tx_hash),
-                tx_status: Ok(value.tx_status),
             }
         }
     }
     #[derive(Clone, Debug)]
     pub struct TradeHistoryResponse {
+        batch_status: ::std::result::Result<
+            ::std::option::Option<super::BatchStatus>,
+            ::std::string::String,
+        >,
         direction: ::std::result::Result<super::Direction, ::std::string::String>,
         expected_rebate: ::std::result::Result<
             ::bigdecimal::BigDecimal,
@@ -46607,14 +46480,11 @@ pub mod builder {
             ::std::option::Option<::std::string::String>,
             ::std::string::String,
         >,
-        tx_status: ::std::result::Result<
-            ::std::option::Option<super::BatchStatus>,
-            ::std::string::String,
-        >,
     }
     impl ::std::default::Default for TradeHistoryResponse {
         fn default() -> Self {
             Self {
+                batch_status: Ok(Default::default()),
                 direction: Err("no value supplied for direction".to_string()),
                 expected_rebate: Err(
                     "no value supplied for expected_rebate".to_string(),
@@ -46643,11 +46513,22 @@ pub mod builder {
                 trade_id: Err("no value supplied for trade_id".to_string()),
                 trade_price: Err("no value supplied for trade_price".to_string()),
                 tx_hash: Ok(Default::default()),
-                tx_status: Ok(Default::default()),
             }
         }
     }
     impl TradeHistoryResponse {
+        pub fn batch_status<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<super::BatchStatus>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.batch_status = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for batch_status: {e}")
+                });
+            self
+        }
         pub fn direction<T>(mut self, value: T) -> Self
         where
             T: ::std::convert::TryInto<super::Direction>,
@@ -46910,18 +46791,6 @@ pub mod builder {
                 });
             self
         }
-        pub fn tx_status<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::std::option::Option<super::BatchStatus>>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.tx_status = value
-                .try_into()
-                .map_err(|e| {
-                    format!("error converting supplied value for tx_status: {e}")
-                });
-            self
-        }
     }
     impl ::std::convert::TryFrom<TradeHistoryResponse> for super::TradeHistoryResponse {
         type Error = super::error::ConversionError;
@@ -46929,6 +46798,7 @@ pub mod builder {
             value: TradeHistoryResponse,
         ) -> ::std::result::Result<Self, super::error::ConversionError> {
             Ok(Self {
+                batch_status: value.batch_status?,
                 direction: value.direction?,
                 expected_rebate: value.expected_rebate?,
                 extra_fee: value.extra_fee?,
@@ -46951,13 +46821,13 @@ pub mod builder {
                 trade_id: value.trade_id?,
                 trade_price: value.trade_price?,
                 tx_hash: value.tx_hash?,
-                tx_status: value.tx_status?,
             })
         }
     }
     impl ::std::convert::From<super::TradeHistoryResponse> for TradeHistoryResponse {
         fn from(value: super::TradeHistoryResponse) -> Self {
             Self {
+                batch_status: Ok(value.batch_status),
                 direction: Ok(value.direction),
                 expected_rebate: Ok(value.expected_rebate),
                 extra_fee: Ok(value.extra_fee),
@@ -46980,7 +46850,6 @@ pub mod builder {
                 trade_id: Ok(value.trade_id),
                 trade_price: Ok(value.trade_price),
                 tx_hash: Ok(value.tx_hash),
-                tx_status: Ok(value.tx_status),
             }
         }
     }

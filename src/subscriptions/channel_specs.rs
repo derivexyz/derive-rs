@@ -199,39 +199,6 @@ pub mod market_data {
             );
         }
     }
-    #[derive(Clone, Debug, PartialEq, Eq, Default)]
-    pub struct TradesByInstrumentTypeCurrencyTxStatusChannelSpec {
-        pub instrument_type: String,
-        pub currency: String,
-        pub tx_status: String,
-    }
-    impl TradesByInstrumentTypeCurrencyTxStatusChannelSpec {
-        pub fn new(
-            instrument_type: impl Into<String>,
-            currency: impl Into<String>,
-            tx_status: impl Into<String>,
-        ) -> Self {
-            Self {
-                instrument_type: instrument_type.into(),
-                currency: currency.into(),
-                tx_status: tx_status.into(),
-            }
-        }
-    }
-    impl ChannelSpec for TradesByInstrumentTypeCurrencyTxStatusChannelSpec {
-        type Output = TradesByInstrumentTypeCurrencyTxStatusNotification;
-        fn scope(&self) -> RequestScope {
-            RequestScope::Public
-        }
-        #[allow(clippy::needless_return, clippy::useless_format)]
-        fn channel(&self) -> String {
-            return format!(
-                "trades.{instrument_type}.{currency}.{tx_status}", instrument_type = self
-                .instrument_type.as_str(), currency = self.currency.as_str(), tx_status =
-                self.tx_status.as_str()
-            );
-        }
-    }
 }
 pub mod rfqs {
     use super::*;
@@ -351,31 +318,64 @@ pub mod trading {
         }
     }
     #[derive(Clone, Debug, PartialEq, Eq, Default)]
-    pub struct SubaccountTradesTxStatusChannelSpec {
+    pub struct SubaccountTradesBatchStatusChannelSpec {
         pub subaccount_id: String,
-        pub tx_status: String,
+        pub batch_status: String,
     }
-    impl SubaccountTradesTxStatusChannelSpec {
+    impl SubaccountTradesBatchStatusChannelSpec {
         pub fn new(
             subaccount_id: impl Into<String>,
-            tx_status: impl Into<String>,
+            batch_status: impl Into<String>,
         ) -> Self {
             Self {
                 subaccount_id: subaccount_id.into(),
-                tx_status: tx_status.into(),
+                batch_status: batch_status.into(),
             }
         }
     }
-    impl ChannelSpec for SubaccountTradesTxStatusChannelSpec {
-        type Output = SubaccountTradesTxStatusNotification;
+    impl ChannelSpec for SubaccountTradesBatchStatusChannelSpec {
+        type Output = SubaccountTradesBatchStatusNotification;
         fn scope(&self) -> RequestScope {
             RequestScope::Private
         }
         #[allow(clippy::needless_return, clippy::useless_format)]
         fn channel(&self) -> String {
             return format!(
-                "{subaccount_id}.trades.{tx_status}", subaccount_id = self.subaccount_id
-                .as_str(), tx_status = self.tx_status.as_str()
+                "{subaccount_id}.trades.{batch_status}", subaccount_id = self
+                .subaccount_id.as_str(), batch_status = self.batch_status.as_str()
+            );
+        }
+    }
+    #[derive(Clone, Debug, PartialEq, Eq, Default)]
+    pub struct TradesByInstrumentTypeCurrencyBatchStatusChannelSpec {
+        pub instrument_type: String,
+        pub currency: String,
+        pub batch_status: String,
+    }
+    impl TradesByInstrumentTypeCurrencyBatchStatusChannelSpec {
+        pub fn new(
+            instrument_type: impl Into<String>,
+            currency: impl Into<String>,
+            batch_status: impl Into<String>,
+        ) -> Self {
+            Self {
+                instrument_type: instrument_type.into(),
+                currency: currency.into(),
+                batch_status: batch_status.into(),
+            }
+        }
+    }
+    impl ChannelSpec for TradesByInstrumentTypeCurrencyBatchStatusChannelSpec {
+        type Output = TradesByInstrumentTypeCurrencyBatchStatusNotification;
+        fn scope(&self) -> RequestScope {
+            RequestScope::Public
+        }
+        #[allow(clippy::needless_return, clippy::useless_format)]
+        fn channel(&self) -> String {
+            return format!(
+                "trades.{instrument_type}.{currency}.{batch_status}", instrument_type =
+                self.instrument_type.as_str(), currency = self.currency.as_str(),
+                batch_status = self.batch_status.as_str()
             );
         }
     }

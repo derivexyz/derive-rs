@@ -32,6 +32,8 @@ fn channel_to_ns(channel: &str) -> String {
         "subaccountQuotes" => "rfqs",
         "subaccountTrades" => "trading",
         "subaccountTradesTxStatus" => "trading",
+        "subaccountTradesBatchStatus" => "trading",
+        "tradesByInstrumentTypeCurrencyBatchStatus" => "trading",
         "tickerSlim" => "market_data",
         "tradesByInstrument" => "market_data",
         "tradesByInstrumentTypeCurrency" => "market_data",

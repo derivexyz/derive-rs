@@ -2310,6 +2310,16 @@ pub struct PublicTrade {
 ///    "subaccount_id"
 ///  ],
 ///  "properties": {
+///    "batch_status": {
+///      "anyOf": [
+///        {
+///          "$ref": "#/definitions/BatchStatus"
+///        },
+///        {
+///          "type": "null"
+///        }
+///      ]
+///    },
 ///    "cancel_reason": {
 ///      "anyOf": [
 ///        {
@@ -2407,16 +2417,6 @@ pub struct PublicTrade {
 ///        "string",
 ///        "null"
 ///      ]
-///    },
-///    "tx_status": {
-///      "anyOf": [
-///        {
-///          "$ref": "#/definitions/TxStatus"
-///        },
-///        {
-///          "type": "null"
-///        }
-///      ]
 ///    }
 ///  }
 ///}
@@ -2424,6 +2424,8 @@ pub struct PublicTrade {
 /// </details>
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
 pub struct QuotePublishResult {
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub batch_status: ::std::option::Option<BatchStatus>,
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub cancel_reason: ::std::option::Option<RfqCancelReason>,
     pub creation_timestamp: i64,
@@ -2455,8 +2457,6 @@ pub struct QuotePublishResult {
     pub subaccount_id: i64,
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub tx_hash: ::std::option::Option<::std::string::String>,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
-    pub tx_status: ::std::option::Option<TxStatus>,
 }
 ///`RfqCancelReason`
 ///
@@ -2881,6 +2881,16 @@ pub struct RpcError {
 ///    "wallet"
 ///  ],
 ///  "properties": {
+///    "batch_status": {
+///      "anyOf": [
+///        {
+///          "$ref": "#/definitions/BatchStatus"
+///        },
+///        {
+///          "type": "null"
+///        }
+///      ]
+///    },
 ///    "direction": {
 ///      "$ref": "#/definitions/Direction"
 ///    },
@@ -2965,16 +2975,6 @@ pub struct RpcError {
 ///    "tx_hash": {
 ///      "type": "string"
 ///    },
-///    "tx_status": {
-///      "anyOf": [
-///        {
-///          "$ref": "#/definitions/BatchStatus"
-///        },
-///        {
-///          "type": "null"
-///        }
-///      ]
-///    },
 ///    "wallet": {
 ///      "type": "string"
 ///    }
@@ -2984,6 +2984,8 @@ pub struct RpcError {
 /// </details>
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
 pub struct SettledTrade {
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub batch_status: ::std::option::Option<BatchStatus>,
     pub direction: Direction,
     ///Decimal string of the human value (e.g. `"1.5"`), up to 12 fractional digits; a string or JSON number is accepted
     pub expected_rebate: ::std::string::String,
@@ -3013,8 +3015,6 @@ pub struct SettledTrade {
     ///Decimal string of the human value (e.g. `"1.5"`), up to 12 fractional digits; a string or JSON number is accepted
     pub trade_price: ::std::string::String,
     pub tx_hash: ::std::string::String,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
-    pub tx_status: ::std::option::Option<BatchStatus>,
     pub wallet: ::std::string::String,
 }
 ///`SpotFeedEntry`
@@ -3271,6 +3271,35 @@ impl ::std::convert::From<QuotePublishResult> for SubaccountQuotesNotification {
         Self(value)
     }
 }
+///`SubaccountTradesBatchStatusNotification`
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "$ref": "#/definitions/Trade"
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+#[serde(transparent)]
+pub struct SubaccountTradesBatchStatusNotification(pub Trade);
+impl ::std::ops::Deref for SubaccountTradesBatchStatusNotification {
+    type Target = Trade;
+    fn deref(&self) -> &Trade {
+        &self.0
+    }
+}
+impl ::std::convert::From<SubaccountTradesBatchStatusNotification> for Trade {
+    fn from(value: SubaccountTradesBatchStatusNotification) -> Self {
+        value.0
+    }
+}
+impl ::std::convert::From<Trade> for SubaccountTradesBatchStatusNotification {
+    fn from(value: Trade) -> Self {
+        Self(value)
+    }
+}
 ///`SubaccountTradesNotification`
 ///
 /// <details><summary>JSON schema</summary>
@@ -3296,35 +3325,6 @@ impl ::std::convert::From<SubaccountTradesNotification> for Trade {
     }
 }
 impl ::std::convert::From<Trade> for SubaccountTradesNotification {
-    fn from(value: Trade) -> Self {
-        Self(value)
-    }
-}
-///`SubaccountTradesTxStatusNotification`
-///
-/// <details><summary>JSON schema</summary>
-///
-/// ```json
-///{
-///  "$ref": "#/definitions/Trade"
-///}
-/// ```
-/// </details>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
-#[serde(transparent)]
-pub struct SubaccountTradesTxStatusNotification(pub Trade);
-impl ::std::ops::Deref for SubaccountTradesTxStatusNotification {
-    type Target = Trade;
-    fn deref(&self) -> &Trade {
-        &self.0
-    }
-}
-impl ::std::convert::From<SubaccountTradesTxStatusNotification> for Trade {
-    fn from(value: SubaccountTradesTxStatusNotification) -> Self {
-        value.0
-    }
-}
-impl ::std::convert::From<Trade> for SubaccountTradesTxStatusNotification {
     fn from(value: Trade) -> Self {
         Self(value)
     }
@@ -3573,10 +3573,20 @@ impl ::std::convert::TryFrom<::std::string::String> for TimeInForce {
 ///    "trade_amount",
 ///    "trade_fee",
 ///    "trade_id",
-///    "trade_price",
-///    "tx_status"
+///    "trade_price"
 ///  ],
 ///  "properties": {
+///    "batch_status": {
+///      "description": "Settlement batch status; `null` if processed by sequencer.",
+///      "anyOf": [
+///        {
+///          "$ref": "#/definitions/BatchStatus"
+///        },
+///        {
+///          "type": "null"
+///        }
+///      ]
+///    },
 ///    "direction": {
 ///      "$ref": "#/definitions/Direction"
 ///    },
@@ -3676,9 +3686,6 @@ impl ::std::convert::TryFrom<::std::string::String> for TimeInForce {
 ///        "string",
 ///        "null"
 ///      ]
-///    },
-///    "tx_status": {
-///      "$ref": "#/definitions/TxStatus"
 ///    }
 ///  }
 ///}
@@ -3686,6 +3693,9 @@ impl ::std::convert::TryFrom<::std::string::String> for TimeInForce {
 /// </details>
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
 pub struct Trade {
+    ///Settlement batch status; `null` if processed by sequencer.
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub batch_status: ::std::option::Option<BatchStatus>,
     pub direction: Direction,
     ///Decimal string of the human value (e.g. `"1.5"`), up to 12 fractional digits; a string or JSON number is accepted
     pub expected_rebate: ::std::string::String,
@@ -3721,7 +3731,6 @@ pub struct Trade {
     pub trade_price: ::std::string::String,
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub tx_hash: ::std::option::Option<::std::string::String>,
-    pub tx_status: TxStatus,
 }
 ///`TradesByInstrumentNotification`
 ///
@@ -3752,6 +3761,37 @@ impl ::std::convert::From<PublicTrade> for TradesByInstrumentNotification {
         Self(value)
     }
 }
+///`TradesByInstrumentTypeCurrencyBatchStatusNotification`
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "$ref": "#/definitions/SettledTrade"
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+#[serde(transparent)]
+pub struct TradesByInstrumentTypeCurrencyBatchStatusNotification(pub SettledTrade);
+impl ::std::ops::Deref for TradesByInstrumentTypeCurrencyBatchStatusNotification {
+    type Target = SettledTrade;
+    fn deref(&self) -> &SettledTrade {
+        &self.0
+    }
+}
+impl ::std::convert::From<TradesByInstrumentTypeCurrencyBatchStatusNotification>
+for SettledTrade {
+    fn from(value: TradesByInstrumentTypeCurrencyBatchStatusNotification) -> Self {
+        value.0
+    }
+}
+impl ::std::convert::From<SettledTrade>
+for TradesByInstrumentTypeCurrencyBatchStatusNotification {
+    fn from(value: SettledTrade) -> Self {
+        Self(value)
+    }
+}
 ///`TradesByInstrumentTypeCurrencyNotification`
 ///
 /// <details><summary>JSON schema</summary>
@@ -3778,37 +3818,6 @@ impl ::std::convert::From<TradesByInstrumentTypeCurrencyNotification> for Public
 }
 impl ::std::convert::From<PublicTrade> for TradesByInstrumentTypeCurrencyNotification {
     fn from(value: PublicTrade) -> Self {
-        Self(value)
-    }
-}
-///`TradesByInstrumentTypeCurrencyTxStatusNotification`
-///
-/// <details><summary>JSON schema</summary>
-///
-/// ```json
-///{
-///  "$ref": "#/definitions/SettledTrade"
-///}
-/// ```
-/// </details>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
-#[serde(transparent)]
-pub struct TradesByInstrumentTypeCurrencyTxStatusNotification(pub SettledTrade);
-impl ::std::ops::Deref for TradesByInstrumentTypeCurrencyTxStatusNotification {
-    type Target = SettledTrade;
-    fn deref(&self) -> &SettledTrade {
-        &self.0
-    }
-}
-impl ::std::convert::From<TradesByInstrumentTypeCurrencyTxStatusNotification>
-for SettledTrade {
-    fn from(value: TradesByInstrumentTypeCurrencyTxStatusNotification) -> Self {
-        value.0
-    }
-}
-impl ::std::convert::From<SettledTrade>
-for TradesByInstrumentTypeCurrencyTxStatusNotification {
-    fn from(value: SettledTrade) -> Self {
         Self(value)
     }
 }
@@ -3957,154 +3966,6 @@ impl ::std::convert::TryFrom<&::std::string::String> for TriggerType {
     }
 }
 impl ::std::convert::TryFrom<::std::string::String> for TriggerType {
-    type Error = self::error::ConversionError;
-    fn try_from(
-        value: ::std::string::String,
-    ) -> ::std::result::Result<Self, self::error::ConversionError> {
-        value.parse()
-    }
-}
-///`TxStatus`
-///
-/// <details><summary>JSON schema</summary>
-///
-/// ```json
-///{
-///  "oneOf": [
-///    {
-///      "type": "string",
-///      "enum": [
-///        "requested",
-///        "pending",
-///        "settled",
-///        "reverted",
-///        "ignored",
-///        "timed_out"
-///      ]
-///    },
-///    {
-///      "description": "Applied off-chain; not yet included in an on-chain settlement batch.",
-///      "type": "string",
-///      "enum": [
-///        "applied"
-///      ]
-///    },
-///    {
-///      "description": "Included in a settlement batch and executing.",
-///      "type": "string",
-///      "enum": [
-///        "in_batch"
-///      ]
-///    },
-///    {
-///      "description": "Settlement proof in progress.",
-///      "type": "string",
-///      "enum": [
-///        "proving"
-///      ]
-///    },
-///    {
-///      "description": "Settlement transaction broadcast on-chain; awaiting confirmation.",
-///      "type": "string",
-///      "enum": [
-///        "submitted"
-///      ]
-///    }
-///  ]
-///}
-/// ```
-/// </details>
-#[derive(
-    ::serde::Deserialize,
-    ::serde::Serialize,
-    Clone,
-    Copy,
-    Debug,
-    Eq,
-    Hash,
-    Ord,
-    PartialEq,
-    PartialOrd
-)]
-pub enum TxStatus {
-    #[serde(rename = "requested")]
-    Requested,
-    #[serde(rename = "pending")]
-    Pending,
-    #[serde(rename = "settled")]
-    Settled,
-    #[serde(rename = "reverted")]
-    Reverted,
-    #[serde(rename = "ignored")]
-    Ignored,
-    #[serde(rename = "timed_out")]
-    TimedOut,
-    ///Applied off-chain; not yet included in an on-chain settlement batch.
-    #[serde(rename = "applied")]
-    Applied,
-    ///Included in a settlement batch and executing.
-    #[serde(rename = "in_batch")]
-    InBatch,
-    ///Settlement proof in progress.
-    #[serde(rename = "proving")]
-    Proving,
-    ///Settlement transaction broadcast on-chain; awaiting confirmation.
-    #[serde(rename = "submitted")]
-    Submitted,
-}
-impl ::std::fmt::Display for TxStatus {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        match *self {
-            Self::Requested => f.write_str("requested"),
-            Self::Pending => f.write_str("pending"),
-            Self::Settled => f.write_str("settled"),
-            Self::Reverted => f.write_str("reverted"),
-            Self::Ignored => f.write_str("ignored"),
-            Self::TimedOut => f.write_str("timed_out"),
-            Self::Applied => f.write_str("applied"),
-            Self::InBatch => f.write_str("in_batch"),
-            Self::Proving => f.write_str("proving"),
-            Self::Submitted => f.write_str("submitted"),
-        }
-    }
-}
-impl ::std::str::FromStr for TxStatus {
-    type Err = self::error::ConversionError;
-    fn from_str(
-        value: &str,
-    ) -> ::std::result::Result<Self, self::error::ConversionError> {
-        match value {
-            "requested" => Ok(Self::Requested),
-            "pending" => Ok(Self::Pending),
-            "settled" => Ok(Self::Settled),
-            "reverted" => Ok(Self::Reverted),
-            "ignored" => Ok(Self::Ignored),
-            "timed_out" => Ok(Self::TimedOut),
-            "applied" => Ok(Self::Applied),
-            "in_batch" => Ok(Self::InBatch),
-            "proving" => Ok(Self::Proving),
-            "submitted" => Ok(Self::Submitted),
-            _ => Err("invalid value".into()),
-        }
-    }
-}
-impl ::std::convert::TryFrom<&str> for TxStatus {
-    type Error = self::error::ConversionError;
-    fn try_from(
-        value: &str,
-    ) -> ::std::result::Result<Self, self::error::ConversionError> {
-        value.parse()
-    }
-}
-impl ::std::convert::TryFrom<&::std::string::String> for TxStatus {
-    type Error = self::error::ConversionError;
-    fn try_from(
-        value: &::std::string::String,
-    ) -> ::std::result::Result<Self, self::error::ConversionError> {
-        value.parse()
-    }
-}
-impl ::std::convert::TryFrom<::std::string::String> for TxStatus {
     type Error = self::error::ConversionError;
     fn try_from(
         value: ::std::string::String,
