@@ -215,7 +215,7 @@ fn generate_rpc_method(endpoint: &RpcEndpoint) -> TokenStream {
                 &self,
             ) -> Result<#response_type, ClientError> {
                 self.ws_client
-                    .send_rpc(#path, serde_json::Value::Null)
+                    .send_rpc(#path, serde_json::json!({}))
                     .await
             }
         };

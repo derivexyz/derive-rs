@@ -8,9 +8,7 @@ impl<'a> MarketDataNamespace<'a> {
         Self { ws_client }
     }
     pub async fn get_all_currencies(&self) -> Result<Vec<Currency>, ClientError> {
-        self.ws_client
-            .send_rpc("public/get_all_currencies", serde_json::Value::Null)
-            .await
+        self.ws_client.send_rpc("public/get_all_currencies", serde_json::json!({})).await
     }
     pub async fn get_all_instruments(
         &self,
@@ -21,7 +19,7 @@ impl<'a> MarketDataNamespace<'a> {
     }
     pub async fn get_all_live_instruments(&self) -> Result<Vec<String>, ClientError> {
         self.ws_client
-            .send_rpc("public/get_all_live_instruments", serde_json::Value::Null)
+            .send_rpc("public/get_all_live_instruments", serde_json::json!({}))
             .await
     }
     pub async fn get_assets(
@@ -81,9 +79,7 @@ impl<'a> MarketDataNamespace<'a> {
         self.ws_client.send_rpc("public/get_option_settlement_prices", params_json).await
     }
     pub async fn get_risk_universes(&self) -> Result<Vec<RiskUniverse>, ClientError> {
-        self.ws_client
-            .send_rpc("public/get_risk_universes", serde_json::Value::Null)
-            .await
+        self.ws_client.send_rpc("public/get_risk_universes", serde_json::json!({})).await
     }
     pub async fn get_ticker(
         &self,

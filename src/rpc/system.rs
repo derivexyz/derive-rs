@@ -7,10 +7,10 @@ impl<'a> SystemNamespace<'a> {
         Self { ws_client }
     }
     pub async fn get_rate_limits(&self) -> Result<RateLimitResult, ClientError> {
-        self.ws_client.send_rpc("public/getRateLimits", serde_json::Value::Null).await
+        self.ws_client.send_rpc("public/getRateLimits", serde_json::json!({})).await
     }
     pub async fn get_time(&self) -> Result<i64, ClientError> {
-        self.ws_client.send_rpc("public/get_time", serde_json::Value::Null).await
+        self.ws_client.send_rpc("public/get_time", serde_json::json!({})).await
     }
     pub async fn get_transaction(
         &self,
