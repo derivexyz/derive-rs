@@ -6,16 +6,11 @@ impl<'a> SystemNamespace<'a> {
     pub fn new(ws_client: &'a WsClient) -> Self {
         Self { ws_client }
     }
-    pub async fn get_rate_limits(
-        &self,
-        params: EmptyRequest,
-    ) -> Result<RateLimitResult, ClientError> {
-        let params_json = serde_json::to_value(&params)?;
-        self.ws_client.send_rpc("public/getRateLimits", params_json).await
+    pub async fn get_rate_limits(&self) -> Result<RateLimitResult, ClientError> {
+        self.ws_client.send_rpc("public/getRateLimits", serde_json::Value::Null).await
     }
-    pub async fn get_time(&self, params: EmptyRequest) -> Result<i64, ClientError> {
-        let params_json = serde_json::to_value(&params)?;
-        self.ws_client.send_rpc("public/get_time", params_json).await
+    pub async fn get_time(&self) -> Result<i64, ClientError> {
+        self.ws_client.send_rpc("public/get_time", serde_json::Value::Null).await
     }
     pub async fn get_transaction(
         &self,

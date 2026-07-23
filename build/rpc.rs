@@ -209,6 +209,18 @@ fn generate_rpc_method(endpoint: &RpcEndpoint) -> TokenStream {
 
     let path = &endpoint.path;
 
+    if endpoint.request_schema_name == "EmptyRequest" {
+        return quote! {
+            pub async fn #method_ident(
+                &self,
+            ) -> Result<#response_type, ClientError> {
+                self.ws_client
+                    .send_rpc(#path, serde_json::Value::Null)
+                    .await
+            }
+        };
+    }
+
     quote! {
         pub async fn #method_ident(
             &self,

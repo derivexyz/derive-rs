@@ -7,12 +7,10 @@ impl<'a> MarketDataNamespace<'a> {
     pub fn new(ws_client: &'a WsClient) -> Self {
         Self { ws_client }
     }
-    pub async fn get_all_currencies(
-        &self,
-        params: EmptyRequest,
-    ) -> Result<Vec<Currency>, ClientError> {
-        let params_json = serde_json::to_value(&params)?;
-        self.ws_client.send_rpc("public/get_all_currencies", params_json).await
+    pub async fn get_all_currencies(&self) -> Result<Vec<Currency>, ClientError> {
+        self.ws_client
+            .send_rpc("public/get_all_currencies", serde_json::Value::Null)
+            .await
     }
     pub async fn get_all_instruments(
         &self,
@@ -21,12 +19,10 @@ impl<'a> MarketDataNamespace<'a> {
         let params_json = serde_json::to_value(&params)?;
         self.ws_client.send_rpc("public/get_all_instruments", params_json).await
     }
-    pub async fn get_all_live_instruments(
-        &self,
-        params: EmptyRequest,
-    ) -> Result<Vec<String>, ClientError> {
-        let params_json = serde_json::to_value(&params)?;
-        self.ws_client.send_rpc("public/get_all_live_instruments", params_json).await
+    pub async fn get_all_live_instruments(&self) -> Result<Vec<String>, ClientError> {
+        self.ws_client
+            .send_rpc("public/get_all_live_instruments", serde_json::Value::Null)
+            .await
     }
     pub async fn get_assets(
         &self,
@@ -84,12 +80,10 @@ impl<'a> MarketDataNamespace<'a> {
         let params_json = serde_json::to_value(&params)?;
         self.ws_client.send_rpc("public/get_option_settlement_prices", params_json).await
     }
-    pub async fn get_risk_universes(
-        &self,
-        params: EmptyRequest,
-    ) -> Result<Vec<RiskUniverse>, ClientError> {
-        let params_json = serde_json::to_value(&params)?;
-        self.ws_client.send_rpc("public/get_risk_universes", params_json).await
+    pub async fn get_risk_universes(&self) -> Result<Vec<RiskUniverse>, ClientError> {
+        self.ws_client
+            .send_rpc("public/get_risk_universes", serde_json::Value::Null)
+            .await
     }
     pub async fn get_ticker(
         &self,
