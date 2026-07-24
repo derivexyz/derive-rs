@@ -1,8 +1,8 @@
-// pub mod actions;
+pub mod actions;
 // pub mod apis;
 // pub mod channels;
 pub mod models;
-// pub mod namespaces;
+pub mod namespaces;
 pub mod routing;
 pub mod signing;
 pub mod types;

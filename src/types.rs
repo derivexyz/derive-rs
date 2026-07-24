@@ -2,6 +2,7 @@ use bytes::Bytes;
 use serde::Deserialize;
 use serde::de::DeserializeOwned;
 use serde_json::Value;
+use std::error::Error as StdError;
 use std::fmt;
 use std::str::FromStr;
 use std::sync::Arc;
@@ -57,6 +58,10 @@ pub enum ClientError {
     EnvVar(#[from] std::env::VarError),
     #[error("Rpc error {error:?}")]
     RpcError { error: Value },
+    #[error("Conversion error: {0}")]
+    Conversion(#[from] crate::models::openapi::error::ConversionError),
+    #[error("String error: {0}")]
+    StringError(#[from] Box<dyn StdError>),
 }
 
 // environment enum

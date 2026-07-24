@@ -3,7 +3,6 @@ use anyhow::Result;
 use ethers::abi::AbiEncode;
 use ethers::prelude::{Address, EthAbiCodec, EthAbiType, U256};
 use ethers::utils::hex;
-use tracing::debug;
 
 use crate::types::Environment;
 
@@ -18,7 +17,7 @@ pub enum ModuleType {
 fn get_trade_module(env: &Environment, module: ModuleType) -> &'static str {
     match (env, module) {
         (Environment::Mainnet, ModuleType::Trade) => "0xB8D20c2B7a1Ad2EE33Bc50eF10876eD3035b5e7b",
-        (Environment::Testnet, ModuleType::Trade) => "0x87F2863866D85E3192a35A73b388BD625D83f2be",
+        (Environment::Testnet, ModuleType::Trade) => "0xB8D20c2B7a1Ad2EE33Bc50eF10876eD3035b5e7b",
     }
 }
 
@@ -39,7 +38,7 @@ fn get_domain_separator(env: &Environment) -> &'static str {
             "0xd96e5f90797da7ec8dc4e276260c7f3f87fedf68775fbe1ef116e996fc60441b"
         }
         Environment::Testnet => {
-            "0x9bcf4dc06df5d8bf23af818d5716491b995020f377d3b7b64c29ed14e3dd1105"
+            "0x24d674cd5f2b9d564691c51e9d88f649b99246a2244dd74ce27b96578d773e85"
         }
     }
 }
@@ -75,11 +74,11 @@ impl ActionData {
     ) -> Result<ActionData> {
         let (nonce, signature_expiry_sec) = ActionData::get_nonce_and_expiry();
         let module_addr = get_trade_module(env, module_type).parse::<Address>()?;
-        debug!("Using module address: {:?}", module_addr);
+        println!("Using module address: {:?}", module_addr);
         let encoded_data = module_data.encode();
-        debug!("Generated encoded_data: {:?}", hex::encode(&encoded_data));
+        println!("Generated encoded_data: {:?}", hex::encode(&encoded_data));
         let hashed_data = ethers::utils::keccak256(&encoded_data);
-        debug!(
+        println!(
             "generated encoded_data_hashed: {:?}",
             hex::encode(hashed_data)
         );
@@ -101,7 +100,7 @@ impl ActionData {
 
     fn action_hash(self) -> [u8; 32] {
         let action_hash = ethers::utils::keccak256(self.encode());
-        debug!("action_hash: {:?}", hex::encode(action_hash));
+        println!("action_hash: {:?}", hex::encode(action_hash));
         action_hash
     }
 
@@ -111,7 +110,7 @@ impl ActionData {
         let prefix = hex::decode("1901").expect("hex::decode failed for prefix");
         let action_hash = self.action_hash();
         let hash = ethers::utils::keccak256([prefix, domain_sep, action_hash.into()].concat());
-        debug!("typed_data_hash: {:?}", hex::encode(hash));
+        println!("typed_data_hash: {:?}", hex::encode(hash));
         hash
     }
 }

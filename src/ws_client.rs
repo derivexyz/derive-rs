@@ -24,7 +24,11 @@ use tracing::{error, info, warn};
 use yawc::{Frame, OpCode};
 
 use crate::{
-    models::asyncapi_rpc::{SetCancelOnDisconnectRequest, SetCancelOnDisconnectResponse},
+    models::{
+        asyncapi_rpc::{SetCancelOnDisconnectRequest, SetCancelOnDisconnectResponse},
+        openapi::{AssetType, GetAllInstrumentsRequest, Instrument},
+    },
+    namespaces::orders::OrdersNamespace,
     routing::{extract_channel, extract_id, extract_id_tail},
     rpc::Rpc,
     signing::sign_ws_login,
@@ -61,7 +65,7 @@ pub struct WsClient {
     pub private_subscriptions: Arc<DashMap<String, SubscriptionRoute>>,
     next_id: Arc<AtomicU64>,
     shutdown_tx: watch::Sender<bool>,
-    // pub instruments_cache: Arc<DashMap<String, InstrumentPublicResponseSchema>>,
+    pub instruments_cache: Arc<DashMap<String, Instrument>>,
     connection_state_rx: watch::Receiver<ExternalEvent>,
     current_connection_state: Arc<Mutex<ExternalEvent>>,
     supervisor_handle: Arc<Mutex<Option<JoinHandle<()>>>>,
@@ -79,6 +83,10 @@ impl WsClient {
     }
     pub fn rpc(&self) -> Rpc<'_> {
         Rpc { client: self }
+    }
+
+    pub fn orders(&self) -> OrdersNamespace<'_> {
+        OrdersNamespace { ws_client: self }
     }
 
     pub async fn from_env(environment: Environment) -> Result<Self, ClientError> {
@@ -181,7 +189,7 @@ impl WsClient {
             connection_state_tx,
         ));
 
-        // let instruments_cache = Arc::new(DashMap::new());
+        let instruments_cache = Arc::new(DashMap::new());
 
         let client = WsClient {
             write_tx: cmd_tx.clone(),
@@ -199,10 +207,10 @@ impl WsClient {
             smart_contract_wallet_address,
             // .and_then(|addr| addr.parse::<Address>().ok()),
             subaccount_id,
-            // instruments_cache,
+            instruments_cache,
             environment: env,
         };
-        // client.cache_instruments().await?;
+        client.cache_instruments().await?;
         // if private_key.is_some() {
         //     client.wait_for_connection().await;
         // }
@@ -507,15 +515,19 @@ impl WsClient {
     //     Ok(result)
     // }
 
-    // async fn cache_instruments(&self) -> Result<(), ClientError> {
-    //     let instruments = self.get_instruments().await?;
-    //     self.instruments_cache.clear();
-    //     for instrument in &instruments.instruments {
-    //         self.instruments_cache
-    //             .insert(instrument.instrument_name.clone(), instrument.clone());
-    //     }
-    //     Ok(())
-    // }
+    async fn cache_instruments(&self) -> Result<(), ClientError> {
+        let params = GetAllInstrumentsRequest::builder()
+            .expired(false)
+            .instrument_type(AssetType::Perp)
+            .try_into()?;
+        let instruments = self.rpc().market_data().get_all_instruments(params).await?;
+        self.instruments_cache.clear();
+        for instrument in &instruments.instruments {
+            self.instruments_cache
+                .insert(instrument.instrument_name.clone(), instrument.clone());
+        }
+        Ok(())
+    }
 }
 
 async fn connection_supervisor(
@@ -579,7 +591,7 @@ async fn connection_supervisor(
 
                 let cooldown_secs = attempts * 3;
                 info!("Reconnecting to {url} in {cooldown_secs}s (attempt {attempts})");
-                tokio::time::sleep(std::time::Duration::from_secs(cooldown_secs)).await;
+                tokio::time::sleep(std::time::Duration::from_secs(cooldown_secs.min(60))).await;
                 attempts += 1;
             }
             Err(e) => {
@@ -690,7 +702,7 @@ pub fn handle_incoming(
     public_subscriptions: &Arc<DashMap<String, SubscriptionRoute>>,
     private_subscriptions: &Arc<DashMap<String, SubscriptionRoute>>,
 ) {
-    println!("Received message: {}", String::from_utf8_lossy(&bytes));
+    // println!("Received message: {}", String::from_utf8_lossy(&bytes));
     if let Some(id) = extract_id(&bytes)
         && let Some((_, tx)) = pending_requests.remove(&id)
     {
