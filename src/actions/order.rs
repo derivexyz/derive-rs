@@ -2,10 +2,14 @@ use crate::actions::utils::{decimal_to_i256, decimal_to_u256};
 use crate::actions::{ActionData, ModuleData};
 use crate::models::openapi::{Direction, Instrument, OrderType, TimeInForce};
 use crate::types::Environment;
+use alloy::hex::encode_prefixed;
+use alloy::primitives::{Address, I256, U256};
+use alloy::signers::local::PrivateKeySigner;
+use alloy_sol_types::sol;
 use anyhow::Result;
 use bigdecimal::BigDecimal;
-use ethers::prelude::{Address, EthAbiCodec, EthAbiType, I256, LocalWallet, U256};
-use ethers::utils::hex;
+// use ethers::prelude::{Address, EthAbiCodec, EthAbiType, I256, LocalWallet, U256};
+// use ethers::utils::hex;
 use serde::Deserialize;
 
 use crate::models::openapi::CreateOrderRequest as OrderParams;
@@ -55,18 +59,6 @@ pub struct OrderArgs {
     pub reduce_only: Option<bool>,
     pub reject_post_only: Option<bool>,
 }
-
-#[derive(Clone, Debug, Default, PartialEq, EthAbiCodec, EthAbiType)]
-pub struct TradeData {
-    pub asset_address: Address,
-    pub sub_id: U256,
-    pub limit_price: I256,
-    pub amount: I256,
-    pub max_fee: U256,
-    pub subaccount_id: U256,
-    pub is_bid: bool,
-}
-
 pub fn get_reject_millis(time_in_force: &TimeInForce) -> Result<i64> {
     let reject_millis: i64 = 5000;
     let taker_speedbump: i64 = 150;
@@ -77,22 +69,37 @@ pub fn get_reject_millis(time_in_force: &TimeInForce) -> Result<i64> {
     Ok(reject_millis)
 }
 
+
+
+sol! {
+    #![sol(all_derives)]
+
+    struct TradeData {
+        address asset_address;
+        uint256 sub_id;
+        int256 limit_price;
+        int256 amount;
+        uint256 max_fee;
+        uint256 subaccount_id;
+        bool is_bid;
+    }
+}
+
 impl TradeData {
     pub fn new(
         instrument: &Instrument,
-        // ticker: &TickerSlimSchema,
         subaccount_id: i64,
         limit_price: BigDecimal,
         amount: BigDecimal,
         is_bid: bool,
     ) -> Result<Self> {
         Ok(Self {
-            asset_address: instrument.base_asset_address.parse()?,
-            sub_id: instrument.base_asset_sub_id.parse::<u128>()?.into(),
+            asset_address: instrument.base_asset_address.parse::<Address>()?,
+            sub_id: U256::from(instrument.base_asset_sub_id.parse::<u128>()?),
             limit_price: decimal_to_i256(&limit_price)?,
             amount: decimal_to_i256(&amount)?,
             max_fee: decimal_to_u256(&default_max_fee())?,
-            subaccount_id: subaccount_id.into(),
+            subaccount_id: U256::try_from(subaccount_id)?,
             is_bid,
         })
     }
@@ -105,11 +112,12 @@ impl ModuleData for TradeData {
         );
     }
 }
+use alloy::signers::SignerSync;
 
 impl ActionData {
     pub fn populate_order_params(
         self,
-        signer: &LocalWallet,
+        signer: &PrivateKeySigner,
         args: OrderArgs,
         env: &Environment,
     ) -> Result<OrderParams> {
@@ -131,13 +139,13 @@ impl ActionData {
             // only used for vault controller orders
             is_atomic_signing: Some(false),
             // we can set these values from the action data
-            subaccount_id: self.subaccount_id.as_u64() as i64,
+            subaccount_id: i64::try_from(&self.subaccount_id)?,
             max_fee: default_max_fee(),
             nonce: self.nonce.to_string(),
-            signature_expiry_sec: self.expiry.as_u64() as i64,
-            signer: hex::encode_prefixed(self.signer),
+            signature_expiry_sec: i64::try_from(&self.expiry)?,
+            signer: encode_prefixed(self.signer),
             referral_code: Some(REFFERAL_CODE.to_string()),
-            signature: format!("0x{}", signer.sign_hash(self.hash(env).into())?),
+            signature: format!("0x{}", signer.sign_hash_sync(&self.hash(env).clone())?),
             client: Some(CLIENT_NAME.to_string()),
             trigger_price: None,
             trigger_price_type: None,

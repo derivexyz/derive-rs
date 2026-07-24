@@ -1,6 +1,7 @@
+use alloy::primitives::{I256, U256};
 use anyhow::Result;
 use bigdecimal::BigDecimal;
-use ethers::prelude::{I256, U256};
+// use ethers::prelude::{I256, U256};
 use std::str::FromStr;
 
 fn pow10_bigdecimal(prec: u32) -> BigDecimal {
@@ -23,7 +24,7 @@ pub fn decimal_to_u256_with_prec(decimal: &BigDecimal, prec: u32) -> Result<U256
     let factor = pow10_bigdecimal(prec);
     let scaled = (decimal * &factor).with_scale_round(0, bigdecimal::RoundingMode::HalfUp);
     let s = scaled.to_string();
-    Ok(U256::from_dec_str(&s)?)
+    Ok(U256::from_str(&s)?)
 }
 
 pub fn decimal_to_i256_with_prec(decimal: &BigDecimal, prec: u32) -> Result<I256> {

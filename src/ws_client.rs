@@ -9,10 +9,7 @@ use tokio::{
 };
 
 use anyhow::anyhow;
-use ethers::{
-    // abi::Address,
-    signers::{LocalWallet, Signer},
-};
+use alloy::signers::{Signer, local::PrivateKeySigner};
 use futures_util::{SinkExt, StreamExt};
 use std::env::var;
 use std::sync::{
@@ -70,7 +67,7 @@ pub struct WsClient {
     current_connection_state: Arc<Mutex<ExternalEvent>>,
     supervisor_handle: Arc<Mutex<Option<JoinHandle<()>>>>,
     subscription_tasks: Arc<Mutex<Vec<JoinHandle<()>>>>,
-    pub wallet: Option<LocalWallet>,
+    pub wallet: Option<PrivateKeySigner>,
     pub public_address: Option<String>,
     pub smart_contract_wallet_address: Option<String>,
     pub subaccount_id: Option<i64>,
@@ -153,7 +150,7 @@ impl WsClient {
         let mut public_address = None;
         match &private_key {
             Some(key) => {
-                wallet = Some(key.parse::<LocalWallet>().expect("Invalid private key"));
+                wallet = Some(key.parse::<PrivateKeySigner>().expect("Invalid private key"));
                 public_address = Some(format!("{:?}", wallet.as_ref().unwrap().address()));
                 info!(
                     "Creating WsClient in private mode with address: {}",

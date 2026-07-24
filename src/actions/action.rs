@@ -1,8 +1,11 @@
+use alloy::{hex::{self, const_decode_to_array, encode}, primitives::{Address, B256, U256, keccak256}};
+use alloy_sol_types::{SolValue, sol};
 // use crate::actions::helpers::ModuleData;
 use anyhow::Result;
-use ethers::abi::AbiEncode;
-use ethers::prelude::{Address, EthAbiCodec, EthAbiType, U256};
-use ethers::utils::hex;
+use chrono::{Duration, Utc};
+// use ethers::abi::AbiEncode;
+// use ethers::prelude::{Address, EthAbiCodec, EthAbiType, U256};
+// use ethers::utils::hex;
 
 use crate::types::Environment;
 
@@ -43,74 +46,116 @@ fn get_domain_separator(env: &Environment) -> &'static str {
     }
 }
 
-#[derive(Clone, Debug, Default, PartialEq, EthAbiType, EthAbiCodec)]
-pub struct ActionData {
-    pub action_typehash: [u8; 32],
-    pub subaccount_id: U256,
-    pub nonce: U256,
-    pub module: Address,
-    pub data: [u8; 32],
-    pub expiry: U256,
-    pub owner: Address,
-    pub signer: Address,
+use anyhow::Context;
+sol! {
+    #![sol(all_derives)]
+
+    struct ActionData {
+        bytes32 action_typehash;
+        uint256 subaccount_id;
+        uint256 nonce;
+        address module;
+        bytes32 data;
+        uint256 expiry;
+        address owner;
+        address signer;
+    }
 }
 
 impl ActionData {
-    fn get_nonce_and_expiry() -> (i64, i64) {
-        let now = chrono::Utc::now();
-        #[allow(deprecated)]
-        // chrono::Utc::now().timestamp_nanos() is deprecated, but we need it for nonce This use is valid for the next 200 years, so we can ignore the deprecation warning until then..
-        let nonce = now.timestamp_nanos();
-        let signature_expiry_sec = (now + chrono::Duration::seconds(3_000_000)).timestamp();
-        (nonce, signature_expiry_sec)
+    fn get_nonce_and_expiry() -> Result<(U256, U256)> {
+        let now = Utc::now();
+
+        let nonce = now
+            .timestamp_nanos_opt()
+            .context("current timestamp cannot be represented in nanoseconds")?;
+
+        let signature_expiry_sec =
+            (now + Duration::seconds(3_000_000)).timestamp();
+
+        Ok((
+            U256::from(u64::try_from(nonce)?),
+            U256::from(u64::try_from(signature_expiry_sec)?),
+        ))
     }
-    pub fn new<T: AbiEncode + ModuleData>(
+
+    pub fn new<T>(
         module_data: T,
         subaccount_id: i64,
         signer_address: Address,
         derive_smart_contract_address: &Address,
         env: &Environment,
         module_type: ModuleType,
-    ) -> Result<ActionData> {
-        let (nonce, signature_expiry_sec) = ActionData::get_nonce_and_expiry();
-        let module_addr = get_trade_module(env, module_type).parse::<Address>()?;
-        println!("Using module address: {:?}", module_addr);
-        let encoded_data = module_data.encode();
-        println!("Generated encoded_data: {:?}", hex::encode(&encoded_data));
-        let hashed_data = ethers::utils::keccak256(&encoded_data);
-        println!(
-            "generated encoded_data_hashed: {:?}",
-            hex::encode(hashed_data)
-        );
-        let owner = *derive_smart_contract_address;
-        let action_typehash = get_action_typehash(env);
-        let action_typehash = hex::const_decode_to_array::<32>(action_typehash.as_bytes())?;
+    ) -> Result<Self>
+    where
+        T: SolValue + ModuleData,
+    {
+        let (nonce, expiry) = Self::get_nonce_and_expiry()?;
 
-        Ok(ActionData {
+        let module = get_trade_module(env, module_type).parse::<Address>()?;
+
+        println!("Using module address: {module:?}");
+
+        let encoded_data = module_data.abi_encode();
+
+        println!(
+            "Generated encoded_data: {}",
+            hex::encode(&encoded_data)
+        );
+
+        let data = keccak256(&encoded_data);
+
+        println!(
+            "Generated encoded_data_hashed: {}",
+            hex::encode(data)
+        );
+
+        let action_typehash =
+            get_action_typehash(env).parse::<B256>()?;
+
+        Ok(Self {
             action_typehash,
-            subaccount_id: subaccount_id.into(),
-            nonce: nonce.into(),
-            module: module_addr,
-            data: hashed_data,
-            expiry: signature_expiry_sec.into(),
-            owner,
+            subaccount_id: U256::from(u64::try_from(subaccount_id)?),
+            nonce,
+            module,
+            data,
+            expiry,
+            owner: *derive_smart_contract_address,
             signer: signer_address,
         })
     }
 
-    fn action_hash(self) -> [u8; 32] {
-        let action_hash = ethers::utils::keccak256(self.encode());
-        println!("action_hash: {:?}", hex::encode(action_hash));
+    fn action_hash(&self) -> B256 {
+        let action_hash = keccak256(self.abi_encode());
+
+        println!("action_hash: {}", hex::encode(action_hash));
+
         action_hash
     }
 
-    pub fn hash(self, env: &Environment) -> [u8; 32] {
-        let domain_sep = get_domain_separator(env);
-        let domain_sep = hex::decode(domain_sep).expect("hex::decode failed for DOMAIN_SEPARATOR");
-        let prefix = hex::decode("1901").expect("hex::decode failed for prefix");
+    pub fn hash(&self, env: &Environment) -> B256 {
+        let domain_separator = get_domain_separator(env)
+            .parse::<B256>()
+            .expect("invalid DOMAIN_SEPARATOR");
+
         let action_hash = self.action_hash();
-        let hash = ethers::utils::keccak256([prefix, domain_sep, action_hash.into()].concat());
-        println!("typed_data_hash: {:?}", hex::encode(hash));
-        hash
+
+        // EIP-712:
+        // keccak256(0x1901 || domain_separator || action_hash)
+        let mut encoded = [0u8; 66];
+
+        encoded[0] = 0x19;
+        encoded[1] = 0x01;
+        encoded[2..34].copy_from_slice(domain_separator.as_slice());
+        encoded[34..66].copy_from_slice(action_hash.as_slice());
+
+        let typed_data_hash = keccak256(encoded);
+
+        println!(
+            "typed_data_hash: {}",
+            hex::encode(typed_data_hash)
+        );
+
+        typed_data_hash
     }
 }

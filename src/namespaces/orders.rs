@@ -4,7 +4,7 @@ use crate::{
     types::ClientError,
     ws_client::WsClient,
 };
-use ethers::prelude::Signer;
+// use ethers::prelude::Signer;
 
 pub struct SignableRequest {
     // pub params: CreateOrderRequest,
