@@ -1,13 +1,21 @@
-use alloy::{hex::encode_prefixed, primitives::{Address, Bytes, U256}, signers::local::PrivateKeySigner};
-use anyhow::Result;
+use alloy::{
+    hex::encode_prefixed,
+    primitives::{Address, U256},
+    signers::local::PrivateKeySigner,
+};
+use alloy_sol_types::SolValue;
 use alloy_sol_types::sol;
+use anyhow::Result;
 use bon::Builder;
 use serde::{Deserialize, Serialize};
-use alloy_sol_types::SolValue;
 
 use strum::{Display, FromRepr};
 
-use crate::{actions::{ActionData, ModuleData}, models::openapi::CreateSessionKeyRequest, types::Environment};
+use crate::{
+    actions::{ActionData, ModuleData},
+    models::openapi::CreateSessionKeyRequest,
+    types::Environment,
+};
 
 #[repr(u8)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Display, FromRepr, Deserialize, Serialize)]
@@ -60,8 +68,6 @@ pub enum ProtocolScope {
     VaultUserCancel = 22,
 }
 
-
-
 #[repr(u8)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Display, FromRepr, Deserialize, Serialize)]
 pub enum OffChainScope {
@@ -101,9 +107,8 @@ impl ModuleData for CreateSessionKeyData {
         );
     }
     fn get_action_data(&self) -> Vec<u8> {
-        let mut output = Vec::with_capacity(
-            32 * (4 + self.scopes.len() + self.subaccount_ids.len()),
-        );
+        let mut output =
+            Vec::with_capacity(32 * (4 + self.scopes.len() + self.subaccount_ids.len()));
 
         // Packed encoding of Address would normally be only 20 bytes.
         // into_word() left-pads it to the required 32-byte word.
@@ -113,17 +118,14 @@ impl ModuleData for CreateSessionKeyData {
 
         self.expiry_sec.abi_encode_packed_to(&mut output);
 
-        U256::from(self.scopes.len())
-            .abi_encode_packed_to(&mut output);
+        U256::from(self.scopes.len()).abi_encode_packed_to(&mut output);
 
-        U256::from(self.subaccount_ids.len())
-            .abi_encode_packed_to(&mut output);
+        U256::from(self.subaccount_ids.len()).abi_encode_packed_to(&mut output);
 
         self.scopes.abi_encode_packed_to(&mut output);
-        self.subaccount_ids
-            .abi_encode_packed_to(&mut output);
+        self.subaccount_ids.abi_encode_packed_to(&mut output);
 
-        output.into()
+        output
     }
 }
 
@@ -163,7 +165,9 @@ impl ActionData {
         env: &Environment,
         scw_address: String,
     ) -> Result<CreateSessionKeyRequest> {
-        let signature = format!("{}", signer.sign_hash_sync(&self.hash(env).clone())?);
+        let encoded_data_hashed = &self.hash(env);
+        println!("typed_data_hash: {:?}", encoded_data_hashed);
+        let signature = format!("{}", signer.sign_hash_sync(encoded_data_hashed)?);
         let offchain_scopes = args
             .off_chain_scopes
             .into_iter()
@@ -174,13 +178,13 @@ impl ActionData {
             .into_iter()
             .map(|scope| scope.to_string())
             .collect();
-        Ok(CreateSessionKeyRequest{
+        Ok(CreateSessionKeyRequest {
             expiry_sec: args.expiry_second,
             ip_whitelist: args.ip_whitelist,
             label: Some(args.label),
             nonce: self.nonce.to_string(),
-            offchain_scopes: offchain_scopes,
-            protocol_scopes: protocol_scopes,
+            offchain_scopes,
+            protocol_scopes,
             public_session_key: args.public_session_key,
             signature,
             signature_expiry_sec: u64::try_from(&self.expiry)?,

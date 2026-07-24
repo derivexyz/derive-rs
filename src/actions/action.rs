@@ -90,13 +90,18 @@ impl ActionData {
         T: SolValue + ModuleData,
     {
         let encoded_data = module_data.get_action_data();
+        // let hex = format!("0x{}", encode(&encoded_data));
+        // println!("encoded_data: {hex}");
         let (nonce, expiry) = Self::get_nonce_and_expiry()?;
         let module = get_trade_module(module_type).parse::<Address>()?;
+        // println!("module: {:?}", module);
         let data = keccak256(&encoded_data);
+        // println!("encoded_data_hashed: {:?}", data);
         let action_typehash = get_action_typehash(env).parse::<B256>()?;
+        // println!("action_typehash: {:?}", action_typehash);
         Ok(Self {
             action_typehash,
-            subaccount_id: U256::from(u64::try_from(subaccount_id)?),
+            subaccount_id: U256::from(subaccount_id),
             nonce,
             module,
             data,
@@ -106,7 +111,7 @@ impl ActionData {
         })
     }
 
-    fn action_hash(&self) -> B256 {
+    pub fn action_hash(&self) -> B256 {
         keccak256(self.abi_encode())
     }
 
@@ -115,6 +120,8 @@ impl ActionData {
             .parse::<B256>()
             .expect("invalid DOMAIN_SEPARATOR");
         let action_hash = self.action_hash();
+        // println!("domain_separator: {:?}", domain_separator);
+        // println!("action_hash: {:?}", action_hash);
         let mut encoded = [0u8; 66];
         encoded[0] = 0x19;
         encoded[1] = 0x01;

@@ -26,7 +26,13 @@ use crate::{
     models::{
         asyncapi_rpc::{SetCancelOnDisconnectRequest, SetCancelOnDisconnectResponse},
         openapi::{AssetType, GetAllInstrumentsRequest, Instrument},
-    }, namespaces::{orders::OrdersNamespace, session_keys::SessionKeys}, routing::{extract_channel, extract_id, extract_id_tail}, rpc::Rpc, signing::sign_ws_login, subscriptions::Subscriptions, types::{
+    },
+    namespaces::{orders::OrdersNamespace, session_keys::SessionKeys},
+    routing::{extract_channel, extract_id, extract_id_tail},
+    rpc::Rpc,
+    signing::sign_ws_login,
+    subscriptions::Subscriptions,
+    types::{
         ChannelResponse, ChannelSpec, ClientError, DispatchResult, Environment, Error, EventStream,
         ExternalEvent, InternalCommand, RequestScope, ResponseSender, RpcError, RpcResult,
         SubscriptionRoute, WsStream,

@@ -116,8 +116,7 @@ impl ModuleData for TradeData {
         );
     }
     fn get_action_data(&self) -> Vec<u8> {
-        let encoded = self.abi_encode();
-        encoded.into()
+        self.abi_encode()
     }
 }
 use alloy::signers::SignerSync;
