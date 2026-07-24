@@ -4,8 +4,7 @@ use std::{
     fs, println,
 };
 
-use heck::ToSnakeCase;
-use heck::ToUpperCamelCase;
+use heck::{ToSnakeCase, ToUpperCamelCase};
 use proc_macro2::{Literal, TokenStream};
 use quote::{format_ident, quote};
 use serde_json::Value;

@@ -1,7 +1,4 @@
-use alloy::{
-    hex::{self},
-    primitives::{Address, B256, U256, keccak256},
-};
+use alloy::primitives::{Address, B256, U256, keccak256};
 use alloy_sol_types::{SolValue, sol};
 // use crate::actions::helpers::ModuleData;
 use anyhow::Result;
@@ -72,9 +69,7 @@ impl ActionData {
         let nonce = now
             .timestamp_nanos_opt()
             .context("current timestamp cannot be represented in nanoseconds")?;
-
         let signature_expiry_sec = (now + Duration::seconds(3_000_000)).timestamp();
-
         Ok((
             U256::from(u64::try_from(nonce)?),
             U256::from(u64::try_from(signature_expiry_sec)?),
@@ -93,21 +88,10 @@ impl ActionData {
         T: SolValue + ModuleData,
     {
         let (nonce, expiry) = Self::get_nonce_and_expiry()?;
-
         let module = get_trade_module(env, module_type).parse::<Address>()?;
-
-        println!("Using module address: {module:?}");
-
         let encoded_data = module_data.abi_encode();
-
-        println!("Generated encoded_data: {}", hex::encode(&encoded_data));
-
         let data = keccak256(&encoded_data);
-
-        println!("Generated encoded_data_hashed: {}", hex::encode(data));
-
         let action_typehash = get_action_typehash(env).parse::<B256>()?;
-
         Ok(Self {
             action_typehash,
             subaccount_id: U256::from(u64::try_from(subaccount_id)?),
@@ -121,33 +105,20 @@ impl ActionData {
     }
 
     fn action_hash(&self) -> B256 {
-        let action_hash = keccak256(self.abi_encode());
-
-        println!("action_hash: {}", hex::encode(action_hash));
-
-        action_hash
+        keccak256(self.abi_encode())
     }
 
     pub fn hash(&self, env: &Environment) -> B256 {
         let domain_separator = get_domain_separator(env)
             .parse::<B256>()
             .expect("invalid DOMAIN_SEPARATOR");
-
         let action_hash = self.action_hash();
-
-        // EIP-712:
-        // keccak256(0x1901 || domain_separator || action_hash)
         let mut encoded = [0u8; 66];
-
         encoded[0] = 0x19;
         encoded[1] = 0x01;
         encoded[2..34].copy_from_slice(domain_separator.as_slice());
         encoded[34..66].copy_from_slice(action_hash.as_slice());
 
-        let typed_data_hash = keccak256(encoded);
-
-        println!("typed_data_hash: {}", hex::encode(typed_data_hash));
-
-        typed_data_hash
+        keccak256(encoded)
     }
 }
