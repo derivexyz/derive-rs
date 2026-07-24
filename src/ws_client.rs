@@ -8,13 +8,15 @@ use tokio::{
     time::{Duration, Instant, MissedTickBehavior, interval, sleep},
 };
 
+use alloy::signers::local::PrivateKeySigner;
 use anyhow::anyhow;
-use alloy::signers::{Signer, local::PrivateKeySigner};
 use futures_util::{SinkExt, StreamExt};
-use std::env::var;
-use std::sync::{
-    Arc,
-    atomic::{AtomicU64, Ordering},
+use std::{
+    env::var,
+    sync::{
+        Arc,
+        atomic::{AtomicU64, Ordering},
+    },
 };
 use tokio::sync::{Mutex, mpsc, watch};
 use tracing::{error, info, warn};
@@ -150,7 +152,10 @@ impl WsClient {
         let mut public_address = None;
         match &private_key {
             Some(key) => {
-                wallet = Some(key.parse::<PrivateKeySigner>().expect("Invalid private key"));
+                wallet = Some(
+                    key.parse::<PrivateKeySigner>()
+                        .expect("Invalid private key"),
+                );
                 public_address = Some(format!("{:?}", wallet.as_ref().unwrap().address()));
                 info!(
                     "Creating WsClient in private mode with address: {}",

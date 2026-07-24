@@ -1,10 +1,16 @@
-use crate::actions::utils::{decimal_to_i256, decimal_to_u256};
-use crate::actions::{ActionData, ModuleData};
-use crate::models::openapi::{Direction, Instrument, OrderType, TimeInForce};
-use crate::types::Environment;
-use alloy::hex::encode_prefixed;
-use alloy::primitives::{Address, I256, U256};
-use alloy::signers::local::PrivateKeySigner;
+use crate::{
+    actions::{
+        ActionData, ModuleData,
+        utils::{decimal_to_i256, decimal_to_u256},
+    },
+    models::openapi::{Direction, Instrument, OrderType, TimeInForce},
+    types::Environment,
+};
+use alloy::{
+    hex::encode_prefixed,
+    primitives::{Address, U256},
+    signers::local::PrivateKeySigner,
+};
 use alloy_sol_types::sol;
 use anyhow::Result;
 use bigdecimal::BigDecimal;
@@ -68,8 +74,6 @@ pub fn get_reject_millis(time_in_force: &TimeInForce) -> Result<i64> {
     };
     Ok(reject_millis)
 }
-
-
 
 sol! {
     #![sol(all_derives)]
@@ -145,7 +149,7 @@ impl ActionData {
             signature_expiry_sec: i64::try_from(&self.expiry)?,
             signer: encode_prefixed(self.signer),
             referral_code: Some(REFFERAL_CODE.to_string()),
-            signature: format!("0x{}", signer.sign_hash_sync(&self.hash(env).clone())?),
+            signature: format!("{}", signer.sign_hash_sync(&self.hash(env).clone())?),
             client: Some(CLIENT_NAME.to_string()),
             trigger_price: None,
             trigger_price_type: None,

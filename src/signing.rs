@@ -1,5 +1,6 @@
 use alloy::{
-    hex, signers::{Signer, local::PrivateKeySigner}
+    hex,
+    signers::{Signer, local::PrivateKeySigner},
 };
 use serde_json::Value;
 use std::time::{SystemTime, UNIX_EPOCH};

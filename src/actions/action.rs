@@ -1,4 +1,7 @@
-use alloy::{hex::{self, const_decode_to_array, encode}, primitives::{Address, B256, U256, keccak256}};
+use alloy::{
+    hex::{self},
+    primitives::{Address, B256, U256, keccak256},
+};
 use alloy_sol_types::{SolValue, sol};
 // use crate::actions::helpers::ModuleData;
 use anyhow::Result;
@@ -70,8 +73,7 @@ impl ActionData {
             .timestamp_nanos_opt()
             .context("current timestamp cannot be represented in nanoseconds")?;
 
-        let signature_expiry_sec =
-            (now + Duration::seconds(3_000_000)).timestamp();
+        let signature_expiry_sec = (now + Duration::seconds(3_000_000)).timestamp();
 
         Ok((
             U256::from(u64::try_from(nonce)?),
@@ -98,20 +100,13 @@ impl ActionData {
 
         let encoded_data = module_data.abi_encode();
 
-        println!(
-            "Generated encoded_data: {}",
-            hex::encode(&encoded_data)
-        );
+        println!("Generated encoded_data: {}", hex::encode(&encoded_data));
 
         let data = keccak256(&encoded_data);
 
-        println!(
-            "Generated encoded_data_hashed: {}",
-            hex::encode(data)
-        );
+        println!("Generated encoded_data_hashed: {}", hex::encode(data));
 
-        let action_typehash =
-            get_action_typehash(env).parse::<B256>()?;
+        let action_typehash = get_action_typehash(env).parse::<B256>()?;
 
         Ok(Self {
             action_typehash,
@@ -151,10 +146,7 @@ impl ActionData {
 
         let typed_data_hash = keccak256(encoded);
 
-        println!(
-            "typed_data_hash: {}",
-            hex::encode(typed_data_hash)
-        );
+        println!("typed_data_hash: {}", hex::encode(typed_data_hash));
 
         typed_data_hash
     }
