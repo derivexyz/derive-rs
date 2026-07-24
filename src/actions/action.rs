@@ -11,16 +11,18 @@ use crate::types::Environment;
 
 pub trait ModuleData {
     fn address(&self) -> Address;
+    fn get_action_data(&self) -> Vec<u8>;
 }
 
 pub enum ModuleType {
     Trade,
+    CreateSessionKey,
 }
 
-fn get_trade_module(env: &Environment, module: ModuleType) -> &'static str {
-    match (env, module) {
-        (Environment::Mainnet, ModuleType::Trade) => "0xB8D20c2B7a1Ad2EE33Bc50eF10876eD3035b5e7b",
-        (Environment::Testnet, ModuleType::Trade) => "0xB8D20c2B7a1Ad2EE33Bc50eF10876eD3035b5e7b",
+fn get_trade_module(module: ModuleType) -> &'static str {
+    match module {
+        ModuleType::Trade => "0xB8D20c2B7a1Ad2EE33Bc50eF10876eD3035b5e7b",
+        ModuleType::CreateSessionKey => "0xe330CF64ff6EbF41699aad344Cb21d78db1D2bb6",
     }
 }
 
@@ -78,7 +80,7 @@ impl ActionData {
 
     pub fn new<T>(
         module_data: T,
-        subaccount_id: i64,
+        subaccount_id: u64,
         signer_address: Address,
         derive_smart_contract_address: &Address,
         env: &Environment,
@@ -87,9 +89,9 @@ impl ActionData {
     where
         T: SolValue + ModuleData,
     {
+        let encoded_data = module_data.get_action_data();
         let (nonce, expiry) = Self::get_nonce_and_expiry()?;
-        let module = get_trade_module(env, module_type).parse::<Address>()?;
-        let encoded_data = module_data.abi_encode();
+        let module = get_trade_module(module_type).parse::<Address>()?;
         let data = keccak256(&encoded_data);
         let action_typehash = get_action_typehash(env).parse::<B256>()?;
         Ok(Self {

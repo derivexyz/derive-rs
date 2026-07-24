@@ -92,7 +92,7 @@ sol! {
 impl TradeData {
     pub fn new(
         instrument: &Instrument,
-        subaccount_id: i64,
+        subaccount_id: u64,
         limit_price: BigDecimal,
         amount: BigDecimal,
         is_bid: bool,
@@ -115,8 +115,13 @@ impl ModuleData for TradeData {
             "ModuleData for TradeData should not be used directly, it should be encoded into ActionData with ActionData::new"
         );
     }
+    fn get_action_data(&self) -> Vec<u8> {
+        let encoded = self.abi_encode();
+        encoded.into()
+    }
 }
 use alloy::signers::SignerSync;
+use alloy_sol_types::SolValue;
 
 impl ActionData {
     pub fn populate_order_params(

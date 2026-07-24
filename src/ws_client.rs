@@ -26,13 +26,7 @@ use crate::{
     models::{
         asyncapi_rpc::{SetCancelOnDisconnectRequest, SetCancelOnDisconnectResponse},
         openapi::{AssetType, GetAllInstrumentsRequest, Instrument},
-    },
-    namespaces::orders::OrdersNamespace,
-    routing::{extract_channel, extract_id, extract_id_tail},
-    rpc::Rpc,
-    signing::sign_ws_login,
-    subscriptions::Subscriptions,
-    types::{
+    }, namespaces::{orders::OrdersNamespace, session_keys::SessionKeys}, routing::{extract_channel, extract_id, extract_id_tail}, rpc::Rpc, signing::sign_ws_login, subscriptions::Subscriptions, types::{
         ChannelResponse, ChannelSpec, ClientError, DispatchResult, Environment, Error, EventStream,
         ExternalEvent, InternalCommand, RequestScope, ResponseSender, RpcError, RpcResult,
         SubscriptionRoute, WsStream,
@@ -72,7 +66,7 @@ pub struct WsClient {
     pub wallet: Option<PrivateKeySigner>,
     pub public_address: Option<String>,
     pub smart_contract_wallet_address: Option<String>,
-    pub subaccount_id: Option<i64>,
+    pub subaccount_id: Option<u64>,
     pub environment: Environment,
 }
 
@@ -88,6 +82,10 @@ impl WsClient {
         OrdersNamespace { ws_client: self }
     }
 
+    pub fn session_keys(&self) -> SessionKeys<'_> {
+        SessionKeys { ws_client: self }
+    }
+
     pub async fn from_env(environment: Environment) -> Result<Self, ClientError> {
         let private_key = match var("DERIVE_PRIVATE_KEY") {
             Ok(v) => v,
@@ -98,7 +96,7 @@ impl WsClient {
             Err(e) => return Err(ClientError::EnvVar(e)),
         };
         let subaccount_id = match var("DERIVE_SUBACCOUNT_ID") {
-            Ok(s) => match s.parse::<i64>() {
+            Ok(s) => match s.parse::<u64>() {
                 Ok(id) => id,
                 Err(e) => return Err(ClientError::Anyhow(anyhow!(e))),
             },
@@ -145,7 +143,7 @@ impl WsClient {
         env: Environment,
         private_key: Option<String>,
         smart_contract_wallet_address: Option<String>,
-        subaccount_id: Option<i64>,
+        subaccount_id: Option<u64>,
     ) -> Result<Self, ClientError> {
         let url = env.get_url().to_string();
         let mut wallet = None;

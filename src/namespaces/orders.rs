@@ -4,55 +4,6 @@ use crate::{
     types::ClientError,
     ws_client::WsClient,
 };
-// use ethers::prelude::Signer;
-
-pub struct SignableRequest {
-    // pub params: CreateOrderRequest,
-    // pub signature: String,
-    // pub signer_address: String,
-}
-impl Default for SignableRequest {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
-impl SignableRequest {
-    pub fn new() -> Self {
-        Self {}
-    }
-
-    pub fn sign(
-        &self,
-        // signer: &impl Signer,
-    ) -> Result<SignableRequest, ClientError> {
-        // let signature = signer.sign_message(&self.params.to_string()).await?;
-        // let signer_address = signer.address().to_string();
-        Ok(SignableRequest {
-            // params: self.params.clone(),
-            // signature: signature.to_string(),
-            // signer_address,
-        })
-    }
-
-    pub async fn send(
-        &self,
-        // ws_client: &WsClient,
-    ) -> Result<OrderCreatedResponse, ClientError> {
-        // let params_json = serde_json::to_value(&self.params)?;
-        // let signature_json = serde_json::json!({
-        //     "signature": self.signature,
-        //     "signer_address": self.signer_address,
-        // });
-        // let request_json = serde_json::json!({
-        //     "params": params_json,
-        //     "signature": signature_json,
-        // });
-        // ws_client.send_rpc("private/order", request_json).await
-        panic!("Send method not implemented yet");
-    }
-}
-
 pub struct OrdersNamespace<'a> {
     pub ws_client: &'a WsClient,
 }
