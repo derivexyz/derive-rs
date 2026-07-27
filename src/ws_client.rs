@@ -25,9 +25,11 @@ use yawc::{Frame, OpCode};
 use crate::{
     models::{
         asyncapi_rpc::{SetCancelOnDisconnectRequest, SetCancelOnDisconnectResponse},
-        openapi::{AssetType, GetAllInstrumentsRequest, Instrument},
+        openapi::{AssetType, GetAllInstrumentsRequest, Instrument, SpotAssetEntry},
     },
-    namespaces::{orders::OrdersNamespace, session_keys::SessionKeys},
+    namespaces::{
+        fund_movements::FundMovementsNamespace, orders::OrdersNamespace, session_keys::SessionKeys,
+    },
     routing::{extract_channel, extract_id, extract_id_tail},
     rpc::Rpc,
     signing::sign_ws_login,
@@ -65,6 +67,7 @@ pub struct WsClient {
     next_id: Arc<AtomicU64>,
     shutdown_tx: watch::Sender<bool>,
     pub instruments_cache: Arc<DashMap<String, Instrument>>,
+    pub erc20_cache: Arc<DashMap<String, SpotAssetEntry>>,
     connection_state_rx: watch::Receiver<ExternalEvent>,
     current_connection_state: Arc<Mutex<ExternalEvent>>,
     supervisor_handle: Arc<Mutex<Option<JoinHandle<()>>>>,
@@ -90,6 +93,10 @@ impl WsClient {
 
     pub fn session_keys(&self) -> SessionKeys<'_> {
         SessionKeys { ws_client: self }
+    }
+
+    pub fn fund_movements(&self) -> FundMovementsNamespace<'_> {
+        FundMovementsNamespace { ws_client: self }
     }
 
     pub async fn from_env(environment: Environment) -> Result<Self, ClientError> {
@@ -195,8 +202,6 @@ impl WsClient {
             connection_state_tx,
         ));
 
-        let instruments_cache = Arc::new(DashMap::new());
-
         let client = WsClient {
             write_tx: cmd_tx.clone(),
             pending_requests: pending_requests.clone(),
@@ -213,10 +218,12 @@ impl WsClient {
             smart_contract_wallet_address,
             // .and_then(|addr| addr.parse::<Address>().ok()),
             subaccount_id,
-            instruments_cache,
+            instruments_cache: Arc::new(DashMap::new()),
+            erc20_cache: Arc::new(DashMap::new()),
             environment: env,
         };
         client.cache_instruments().await?;
+        client.cache_erc20_assets().await?;
         // if private_key.is_some() {
         //     client.wait_for_connection().await;
         // }
@@ -531,6 +538,30 @@ impl WsClient {
         for instrument in &instruments.instruments {
             self.instruments_cache
                 .insert(instrument.instrument_name.clone(), instrument.clone());
+        }
+        Ok(())
+    }
+
+    async fn cache_erc20_assets(&self) -> Result<(), ClientError> {
+        let currencies = self.rpc().market_data().get_all_currencies().await?;
+        let asset_name_to_erc20_details = currencies
+            .into_iter()
+            .filter_map(|currency| {
+                let mut spots = currency.spot.into_iter();
+                let spot = spots.next()?;
+                if spots.next().is_some() {
+                    panic!(
+                        "Currency {:?} has more than one spot entry",
+                        currency.currency,
+                    );
+                }
+                Some((currency.currency, spot))
+            })
+            .collect::<DashMap<_, _>>();
+        self.erc20_cache.clear();
+        for entry in asset_name_to_erc20_details.iter() {
+            self.erc20_cache
+                .insert(entry.key().clone(), entry.value().clone());
         }
         Ok(())
     }

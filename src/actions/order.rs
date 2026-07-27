@@ -6,45 +6,25 @@ use crate::{
     models::openapi::{Direction, Instrument, OrderType, TimeInForce},
     types::Environment,
 };
+use alloy::signers::SignerSync;
 use alloy::{
     hex::encode_prefixed,
     primitives::{Address, U256},
     signers::local::PrivateKeySigner,
 };
+use alloy_sol_types::SolValue;
 use alloy_sol_types::sol;
 use anyhow::Result;
 use bigdecimal::BigDecimal;
-// use ethers::prelude::{Address, EthAbiCodec, EthAbiType, I256, LocalWallet, U256};
-// use ethers::utils::hex;
 use serde::Deserialize;
 
 use crate::models::openapi::CreateOrderRequest as OrderParams;
-// use crate::models::PrivateReplaceParamsSchema as ReplaceParams;
 
 const REFFERAL_CODE: &str = "0x9135BA0f495244dc0A5F029b25CDE95157Db89AD";
 const CLIENT_NAME: &str = "8ballers-rust-sdk";
 
 use bon::Builder;
 
-// “max_fee” here is a fascinating concept.
-//
-// One might assume a field called max_fee would depend on:
-// - order size
-// - order price
-// - user balance or margin
-//
-// Naturally, it does none of those.
-//
-// Instead, it is a fixed, instrument-level constant derived from
-// a price proxy and some metadata, then reused for every order
-// regardless of notional. Large order, small order, same cap.
-//
-// Empirically, the API accepts virtually any size with this value,
-// which means this “max” fee does not actually bound or scale with
-// anything the user does.
-//
-// So despite the name, this is not a true maximum fee for an order.
-// It is closer to a decorative upper-fee hint that keeps the API happy.
 fn default_max_fee() -> BigDecimal {
     BigDecimal::from(1000u64)
 }
@@ -119,8 +99,6 @@ impl ModuleData for TradeData {
         self.abi_encode()
     }
 }
-use alloy::signers::SignerSync;
-use alloy_sol_types::SolValue;
 
 impl ActionData {
     pub fn populate_order_params(

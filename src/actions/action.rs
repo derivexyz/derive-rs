@@ -1,4 +1,7 @@
-use alloy::primitives::{Address, B256, U256, keccak256};
+use alloy::{
+    hex::encode,
+    primitives::{Address, B256, U256, keccak256},
+};
 use alloy_sol_types::{SolValue, sol};
 // use crate::actions::helpers::ModuleData;
 use anyhow::Result;
@@ -16,6 +19,12 @@ pub trait ModuleData {
 
 pub enum ModuleType {
     Trade,
+    // SpotTransfer,
+    Withdraw,
+    // RfqPositionTransfer,
+    // ExternalTransfer,
+    // WhitelistedRecipient,
+    // Vault,
     CreateSessionKey,
 }
 
@@ -23,6 +32,7 @@ fn get_trade_module(module: ModuleType) -> &'static str {
     match module {
         ModuleType::Trade => "0xB8D20c2B7a1Ad2EE33Bc50eF10876eD3035b5e7b",
         ModuleType::CreateSessionKey => "0xe330CF64ff6EbF41699aad344Cb21d78db1D2bb6",
+        ModuleType::Withdraw => "0x9d0E8f5b25384C7310CB8C6aE32C8fbeb645d083",
     }
 }
 
@@ -90,15 +100,15 @@ impl ActionData {
         T: SolValue + ModuleData,
     {
         let encoded_data = module_data.get_action_data();
-        // let hex = format!("0x{}", encode(&encoded_data));
-        // println!("encoded_data: {hex}");
+        let hex = format!("0x{}", encode(&encoded_data));
+        println!("encoded_data: {hex}");
         let (nonce, expiry) = Self::get_nonce_and_expiry()?;
         let module = get_trade_module(module_type).parse::<Address>()?;
-        // println!("module: {:?}", module);
+        println!("module: {:?}", module);
         let data = keccak256(&encoded_data);
-        // println!("encoded_data_hashed: {:?}", data);
+        println!("encoded_data_hashed: {:?}", data);
         let action_typehash = get_action_typehash(env).parse::<B256>()?;
-        // println!("action_typehash: {:?}", action_typehash);
+        println!("action_typehash: {:?}", action_typehash);
         Ok(Self {
             action_typehash,
             subaccount_id: U256::from(subaccount_id),
@@ -120,8 +130,8 @@ impl ActionData {
             .parse::<B256>()
             .expect("invalid DOMAIN_SEPARATOR");
         let action_hash = self.action_hash();
-        // println!("domain_separator: {:?}", domain_separator);
-        // println!("action_hash: {:?}", action_hash);
+        println!("domain_separator: {:?}", domain_separator);
+        println!("action_hash: {:?}", action_hash);
         let mut encoded = [0u8; 66];
         encoded[0] = 0x19;
         encoded[1] = 0x01;

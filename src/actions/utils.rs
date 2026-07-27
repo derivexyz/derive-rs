@@ -53,3 +53,8 @@ pub fn u256_to_decimal(u256: U256) -> Result<BigDecimal> {
 pub fn i256_to_decimal(i256: I256) -> Result<BigDecimal> {
     i256_to_decimal_with_prec(i256, 18)
 }
+
+pub fn to_e18(value: &BigDecimal) -> Result<U256> {
+    // we scale to an e18 representation, which is the standard for ERC20 tokens
+    decimal_to_u256_with_prec(value, 18)
+}

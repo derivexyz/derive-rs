@@ -1,3 +1,4 @@
+use alloy::signers::SignerSync;
 use alloy::{
     hex::encode_prefixed,
     primitives::{Address, U256},
@@ -156,7 +157,6 @@ impl From<CreateSessionKeyArgs> for CreateSessionKeyData {
     }
 }
 
-use alloy::signers::SignerSync;
 impl ActionData {
     pub fn populate_create_session_key_params(
         self,
