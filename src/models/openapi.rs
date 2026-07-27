@@ -5631,7 +5631,7 @@ impl GetPublicTradeHistoryRequest {
 ///      "format": "int64"
 ///    },
 ///    "to_timestamp": {
-///      "default": 9223372036854776000,
+///      "default": 9223372036854775807,
 ///      "type": "integer",
 ///      "format": "int64"
 ///    }
@@ -5654,7 +5654,7 @@ pub struct GetQuotesRequest {
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub status: ::std::option::Option<::std::string::String>,
     pub subaccount_id: i64,
-    #[serde(default = "defaults::default_u64::<i64, 9223372036854776000>")]
+    #[serde(default = "defaults::default_u64::<i64, 9223372036854775807>")]
     pub to_timestamp: i64,
 }
 impl GetQuotesRequest {
@@ -5851,7 +5851,7 @@ impl GetReferralPerformanceResult {
 ///      "format": "int64"
 ///    },
 ///    "to_timestamp": {
-///      "default": 9223372036854776000,
+///      "default": 9223372036854775807,
 ///      "type": "integer",
 ///      "format": "int64"
 ///    }
@@ -5872,7 +5872,7 @@ pub struct GetRfqsRequest {
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub status: ::std::option::Option<::std::string::String>,
     pub subaccount_id: i64,
-    #[serde(default = "defaults::default_u64::<i64, 9223372036854776000>")]
+    #[serde(default = "defaults::default_u64::<i64, 9223372036854775807>")]
     pub to_timestamp: i64,
 }
 impl GetRfqsRequest {
@@ -9168,7 +9168,7 @@ impl OrderDebugResponse {
 ///      "type": "boolean"
 ///    },
 ///    "reject_timestamp": {
-///      "default": 9223372036854776000,
+///      "default": 9223372036854775807,
 ///      "type": "integer",
 ///      "format": "int64"
 ///    },
@@ -9271,7 +9271,7 @@ pub struct OrderQuoteRequest {
     pub referral_code: ::std::string::String,
     #[serde(default = "defaults::default_bool::<true>")]
     pub reject_post_only: bool,
-    #[serde(default = "defaults::default_u64::<i64, 9223372036854776000>")]
+    #[serde(default = "defaults::default_u64::<i64, 9223372036854775807>")]
     pub reject_timestamp: i64,
     ///Ethereum signature of the order.
     pub signature: ::std::string::String,
@@ -10255,7 +10255,7 @@ impl PerpSettlementHistoryResponse {
 ///      "format": "int64"
 ///    },
 ///    "to_timestamp": {
-///      "default": 9223372036854776000,
+///      "default": 9223372036854775807,
 ///      "type": "integer",
 ///      "format": "int64"
 ///    }
@@ -10278,7 +10278,7 @@ pub struct PollQuotesRequest {
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub status: ::std::option::Option<::std::string::String>,
     pub subaccount_id: i64,
-    #[serde(default = "defaults::default_u64::<i64, 9223372036854776000>")]
+    #[serde(default = "defaults::default_u64::<i64, 9223372036854775807>")]
     pub to_timestamp: i64,
 }
 impl PollQuotesRequest {
@@ -10341,7 +10341,7 @@ impl PollQuotesRequest {
 ///      "format": "int64"
 ///    },
 ///    "to_timestamp": {
-///      "default": 9223372036854776000,
+///      "default": 9223372036854775807,
 ///      "type": "integer",
 ///      "format": "int64"
 ///    }
@@ -10364,7 +10364,7 @@ pub struct PollRfqsRequest {
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub status: ::std::option::Option<::std::string::String>,
     pub subaccount_id: i64,
-    #[serde(default = "defaults::default_u64::<i64, 9223372036854776000>")]
+    #[serde(default = "defaults::default_u64::<i64, 9223372036854775807>")]
     pub to_timestamp: i64,
 }
 impl PollRfqsRequest {
@@ -26925,7 +26925,7 @@ pub mod builder {
                 status: Ok(Default::default()),
                 subaccount_id: Err("no value supplied for subaccount_id".to_string()),
                 to_timestamp: Ok(
-                    super::defaults::default_u64::<i64, 9223372036854776000>(),
+                    super::defaults::default_u64::<i64, 9223372036854775807>(),
                 ),
             }
         }
@@ -27391,7 +27391,7 @@ pub mod builder {
                 status: Ok(Default::default()),
                 subaccount_id: Err("no value supplied for subaccount_id".to_string()),
                 to_timestamp: Ok(
-                    super::defaults::default_u64::<i64, 9223372036854776000>(),
+                    super::defaults::default_u64::<i64, 9223372036854775807>(),
                 ),
             }
         }
@@ -32864,7 +32864,7 @@ pub mod builder {
                 referral_code: Ok(Default::default()),
                 reject_post_only: Ok(super::defaults::default_bool::<true>()),
                 reject_timestamp: Ok(
-                    super::defaults::default_u64::<i64, 9223372036854776000>(),
+                    super::defaults::default_u64::<i64, 9223372036854775807>(),
                 ),
                 signature: Err("no value supplied for signature".to_string()),
                 signature_expiry_sec: Err(
@@ -34688,7 +34688,7 @@ pub mod builder {
                 status: Ok(Default::default()),
                 subaccount_id: Err("no value supplied for subaccount_id".to_string()),
                 to_timestamp: Ok(
-                    super::defaults::default_u64::<i64, 9223372036854776000>(),
+                    super::defaults::default_u64::<i64, 9223372036854775807>(),
                 ),
             }
         }
@@ -34847,7 +34847,7 @@ pub mod builder {
                 status: Ok(Default::default()),
                 subaccount_id: Err("no value supplied for subaccount_id".to_string()),
                 to_timestamp: Ok(
-                    super::defaults::default_u64::<i64, 9223372036854776000>(),
+                    super::defaults::default_u64::<i64, 9223372036854775807>(),
                 ),
             }
         }
