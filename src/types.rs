@@ -60,6 +60,8 @@ pub enum ClientError {
     StringError(#[from] Box<dyn StdError>),
     #[error("Approval error: {0}")]
     ApprovalError(String),
+    #[error("Subaccount error: {0}")]
+    SubaccountError(String),
 }
 
 // environment enum
