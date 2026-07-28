@@ -58,6 +58,8 @@ pub enum ClientError {
     Conversion(#[from] crate::models::openapi::error::ConversionError),
     #[error("String error: {0}")]
     StringError(#[from] Box<dyn StdError>),
+    #[error("Approval error: {0}")]
+    ApprovalError(String),
 }
 
 // environment enum
@@ -74,6 +76,12 @@ impl Environment {
             Environment::Testnet => "wss://testnet.api.derive.xyz/v3/ws",
         }
     }
+    pub fn get_default_rpc(&self) -> String {
+        match self {
+            Environment::Testnet => "https://sepolia.drpc.org".to_string(),
+            Environment::Mainnet => "https://eth.drpc.org".to_string(),
+        }
+    }   
 }
 impl FromStr for Environment {
     type Err = ();

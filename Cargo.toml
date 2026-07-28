@@ -4,7 +4,8 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-alloy = { version = "2.2.0", default-features = false, features = ["signer-local"] }
+alloy = { version = "2.2.0", default-features = false, features = ["signer-local", "providers", "reqwest"] }
+alloy-contract = "2.2.0"
 alloy-sol-types = "1.6.1"
 anyhow = "1.0.104"
 bigdecimal = { version = "0.4.10", features = ["serde", "serde-json"] }

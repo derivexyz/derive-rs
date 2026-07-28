@@ -7,6 +7,9 @@ pub use order::*;
 
 pub mod withdraw;
 pub use withdraw::*;
+
+pub mod deposit;
+pub use deposit::*;
 // pub use helpers::*;
 // mod helpers;
 
