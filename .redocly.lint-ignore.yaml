@@ -109,6 +109,8 @@ schemas/openapi.json:
     - '#/paths/~1public~1get_tradingview_chart_data/post/responses'
     - '#/paths/~1public~1get_all_referral_codes/post/responses'
     - '#/paths/~1public~1get_referral_performance/post/responses'
+    - '#/paths/~1private~1liquidate/post/responses'
+    - '#/paths/~1public~1start_auction/post/responses'
   security-defined:
     - '#/paths/~1private~1change_subaccount_label/post'
     - '#/paths/~1private~1get_all_portfolios/post'
@@ -215,3 +217,5 @@ schemas/openapi.json:
     - '#/paths/~1public~1get_tradingview_chart_data/post'
     - '#/paths/~1public~1get_all_referral_codes/post'
     - '#/paths/~1public~1get_referral_performance/post'
+    - '#/paths/~1private~1liquidate/post'
+    - '#/paths/~1public~1start_auction/post'

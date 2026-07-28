@@ -71,6 +71,10 @@
     {
       "name": "Referrals",
       "description": "Referral codes and program performance."
+    },
+    {
+      "name": "Other",
+      "description": "Uncategorized."
     }
   ],
   "paths": {
@@ -3876,6 +3880,76 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/GetReferralPerformanceParams"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/private/liquidate": {
+      "post": {
+        "tags": [
+          "Other"
+        ],
+        "summary": "private/liquidate",
+        "operationId": "private_liquidate",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PrivateLiquidateResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "JSON-RPC error (see Error Codes)"
+          }
+        },
+        "x-rate-limit-class": "non_matching",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PrivateLiquidateRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/public/start_auction": {
+      "post": {
+        "tags": [
+          "Other"
+        ],
+        "summary": "public/start_auction",
+        "operationId": "public_start_auction",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicStartAuctionResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "JSON-RPC error (see Error Codes)"
+          }
+        },
+        "x-rate-limit-class": "non_matching",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PublicStartAuctionRequest"
               }
             }
           }
@@ -9561,6 +9635,91 @@
           }
         }
       },
+      "PrivateLiquidateRequest": {
+        "type": "object",
+        "required": [
+          "cash_transfer",
+          "last_seen_trade_id",
+          "liquidated_account_id",
+          "merge_account",
+          "nonce",
+          "percent_of_acc",
+          "price_limit",
+          "signature",
+          "signature_expiry_sec",
+          "signer",
+          "subaccount_id"
+        ],
+        "properties": {
+          "cash_transfer": {
+            "description": "Cash to transfer during liquidation, in USD as a decimal string (e.g. `\"5.0\"`) or a JSON number.",
+            "type": "string",
+            "format": "decimal"
+          },
+          "last_seen_trade_id": {
+            "type": "integer",
+            "format": "uint64",
+            "minimum": 0.0
+          },
+          "liquidated_account_id": {
+            "description": "Account being liquidated.",
+            "type": "integer",
+            "format": "uint64",
+            "minimum": 0.0
+          },
+          "merge_account": {
+            "type": "boolean"
+          },
+          "nonce": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "percent_of_acc": {
+            "description": "Fraction of the account to liquidate (`\"1.0\"` = 100%), decimal string or JSON number.",
+            "type": "string",
+            "format": "decimal"
+          },
+          "price_limit": {
+            "description": "Signed limit price (`\"0\"` opts out), decimal string or JSON number.",
+            "type": "string",
+            "format": "decimal"
+          },
+          "signature": {
+            "type": "string"
+          },
+          "signature_expiry_sec": {
+            "type": "integer",
+            "format": "uint64",
+            "minimum": 0.0
+          },
+          "signer": {
+            "type": "string"
+          },
+          "subaccount_id": {
+            "description": "Bidder subaccount.",
+            "type": "integer",
+            "format": "uint64",
+            "minimum": 0.0
+          }
+        }
+      },
+      "PrivateLiquidateResponse": {
+        "type": "object",
+        "required": [
+          "op_uuid",
+          "operation_id"
+        ],
+        "properties": {
+          "op_uuid": {
+            "type": "string"
+          },
+          "operation_id": {
+            "type": "integer",
+            "format": "uint64",
+            "minimum": 0.0
+          }
+        }
+      },
       "PrivateSessionKeysResponse": {
         "type": "object",
         "required": [
@@ -10156,6 +10315,37 @@
             "$ref": "#/components/schemas/Address"
           },
           "subaccount_id": {
+            "type": "integer",
+            "format": "uint64",
+            "minimum": 0.0
+          }
+        }
+      },
+      "PublicStartAuctionRequest": {
+        "type": "object",
+        "required": [
+          "subaccount_id"
+        ],
+        "properties": {
+          "subaccount_id": {
+            "description": "Subaccount to auction.",
+            "type": "integer",
+            "format": "uint64",
+            "minimum": 0.0
+          }
+        }
+      },
+      "PublicStartAuctionResponse": {
+        "type": "object",
+        "required": [
+          "op_uuid",
+          "operation_id"
+        ],
+        "properties": {
+          "op_uuid": {
+            "type": "string"
+          },
+          "operation_id": {
             "type": "integer",
             "format": "uint64",
             "minimum": 0.0
