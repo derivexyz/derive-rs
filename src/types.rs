@@ -81,7 +81,7 @@ impl Environment {
             Environment::Testnet => "https://sepolia.drpc.org".to_string(),
             Environment::Mainnet => "https://eth.drpc.org".to_string(),
         }
-    }   
+    }
 }
 impl FromStr for Environment {
     type Err = ();

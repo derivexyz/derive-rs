@@ -1,7 +1,10 @@
 use alloy::primitives::TxHash;
 
 use crate::{
-    actions::{ActionData, DepositArgs, DepositManager, ModuleType, WithdrawArgs, WithdrawData}, models::openapi::PrivateWithdrawResponse, types::ClientError, ws_client::WsClient,
+    actions::{ActionData, DepositArgs, DepositManager, ModuleType, WithdrawArgs, WithdrawData},
+    models::openapi::PrivateWithdrawResponse,
+    types::ClientError,
+    ws_client::WsClient,
 };
 pub struct FundMovementsNamespace<'a> {
     pub ws_client: &'a WsClient,
@@ -50,18 +53,22 @@ impl<'a> FundMovementsNamespace<'a> {
         // Ok(SignableRequest::new())
     }
 
-
-    pub async fn deposit(
-        &self,
-        deposit_args: DepositArgs,
-    ) -> Result<Vec<TxHash>, ClientError> {
+    pub async fn deposit(&self, deposit_args: DepositArgs) -> Result<Vec<TxHash>, ClientError> {
         let env = &self.ws_client.environment;
-        let private_key = self.ws_client.wallet.clone().expect("Must have set wallet to deposit");
-        let wallet = self.ws_client.smart_contract_wallet_address.clone().expect("Must have set smart contract wallet address to deposit");
+        let private_key = self
+            .ws_client
+            .wallet
+            .clone()
+            .expect("Must have set wallet to deposit");
+        let wallet = self
+            .ws_client
+            .smart_contract_wallet_address
+            .clone()
+            .expect("Must have set smart contract wallet address to deposit");
         let erc20_cache = self.ws_client.erc20_cache.clone();
-        let deposit_manager = DepositManager::new(&deposit_args, &private_key, &wallet, env, &erc20_cache).await?;
+        let deposit_manager =
+            DepositManager::new(&deposit_args, &private_key, &wallet, env, &erc20_cache).await?;
         let hashes = deposit_manager.deposit().await?;
         Ok(hashes)
-
     }
 }

@@ -6,24 +6,28 @@
 
 use std::sync::Arc;
 
-use alloy::{primitives::{Address, TxHash, map::HashMap}, signers::local::{LocalSigner, PrivateKeySigner}};
+use alloy::providers::{Provider, ProviderBuilder};
+use alloy::{
+    primitives::{Address, TxHash},
+    signers::local::PrivateKeySigner,
+};
 use alloy_sol_types::sol;
 use bigdecimal::BigDecimal;
 use bon::Builder;
 use dashmap::DashMap;
 use serde::Deserialize;
-use alloy::providers::{Provider, ProviderBuilder};
-use strum::EnumString; 
+use strum::EnumString;
 
-use crate::{models::openapi::SpotAssetEntry, types::{ClientError, Environment}};
-
+use crate::{
+    models::openapi::SpotAssetEntry,
+    types::{ClientError, Environment},
+};
 
 #[derive(Clone, Debug, Deserialize, EnumString)]
 #[strum(ascii_case_insensitive)]
 pub enum SupportDepositAssets {
     USDC,
 }
-
 
 #[derive(Clone, Debug, Deserialize)]
 pub enum DirectDepositType {
@@ -35,7 +39,6 @@ pub enum DirectDepositType {
 pub enum DepositTypes {
     Direct(DirectDepositType),
 }
-
 
 sol! {
      #[sol(rpc)]
@@ -69,8 +72,6 @@ sol! {
     }
 }
 
-
-
 #[derive(Clone, Debug, Deserialize, Builder)]
 pub struct DepositArgs {
     #[builder(into)]
@@ -89,17 +90,16 @@ pub struct DepositManager<'a> {
     wallet_address: &'a str,
     env: &'a Environment,
     erc20_cache: &'a Arc<DashMap<String, SpotAssetEntry>>,
-    rpc_url: String
+    rpc_url: String,
 }
 
 impl<'a> DepositManager<'a> {
-
     pub async fn new(
         deposit_args: &DepositArgs,
         private_key: &'a PrivateKeySigner,
         wallet_address: &'a str,
         env: &'a Environment,
-        erc20_cache: &'a Arc<DashMap<String, SpotAssetEntry>>
+        erc20_cache: &'a Arc<DashMap<String, SpotAssetEntry>>,
     ) -> Result<Self, ClientError> {
         // Implement the logic to create a new DepositManager instance
 
@@ -108,15 +108,13 @@ impl<'a> DepositManager<'a> {
             None => env.get_default_rpc(),
         };
 
-
-
         Ok(Self {
             deposit_args: deposit_args.clone(),
             private_key,
-            wallet_address: wallet_address,
+            wallet_address,
             env,
             erc20_cache,
-            rpc_url
+            rpc_url,
         })
     }
 
@@ -125,37 +123,68 @@ impl<'a> DepositManager<'a> {
 
         let resulting_hashes = vec![];
 
-        if !self.check_approvals(self.deposit_args.asset.clone(), self.deposit_args.amount.clone()).await? {
-            return Err(ClientError::ApprovalError("Insufficient approval for deposit".to_string()));
+        if !self
+            .check_approvals(
+                self.deposit_args.asset.clone(),
+                self.deposit_args.amount.clone(),
+            )
+            .await?
+        {
+            return Err(ClientError::ApprovalError(
+                "Insufficient approval for deposit".to_string(),
+            ));
         }
-
-
 
         Ok(resulting_hashes)
     }
 
-    pub async fn check_approvals(&self, asset: SupportDepositAssets, amount: BigDecimal) -> Result<bool, ClientError> {
+    pub async fn check_approvals(
+        &self,
+        asset: SupportDepositAssets,
+        amount: BigDecimal,
+    ) -> Result<bool, ClientError> {
         // we get the erc20 address from the erc20_cache
         let asset_entry = self.erc20_cache.get(&format!("{:?}", asset)).expect("ERC20 asset details not found in cache. Please ensure the asset is supported and cached.");
 
         let erc20_address = asset_entry.address.clone();
 
-        let url = self.rpc_url.parse::<reqwest::Url>().map_err(|e| ClientError::StringError(Box::new(e)))?;
-        let provider = ProviderBuilder::new()
-            .connect_http(url);
+        let url = self
+            .rpc_url
+            .parse::<reqwest::Url>()
+            .map_err(|e| ClientError::StringError(Box::new(e)))?;
+        let provider = ProviderBuilder::new().connect_http(url);
 
-
-        let erc20_contract = Erc20::new(erc20_address.parse().expect("Invalid ERC20 address"), provider);
-        let manager_address = "0x1b4f369b585D40a27F66775844FC265151f278A4".parse().expect("Invalid manager address");
-        let allowance = erc20_contract.allowance(self.wallet_address.parse().expect("Invalid wallet address"), manager_address).call().await.map_err(|e| ClientError::StringError(Box::new(e)))?;
+        let erc20_contract = Erc20::new(
+            erc20_address.parse().expect("Invalid ERC20 address"),
+            provider,
+        );
+        let manager_address = "0x1b4f369b585D40a27F66775844FC265151f278A4"
+            .parse()
+            .expect("Invalid manager address");
+        let allowance = erc20_contract
+            .allowance(
+                self.wallet_address.parse().expect("Invalid wallet address"),
+                manager_address,
+            )
+            .call()
+            .await
+            .map_err(|e| ClientError::StringError(Box::new(e)))?;
         let decimals = self.erc20_cache.get(&format!("{:?}", asset)).expect("ERC20 asset details not found in cache. Please ensure the asset is supported and cached.").erc20.decimals;
         let amount_in_wei = amount * BigDecimal::from(10u64.pow(decimals as u32));
-        let allowance_decimal = BigDecimal::from_str(&allowance.to_string()).map_err(|e| ClientError::StringError(Box::new(e)))?;
-        println!("Allowance: {}, Amount in Wei: {}", allowance_decimal, amount_in_wei);
+        let allowance_decimal = BigDecimal::from_str(&allowance.to_string())
+            .map_err(|e| ClientError::StringError(Box::new(e)))?;
+        println!(
+            "Allowance: {}, Amount in Wei: {}",
+            allowance_decimal, amount_in_wei
+        );
         Ok(allowance_decimal >= amount_in_wei)
     }
 
-    pub fn approve(&self, asset: SupportDepositAssets, amount: BigDecimal) -> Result<TxHash, ClientError> {
+    pub fn approve(
+        &self,
+        _asset: SupportDepositAssets,
+        _amount: BigDecimal,
+    ) -> Result<TxHash, ClientError> {
         // Implement the logic to approve the necessary amount of the asset for deposit
         Ok(TxHash::default())
     }
