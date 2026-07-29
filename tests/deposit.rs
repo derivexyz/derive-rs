@@ -2,7 +2,7 @@ use std::str::FromStr;
 
 use alloy::primitives::Address;
 use bigdecimal::BigDecimal;
-use derive_rs::actions::{DepositArgs, SupportDepositAssets};
+use derive_rs::actions::{DepositArgs, DepositTypes, DirectDepositType, SupportDepositAssets};
 
 mod common;
 
@@ -23,6 +23,14 @@ async fn test_deposit() {
         // .max_fee_usd(BigDecimal::from_str("1.00").unwrap())
         .amount(BigDecimal::from_str("10.00").unwrap())
         .recepient_address(address)
+        .subaccount_id(
+            ws_client
+                .subaccount_id
+                .expect("Must set for deposit to subaccount"),
+        )
+        .deposit_type(DepositTypes::Direct(
+            DirectDepositType::DepositToNewSubaccount,
+        ))
         // .force_batch(false)
         .build();
 
@@ -32,4 +40,10 @@ async fn test_deposit() {
         "Deposit failed: {:?}",
         deposit_result.err()
     );
+
+    let hashes = deposit_result.unwrap();
+
+    for hash in hashes {
+        println!("Deposit transaction hash: {:?}", hash);
+    }
 }

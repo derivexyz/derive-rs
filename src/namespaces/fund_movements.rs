@@ -1,6 +1,8 @@
 use alloy::primitives::TxHash;
 
 use crate::{
+    actions::{ActionData, DepositArgs, DepositManager, ModuleType, WithdrawArgs, WithdrawData},
+    models::openapi::PrivateWithdrawResponse,
     actions::{
         ActionData, DepositArgs, DepositManager, ModuleType, SpotTransferArgs, SpotTransferData,
         WithdrawArgs, WithdrawData,
@@ -54,52 +56,6 @@ impl<'a> FundMovementsNamespace<'a> {
             .withdraw(params)
             .await
         // Ok(SignableRequest::new())
-    }
-
-    pub async fn transfer_spot(
-        &self,
-        args: SpotTransferArgs,
-    ) -> Result<PrivateTransferSpotResponse, ClientError> {
-        let signer = self.ws_client.wallet.clone().unwrap();
-
-        let wallet = self
-            .ws_client
-            .smart_contract_wallet_address
-            .clone()
-            .unwrap();
-        let env = &self.ws_client.environment;
-
-        let erc20_details = self.ws_client
-            .erc20_cache
-            .get(&args.asset)
-            .expect("ERC20 asset details not found in cache. Please ensure the asset is supported and cached.")
-            .clone();
-
-        let asset = self.ws_client
-            .assets_cache
-            .get(&args.asset)
-            .expect("Asset details not found in cache. Please ensure the asset is supported and cached.")
-            .clone();
-
-        let data = SpotTransferData::from_args(args.clone(), erc20_details.clone(), asset.clone())?;
-        let action = ActionData::new(
-            data,
-            args.subaccount_id,
-            signer.address(),
-            &wallet.parse().expect("Couldnt parse wallet address"),
-            &self.ws_client.environment,
-            ModuleType::SpotTransfer,
-        )?;
-
-        let params = action.populate_transfer_spot_params(&signer, args.clone(), env, &asset)?;
-
-        println!("Transfer Spot params: {:?}", params);
-
-        self.ws_client
-            .rpc()
-            .transfers_withdrawals()
-            .transfer_spot(params)
-            .await
     }
 
     pub async fn deposit(&self, deposit_args: DepositArgs) -> Result<Vec<TxHash>, ClientError> {
