@@ -3,6 +3,11 @@ use alloy::primitives::TxHash;
 use crate::{
     actions::{ActionData, DepositArgs, DepositManager, ModuleType, WithdrawArgs, WithdrawData},
     models::openapi::PrivateWithdrawResponse,
+    actions::{
+        ActionData, DepositArgs, DepositManager, ModuleType, SpotTransferArgs, SpotTransferData,
+        WithdrawArgs, WithdrawData,
+    },
+    models::openapi::{PrivateTransferSpotResponse, PrivateWithdrawResponse},
     types::ClientError,
     ws_client::WsClient,
 };

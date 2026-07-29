@@ -19,7 +19,7 @@ pub trait ModuleData {
 
 pub enum ModuleType {
     Trade,
-    // SpotTransfer,
+    SpotTransfer,
     Withdraw,
     // RfqPositionTransfer,
     // ExternalTransfer,
@@ -33,6 +33,7 @@ fn get_trade_module(module: ModuleType) -> &'static str {
         ModuleType::Trade => "0xB8D20c2B7a1Ad2EE33Bc50eF10876eD3035b5e7b",
         ModuleType::CreateSessionKey => "0xe330CF64ff6EbF41699aad344Cb21d78db1D2bb6",
         ModuleType::Withdraw => "0x9d0E8f5b25384C7310CB8C6aE32C8fbeb645d083",
+        ModuleType::SpotTransfer => "0x01259207A40925b794C8ac320456F7F6c8FE2636",
     }
 }
 
