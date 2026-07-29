@@ -10925,6 +10925,154 @@ impl PrivateGetSubaccountsResponse {
         Default::default()
     }
 }
+///`PrivateLiquidateRequest`
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "type": "object",
+///  "required": [
+///    "cash_transfer",
+///    "last_seen_trade_id",
+///    "liquidated_account_id",
+///    "merge_account",
+///    "nonce",
+///    "percent_of_acc",
+///    "price_limit",
+///    "signature",
+///    "signature_expiry_sec",
+///    "signer",
+///    "subaccount_id"
+///  ],
+///  "properties": {
+///    "cash_transfer": {
+///      "description": "Cash to transfer during liquidation, in USD as a decimal string (e.g. `\"5.0\"`) or a JSON number.",
+///      "type": "string",
+///      "format": "decimal",
+///      "x-rust-type": {
+///        "crate": "bigdecimal",
+///        "path": "bigdecimal::BigDecimal",
+///        "version": ">=0.4.0, <0.5.0"
+///      }
+///    },
+///    "last_seen_trade_id": {
+///      "type": "integer",
+///      "format": "uint64",
+///      "minimum": 0.0
+///    },
+///    "liquidated_account_id": {
+///      "description": "Account being liquidated.",
+///      "type": "integer",
+///      "format": "uint64",
+///      "minimum": 0.0
+///    },
+///    "merge_account": {
+///      "type": "boolean"
+///    },
+///    "nonce": {
+///      "type": "integer",
+///      "format": "int64"
+///    },
+///    "percent_of_acc": {
+///      "description": "Fraction of the account to liquidate (`\"1.0\"` = 100%), decimal string or JSON number.",
+///      "type": "string",
+///      "format": "decimal",
+///      "x-rust-type": {
+///        "crate": "bigdecimal",
+///        "path": "bigdecimal::BigDecimal",
+///        "version": ">=0.4.0, <0.5.0"
+///      }
+///    },
+///    "price_limit": {
+///      "description": "Signed limit price (`\"0\"` opts out), decimal string or JSON number.",
+///      "type": "string",
+///      "format": "decimal",
+///      "x-rust-type": {
+///        "crate": "bigdecimal",
+///        "path": "bigdecimal::BigDecimal",
+///        "version": ">=0.4.0, <0.5.0"
+///      }
+///    },
+///    "signature": {
+///      "type": "string"
+///    },
+///    "signature_expiry_sec": {
+///      "type": "integer",
+///      "format": "uint64",
+///      "minimum": 0.0
+///    },
+///    "signer": {
+///      "type": "string"
+///    },
+///    "subaccount_id": {
+///      "description": "Bidder subaccount.",
+///      "type": "integer",
+///      "format": "uint64",
+///      "minimum": 0.0
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct PrivateLiquidateRequest {
+    ///Cash to transfer during liquidation, in USD as a decimal string (e.g. `"5.0"`) or a JSON number.
+    pub cash_transfer: ::bigdecimal::BigDecimal,
+    pub last_seen_trade_id: u64,
+    ///Account being liquidated.
+    pub liquidated_account_id: u64,
+    pub merge_account: bool,
+    pub nonce: i64,
+    ///Fraction of the account to liquidate (`"1.0"` = 100%), decimal string or JSON number.
+    pub percent_of_acc: ::bigdecimal::BigDecimal,
+    ///Signed limit price (`"0"` opts out), decimal string or JSON number.
+    pub price_limit: ::bigdecimal::BigDecimal,
+    pub signature: ::std::string::String,
+    pub signature_expiry_sec: u64,
+    pub signer: ::std::string::String,
+    ///Bidder subaccount.
+    pub subaccount_id: u64,
+}
+impl PrivateLiquidateRequest {
+    pub fn builder() -> builder::PrivateLiquidateRequest {
+        Default::default()
+    }
+}
+///`PrivateLiquidateResponse`
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "type": "object",
+///  "required": [
+///    "op_uuid",
+///    "operation_id"
+///  ],
+///  "properties": {
+///    "op_uuid": {
+///      "type": "string"
+///    },
+///    "operation_id": {
+///      "type": "integer",
+///      "format": "uint64",
+///      "minimum": 0.0
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct PrivateLiquidateResponse {
+    pub op_uuid: ::std::string::String,
+    pub operation_id: u64,
+}
+impl PrivateLiquidateResponse {
+    pub fn builder() -> builder::PrivateLiquidateResponse {
+        Default::default()
+    }
+}
 ///`PrivateSessionKeysResponse`
 ///
 /// <details><summary>JSON schema</summary>
@@ -11929,6 +12077,71 @@ pub struct PublicSendQuoteDebugRequest {
 }
 impl PublicSendQuoteDebugRequest {
     pub fn builder() -> builder::PublicSendQuoteDebugRequest {
+        Default::default()
+    }
+}
+///`PublicStartAuctionRequest`
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "type": "object",
+///  "required": [
+///    "subaccount_id"
+///  ],
+///  "properties": {
+///    "subaccount_id": {
+///      "description": "Subaccount to auction.",
+///      "type": "integer",
+///      "format": "uint64",
+///      "minimum": 0.0
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct PublicStartAuctionRequest {
+    ///Subaccount to auction.
+    pub subaccount_id: u64,
+}
+impl PublicStartAuctionRequest {
+    pub fn builder() -> builder::PublicStartAuctionRequest {
+        Default::default()
+    }
+}
+///`PublicStartAuctionResponse`
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "type": "object",
+///  "required": [
+///    "op_uuid",
+///    "operation_id"
+///  ],
+///  "properties": {
+///    "op_uuid": {
+///      "type": "string"
+///    },
+///    "operation_id": {
+///      "type": "integer",
+///      "format": "uint64",
+///      "minimum": 0.0
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct PublicStartAuctionResponse {
+    pub op_uuid: ::std::string::String,
+    pub operation_id: u64,
+}
+impl PublicStartAuctionResponse {
+    pub fn builder() -> builder::PublicStartAuctionResponse {
         Default::default()
     }
 }
@@ -36263,6 +36476,287 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
+    pub struct PrivateLiquidateRequest {
+        cash_transfer: ::std::result::Result<
+            ::bigdecimal::BigDecimal,
+            ::std::string::String,
+        >,
+        last_seen_trade_id: ::std::result::Result<u64, ::std::string::String>,
+        liquidated_account_id: ::std::result::Result<u64, ::std::string::String>,
+        merge_account: ::std::result::Result<bool, ::std::string::String>,
+        nonce: ::std::result::Result<i64, ::std::string::String>,
+        percent_of_acc: ::std::result::Result<
+            ::bigdecimal::BigDecimal,
+            ::std::string::String,
+        >,
+        price_limit: ::std::result::Result<
+            ::bigdecimal::BigDecimal,
+            ::std::string::String,
+        >,
+        signature: ::std::result::Result<::std::string::String, ::std::string::String>,
+        signature_expiry_sec: ::std::result::Result<u64, ::std::string::String>,
+        signer: ::std::result::Result<::std::string::String, ::std::string::String>,
+        subaccount_id: ::std::result::Result<u64, ::std::string::String>,
+    }
+    impl ::std::default::Default for PrivateLiquidateRequest {
+        fn default() -> Self {
+            Self {
+                cash_transfer: Err("no value supplied for cash_transfer".to_string()),
+                last_seen_trade_id: Err(
+                    "no value supplied for last_seen_trade_id".to_string(),
+                ),
+                liquidated_account_id: Err(
+                    "no value supplied for liquidated_account_id".to_string(),
+                ),
+                merge_account: Err("no value supplied for merge_account".to_string()),
+                nonce: Err("no value supplied for nonce".to_string()),
+                percent_of_acc: Err("no value supplied for percent_of_acc".to_string()),
+                price_limit: Err("no value supplied for price_limit".to_string()),
+                signature: Err("no value supplied for signature".to_string()),
+                signature_expiry_sec: Err(
+                    "no value supplied for signature_expiry_sec".to_string(),
+                ),
+                signer: Err("no value supplied for signer".to_string()),
+                subaccount_id: Err("no value supplied for subaccount_id".to_string()),
+            }
+        }
+    }
+    impl PrivateLiquidateRequest {
+        pub fn cash_transfer<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::bigdecimal::BigDecimal>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.cash_transfer = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for cash_transfer: {e}")
+                });
+            self
+        }
+        pub fn last_seen_trade_id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<u64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.last_seen_trade_id = value
+                .try_into()
+                .map_err(|e| {
+                    format!(
+                        "error converting supplied value for last_seen_trade_id: {e}"
+                    )
+                });
+            self
+        }
+        pub fn liquidated_account_id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<u64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.liquidated_account_id = value
+                .try_into()
+                .map_err(|e| {
+                    format!(
+                        "error converting supplied value for liquidated_account_id: {e}"
+                    )
+                });
+            self
+        }
+        pub fn merge_account<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<bool>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.merge_account = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for merge_account: {e}")
+                });
+            self
+        }
+        pub fn nonce<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<i64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.nonce = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for nonce: {e}"));
+            self
+        }
+        pub fn percent_of_acc<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::bigdecimal::BigDecimal>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.percent_of_acc = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for percent_of_acc: {e}")
+                });
+            self
+        }
+        pub fn price_limit<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::bigdecimal::BigDecimal>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.price_limit = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for price_limit: {e}")
+                });
+            self
+        }
+        pub fn signature<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.signature = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for signature: {e}")
+                });
+            self
+        }
+        pub fn signature_expiry_sec<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<u64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.signature_expiry_sec = value
+                .try_into()
+                .map_err(|e| {
+                    format!(
+                        "error converting supplied value for signature_expiry_sec: {e}"
+                    )
+                });
+            self
+        }
+        pub fn signer<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.signer = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for signer: {e}"));
+            self
+        }
+        pub fn subaccount_id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<u64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.subaccount_id = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for subaccount_id: {e}")
+                });
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<PrivateLiquidateRequest>
+    for super::PrivateLiquidateRequest {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: PrivateLiquidateRequest,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                cash_transfer: value.cash_transfer?,
+                last_seen_trade_id: value.last_seen_trade_id?,
+                liquidated_account_id: value.liquidated_account_id?,
+                merge_account: value.merge_account?,
+                nonce: value.nonce?,
+                percent_of_acc: value.percent_of_acc?,
+                price_limit: value.price_limit?,
+                signature: value.signature?,
+                signature_expiry_sec: value.signature_expiry_sec?,
+                signer: value.signer?,
+                subaccount_id: value.subaccount_id?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::PrivateLiquidateRequest>
+    for PrivateLiquidateRequest {
+        fn from(value: super::PrivateLiquidateRequest) -> Self {
+            Self {
+                cash_transfer: Ok(value.cash_transfer),
+                last_seen_trade_id: Ok(value.last_seen_trade_id),
+                liquidated_account_id: Ok(value.liquidated_account_id),
+                merge_account: Ok(value.merge_account),
+                nonce: Ok(value.nonce),
+                percent_of_acc: Ok(value.percent_of_acc),
+                price_limit: Ok(value.price_limit),
+                signature: Ok(value.signature),
+                signature_expiry_sec: Ok(value.signature_expiry_sec),
+                signer: Ok(value.signer),
+                subaccount_id: Ok(value.subaccount_id),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct PrivateLiquidateResponse {
+        op_uuid: ::std::result::Result<::std::string::String, ::std::string::String>,
+        operation_id: ::std::result::Result<u64, ::std::string::String>,
+    }
+    impl ::std::default::Default for PrivateLiquidateResponse {
+        fn default() -> Self {
+            Self {
+                op_uuid: Err("no value supplied for op_uuid".to_string()),
+                operation_id: Err("no value supplied for operation_id".to_string()),
+            }
+        }
+    }
+    impl PrivateLiquidateResponse {
+        pub fn op_uuid<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.op_uuid = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for op_uuid: {e}")
+                });
+            self
+        }
+        pub fn operation_id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<u64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.operation_id = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for operation_id: {e}")
+                });
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<PrivateLiquidateResponse>
+    for super::PrivateLiquidateResponse {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: PrivateLiquidateResponse,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                op_uuid: value.op_uuid?,
+                operation_id: value.operation_id?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::PrivateLiquidateResponse>
+    for PrivateLiquidateResponse {
+        fn from(value: super::PrivateLiquidateResponse) -> Self {
+            Self {
+                op_uuid: Ok(value.op_uuid),
+                operation_id: Ok(value.operation_id),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
     pub struct PrivateSessionKeysResponse {
         public_session_keys: ::std::result::Result<
             ::std::vec::Vec<super::SessionKey>,
@@ -38202,6 +38696,110 @@ pub mod builder {
                 signature_expiry_sec: Ok(value.signature_expiry_sec),
                 signer: Ok(value.signer),
                 subaccount_id: Ok(value.subaccount_id),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct PublicStartAuctionRequest {
+        subaccount_id: ::std::result::Result<u64, ::std::string::String>,
+    }
+    impl ::std::default::Default for PublicStartAuctionRequest {
+        fn default() -> Self {
+            Self {
+                subaccount_id: Err("no value supplied for subaccount_id".to_string()),
+            }
+        }
+    }
+    impl PublicStartAuctionRequest {
+        pub fn subaccount_id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<u64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.subaccount_id = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for subaccount_id: {e}")
+                });
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<PublicStartAuctionRequest>
+    for super::PublicStartAuctionRequest {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: PublicStartAuctionRequest,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                subaccount_id: value.subaccount_id?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::PublicStartAuctionRequest>
+    for PublicStartAuctionRequest {
+        fn from(value: super::PublicStartAuctionRequest) -> Self {
+            Self {
+                subaccount_id: Ok(value.subaccount_id),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct PublicStartAuctionResponse {
+        op_uuid: ::std::result::Result<::std::string::String, ::std::string::String>,
+        operation_id: ::std::result::Result<u64, ::std::string::String>,
+    }
+    impl ::std::default::Default for PublicStartAuctionResponse {
+        fn default() -> Self {
+            Self {
+                op_uuid: Err("no value supplied for op_uuid".to_string()),
+                operation_id: Err("no value supplied for operation_id".to_string()),
+            }
+        }
+    }
+    impl PublicStartAuctionResponse {
+        pub fn op_uuid<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.op_uuid = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for op_uuid: {e}")
+                });
+            self
+        }
+        pub fn operation_id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<u64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.operation_id = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for operation_id: {e}")
+                });
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<PublicStartAuctionResponse>
+    for super::PublicStartAuctionResponse {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: PublicStartAuctionResponse,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                op_uuid: value.op_uuid?,
+                operation_id: value.operation_id?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::PublicStartAuctionResponse>
+    for PublicStartAuctionResponse {
+        fn from(value: super::PublicStartAuctionResponse) -> Self {
+            Self {
+                op_uuid: Ok(value.op_uuid),
+                operation_id: Ok(value.operation_id),
             }
         }
     }

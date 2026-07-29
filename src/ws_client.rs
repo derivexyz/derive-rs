@@ -25,7 +25,10 @@ use yawc::{Frame, OpCode};
 use crate::{
     models::{
         asyncapi_rpc::{SetCancelOnDisconnectRequest, SetCancelOnDisconnectResponse},
-        openapi::{AssetType, GetAllInstrumentsRequest, Instrument, SpotAssetEntry},
+        openapi::{
+            Asset, AssetType, GetAllInstrumentsRequest, GetAssetsRequest, Instrument, RiskUniverse,
+            SpotAssetEntry,
+        },
     },
     namespaces::{
         fund_movements::FundMovementsNamespace, orders::OrdersNamespace, session_keys::SessionKeys,
@@ -68,6 +71,8 @@ pub struct WsClient {
     shutdown_tx: watch::Sender<bool>,
     pub instruments_cache: Arc<DashMap<String, Instrument>>,
     pub erc20_cache: Arc<DashMap<String, SpotAssetEntry>>,
+    pub risk_universe_cache: Arc<DashMap<String, RiskUniverse>>,
+    pub assets_cache: Arc<DashMap<String, Asset>>,
     connection_state_rx: watch::Receiver<ExternalEvent>,
     current_connection_state: Arc<Mutex<ExternalEvent>>,
     supervisor_handle: Arc<Mutex<Option<JoinHandle<()>>>>,
@@ -125,26 +130,6 @@ impl WsClient {
         .await?;
         Ok(client)
     }
-
-    // pub fn account(&self) -> AccountNamespace<'_> {
-    //     AccountNamespace { ws_client: self }
-    // }
-
-    // pub fn collaterals(&self) -> CollateralsNamespace<'_> {
-    //     CollateralsNamespace { ws_client: self }
-    // }
-
-    // pub fn orders(&self) -> OrdersNamespace<'_> {
-    //     OrdersNamespace { ws_client: self }
-    // }
-
-    // pub fn positions(&self) -> PositionsNamespace<'_> {
-    //     PositionsNamespace { ws_client: self }
-    // }
-
-    // pub fn subaccount(&self) -> SubaccountNamespace<'_> {
-    //     SubaccountNamespace { ws_client: self }
-    // }
 
     pub async fn new_public(environment: Environment) -> Result<Self, ClientError> {
         let client = WsClient::new(environment, None, None, None).await?;
@@ -220,10 +205,14 @@ impl WsClient {
             subaccount_id,
             instruments_cache: Arc::new(DashMap::new()),
             erc20_cache: Arc::new(DashMap::new()),
+            risk_universe_cache: Arc::new(DashMap::new()),
+            assets_cache: Arc::new(DashMap::new()),
             environment: env,
         };
         client.cache_instruments().await?;
         client.cache_erc20_assets().await?;
+        client.cache_risk_universes().await?;
+        client.cache_assets().await?;
         // if private_key.is_some() {
         //     client.wait_for_connection().await;
         // }
@@ -562,6 +551,34 @@ impl WsClient {
         for entry in asset_name_to_erc20_details.iter() {
             self.erc20_cache
                 .insert(entry.key().clone(), entry.value().clone());
+        }
+        Ok(())
+    }
+
+    async fn cache_risk_universes(&self) -> Result<(), ClientError> {
+        let risk_universes = self.rpc().market_data().get_risk_universes().await?;
+        self.risk_universe_cache.clear();
+        for entry in risk_universes.iter() {
+            if let Some(name) = &entry.name {
+                println!("Caching risk universe: {}", name);
+                self.risk_universe_cache.insert(name.clone(), entry.clone());
+            }
+        }
+        Ok(())
+    }
+
+    async fn cache_assets(&self) -> Result<(), ClientError> {
+        let assets_params = GetAssetsRequest::builder()
+            .asset_type(AssetType::Erc20)
+            .currency("USDC")
+            .expired(false)
+            .try_into()?;
+        let assets = self.rpc().market_data().get_assets(assets_params).await?;
+        self.assets_cache.clear();
+        for entry in assets.iter() {
+            println!("Caching asset: {}", entry.asset_name);
+            self.assets_cache
+                .insert(entry.asset_name.clone(), entry.clone());
         }
         Ok(())
     }

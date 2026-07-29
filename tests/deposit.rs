@@ -2,7 +2,7 @@ use std::str::FromStr;
 
 use alloy::primitives::Address;
 use bigdecimal::BigDecimal;
-use derive_rs::actions::{DepositArgs, SupportDepositAssets, WithdrawArgs};
+use derive_rs::actions::{DepositArgs, SupportDepositAssets};
 
 mod common;
 
@@ -33,4 +33,3 @@ async fn test_deposit() {
         deposit_result.err()
     );
 }
-

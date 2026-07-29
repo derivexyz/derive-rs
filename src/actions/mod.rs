@@ -13,6 +13,9 @@ pub use deposit::*;
 // pub use helpers::*;
 // mod helpers;
 
+pub mod spot_transfer;
+pub use spot_transfer::*;
+
 // pub mod liquidate;
 // pub mod deposit;
 // pub mod rfq;

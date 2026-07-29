@@ -4,7 +4,7 @@ use crate::{
         market_data::MarketDataNamespace,
         market_maker_protection::MarketMakerProtectionNamespace,
         onchain_actions::OnchainActionsNamespace, orderbook::OrderbookNamespace,
-        referrals::ReferralsNamespace, rfq::RfqNamespace,
+        other::OtherNamespace, referrals::ReferralsNamespace, rfq::RfqNamespace,
         session_keys::SessionKeysNamespace, subaccounts::SubaccountsNamespace,
         system::SystemNamespace, transfers_withdrawals::TransfersWithdrawalsNamespace,
         vault_curators::VaultCuratorsNamespace,
@@ -18,6 +18,7 @@ pub mod market_data;
 pub mod market_maker_protection;
 pub mod onchain_actions;
 pub mod orderbook;
+pub mod other;
 pub mod referrals;
 pub mod rfq;
 pub mod session_keys;
@@ -50,6 +51,9 @@ impl<'a> Rpc<'a> {
     }
     pub fn orderbook(&self) -> OrderbookNamespace<'a> {
         OrderbookNamespace::new(self.client)
+    }
+    pub fn other(&self) -> OtherNamespace<'a> {
+        OtherNamespace::new(self.client)
     }
     pub fn referrals(&self) -> ReferralsNamespace<'a> {
         ReferralsNamespace::new(self.client)
