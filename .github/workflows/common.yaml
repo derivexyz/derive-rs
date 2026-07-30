@@ -22,6 +22,14 @@ jobs:
           sudo apt-get update && \
           sudo apt-get install yq jq -y
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install Redocly CLI
+        run: npm install --global @redocly/cli@2.17.0
+
       - name: Install Rust
         uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
