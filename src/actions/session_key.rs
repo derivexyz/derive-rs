@@ -99,11 +99,6 @@ sol! {
 }
 
 impl ModuleData for CreateSessionKeyData {
-    fn address(&self) -> Address {
-        panic!(
-            "ModuleData for TradeData should not be used directly, it should be encoded into ActionData with ActionData::new"
-        );
-    }
     fn get_action_data(&self) -> Vec<u8> {
         let mut output =
             Vec::with_capacity(32 * (4 + self.scopes.len() + self.subaccount_ids.len()));

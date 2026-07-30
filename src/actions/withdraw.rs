@@ -40,11 +40,6 @@ sol! {
 }
 
 impl ModuleData for WithdrawData {
-    fn address(&self) -> Address {
-        panic!(
-            "ModuleData for WithdrawData should not be used directly, it should be encoded into ActionData with ActionData::new"
-        );
-    }
     fn get_action_data(&self) -> Vec<u8> {
         self.abi_encode()
     }

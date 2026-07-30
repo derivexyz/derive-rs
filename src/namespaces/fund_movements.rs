@@ -1,14 +1,28 @@
+use std::collections::HashMap;
+
 use alloy::primitives::TxHash;
 
 use crate::{
     actions::{
         ActionData, DepositArgs, DepositManager, ModuleType, SpotTransferArgs, SpotTransferData,
-        WithdrawArgs, WithdrawData,
+        TransferPositionsArgs, WithdrawArgs, WithdrawData,
     },
-    models::openapi::{PrivateTransferSpotResponse, PrivateWithdrawResponse},
+    models::openapi::{
+        Direction, Instrument, PrivateTransferSpotResponse, PrivateWithdrawResponse,
+        TransferPositionsResponse,
+    },
     types::ClientError,
     ws_client::WsClient,
 };
+
+impl Direction {
+    pub fn opposite(&self) -> Self {
+        match self {
+            Direction::Buy => Direction::Sell,
+            Direction::Sell => Direction::Buy,
+        }
+    }
+}
 pub struct FundMovementsNamespace<'a> {
     pub ws_client: &'a WsClient,
 }
@@ -70,7 +84,7 @@ impl<'a> FundMovementsNamespace<'a> {
             .expect("Must have set smart contract wallet address to deposit");
         let erc20_cache = self.ws_client.erc20_cache.clone();
         let deposit_manager =
-            DepositManager::new(&deposit_args, &private_key, &wallet, env, &erc20_cache).await?;
+            DepositManager::new(&deposit_args, &private_key, &wallet, env, erc20_cache)?;
         let hashes = deposit_manager.deposit().await?;
         Ok(hashes)
     }
@@ -120,34 +134,58 @@ impl<'a> FundMovementsNamespace<'a> {
             .await
     }
 
-    pub async fn transfer_position(&self, args: PositionTransferArgs) -> Result<PrivatePositionTransferResponse, ClientError> {
+    pub async fn transfer_positions(
+        &self,
+        args: TransferPositionsArgs,
+    ) -> Result<TransferPositionsResponse, ClientError> {
         let signer = self.ws_client.wallet.clone().unwrap();
 
-        let wallet = self
-            .ws_client
-            .smart_contract_wallet_address
-            .clone()
-            .unwrap();
+        // let subaccount_id = self.ws_client.subaccount_id.unwrap();
+        // let wallet = self
+        //     .ws_client
+        //     .smart_contract_wallet_address
+        //     .clone()
+        //     .unwrap();
         let env = &self.ws_client.environment;
 
-        let data = PositionTransferData::from_args(args.clone())?;
-        let action = ActionData::new(
-            data,
-            args.subaccount_id,
-            signer.address(),
-            &wallet.parse().expect("Couldnt parse wallet address"),
-            &self.ws_client.environment,
-            ModuleType::PositionTransfer,
-        )?;
+        let required_instruments: Vec<String> = args
+            .legs
+            .iter()
+            .map(|leg| leg.instrument_name.clone())
+            .collect();
 
-        let params = action.populate_transfer_position_params(&signer, args.clone(), env)?;
+        let instruments: HashMap<String, Instrument> = self
+            .ws_client
+            .instruments_cache
+            .iter()
+            .filter_map(|entry| {
+                let instrument = entry.value();
+                if required_instruments.contains(&instrument.instrument_name) {
+                    Some((instrument.instrument_name.clone(), instrument.clone()))
+                } else {
+                    None
+                }
+            })
+            .collect::<HashMap<String, Instrument>>();
+
+        let params = ActionData::populate_transfer_positions(
+            &signer,
+            args.clone(),
+            env,
+            &self
+                .ws_client
+                .smart_contract_wallet_address
+                .clone()
+                .unwrap(),
+            &instruments,
+        )?;
 
         println!("Transfer Position params: {:?}", params);
 
         self.ws_client
             .rpc()
             .transfers_withdrawals()
-            .transfer_position(params)
+            .transfer_positions(params)
             .await
     }
 }
