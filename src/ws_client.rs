@@ -19,7 +19,7 @@ use std::{
     },
 };
 use tokio::sync::{Mutex, mpsc, watch};
-use tracing::{error, info, warn};
+use tracing::{debug, error, info, warn};
 use yawc::{Frame, OpCode};
 
 use crate::{
@@ -560,7 +560,7 @@ impl WsClient {
         self.risk_universe_cache.clear();
         for entry in risk_universes.iter() {
             if let Some(name) = &entry.name {
-                println!("Caching risk universe: {}", name);
+                debug!("Caching risk universe: {}", name);
                 self.risk_universe_cache.insert(name.clone(), entry.clone());
             }
         }
@@ -576,7 +576,7 @@ impl WsClient {
         let assets = self.rpc().market_data().get_assets(assets_params).await?;
         self.assets_cache.clear();
         for entry in assets.iter() {
-            println!("Caching asset: {}", entry.asset_name);
+            debug!("Caching asset: {}", entry.asset_name);
             self.assets_cache
                 .insert(entry.asset_name.clone(), entry.clone());
         }

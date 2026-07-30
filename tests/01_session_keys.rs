@@ -10,7 +10,7 @@ async fn test_ws_create_session_key() -> Result<(), Box<dyn std::error::Error>> 
         .await
         .expect("Failed to login to WS client");
 
-    let session_key_address = "0x4242424242424242424242424242424242424242";
+    let session_key_address = "0x4242424242424242424242424242424242424232";
     let expiry_second = (chrono::Utc::now().timestamp() + 300) as u64; // Set expiry to 5 minutes from now
 
     let session_key_args = CreateSessionKeyArgs::builder()
