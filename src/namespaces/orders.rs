@@ -105,50 +105,7 @@ impl<'a> OrdersNamespace<'a> {
 
         self.ws_client.rpc().orderbook().replace(params).await
     }
-    // pub async fn replace_order(
-    //     &self,
-    //     replace_params: PrivateReplaceParamsSchema,
-    // ) -> Result<PrivateReplaceResultSchema, ClientError> {
-    //     let subaccount_id = self.ws_client.subaccount_id.unwrap();
-    //     let signer = self.ws_client.wallet.clone().unwrap();
-    //     let instrument = self
-    //         .ws_client
-    //         .instruments_cache
-    //         .get(&replace_params.instrument_name)
-    //         .ok_or_else(|| {
-    //             format!(
-    //                 "Instrument {} not found in cache",
-    //                 replace_params.instrument_name
-    //             )
-    //         })
-    //         .unwrap();
-    //     let trade_data = TradeData::new(
-    //         &instrument,
-    //         // ticker,
-    //         subaccount_id,
-    //         replace_params.limit_price.clone(),
-    //         replace_params.amount.clone(),
-    //         replace_params.direction == DirectionEnum::Buy,
-    //     )?;
 
-    //     let order_action = ActionData::new(
-    //         trade_data,
-    //         subaccount_id,
-    //         signer.address(),
-    //         &self.ws_client.smart_contract_wallet_address.unwrap(),
-    //         &self.ws_client.environment,
-    //         ModuleType::Trade,
-    //     )?;
-    //     let params = order_action.populate_replace_params(
-    //         &signer,
-    //         replace_params.clone(),
-    //         &self.ws_client.environment,
-    //     )?;
-    //     let params_json = serde_json::to_value(&params)?;
-    //     self.ws_client
-    //         .send_rpc("private/replace", params_json)
-    //         .await
-    // }
     pub async fn cancel_order(&self, params: CancelOrderRequest) -> Result<Order, ClientError> {
         self.ws_client.rpc().orderbook().cancel(params).await
     }
