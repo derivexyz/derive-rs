@@ -17,8 +17,10 @@ use alloy_sol_types::sol;
 use anyhow::Result;
 use bigdecimal::BigDecimal;
 use serde::Deserialize;
+use uuid::Uuid;
 
 use crate::models::openapi::CreateOrderRequest as OrderParams;
+use crate::models::openapi::ReplaceOrderRequest as ReplaceParams;
 
 const REFFERAL_CODE: &str = "0x9135BA0f495244dc0A5F029b25CDE95157Db89AD";
 const CLIENT_NAME: &str = "8ballers-rust-sdk";
@@ -45,6 +47,26 @@ pub struct OrderArgs {
     pub reduce_only: Option<bool>,
     pub reject_post_only: Option<bool>,
 }
+
+#[derive(Clone, Debug, Deserialize, Builder)]
+pub struct ReplaceArgs {
+    #[builder(into)]
+    pub amount: BigDecimal,
+    #[builder(into)]
+    pub limit_price: BigDecimal,
+    pub direction: Direction,
+    pub time_in_force: TimeInForce,
+    pub order_type: OrderType,
+    pub label: Option<String>,
+    pub mmp: Option<bool>,
+    pub instrument_name: String,
+    pub reduce_only: Option<bool>,
+    pub reject_post_only: Option<bool>,
+    pub nonce_to_cancel: Option<i64>,
+    pub order_id_to_cancel: Option<Uuid>,
+    pub expected_filled_amount: Option<BigDecimal>,
+}
+
 pub fn get_reject_millis(time_in_force: &TimeInForce) -> Result<i64> {
     let reject_millis: i64 = 5000;
     let taker_speedbump: i64 = 150;
@@ -107,8 +129,6 @@ impl ActionData {
         args: OrderArgs,
         env: &Environment,
     ) -> Result<OrderParams> {
-        // let reject_millis = get_reject_millis(&args.time_in_force)?;
-        // we dont want to use the ticker as its fucking stupid.
         Ok(OrderParams {
             instrument_name: args.instrument_name,
             amount: args.amount,
@@ -120,11 +140,8 @@ impl ActionData {
             label: args.label,
             reduce_only: args.reduce_only,
             reject_post_only: args.reject_post_only,
-            // reject_timestamp: effectively time till liveness
             reject_timestamp: None,
-            // only used for vault controller orders
             is_atomic_signing: Some(false),
-            // we can set these values from the action data
             subaccount_id: i64::try_from(&self.subaccount_id)?,
             max_fee: default_max_fee(),
             nonce: self.nonce.to_string(),
@@ -143,48 +160,43 @@ impl ActionData {
         })
     }
 
-    // pub fn populate_replace_params(
-    //     self,
-    //     signer: &LocalWallet,
-    //     args: ReplaceParams,
-    //     env: &Environment,
-    // ) -> Result<ReplaceParams> {
-    //     // let reject_millis = get_reject_millis(&args.time_in_force)?;
-    //     // we dont want to use the ticker as its fucking stupid.
-    //     Ok(ReplaceParams {
-    //         instrument_name: args.instrument_name,
-    //         amount: args.amount,
-    //         limit_price: args.limit_price,
-    //         direction: args.direction,
-    //         time_in_force: args.time_in_force,
-    //         order_type: args.order_type,
-    //         mmp: args.mmp,
-    //         label: args.label,
-    //         reduce_only: args.reduce_only,
-    //         reject_post_only: args.reject_post_only,
-    //         // reject_timestamp: effectively time till liveness
-    //         reject_timestamp: None,
-    //         // only used for vault controller orders
-    //         is_atomic_signing: Some(Some(false)),
-    //         // we can set these values from the action data
-    //         subaccount_id: self.subaccount_id.as_u64() as i64,
-    //         max_fee: default_max_fee(),
-    //         nonce: self.nonce.as_u64() as i64,
-    //         signature_expiry_sec: self.expiry.as_u64() as i64,
-    //         signer: hex::encode_prefixed(self.signer),
-    //         referral_code: Some(REFFERAL_CODE.to_string()),
-    //         signature: format!("0x{}", signer.sign_hash(self.hash(env).into())?),
-    //         client: Some(Some(CLIENT_NAME.to_string())),
-    //         trigger_price: None,
-    //         trigger_price_type: None,
-    //         trigger_type: None,
-    //         extra_fee: None,
-    //         algo_duration_sec: None,
-    //         algo_num_slices: None,
-    //         algo_type: None,
-    //         nonce_to_cancel: args.nonce_to_cancel,
-    //         order_id_to_cancel: args.order_id_to_cancel,
-    //         expected_filled_amount: args.expected_filled_amount,
-    //     })
-    // }
+    pub fn populate_replace_params(
+        self,
+        signer: &PrivateKeySigner,
+        args: ReplaceArgs,
+        env: &Environment,
+    ) -> Result<ReplaceParams> {
+        Ok(ReplaceParams {
+            instrument_name: args.instrument_name,
+            amount: args.amount,
+            limit_price: args.limit_price,
+            direction: args.direction,
+            time_in_force: args.time_in_force,
+            order_type: args.order_type,
+            mmp: args.mmp,
+            label: args.label,
+            reduce_only: args.reduce_only,
+            reject_post_only: args.reject_post_only,
+            reject_timestamp: None,
+            is_atomic_signing: Some(false),
+            subaccount_id: i64::try_from(&self.subaccount_id)?,
+            max_fee: default_max_fee(),
+            nonce: self.nonce.to_string(),
+            signature_expiry_sec: i64::try_from(&self.expiry)?,
+            signer: encode_prefixed(self.signer),
+            referral_code: Some(REFFERAL_CODE.to_string()),
+            signature: format!("{}", signer.sign_hash_sync(&self.hash(env).clone())?),
+            client: Some(CLIENT_NAME.to_string()),
+            trigger_price: None,
+            trigger_price_type: None,
+            trigger_type: None,
+            extra_fee: None,
+            algo_duration_sec: None,
+            algo_num_slices: None,
+            algo_type: None,
+            nonce_to_cancel: args.nonce_to_cancel,
+            order_id_to_cancel: args.order_id_to_cancel,
+            expected_filled_amount: args.expected_filled_amount,
+        })
+    }
 }

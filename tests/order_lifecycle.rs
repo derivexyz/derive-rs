@@ -1,14 +1,14 @@
 use std::str::FromStr;
 
 use derive_rs::{
-    actions::OrderArgs,
+    actions::{OrderArgs, ReplaceArgs},
     models::openapi::{
-        CancelOrderRequest, Direction, GetInstrumentRequest, GetTickerRequest, OrderType,
-        TimeInForce,
+        CancelOrderRequest, Direction, GetInstrumentRequest, GetTickerRequest, OrderStatus,
+        OrderType, TimeInForce,
     },
 };
 
-use bigdecimal::BigDecimal;
+use bigdecimal::{BigDecimal, FromPrimitive};
 mod common;
 
 #[tokio::test]
@@ -63,11 +63,68 @@ async fn test_ws_order_lifecycle() {
         order_result.err()
     );
 
-    // we now have an order, we can cancel it
+    // we fetch the order from the rpc to be sure it was created correctly.
+    let order_id = order_result.as_ref().unwrap().order.order_id.clone();
+    let existing_order = ws_client.orders().get_order(order_id).await;
+    assert!(
+        existing_order.is_ok(),
+        "Get Order by ID failed: {:?}",
+        existing_order.err()
+    );
+    // we ensure it is is open;
+    let order = existing_order.unwrap();
+    assert!(
+        order.order_status == OrderStatus::Open,
+        "Order is not open: {:?}",
+        order.order_status
+    );
+    // we now update the order.
+
     let order = order_result.unwrap();
+
+    println!("Order created: {:?}", order);
+    // sleep(std::time::Duration::from_secs(1)).await;
+
+    let replace_params = ReplaceArgs::builder()
+        .instrument_name(instrument_name.clone())
+        .amount(
+            BigDecimal::from_str(&instrument.minimum_amount)
+                .expect("Failed to parse minimum amount"),
+        )
+        .limit_price(ticker.i.clone() - BigDecimal::from_f64(1.0).expect("Failed to parse 1.01"))
+        .direction(Direction::Buy)
+        .order_type(OrderType::Limit)
+        .time_in_force(TimeInForce::Gtc)
+        .order_id_to_cancel(
+            order
+                .order
+                .order_id
+                .clone()
+                .parse()
+                .expect("Failed to parse order_id"),
+        )
+        // .nonce_to_cancel(order.order.nonce.parse().expect("Nonce is incorrect"))
+        .build();
+
+    let replace_result = ws_client.orders().replace(replace_params).await;
+    assert!(
+        replace_result.is_ok(),
+        "Replace Order failed: {:?}",
+        replace_result.err()
+    );
+
+    let replacement_order = replace_result.unwrap();
+
+    // we now have an order, we can cancel it
     let cancel_params = CancelOrderRequest::builder()
         .instrument_name(instrument_name)
-        .order_id(order.order.order_id.clone())
+        .order_id(
+            replacement_order
+                .order
+                .expect("We should have a replacement order")
+                .order_id
+                .clone(),
+        )
         .subaccount_id(ws_client.subaccount_id.expect("Must have a subaccount_id"))
         .try_into()
         .expect("Failed to build CancelOrderRequest");
