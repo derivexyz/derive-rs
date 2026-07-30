@@ -70,7 +70,7 @@ impl<'a> FundMovementsNamespace<'a> {
             .expect("Must have set smart contract wallet address to deposit");
         let erc20_cache = self.ws_client.erc20_cache.clone();
         let deposit_manager =
-            DepositManager::new(&deposit_args, &private_key, &wallet, env, erc20_cache)?;
+            DepositManager::new(&deposit_args, &private_key, &wallet, env, &erc20_cache).await?;
         let hashes = deposit_manager.deposit().await?;
         Ok(hashes)
     }
@@ -117,6 +117,37 @@ impl<'a> FundMovementsNamespace<'a> {
             .rpc()
             .transfers_withdrawals()
             .transfer_spot(params)
+            .await
+    }
+
+    pub async fn transfer_position(&self, args: PositionTransferArgs) -> Result<PrivatePositionTransferResponse, ClientError> {
+        let signer = self.ws_client.wallet.clone().unwrap();
+
+        let wallet = self
+            .ws_client
+            .smart_contract_wallet_address
+            .clone()
+            .unwrap();
+        let env = &self.ws_client.environment;
+
+        let data = PositionTransferData::from_args(args.clone())?;
+        let action = ActionData::new(
+            data,
+            args.subaccount_id,
+            signer.address(),
+            &wallet.parse().expect("Couldnt parse wallet address"),
+            &self.ws_client.environment,
+            ModuleType::PositionTransfer,
+        )?;
+
+        let params = action.populate_transfer_position_params(&signer, args.clone(), env)?;
+
+        println!("Transfer Position params: {:?}", params);
+
+        self.ws_client
+            .rpc()
+            .transfers_withdrawals()
+            .transfer_position(params)
             .await
     }
 }
