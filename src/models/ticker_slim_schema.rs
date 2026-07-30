@@ -9,8 +9,9 @@
  */
 
 #![allow(clippy::too_many_arguments)]
-use crate::models::openapi::{DailyTradingStatistics, OptionPricing};
 use serde::{Deserialize, Serialize};
+
+use crate::models::openapi::{DailyTradingStatistics, OptionPricing};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct TickerSlimSchema {

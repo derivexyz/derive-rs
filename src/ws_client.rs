@@ -1,16 +1,3 @@
-use dashmap::DashMap;
-
-use bytes::Bytes;
-use serde::de::DeserializeOwned;
-use tokio::{
-    sync::oneshot,
-    task::JoinHandle,
-    time::{Duration, Instant, MissedTickBehavior, interval, sleep},
-};
-
-use alloy::signers::local::PrivateKeySigner;
-use anyhow::anyhow;
-use futures_util::{SinkExt, StreamExt};
 use std::{
     env::var,
     sync::{
@@ -18,7 +5,18 @@ use std::{
         atomic::{AtomicU64, Ordering},
     },
 };
-use tokio::sync::{Mutex, mpsc, watch};
+
+use alloy::signers::local::PrivateKeySigner;
+use anyhow::anyhow;
+use bytes::Bytes;
+use dashmap::DashMap;
+use futures_util::{SinkExt, StreamExt};
+use serde::de::DeserializeOwned;
+use tokio::{
+    sync::{Mutex, mpsc, oneshot, watch},
+    task::JoinHandle,
+    time::{Duration, Instant, MissedTickBehavior, interval, sleep},
+};
 use tracing::{debug, error, info, warn};
 use yawc::{Frame, OpCode};
 

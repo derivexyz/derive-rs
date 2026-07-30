@@ -1,9 +1,10 @@
+use std::time::{SystemTime, UNIX_EPOCH};
+
 use alloy::{
     hex,
     signers::{Signer, local::PrivateKeySigner},
 };
 use serde_json::Value;
-use std::time::{SystemTime, UNIX_EPOCH};
 
 fn utc_now_ms() -> u128 {
     SystemTime::now()

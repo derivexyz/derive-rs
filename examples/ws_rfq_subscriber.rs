@@ -1,7 +1,8 @@
 mod common;
 
-use crate::common::get_test_ws_client;
 use tokio_stream::StreamExt;
+
+use crate::common::get_test_ws_client;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {

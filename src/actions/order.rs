@@ -1,26 +1,25 @@
-use crate::{
-    actions::{
-        ActionData, ModuleData,
-        utils::{decimal_to_i256, decimal_to_u256},
-    },
-    models::openapi::{Direction, Instrument, OrderType, TimeInForce},
-    types::Environment,
-};
-use alloy::signers::SignerSync;
 use alloy::{
     hex::encode_prefixed,
     primitives::{Address, U256},
-    signers::local::PrivateKeySigner,
+    signers::{SignerSync, local::PrivateKeySigner},
 };
-use alloy_sol_types::SolValue;
-use alloy_sol_types::sol;
+use alloy_sol_types::{SolValue, sol};
 use anyhow::Result;
 use bigdecimal::BigDecimal;
 use serde::Deserialize;
 use uuid::Uuid;
 
-use crate::models::openapi::CreateOrderRequest as OrderParams;
-use crate::models::openapi::ReplaceOrderRequest as ReplaceParams;
+use crate::{
+    actions::{
+        ActionData, ModuleData,
+        utils::{decimal_to_i256, decimal_to_u256},
+    },
+    models::openapi::{
+        CreateOrderRequest as OrderParams, Direction, Instrument, OrderType,
+        ReplaceOrderRequest as ReplaceParams, TimeInForce,
+    },
+    types::Environment,
+};
 
 const REFFERAL_CODE: &str = "0x9135BA0f495244dc0A5F029b25CDE95157Db89AD";
 const CLIENT_NAME: &str = "8ballers-rust-sdk";

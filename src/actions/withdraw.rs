@@ -1,5 +1,8 @@
-use alloy::signers::SignerSync;
-use alloy::{hex::encode_prefixed, primitives::Address, signers::local::PrivateKeySigner};
+use alloy::{
+    hex::encode_prefixed,
+    primitives::Address,
+    signers::{SignerSync, local::PrivateKeySigner},
+};
 use alloy_sol_types::{SolValue, sol};
 use anyhow::Result;
 use bigdecimal::BigDecimal;
