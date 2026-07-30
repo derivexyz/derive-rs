@@ -70,7 +70,7 @@ impl<'a> FundMovementsNamespace<'a> {
             .expect("Must have set smart contract wallet address to deposit");
         let erc20_cache = self.ws_client.erc20_cache.clone();
         let deposit_manager =
-            DepositManager::new(&deposit_args, &private_key, &wallet, env, &erc20_cache).await?;
+            DepositManager::new(&deposit_args, &private_key, &wallet, env, erc20_cache)?;
         let hashes = deposit_manager.deposit().await?;
         Ok(hashes)
     }

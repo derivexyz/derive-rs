@@ -62,6 +62,8 @@ pub enum ClientError {
     ApprovalError(String),
     #[error("Subaccount error: {0}")]
     SubaccountError(String),
+    #[error("Balance error: {0}")]
+    InsufficientBalance(String),
 }
 
 // environment enum
