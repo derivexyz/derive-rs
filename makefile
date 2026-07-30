@@ -45,7 +45,7 @@ lint:
 	cargo clippy --benches --examples --tests -- -D warnings 
 fmt:
 	cargo clippy --workspace --all-features --all-targets --tests --fix --allow-dirty -- -D warnings
-	cargo fmt --all
+	cargo +nightly fmt --all
 build:
 	cargo build --all-features
 test:

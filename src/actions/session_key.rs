@@ -1,15 +1,12 @@
-use alloy::signers::SignerSync;
 use alloy::{
     hex::encode_prefixed,
     primitives::{Address, U256},
-    signers::local::PrivateKeySigner,
+    signers::{SignerSync, local::PrivateKeySigner},
 };
-use alloy_sol_types::SolValue;
-use alloy_sol_types::sol;
+use alloy_sol_types::{SolValue, sol};
 use anyhow::Result;
 use bon::Builder;
 use serde::{Deserialize, Serialize};
-
 use strum::{Display, FromRepr};
 
 use crate::{

@@ -1,12 +1,11 @@
 use std::sync::Arc;
 
-use alloy::primitives::U256;
-use alloy::providers::ProviderBuilder;
 use alloy::{
-    primitives::{Address, TxHash},
+    primitives::{Address, TxHash, U256},
+    providers::ProviderBuilder,
     signers::local::PrivateKeySigner,
+    sol,
 };
-use alloy_sol_types::sol;
 use bigdecimal::BigDecimal;
 use bon::Builder;
 use dashmap::DashMap;
@@ -14,8 +13,8 @@ use reqwest::Url;
 use serde::Deserialize;
 use strum::EnumString;
 
-use crate::actions::utils::decimal_to_u256_with_prec;
 use crate::{
+    actions::utils::decimal_to_u256_with_prec,
     models::openapi::SpotAssetEntry,
     types::{ClientError, Environment},
 };

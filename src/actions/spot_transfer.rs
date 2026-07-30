@@ -1,16 +1,17 @@
-use alloy::primitives::U256;
-use alloy::signers::SignerSync;
-use alloy::{hex::encode_prefixed, primitives::Address, signers::local::PrivateKeySigner};
+use alloy::{
+    hex::encode_prefixed,
+    primitives::{Address, U256},
+    signers::{SignerSync, local::PrivateKeySigner},
+};
 use alloy_sol_types::{SolValue, sol};
 use anyhow::Result;
 use bigdecimal::BigDecimal;
 use bon::Builder;
 use serde::Deserialize;
 
-use crate::models::openapi::{Asset, PrivateTransferSpotRequest};
 use crate::{
     actions::{ActionData, ModuleData, utils::to_e18},
-    models::openapi::SpotAssetEntry,
+    models::openapi::{Asset, PrivateTransferSpotRequest, SpotAssetEntry},
     types::Environment,
 };
 
