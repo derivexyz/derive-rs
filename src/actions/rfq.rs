@@ -9,6 +9,7 @@ use alloy_sol_types::{SolValue, sol};
 use anyhow::Result;
 use bigdecimal::BigDecimal;
 use serde::Deserialize;
+use tracing::instrument::WithSubscriber;
 
 use crate::{
     actions::{ActionData, ModuleData, ModuleType, utils::decimal_to_u256},
@@ -33,12 +34,13 @@ sol! {
     #![sol(all_derives)]
     struct RfqPositionTransferLeg {
         address asset;
-        uint256 amount;
-        uint256 subaccountId;
-        int256 direction;
+        uint256 subId;
+        uint256 price;
+        int256 amount;
     }
 
     struct TransferPositionsData {
+        uint256 maxFee;
         RfqPositionTransferLeg[] legs;
     }
 }
@@ -46,41 +48,57 @@ sol! {
 impl TransferPositionsData {
     pub fn from_args(
         args: TransferPositionsArgs,
-        direction: Direction,
+        quote_direction: Direction,
+        perspective_sign: i8,
         instrument_map: &HashMap<String, Instrument>,
     ) -> Result<Self> {
-        let mut sorted_legs = args.legs.clone();
+        let mut sorted_legs = args.legs;
 
         sorted_legs.sort_by(|a, b| a.instrument_name.cmp(&b.instrument_name));
-        let mut legs = Vec::new();
+
+        let direction_sign: i8 = match quote_direction {
+            Direction::Buy => 1,
+            Direction::Sell => -1,
+        };
+
+        let mut legs = Vec::with_capacity(sorted_legs.len());
+
         for leg in sorted_legs {
             let instrument = instrument_map
                 .get(&leg.instrument_name)
-                .expect("Didnt find leg!");
-            let address = instrument
+                .expect("Didn't find leg");
+
+            let asset = instrument
                 .base_asset_address
                 .parse::<Address>()
                 .expect("Failed to parse base asset address");
 
-            let direction = match direction {
+            let leg_sign: i8 = match leg.direction {
                 Direction::Buy => 1,
                 Direction::Sell => -1,
             };
 
-            let leg = RfqPositionTransferLeg {
-                asset: address.parse().expect("Failed to parse asset address"),
-                amount: decimal_to_u256(&leg.amount)?,
-                subaccountId: U256::from(if direction == 1 {
-                    args.from_subaccount_id
-                } else {
-                    args.to_subaccount_id
-                }),
-                direction: I256::from_str(&direction.to_string())?,
-            };
-            legs.push(leg);
+            let sign = leg_sign * direction_sign * perspective_sign;
+
+            let amount_magnitude = decimal_to_u256(&leg.amount)?;
+            let mut signed_amount = I256::try_from(amount_magnitude)?;
+
+            if sign < 0 {
+                signed_amount = -signed_amount;
+            }
+
+            legs.push(RfqPositionTransferLeg {
+                asset: asset.to_string().parse().expect("Failed to parse asset address"),
+                subId: U256::from(instrument.base_asset_sub_id.parse::<u64>().expect("Failed to parse subaccount id")),
+                price: decimal_to_u256(&leg.price)?,
+                amount: signed_amount,
+            });
         }
-        // we now sort the legs
-        Ok(Self { legs })
+
+        Ok(Self {
+            maxFee: decimal_to_u256(&BigDecimal::from(0))?,
+            legs,
+        })
     }
 }
 
@@ -99,10 +117,12 @@ impl ActionData {
         instruments: &HashMap<String, Instrument>,
     ) -> Result<TransferPositionsRequest> {
         let maker_module_data =
-            TransferPositionsData::from_args(args.clone(), args.maker_direction, instruments)?;
+            TransferPositionsData::from_args(args.clone(), args.maker_direction, 1, instruments)?;
         let taker_module_data = TransferPositionsData::from_args(
             args.clone(),
+            
             args.maker_direction.opposite(),
+            -1,
             instruments,
         )?;
 
