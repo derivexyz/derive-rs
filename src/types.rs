@@ -83,7 +83,7 @@ impl Environment {
     }
     pub fn get_default_rpc(&self) -> String {
         match self {
-            Environment::Testnet => "https://sepolia.drpc.org".to_string(),
+            Environment::Testnet => "https://ethereum-sepolia-rpc.publicnode.com".to_string(),
             Environment::Mainnet => "https://eth.drpc.org".to_string(),
         }
     }

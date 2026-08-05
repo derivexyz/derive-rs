@@ -1,7 +1,5 @@
 use alloy::{
-    hex::encode_prefixed,
-    primitives::{Address, U256},
-    signers::{SignerSync, local::PrivateKeySigner},
+    hex::{self, encode_prefixed}, primitives::{Address, U256}, signers::{SignerSync, local::PrivateKeySigner},
 };
 use alloy_sol_types::{SolValue, sol};
 use anyhow::Result;
@@ -100,25 +98,15 @@ sol! {
 
 impl ModuleData for SetSessionKeyData {
     fn get_action_data(&self) -> Vec<u8> {
-        let mut output =
-            Vec::with_capacity(32 * (4 + self.scopes.len() + self.subaccount_ids.len()));
-
-        // Packed encoding of Address would normally be only 20 bytes.
-        // into_word() left-pads it to the required 32-byte word.
-        self.session_key
-            .into_word()
-            .abi_encode_packed_to(&mut output);
-
-        self.expiry_sec.abi_encode_packed_to(&mut output);
-
-        U256::from(self.scopes.len()).abi_encode_packed_to(&mut output);
-
-        U256::from(self.subaccount_ids.len()).abi_encode_packed_to(&mut output);
-
-        self.scopes.abi_encode_packed_to(&mut output);
-        self.subaccount_ids.abi_encode_packed_to(&mut output);
-
-        output
+        let bytes =(
+            self.session_key,
+            self.expiry_sec,
+            self.scopes.clone(),
+            self.subaccount_ids.clone(),
+        )
+            .abi_encode_params();
+        println!("{}", hex::encode(&bytes));
+        bytes
     }
 }
 
