@@ -6,13 +6,6 @@ impl<'a> SessionKeysNamespace<'a> {
     pub fn new(ws_client: &'a WsClient) -> Self {
         Self { ws_client }
     }
-    pub async fn create_session_key(
-        &self,
-        params: CreateSessionKeyRequest,
-    ) -> Result<PrivateCreateSessionKeyResponse, ClientError> {
-        let params_json = serde_json::to_value(&params)?;
-        self.ws_client.send_rpc("private/create_session_key", params_json).await
-    }
     pub async fn edit_session_key(
         &self,
         params: EditSessionKeyRequest,

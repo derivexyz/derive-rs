@@ -79,7 +79,8 @@ fn build_rfq_position_transfer_legs(
 ) -> Result<Vec<RfqPositionTransferLeg>> {
     let mut sorted_legs = legs;
     sorted_legs.sort_by(|a, b| a.instrument_name.cmp(&b.instrument_name));
-    sorted_legs.into_iter()
+    sorted_legs
+        .into_iter()
         .map(|leg| {
             // let leg: RfqLeg = leg.into();
 
@@ -128,7 +129,6 @@ fn build_rfq_position_transfer_legs(
         })
         .collect()
 }
-
 
 impl TransferPositionsData {
     pub fn from_args(

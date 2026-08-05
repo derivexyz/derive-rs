@@ -1,9 +1,9 @@
 use crate::{
     actions::{
         ActionData, ModuleType,
-        session_key::{CreateSessionKeyArgs, CreateSessionKeyData},
+        session_key::{SetSessionKeyArgs, SetSessionKeyData},
     },
-    models::openapi::PrivateCreateSessionKeyResponse,
+    models::openapi::PrivateSetSessionKeyResponse,
     types::ClientError,
     ws_client::WsClient,
 };
@@ -13,8 +13,8 @@ pub struct SessionKeys<'a> {
 impl<'a> SessionKeys<'a> {
     pub async fn create(
         &self,
-        session_key_args: CreateSessionKeyArgs,
-    ) -> Result<PrivateCreateSessionKeyResponse, ClientError> {
+        session_key_args: SetSessionKeyArgs,
+    ) -> Result<PrivateSetSessionKeyResponse, ClientError> {
         let signer = self
             .ws_client
             .wallet
@@ -26,25 +26,21 @@ impl<'a> SessionKeys<'a> {
             .clone()
             .expect("Must have set smart contract wallet address to create session key");
 
-        let create_session_key_data: CreateSessionKeyData = session_key_args.clone().into();
+        let set_session_key_data: SetSessionKeyData = session_key_args.clone().into();
         let action = ActionData::new(
-            create_session_key_data,
+            set_session_key_data,
             0,
             signer.address(),
             &scw_address.parse().expect("Couldnt unwrap."),
             &self.ws_client.environment,
-            ModuleType::CreateSessionKey,
+            ModuleType::SetSessionKey,
         )?;
-        let params = action.populate_create_session_key_params(
+        let params = action.populate_set_session_key_params(
             &signer,
             session_key_args,
             &self.ws_client.environment,
             scw_address,
         )?;
-        self.ws_client
-            .rpc()
-            .session_keys()
-            .create_session_key(params)
-            .await
+        self.ws_client.rpc().other().set_session_key(params).await
     }
 }

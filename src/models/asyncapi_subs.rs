@@ -2475,7 +2475,8 @@ pub struct QuotePublishResult {
 ///    "session_key_deregistered",
 ///    "subaccount_withdrawn",
 ///    "rfq_no_longer_open",
-///    "compliance"
+///    "compliance",
+///    "validation_failed"
 ///  ]
 ///}
 /// ```
@@ -2513,6 +2514,8 @@ pub enum RfqCancelReason {
     RfqNoLongerOpen,
     #[serde(rename = "compliance")]
     Compliance,
+    #[serde(rename = "validation_failed")]
+    ValidationFailed,
 }
 impl ::std::fmt::Display for RfqCancelReason {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
@@ -2527,6 +2530,7 @@ impl ::std::fmt::Display for RfqCancelReason {
             Self::SubaccountWithdrawn => f.write_str("subaccount_withdrawn"),
             Self::RfqNoLongerOpen => f.write_str("rfq_no_longer_open"),
             Self::Compliance => f.write_str("compliance"),
+            Self::ValidationFailed => f.write_str("validation_failed"),
         }
     }
 }
@@ -2546,6 +2550,7 @@ impl ::std::str::FromStr for RfqCancelReason {
             "subaccount_withdrawn" => Ok(Self::SubaccountWithdrawn),
             "rfq_no_longer_open" => Ok(Self::RfqNoLongerOpen),
             "compliance" => Ok(Self::Compliance),
+            "validation_failed" => Ok(Self::ValidationFailed),
             _ => Err("invalid value".into()),
         }
     }
