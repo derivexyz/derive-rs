@@ -13,12 +13,14 @@ use crate::{
     actions::{
         ActionData, ModuleData,
         utils::{decimal_to_i256, decimal_to_u256},
-    }, constants::{CLIENT_NAME, REFFERAL_CODE}, models::openapi::{
+    },
+    constants::{CLIENT_NAME, REFFERAL_CODE},
+    models::openapi::{
         CreateOrderRequest as OrderParams, Direction, Instrument, OrderType,
         ReplaceOrderRequest as ReplaceParams, TimeInForce,
-    }, types::Environment,
+    },
+    types::Environment,
 };
-
 
 use bon::Builder;
 

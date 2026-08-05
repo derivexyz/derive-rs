@@ -12,5 +12,4 @@ pub mod ws_client;
 pub mod rpc;
 pub mod subscriptions;
 
-
 pub mod constants;

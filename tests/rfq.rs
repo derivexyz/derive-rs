@@ -1,11 +1,13 @@
 use std::str::FromStr;
 
-use bigdecimal::{BigDecimal, FromPrimitive};
+use bigdecimal::BigDecimal;
 use derive_rs::{
-    actions::{ExecuteQuoteArgs, SendQuoteArgs}, models::{openapi::{
-        RfqStatus,
-        CancelBatchRfqsRequest, Direction, GetTickerRequest, LegUnpricedParams, PollRfqsRequest, PricedLegParamsAndResponse, PublicRfq, RfqGetBestQuoteRequest, SendQuoteRequest, SendRfqRequest,
-    }}, ws_client::WsClient,
+    actions::{ExecuteQuoteArgs, SendQuoteArgs},
+    models::openapi::{
+        CancelBatchRfqsRequest, Direction, GetTickerRequest, LegUnpricedParams, PollRfqsRequest,
+        PricedLegParamsAndResponse, PublicRfq, RfqGetBestQuoteRequest, RfqStatus, SendRfqRequest,
+    },
+    ws_client::WsClient,
 };
 
 mod common;
@@ -21,7 +23,12 @@ async fn create_priced_legs(
             .instrument_name(leg.instrument_name.clone())
             .try_into()
             .expect("Must convert into request.");
-        let ticker = _client.rpc().market_data().get_ticker(get_params).await.expect("Must get ticker.");
+        let ticker = _client
+            .rpc()
+            .market_data()
+            .get_ticker(get_params)
+            .await
+            .expect("Must get ticker.");
         let price = ticker.m;
         let priced_leg = PricedLegParamsAndResponse::builder()
             .instrument_name(leg.instrument_name.clone())
@@ -116,7 +123,7 @@ async fn test_ws_client_login() {
     // we print the legs to see what we are sending
     println!("Quote Legs: {:?}", quote_params.legs);
 
-    let quote = quoter
+    let _quote = quoter
         .rfqs()
         .send_quote(quote_params)
         .await
@@ -139,7 +146,6 @@ async fn test_ws_client_login() {
         .best_quote
         .expect("There should be a best quote.");
 
-
     println!("Best Quote: {:?}", best_quote);
 
     let execute_quote_args = ExecuteQuoteArgs::builder()
@@ -160,5 +166,4 @@ async fn test_ws_client_login() {
         execute_response.status == RfqStatus::Filled,
         "The quote execution should be successful."
     );
-
 }
