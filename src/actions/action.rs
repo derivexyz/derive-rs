@@ -21,7 +21,7 @@ pub enum ModuleType {
     Trade,
     SpotTransfer,
     Withdraw,
-    // RfqPositionTransfer,
+    RfqPositionTransfer,
     // ExternalTransfer,
     // WhitelistedRecipient,
     // Vault,
@@ -34,6 +34,7 @@ fn get_trade_module(module: ModuleType) -> &'static str {
         ModuleType::CreateSessionKey => "0xe330CF64ff6EbF41699aad344Cb21d78db1D2bb6",
         ModuleType::Withdraw => "0x9d0E8f5b25384C7310CB8C6aE32C8fbeb645d083",
         ModuleType::SpotTransfer => "0x01259207A40925b794C8ac320456F7F6c8FE2636",
+        ModuleType::RfqPositionTransfer => "0x9371352CCef6f5b36EfDFE90942fFE622Ab77F1D",
     }
 }
 

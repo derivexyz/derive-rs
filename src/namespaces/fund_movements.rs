@@ -119,4 +119,36 @@ impl<'a> FundMovementsNamespace<'a> {
             .transfer_spot(params)
             .await
     }
+
+    async fn transfer_position(&self, args: PositionTransferArgs) -> Result<PrivateTransferPositionResponse, ClientError> {
+        let signer = self.ws_client.wallet.clone().unwrap();
+
+        let wallet = self
+            .ws_client
+            .smart_contract_wallet_address
+            .clone()
+            .unwrap();
+        let env = &self.ws_client.environment;
+
+        let data = PositionTransferData::from_args(args.clone())?;
+        let action = ActionData::new(
+            data,
+            args.subaccount_id,
+            signer.address(),
+            &wallet.parse().expect("Couldnt parse wallet address"),
+            &self.ws_client.environment,
+            ModuleType::PositionTransfer,
+        )?;
+
+        let params = action.populate_transfer_position_params(&signer, args.clone(), env)?;
+
+        println!("Transfer Position params: {:?}", params);
+
+        self.ws_client
+            .rpc()
+            .transfers_withdrawals()
+            .transfer_position(params)
+            .await
+    }
+
 }
