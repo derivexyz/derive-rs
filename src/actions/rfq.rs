@@ -71,25 +71,18 @@ sol! {
     }
 }
 
-impl TransferPositionsData {
-    pub fn from_args(
-        args: TransferPositionsArgs,
-        quote_direction: Direction,
-        perspective_sign: i8,
-        instrument_map: &HashMap<String, Instrument>,
-    ) -> Result<Self> {
-        let mut sorted_legs = args.legs;
+fn build_rfq_position_transfer_legs(
+    legs: Vec<PricedLegParamsAndResponse>,
+    quote_direction: Direction,
+    perspective_sign: i8,
+    instrument_map: &HashMap<String, Instrument>,
+) -> Result<Vec<RfqPositionTransferLeg>> {
+    let mut sorted_legs = legs;
+    sorted_legs.sort_by(|a, b| a.instrument_name.cmp(&b.instrument_name));
+    sorted_legs.into_iter()
+        .map(|leg| {
+            // let leg: RfqLeg = leg.into();
 
-        sorted_legs.sort_by(|a, b| a.instrument_name.cmp(&b.instrument_name));
-
-        let direction_sign: i8 = match quote_direction {
-            Direction::Buy => 1,
-            Direction::Sell => -1,
-        };
-
-        let mut legs = Vec::with_capacity(sorted_legs.len());
-
-        for leg in sorted_legs {
             let instrument = instrument_map
                 .get(&leg.instrument_name)
                 .expect("Didn't find leg");
@@ -99,7 +92,12 @@ impl TransferPositionsData {
                 .parse::<Address>()
                 .expect("Failed to parse base asset address");
 
-            let leg_sign: i8 = match leg.direction {
+            let leg_sign = match leg.direction {
+                Direction::Buy => 1,
+                Direction::Sell => -1,
+            };
+
+            let direction_sign = match quote_direction {
                 Direction::Buy => 1,
                 Direction::Sell => -1,
             };
@@ -113,7 +111,7 @@ impl TransferPositionsData {
                 signed_amount = -signed_amount;
             }
 
-            legs.push(RfqPositionTransferLeg {
+            Ok(RfqPositionTransferLeg {
                 asset: asset
                     .to_string()
                     .parse()
@@ -126,12 +124,27 @@ impl TransferPositionsData {
                 ),
                 price: decimal_to_u256(&leg.price)?,
                 amount: signed_amount,
-            });
-        }
+            })
+        })
+        .collect()
+}
 
+
+impl TransferPositionsData {
+    pub fn from_args(
+        args: TransferPositionsArgs,
+        quote_direction: Direction,
+        perspective_sign: i8,
+        instrument_map: &HashMap<String, Instrument>,
+    ) -> Result<Self> {
         Ok(Self {
             maxFee: decimal_to_u256(&BigDecimal::from(0))?,
-            legs,
+            legs: build_rfq_position_transfer_legs(
+                args.legs,
+                quote_direction,
+                perspective_sign,
+                instrument_map,
+            )?,
         })
     }
 
@@ -141,58 +154,14 @@ impl TransferPositionsData {
         perspective_sign: i8,
         instrument_map: &HashMap<String, Instrument>,
     ) -> Result<Self> {
-        let legs = args
-            .legs
-            .into_iter()
-            .map(|leg| {
-                let instrument = instrument_map
-                    .get(&leg.instrument_name)
-                    .expect("Didn't find leg");
-
-                let asset = instrument
-                    .base_asset_address
-                    .parse::<Address>()
-                    .expect("Failed to parse base asset address");
-
-                let leg_sign: i8 = match leg.direction {
-                    Direction::Buy => 1,
-                    Direction::Sell => -1,
-                };
-
-                let direction_sign: i8 = match quote_direction {
-                    Direction::Buy => 1,
-                    Direction::Sell => -1,
-                };
-
-                let sign = leg_sign * direction_sign * perspective_sign;
-
-                let amount_magnitude = decimal_to_u256(&leg.amount)?;
-                let mut signed_amount = I256::try_from(amount_magnitude)?;
-
-                if sign < 0 {
-                    signed_amount = -signed_amount;
-                }
-
-                Ok(RfqPositionTransferLeg {
-                    asset: asset
-                        .to_string()
-                        .parse()
-                        .expect("Failed to parse asset address"),
-                    subId: U256::from(
-                        instrument
-                            .base_asset_sub_id
-                            .parse::<u64>()
-                            .expect("Failed to parse subaccount id"),
-                    ),
-                    price: decimal_to_u256(&leg.price)?,
-                    amount: signed_amount,
-                })
-            })
-            .collect::<Result<Vec<RfqPositionTransferLeg>>>()?;
-
         Ok(Self {
             maxFee: to_e18(&args.max_fee).expect("Unable to scale fee"),
-            legs,
+            legs: build_rfq_position_transfer_legs(
+                args.legs,
+                quote_direction,
+                perspective_sign,
+                instrument_map,
+            )?,
         })
     }
 
@@ -202,58 +171,14 @@ impl TransferPositionsData {
         perspective_sign: i8,
         instrument_map: &HashMap<String, Instrument>,
     ) -> Result<Self> {
-        let legs = args
-            .legs
-            .into_iter()
-            .map(|leg| {
-                let instrument = instrument_map
-                    .get(&leg.instrument_name)
-                    .expect("Didn't find leg");
-
-                let asset = instrument
-                    .base_asset_address
-                    .parse::<Address>()
-                    .expect("Failed to parse base asset address");
-
-                let leg_sign: i8 = match leg.direction {
-                    Direction::Buy => 1,
-                    Direction::Sell => -1,
-                };
-
-                let direction_sign: i8 = match quote_direction {
-                    Direction::Buy => 1,
-                    Direction::Sell => -1,
-                };
-
-                let sign = leg_sign * direction_sign * perspective_sign;
-
-                let amount_magnitude = decimal_to_u256(&leg.amount)?;
-                let mut signed_amount = I256::try_from(amount_magnitude)?;
-
-                if sign < 0 {
-                    signed_amount = -signed_amount;
-                }
-
-                Ok(RfqPositionTransferLeg {
-                    asset: asset
-                        .to_string()
-                        .parse()
-                        .expect("Failed to parse asset address"),
-                    subId: U256::from(
-                        instrument
-                            .base_asset_sub_id
-                            .parse::<u64>()
-                            .expect("Failed to parse subaccount id"),
-                    ),
-                    price: decimal_to_u256(&leg.price)?,
-                    amount: signed_amount,
-                })
-            })
-            .collect::<Result<Vec<RfqPositionTransferLeg>>>()?;
-
         Ok(Self {
             maxFee: to_e18(&args.max_fee).expect("Unable to scale fee"),
-            legs,
+            legs: build_rfq_position_transfer_legs(
+                args.legs,
+                quote_direction,
+                perspective_sign,
+                instrument_map,
+            )?,
         })
     }
 }
@@ -276,51 +201,12 @@ impl RfqExecuteData {
         execute_args: ExecuteQuoteArgs,
         instrument_map: &HashMap<String, Instrument>,
     ) -> Result<Self> {
-        let legs = execute_args.legs;
-
-        let mut leg_abis = vec![];
-        for leg in legs {
-            let instrument = instrument_map
-                .get(&leg.instrument_name)
-                .expect("Didn't find leg");
-
-            let asset = instrument
-                .base_asset_address
-                .parse::<Address>()
-                .expect("Failed to parse base asset address");
-
-            let leg_sign: i8 = match leg.direction {
-                Direction::Buy => -1,
-                Direction::Sell => 1,
-            };
-
-            let direction_sign: i8 = -1;
-
-            let sign = -(leg_sign * direction_sign);
-
-            let amount_magnitude = decimal_to_u256(&leg.amount)?;
-            let mut signed_amount = I256::try_from(amount_magnitude)?;
-
-            if sign < 0 {
-                signed_amount = -signed_amount;
-            }
-
-            leg_abis.push(RfqPositionTransferLeg {
-                asset: asset
-                    .to_string()
-                    .parse()
-                    .expect("Failed to parse asset address"),
-                subId: U256::from(
-                    instrument
-                        .base_asset_sub_id
-                        .parse::<u64>()
-                        .expect("Failed to parse subaccount id"),
-                ),
-                price: decimal_to_u256(&leg.price)?,
-                amount: signed_amount,
-            });
-        }
-
+        let leg_abis = build_rfq_position_transfer_legs(
+            execute_args.legs,
+            Direction::Buy,
+            -1,
+            instrument_map,
+        )?;
         let order_hash = keccak256(leg_abis.abi_encode());
         println!("Order Hash: {:?}", order_hash);
 
