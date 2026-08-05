@@ -29,7 +29,8 @@ use crate::{
         },
     },
     namespaces::{
-        fund_movements::FundMovementsNamespace, orders::OrdersNamespace, session_keys::SessionKeys,
+        fund_movements::FundMovementsNamespace, orders::OrdersNamespace, rfqs::RfqsNamespace,
+        session_keys::SessionKeys,
     },
     routing::{extract_channel, extract_id, extract_id_tail},
     rpc::Rpc,
@@ -100,6 +101,10 @@ impl WsClient {
 
     pub fn fund_movements(&self) -> FundMovementsNamespace<'_> {
         FundMovementsNamespace { ws_client: self }
+    }
+
+    pub fn rfqs(&self) -> RfqsNamespace<'_> {
+        RfqsNamespace { ws_client: self }
     }
 
     pub async fn from_env(environment: Environment) -> Result<Self, ClientError> {

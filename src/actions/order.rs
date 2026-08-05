@@ -13,16 +13,12 @@ use crate::{
     actions::{
         ActionData, ModuleData,
         utils::{decimal_to_i256, decimal_to_u256},
-    },
-    models::openapi::{
+    }, constants::{CLIENT_NAME, REFFERAL_CODE}, models::openapi::{
         CreateOrderRequest as OrderParams, Direction, Instrument, OrderType,
         ReplaceOrderRequest as ReplaceParams, TimeInForce,
-    },
-    types::Environment,
+    }, types::Environment,
 };
 
-const REFFERAL_CODE: &str = "0x9135BA0f495244dc0A5F029b25CDE95157Db89AD";
-const CLIENT_NAME: &str = "8ballers-rust-sdk";
 
 use bon::Builder;
 

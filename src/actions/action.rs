@@ -48,7 +48,7 @@ fn get_action_typehash(env: &Environment) -> &'static str {
     }
 }
 
-fn get_domain_separator(env: &Environment) -> &'static str {
+pub fn get_domain_separator(env: &Environment) -> &'static str {
     match env {
         Environment::Mainnet => {
             "0xd96e5f90797da7ec8dc4e276260c7f3f87fedf68775fbe1ef116e996fc60441b"
@@ -82,7 +82,7 @@ impl ActionData {
         let nonce = now
             .timestamp_nanos_opt()
             .context("current timestamp cannot be represented in nanoseconds")?;
-        let signature_expiry_sec = (now + Duration::seconds(3_000_000)).timestamp();
+        let signature_expiry_sec = (now + Duration::seconds(3_500)).timestamp();
         Ok((
             U256::from(u64::try_from(nonce)?),
             U256::from(u64::try_from(signature_expiry_sec)?),

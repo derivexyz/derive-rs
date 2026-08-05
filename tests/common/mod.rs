@@ -15,3 +15,20 @@ pub async fn get_test_ws_client() -> WsClient {
     .await
     .expect("Failed to create WS client")
 }
+
+#[allow(dead_code)]
+pub async fn get_test_ws_client_2() -> WsClient {
+    let private_key = "0xf20701f7e29ce946e79a70cb53067f837950841f77edb3e685ce370db7ed7bdd";
+    let derive_wallet = "0x5cb67F7829d01d9C75385A920De5E51060663374";
+    let subaccount_id = 75723;
+    let env = Environment::Testnet;
+
+    WsClient::new(
+        env,
+        Some(private_key.to_string()),
+        Some(derive_wallet.to_string()),
+        Some(subaccount_id),
+    )
+    .await
+    .expect("Failed to create WS client")
+}
