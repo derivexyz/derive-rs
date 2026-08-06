@@ -49,7 +49,7 @@ fmt:
 build:
 	cargo build --all-features
 test:
-	cargo test -- --nocapture
+	cargo test -- --nocapture --test-threads 1
 run:
 	cargo run --all-features
 
