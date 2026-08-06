@@ -34,11 +34,7 @@ impl<'a> FundMovementsNamespace<'a> {
         let subaccount_id = self.ws_client.subaccount_id.unwrap();
         let signer = self.ws_client.wallet.clone().unwrap();
 
-        let wallet = self
-            .ws_client
-            .smart_contract_wallet_address
-            .clone()
-            .unwrap();
+        let wallet = self.ws_client.derive_wallet.clone().unwrap();
         let env = &self.ws_client.environment;
 
         let erc20_details = self.ws_client
@@ -60,8 +56,6 @@ impl<'a> FundMovementsNamespace<'a> {
         let params =
             action.populate_withdraw_params(&signer, withdraw_args.clone(), env, subaccount_id)?;
 
-        println!("Withdrawal params: {:?}", params);
-
         self.ws_client
             .rpc()
             .transfers_withdrawals()
@@ -79,7 +73,7 @@ impl<'a> FundMovementsNamespace<'a> {
             .expect("Must have set wallet to deposit");
         let wallet = self
             .ws_client
-            .smart_contract_wallet_address
+            .derive_wallet
             .clone()
             .expect("Must have set smart contract wallet address to deposit");
         let erc20_cache = self.ws_client.erc20_cache.clone();
@@ -94,11 +88,7 @@ impl<'a> FundMovementsNamespace<'a> {
     ) -> Result<PrivateTransferSpotResponse, ClientError> {
         let signer = self.ws_client.wallet.clone().unwrap();
 
-        let wallet = self
-            .ws_client
-            .smart_contract_wallet_address
-            .clone()
-            .unwrap();
+        let wallet = self.ws_client.derive_wallet.clone().unwrap();
         let env = &self.ws_client.environment;
 
         let erc20_details = self.ws_client
@@ -124,8 +114,6 @@ impl<'a> FundMovementsNamespace<'a> {
         )?;
 
         let params = action.populate_transfer_spot_params(&signer, args.clone(), env, &asset)?;
-
-        println!("Transfer Spot params: {:?}", params);
 
         self.ws_client
             .rpc()
@@ -166,15 +154,9 @@ impl<'a> FundMovementsNamespace<'a> {
             &signer,
             args.clone(),
             env,
-            &self
-                .ws_client
-                .smart_contract_wallet_address
-                .clone()
-                .unwrap(),
+            &self.ws_client.derive_wallet.clone().unwrap(),
             &instruments,
         )?;
-
-        println!("Transfer Position params: {:?}", params);
 
         self.ws_client
             .rpc()

@@ -8,6 +8,7 @@ use anyhow::Result;
 use bon::Builder;
 use serde::{Deserialize, Serialize};
 use strum::{Display, FromRepr};
+use tracing::debug;
 
 use crate::{
     actions::{ActionData, ModuleData},
@@ -107,7 +108,7 @@ impl ModuleData for SetSessionKeyData {
             self.subaccount_ids.clone(),
         )
             .abi_encode_params();
-        println!("{}", hex::encode(&bytes));
+        debug!("{}", hex::encode(&bytes));
         bytes
     }
 }
@@ -148,7 +149,7 @@ impl ActionData {
         scw_address: String,
     ) -> Result<SetSessionKeyRequest> {
         let encoded_data_hashed = &self.hash(env);
-        println!("typed_data_hash: {:?}", encoded_data_hashed);
+        debug!("typed_data_hash: {:?}", encoded_data_hashed);
         let signature = format!("{}", signer.sign_hash_sync(encoded_data_hashed)?);
         let offchain_scopes = args
             .off_chain_scopes
