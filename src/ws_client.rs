@@ -201,7 +201,6 @@ impl WsClient {
             wallet,
             public_address,
             smart_contract_wallet_address,
-            // .and_then(|addr| addr.parse::<Address>().ok()),
             subaccount_id,
             instruments_cache: Arc::new(DashMap::new()),
             erc20_cache: Arc::new(DashMap::new()),
@@ -213,9 +212,6 @@ impl WsClient {
         client.cache_erc20_assets().await?;
         client.cache_risk_universes().await?;
         client.cache_assets().await?;
-        // if private_key.is_some() {
-        //     client.wait_for_connection().await;
-        // }
         Ok(client)
     }
 
@@ -503,19 +499,6 @@ impl WsClient {
             }
         }
     }
-
-    // async fn get_instruments(&self) -> Result<PublicGetAllInstrumentsResultSchema, ClientError> {
-    //     let result: PublicGetAllInstrumentsResultSchema = self
-    //         .send_rpc(
-    //             "public/get_all_instruments",
-    //             serde_json::json!({
-    //                 "expired": false,
-    //                 "instrument_type": "perp"
-    //             }),
-    //         )
-    //         .await?;
-    //     Ok(result)
-    // }
 
     async fn cache_instruments(&self) -> Result<(), ClientError> {
         self.instruments_cache.clear();
