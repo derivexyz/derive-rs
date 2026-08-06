@@ -518,15 +518,17 @@ impl WsClient {
     // }
 
     async fn cache_instruments(&self) -> Result<(), ClientError> {
-        let params = GetAllInstrumentsRequest::builder()
-            .expired(false)
-            .instrument_type(AssetType::Perp)
-            .try_into()?;
-        let instruments = self.rpc().market_data().get_all_instruments(params).await?;
         self.instruments_cache.clear();
-        for instrument in &instruments.instruments {
-            self.instruments_cache
-                .insert(instrument.instrument_name.clone(), instrument.clone());
+        for asset_type in &[AssetType::Perp, AssetType::Erc20, AssetType::Option] {
+            let params = GetAllInstrumentsRequest::builder()
+                .expired(false)
+                .instrument_type(*asset_type)
+                .try_into()?;
+            let instruments = self.rpc().market_data().get_all_instruments(params).await?;
+            for instrument in &instruments.instruments {
+                self.instruments_cache
+                    .insert(instrument.instrument_name.clone(), instrument.clone());
+            }
         }
         Ok(())
     }

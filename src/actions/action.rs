@@ -3,13 +3,8 @@ use alloy::{
     primitives::{Address, B256, U256, keccak256},
 };
 use alloy_sol_types::{SolValue, sol};
-// use crate::actions::helpers::ModuleData;
 use anyhow::Result;
 use chrono::{Duration, Utc};
-
-// use ethers::abi::AbiEncode;
-// use ethers::prelude::{Address, EthAbiCodec, EthAbiType, U256};
-// use ethers::utils::hex;
 use crate::types::Environment;
 
 pub trait ModuleData {
@@ -21,10 +16,10 @@ pub enum ModuleType {
     SpotTransfer,
     Withdraw,
     RfqPositionTransfer,
+    SetSessionKey,
     // ExternalTransfer,
     // WhitelistedRecipient,
     // Vault,
-    SetSessionKey,
 }
 
 fn get_trade_module(module: ModuleType) -> &'static str {
