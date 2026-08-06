@@ -1,3 +1,4 @@
+use crate::types::Environment;
 use alloy::{
     hex::encode,
     primitives::{Address, B256, U256, keccak256},
@@ -5,7 +6,6 @@ use alloy::{
 use alloy_sol_types::{SolValue, sol};
 use anyhow::Result;
 use chrono::{Duration, Utc};
-use crate::types::Environment;
 
 pub trait ModuleData {
     fn get_action_data(&self) -> Vec<u8>;
