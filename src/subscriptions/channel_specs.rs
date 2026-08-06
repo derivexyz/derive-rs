@@ -1,4 +1,4 @@
-use crate::models::asyncapi_subs::*;
+use crate::models::*;
 use crate::types::{ChannelSpec, RequestScope};
 pub mod accounting {
     use super::*;

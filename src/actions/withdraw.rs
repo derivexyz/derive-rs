@@ -14,7 +14,7 @@ use crate::{
         ActionData, ModuleData,
         utils::{decimal_to_u256_with_prec, to_e18},
     },
-    models::openapi::{PrivateWithdrawRequest, SpotAssetEntry},
+    models::{PrivateWithdrawRequest, SpotAssetEntry},
     types::Environment,
 };
 

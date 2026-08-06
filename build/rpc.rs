@@ -251,7 +251,7 @@ fn generate_rpc_namespace(namespace: &str, endpoints: &[RpcEndpoint]) -> TokenSt
 
     quote! {
         use crate::{
-            models::openapi::*,
+            models::*,
             types::ClientError,
             ws_client::WsClient,
         };

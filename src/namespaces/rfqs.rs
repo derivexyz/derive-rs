@@ -3,9 +3,9 @@ use crate::{
         ActionData, ExecuteQuoteArgs, ModuleType, RfqExecuteData, SendQuoteArgs,
         TransferPositionsData,
     },
-    models::openapi::{
-        CancelBatchRfqsRequest, CancelBatchRfqsResponse, Direction, PollRfqsRequest, Quote,
-        QuoteExecuteResponse, Rfq, RfqGetBestQuoteRequest, RfqGetBestQuoteResponse,
+    models::{
+        CancelBatchRfqsRequest, CancelBatchRfqsResponse, Direction, Instrument, PollRfqsRequest,
+        Quote, QuoteExecuteResponse, Rfq, RfqGetBestQuoteRequest, RfqGetBestQuoteResponse,
         RfqPollResponse, SendRfqRequest,
     },
     types::ClientError,
@@ -35,7 +35,7 @@ impl<'a> RfqsNamespace<'a> {
                 let instrument = entry.value();
                 (instrument.instrument_name.clone(), instrument.clone())
             })
-            .collect::<std::collections::HashMap<String, crate::models::openapi::Instrument>>();
+            .collect::<std::collections::HashMap<String, Instrument>>();
 
         let rfq_data = TransferPositionsData::from_send_quote_args(
             request.clone(),
@@ -81,7 +81,7 @@ impl<'a> RfqsNamespace<'a> {
                 let instrument = entry.value();
                 (instrument.instrument_name.clone(), instrument.clone())
             })
-            .collect::<std::collections::HashMap<String, crate::models::openapi::Instrument>>();
+            .collect::<std::collections::HashMap<String, Instrument>>();
 
         let rfq_data = RfqExecuteData::from_execute_quote_args(
             request.clone(),

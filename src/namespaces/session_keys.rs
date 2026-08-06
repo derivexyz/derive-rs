@@ -3,7 +3,7 @@ use crate::{
         ActionData, ModuleType,
         session_key::{SetSessionKeyArgs, SetSessionKeyData},
     },
-    models::openapi::PrivateSetSessionKeyResponse,
+    models::PrivateSetSessionKeyResponse,
     types::ClientError,
     ws_client::WsClient,
 };

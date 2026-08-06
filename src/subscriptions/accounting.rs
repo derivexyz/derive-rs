@@ -1,5 +1,5 @@
 use crate::{
-    models::asyncapi_subs::*, subscriptions::channel_specs::accounting::*,
+    models::*, subscriptions::channel_specs::accounting::*,
     types::{ClientError, EventStream},
     ws_client::WsClient,
 };

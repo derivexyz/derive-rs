@@ -1,4 +1,4 @@
-use derive_rs::models::openapi::{AssetType, GetAllInstrumentsRequest};
+use derive_rs::models::{AssetType, GetAllInstrumentsRequest};
 
 mod common;
 

@@ -1,4 +1,4 @@
-use derive_rs::models::openapi::{MmpScopeRequest, SetMmpConfigRequest};
+use derive_rs::models::{MmpScopeRequest, SetMmpConfigRequest};
 
 mod common;
 

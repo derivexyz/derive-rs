@@ -15,7 +15,7 @@ use strum::EnumString;
 
 use crate::{
     actions::utils::decimal_to_u256_with_prec,
-    models::openapi::SpotAssetEntry,
+    models::SpotAssetEntry,
     types::{ClientError, Environment},
 };
 const ONCHAIN_ACTION_MANAGER: &str = "0x1b4f369b585D40a27F66775844FC265151f278A4";

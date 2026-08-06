@@ -22,11 +22,8 @@ use yawc::{Frame, OpCode};
 
 use crate::{
     models::{
-        asyncapi_rpc::{SetCancelOnDisconnectRequest, SetCancelOnDisconnectResponse},
-        openapi::{
-            Asset, AssetType, GetAllInstrumentsRequest, GetAssetsRequest, Instrument, RiskUniverse,
-            SpotAssetEntry,
-        },
+        Asset, AssetType, GetAllInstrumentsRequest, GetAssetsRequest, Instrument, RiskUniverse,
+        SetCancelOnDisconnectRequest, SetCancelOnDisconnectResponse, SpotAssetEntry,
     },
     namespaces::{
         fund_movements::FundMovementsNamespace, orders::OrdersNamespace, rfqs::RfqsNamespace,

@@ -1,7 +1,7 @@
 use bigdecimal::BigDecimal;
 use derive_rs::{
     actions::TransferPositionsArgs,
-    models::openapi::{Direction, GetSubaccountsRequest, PricedLegParamsAndResponse},
+    models::{Direction, GetSubaccountsRequest, PricedLegParamsAndResponse},
 };
 use std::str::FromStr;
 
@@ -27,7 +27,7 @@ async fn test_transfer_position() {
         .expect("Failed to get subaccounts");
 
     let position = PricedLegParamsAndResponse::builder()
-        .amount(BigDecimal::from_str("0.1").expect("Failed to parse amount"))
+        .amount(BigDecimal::from_str("0.01").expect("Failed to parse amount"))
         .direction(Direction::Buy)
         .price(BigDecimal::from_str("1920.0").expect("Failed to parse price"))
         .instrument_name("ETH-PERP")
@@ -54,8 +54,4 @@ async fn test_transfer_position() {
         "Position transfer failed: {:?}",
         transfer_result.err()
     );
-
-    // for sub in subaccounts.subaccount_ids {
-    //     println!("{}", sub);
-    // }
 }

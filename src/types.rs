@@ -56,7 +56,7 @@ pub enum ClientError {
     #[error("Rpc error {error:?}")]
     RpcError { error: Value },
     #[error("Conversion error: {0}")]
-    Conversion(#[from] crate::models::openapi::error::ConversionError),
+    Conversion(#[from] crate::models::error::ConversionError),
     #[error("String error: {0}")]
     StringError(#[from] Box<dyn StdError>),
     #[error("Approval error: {0}")]

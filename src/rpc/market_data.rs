@@ -1,4 +1,4 @@
-use crate::{models::openapi::*, types::ClientError, ws_client::WsClient};
+use crate::{models::*, types::ClientError, ws_client::WsClient};
 use crate::models::ticker_slim_schema::TickerSlimSchema;
 pub struct MarketDataNamespace<'a> {
     pub ws_client: &'a WsClient,
