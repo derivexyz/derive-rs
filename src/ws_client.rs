@@ -1,5 +1,6 @@
 use std::{
     env::var,
+    str::FromStr,
     sync::{
         Arc,
         atomic::{AtomicU64, Ordering},
@@ -104,12 +105,17 @@ impl WsClient {
         RfqsNamespace { ws_client: self }
     }
 
-    pub async fn from_env(environment: Environment) -> Result<Self, ClientError> {
+    pub async fn from_env() -> Result<Self, ClientError> {
+        let env_string = var("DERIVE_ENVIRONMENT")?;
+        let environment = match Environment::from_str(&env_string) {
+            Ok(env) => env,
+            Err(_) => return Err(ClientError::EnvVar(std::env::VarError::NotPresent)),
+        };
         let private_key = match var("DERIVE_PRIVATE_KEY") {
             Ok(v) => v,
             Err(e) => return Err(ClientError::EnvVar(e)),
         };
-        let smart_contract_wallet_address = match var("DERIVE_SMART_CONTRACT_WALLET_ADDRESS") {
+        let smart_contract_wallet_address = match var("DERIVE_WALLET") {
             Ok(v) => v,
             Err(e) => return Err(ClientError::EnvVar(e)),
         };

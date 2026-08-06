@@ -13,3 +13,6 @@ pub mod rpc;
 pub mod subscriptions;
 
 pub mod constants;
+
+pub use types::Environment;
+pub use ws_client::WsClient;
