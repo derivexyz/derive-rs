@@ -20,6 +20,6 @@ cargo add derive-rs
 ## Features & Roadmap
 
 
-- [] Support rfq
-- [] Support position movements
+- [x] Support rfq
+- [x] Support position movements
 - [] Test reconnection flow
