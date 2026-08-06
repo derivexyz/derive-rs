@@ -12,7 +12,7 @@ async fn test_deposit_to_new_subaccount() {
     ws_client.login().await.expect("Failed to login");
 
     let address: Address = ws_client
-        .smart_contract_wallet_address
+        .derive_wallet
         .clone()
         .unwrap()
         .parse()
@@ -64,7 +64,7 @@ async fn test_deposit_to_existing_subaccount() {
     ws_client.login().await.expect("Failed to login");
 
     let address: Address = ws_client
-        .smart_contract_wallet_address
+        .derive_wallet
         .clone()
         .unwrap()
         .parse()
@@ -72,12 +72,10 @@ async fn test_deposit_to_existing_subaccount() {
 
     let args = DepositArgs::builder()
         .asset(SupportDepositAssets::USDC)
-        // .max_fee_usd(BigDecimal::from_str("1.00").unwrap())
         .amount(BigDecimal::from_str("10.00").unwrap())
         .recepient_address(address)
         .subaccount_id(75741)
         .deposit_type(DepositTypes::Direct(DirectDepositType::Deposit))
-        // .force_batch(false)
         .build();
 
     let deposit_result = ws_client.fund_movements().deposit(args).await;
