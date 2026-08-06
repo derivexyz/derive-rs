@@ -15,7 +15,7 @@ use crate::{
         utils::{decimal_to_i256, decimal_to_u256},
     },
     constants::{CLIENT_NAME, REFFERAL_CODE},
-    models::openapi::{
+    models::{
         CreateOrderRequest as OrderParams, Direction, Instrument, OrderType,
         ReplaceOrderRequest as ReplaceParams, TimeInForce,
     },

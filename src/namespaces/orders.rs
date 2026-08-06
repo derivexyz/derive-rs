@@ -1,6 +1,6 @@
 use crate::{
     actions::{ActionData, ModuleType, OrderArgs, ReplaceArgs, TradeData},
-    models::openapi::{
+    models::{
         CancelOrderRequest, Direction, GetOrderRequest, Order, OrderCreatedResponse,
         ReplaceOrderResponse,
     },

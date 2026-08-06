@@ -3,7 +3,7 @@ use std::str::FromStr;
 use bigdecimal::{BigDecimal, FromPrimitive};
 use derive_rs::{
     actions::{OrderArgs, ReplaceArgs},
-    models::openapi::{
+    models::{
         CancelOrderRequest, Direction, GetInstrumentRequest, GetTickerRequest, OrderStatus,
         OrderType, TimeInForce,
     },

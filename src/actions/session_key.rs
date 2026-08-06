@@ -11,7 +11,7 @@ use strum::{Display, FromRepr};
 
 use crate::{
     actions::{ActionData, ModuleData},
-    models::openapi::SetSessionKeyRequest,
+    models::SetSessionKeyRequest,
     types::Environment,
 };
 

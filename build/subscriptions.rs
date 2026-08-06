@@ -198,7 +198,7 @@ fn generate_channel_specs(definitions: &[ChannelDefinition]) -> TokenStream {
 
     quote! {
         // Adjust these imports to match your crate.
-        use crate::models::asyncapi_subs::*;
+        use crate::models::*;
         use crate::types::{ChannelSpec, RequestScope};
 
         #(#namespace_modules)*
@@ -302,7 +302,7 @@ fn generate_subscription_client(definitions: &[ChannelDefinition], namespace: &s
 
     quote! {
         use crate::{
-            models::asyncapi_subs::*,
+            models::*,
             subscriptions::channel_specs::#namespace_ident::*,
             types::{ClientError, EventStream},
             ws_client::WsClient,

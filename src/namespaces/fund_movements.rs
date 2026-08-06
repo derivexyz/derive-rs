@@ -7,7 +7,7 @@ use crate::{
         ActionData, DepositArgs, DepositManager, ModuleType, SpotTransferArgs, SpotTransferData,
         TransferPositionsArgs, WithdrawArgs, WithdrawData,
     },
-    models::openapi::{
+    models::{
         Direction, Instrument, PrivateTransferSpotResponse, PrivateWithdrawResponse,
         TransferPositionsResponse,
     },

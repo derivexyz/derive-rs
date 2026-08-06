@@ -15,11 +15,11 @@ use uuid::Uuid;
 
 use crate::actions::utils::to_e18;
 use crate::constants::{CLIENT_NAME, REFFERAL_CODE};
-use crate::models::openapi::ExecuteQuoteRequest;
-use crate::models::openapi::SendQuoteRequest;
+use crate::models::ExecuteQuoteRequest;
+use crate::models::SendQuoteRequest;
 use crate::{
     actions::{ActionData, ModuleData, ModuleType, utils::decimal_to_u256},
-    models::openapi::{
+    models::{
         Address, Direction, Instrument, PricedLegParamsAndResponse, SignedTransferQuoteRequest,
         TransferPositionsRequest,
     },

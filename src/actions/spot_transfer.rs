@@ -11,7 +11,7 @@ use serde::Deserialize;
 
 use crate::{
     actions::{ActionData, ModuleData, utils::to_e18},
-    models::openapi::{Asset, PrivateTransferSpotRequest, SpotAssetEntry},
+    models::{Asset, PrivateTransferSpotRequest, SpotAssetEntry},
     types::Environment,
 };
 

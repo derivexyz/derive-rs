@@ -1,3 +1,6 @@
+// This file is generated from multiple API specs.
+// Do not edit manually.
+
 #![allow(clippy::derivable_impls)]
 #![allow(clippy::type_complexity)]
 #![allow(clippy::should_implement_trait)]
@@ -698,6 +701,433 @@ impl AssetUniverse {
         Default::default()
     }
 }
+///`AuctionDetails`
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "type": "object",
+///  "required": [
+///    "estimated_bid_price",
+///    "estimated_discount_pnl",
+///    "estimated_mtm",
+///    "estimated_percent_bid",
+///    "last_seen_trade_id",
+///    "margin_type",
+///    "min_cash_transfer",
+///    "min_price_limit",
+///    "subaccount_balances"
+///  ],
+///  "properties": {
+///    "currency": {
+///      "type": [
+///        "string",
+///        "null"
+///      ]
+///    },
+///    "estimated_bid_price": {
+///      "type": "string"
+///    },
+///    "estimated_discount_pnl": {
+///      "type": "string"
+///    },
+///    "estimated_mtm": {
+///      "type": "string"
+///    },
+///    "estimated_percent_bid": {
+///      "type": "string"
+///    },
+///    "last_seen_trade_id": {
+///      "type": "integer",
+///      "format": "int64"
+///    },
+///    "margin_type": {
+///      "type": "string"
+///    },
+///    "min_cash_transfer": {
+///      "type": "string"
+///    },
+///    "min_price_limit": {
+///      "type": "string"
+///    },
+///    "subaccount_balances": {
+///      "type": "string"
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct AuctionDetails {
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub currency: ::std::option::Option<::std::string::String>,
+    pub estimated_bid_price: ::std::string::String,
+    pub estimated_discount_pnl: ::std::string::String,
+    pub estimated_mtm: ::std::string::String,
+    pub estimated_percent_bid: ::std::string::String,
+    pub last_seen_trade_id: i64,
+    pub margin_type: ::std::string::String,
+    pub min_cash_transfer: ::std::string::String,
+    pub min_price_limit: ::std::string::String,
+    pub subaccount_balances: ::std::string::String,
+}
+impl AuctionDetails {
+    pub fn builder() -> builder::AuctionDetails {
+        Default::default()
+    }
+}
+///Payload for `auctions.watch`.
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "description": "Payload for `auctions.watch`.",
+///  "type": "object",
+///  "required": [
+///    "state",
+///    "subaccount_id",
+///    "timestamp"
+///  ],
+///  "properties": {
+///    "details": {
+///      "anyOf": [
+///        {
+///          "$ref": "#/definitions/AuctionDetails"
+///        },
+///        {
+///          "type": "null"
+///        }
+///      ]
+///    },
+///    "state": {
+///      "$ref": "#/definitions/AuctionStateType"
+///    },
+///    "subaccount_id": {
+///      "type": "integer",
+///      "format": "int64"
+///    },
+///    "timestamp": {
+///      "type": "integer",
+///      "format": "int64"
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct AuctionResult {
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub details: ::std::option::Option<AuctionDetails>,
+    pub state: AuctionStateType,
+    pub subaccount_id: i64,
+    pub timestamp: i64,
+}
+impl AuctionResult {
+    pub fn builder() -> builder::AuctionResult {
+        Default::default()
+    }
+}
+///`AuctionStateType`
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "type": "string",
+///  "enum": [
+///    "ongoing",
+///    "ended"
+///  ]
+///}
+/// ```
+/// </details>
+#[derive(
+    ::serde::Deserialize,
+    ::serde::Serialize,
+    Clone,
+    Copy,
+    Debug,
+    Eq,
+    Hash,
+    Ord,
+    PartialEq,
+    PartialOrd
+)]
+pub enum AuctionStateType {
+    #[serde(rename = "ongoing")]
+    Ongoing,
+    #[serde(rename = "ended")]
+    Ended,
+}
+impl ::std::fmt::Display for AuctionStateType {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        match *self {
+            Self::Ongoing => f.write_str("ongoing"),
+            Self::Ended => f.write_str("ended"),
+        }
+    }
+}
+impl ::std::str::FromStr for AuctionStateType {
+    type Err = self::error::ConversionError;
+    fn from_str(
+        value: &str,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        match value {
+            "ongoing" => Ok(Self::Ongoing),
+            "ended" => Ok(Self::Ended),
+            _ => Err("invalid value".into()),
+        }
+    }
+}
+impl ::std::convert::TryFrom<&str> for AuctionStateType {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: &str,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<&::std::string::String> for AuctionStateType {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: &::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for AuctionStateType {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+///`AuctionsWatchNotification`
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "$ref": "#/definitions/AuctionResult"
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+#[serde(transparent)]
+pub struct AuctionsWatchNotification(pub AuctionResult);
+impl ::std::ops::Deref for AuctionsWatchNotification {
+    type Target = AuctionResult;
+    fn deref(&self) -> &AuctionResult {
+        &self.0
+    }
+}
+impl ::std::convert::From<AuctionsWatchNotification> for AuctionResult {
+    fn from(value: AuctionsWatchNotification) -> Self {
+        value.0
+    }
+}
+impl ::std::convert::From<AuctionResult> for AuctionsWatchNotification {
+    fn from(value: AuctionResult) -> Self {
+        Self(value)
+    }
+}
+///`BalanceUpdate`
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "type": "object",
+///  "required": [
+///    "name",
+///    "new_balance",
+///    "previous_balance",
+///    "update_type"
+///  ],
+///  "properties": {
+///    "name": {
+///      "type": "string"
+///    },
+///    "new_balance": {
+///      "description": "Decimal string of the human value (e.g. `\"1.5\"`), up to 12 fractional digits; a string or JSON number is accepted",
+///      "type": "string",
+///      "format": "decimal",
+///      "x-rust-type": {
+///        "crate": "bigdecimal",
+///        "path": "bigdecimal::BigDecimal",
+///        "version": ">=0.4.0, <0.5.0"
+///      }
+///    },
+///    "previous_balance": {
+///      "description": "Decimal string of the human value (e.g. `\"1.5\"`), up to 12 fractional digits; a string or JSON number is accepted",
+///      "type": "string",
+///      "format": "decimal",
+///      "x-rust-type": {
+///        "crate": "bigdecimal",
+///        "path": "bigdecimal::BigDecimal",
+///        "version": ">=0.4.0, <0.5.0"
+///      }
+///    },
+///    "update_type": {
+///      "$ref": "#/definitions/BalanceUpdateType"
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct BalanceUpdate {
+    pub name: ::std::string::String,
+    ///Decimal string of the human value (e.g. `"1.5"`), up to 12 fractional digits; a string or JSON number is accepted
+    pub new_balance: ::bigdecimal::BigDecimal,
+    ///Decimal string of the human value (e.g. `"1.5"`), up to 12 fractional digits; a string or JSON number is accepted
+    pub previous_balance: ::bigdecimal::BigDecimal,
+    pub update_type: BalanceUpdateType,
+}
+impl BalanceUpdate {
+    pub fn builder() -> builder::BalanceUpdate {
+        Default::default()
+    }
+}
+///`BalanceUpdateType`
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "type": "string",
+///  "enum": [
+///    "trade",
+///    "asset_deposit",
+///    "asset_withdrawal",
+///    "transfer",
+///    "subaccount_deposit",
+///    "subaccount_withdrawal",
+///    "liquidation",
+///    "liquidator",
+///    "onchain_drift_fix",
+///    "perp_settlement",
+///    "option_settlement",
+///    "interest_accrual",
+///    "onchain_revert",
+///    "double_revert"
+///  ]
+///}
+/// ```
+/// </details>
+#[derive(
+    ::serde::Deserialize,
+    ::serde::Serialize,
+    Clone,
+    Copy,
+    Debug,
+    Eq,
+    Hash,
+    Ord,
+    PartialEq,
+    PartialOrd
+)]
+pub enum BalanceUpdateType {
+    #[serde(rename = "trade")]
+    Trade,
+    #[serde(rename = "asset_deposit")]
+    AssetDeposit,
+    #[serde(rename = "asset_withdrawal")]
+    AssetWithdrawal,
+    #[serde(rename = "transfer")]
+    Transfer,
+    #[serde(rename = "subaccount_deposit")]
+    SubaccountDeposit,
+    #[serde(rename = "subaccount_withdrawal")]
+    SubaccountWithdrawal,
+    #[serde(rename = "liquidation")]
+    Liquidation,
+    #[serde(rename = "liquidator")]
+    Liquidator,
+    #[serde(rename = "onchain_drift_fix")]
+    OnchainDriftFix,
+    #[serde(rename = "perp_settlement")]
+    PerpSettlement,
+    #[serde(rename = "option_settlement")]
+    OptionSettlement,
+    #[serde(rename = "interest_accrual")]
+    InterestAccrual,
+    #[serde(rename = "onchain_revert")]
+    OnchainRevert,
+    #[serde(rename = "double_revert")]
+    DoubleRevert,
+}
+impl ::std::fmt::Display for BalanceUpdateType {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        match *self {
+            Self::Trade => f.write_str("trade"),
+            Self::AssetDeposit => f.write_str("asset_deposit"),
+            Self::AssetWithdrawal => f.write_str("asset_withdrawal"),
+            Self::Transfer => f.write_str("transfer"),
+            Self::SubaccountDeposit => f.write_str("subaccount_deposit"),
+            Self::SubaccountWithdrawal => f.write_str("subaccount_withdrawal"),
+            Self::Liquidation => f.write_str("liquidation"),
+            Self::Liquidator => f.write_str("liquidator"),
+            Self::OnchainDriftFix => f.write_str("onchain_drift_fix"),
+            Self::PerpSettlement => f.write_str("perp_settlement"),
+            Self::OptionSettlement => f.write_str("option_settlement"),
+            Self::InterestAccrual => f.write_str("interest_accrual"),
+            Self::OnchainRevert => f.write_str("onchain_revert"),
+            Self::DoubleRevert => f.write_str("double_revert"),
+        }
+    }
+}
+impl ::std::str::FromStr for BalanceUpdateType {
+    type Err = self::error::ConversionError;
+    fn from_str(
+        value: &str,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        match value {
+            "trade" => Ok(Self::Trade),
+            "asset_deposit" => Ok(Self::AssetDeposit),
+            "asset_withdrawal" => Ok(Self::AssetWithdrawal),
+            "transfer" => Ok(Self::Transfer),
+            "subaccount_deposit" => Ok(Self::SubaccountDeposit),
+            "subaccount_withdrawal" => Ok(Self::SubaccountWithdrawal),
+            "liquidation" => Ok(Self::Liquidation),
+            "liquidator" => Ok(Self::Liquidator),
+            "onchain_drift_fix" => Ok(Self::OnchainDriftFix),
+            "perp_settlement" => Ok(Self::PerpSettlement),
+            "option_settlement" => Ok(Self::OptionSettlement),
+            "interest_accrual" => Ok(Self::InterestAccrual),
+            "onchain_revert" => Ok(Self::OnchainRevert),
+            "double_revert" => Ok(Self::DoubleRevert),
+            _ => Err("invalid value".into()),
+        }
+    }
+}
+impl ::std::convert::TryFrom<&str> for BalanceUpdateType {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: &str,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<&::std::string::String> for BalanceUpdateType {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: &::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for BalanceUpdateType {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
 ///Batch lifecycle status — the single source of lifecycle truth for every operation in the batch (individual ops carry no status of their own). Each stage has a healthy variant and a corresponding `...Error` variant meaning that stage failed. Serialized as the variant name (string) in API responses.
 ///
 /// <details><summary>JSON schema</summary>
@@ -803,6 +1233,61 @@ impl ::std::convert::TryFrom<::std::string::String> for BatchStatus {
         value: ::std::string::String,
     ) -> ::std::result::Result<Self, self::error::ConversionError> {
         value.parse()
+    }
+}
+///Payload for `{subaccount_id}.best.quotes`.
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "description": "Payload for `{subaccount_id}.best.quotes`.",
+///  "type": "object",
+///  "required": [
+///    "rfq_id"
+///  ],
+///  "properties": {
+///    "error": {
+///      "anyOf": [
+///        {
+///          "$ref": "#/definitions/RPCError"
+///        },
+///        {
+///          "type": "null"
+///        }
+///      ]
+///    },
+///    "result": {
+///      "anyOf": [
+///        {
+///          "$ref": "#/definitions/RfqGetBestQuoteResponse"
+///        },
+///        {
+///          "type": "null"
+///        }
+///      ]
+///    },
+///    "rfq_id": {
+///      "description": "UUID v4 string",
+///      "type": "string",
+///      "format": "uuid"
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct BestQuoteChannelResult {
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub error: ::std::option::Option<RpcError>,
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub result: ::std::option::Option<RfqGetBestQuoteResponse>,
+    ///UUID v4 string
+    pub rfq_id: ::uuid::Uuid,
+}
+impl BestQuoteChannelResult {
+    pub fn builder() -> builder::BestQuoteChannelResult {
+        Default::default()
     }
 }
 ///Fields common to every signed vault action. They appear alongside each endpoint's action-specific parameters in the same request object.
@@ -7023,6 +7508,38 @@ impl InterestRateHistoryResult {
         Default::default()
     }
 }
+///`JsonRpcId`
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "anyOf": [
+///    {
+///      "type": "string"
+///    },
+///    {
+///      "type": "number"
+///    },
+///    {
+///      "type": "null"
+///    }
+///  ]
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+#[serde(untagged)]
+pub enum JsonRpcId {
+    String(::std::string::String),
+    Number(f64),
+    Null,
+}
+impl ::std::convert::From<f64> for JsonRpcId {
+    fn from(value: f64) -> Self {
+        Self::Number(value)
+    }
+}
 ///`LegUnpricedParams`
 ///
 /// <details><summary>JSON schema</summary>
@@ -7189,6 +7706,71 @@ impl ::std::convert::TryFrom<::std::string::String> for LiquidityRole {
         value.parse()
     }
 }
+///Login params. The wallet/timestamp/signature fields are typically supplied via headers (`X-Derive*`) for REST and via the JSON body for websocket; all are optional on the wire and validated server-side.
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "description": "Login params. The wallet/timestamp/signature fields are typically supplied via headers (`X-Derive*`) for REST and via the JSON body for websocket; all are optional on the wire and validated server-side.",
+///  "type": "object",
+///  "properties": {
+///    "signature": {
+///      "description": "EIP-191 signature of the `timestamp` string, signed by the wallet or session key.",
+///      "default": null,
+///      "type": [
+///        "string",
+///        "null"
+///      ]
+///    },
+///    "timestamp": {
+///      "description": "Milliseconds since Unix epoch. Accepted as either a JSON number or a string-encoded integer.",
+///      "default": null,
+///      "type": [
+///        "integer",
+///        "null"
+///      ],
+///      "format": "uint64",
+///      "minimum": 0.0
+///    },
+///    "wallet": {
+///      "description": "Owner of account (not the session key).",
+///      "default": null,
+///      "type": [
+///        "string",
+///        "null"
+///      ]
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct LoginRequest {
+    ///EIP-191 signature of the `timestamp` string, signed by the wallet or session key.
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub signature: ::std::option::Option<::std::string::String>,
+    ///Milliseconds since Unix epoch. Accepted as either a JSON number or a string-encoded integer.
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub timestamp: ::std::option::Option<u64>,
+    ///Owner of account (not the session key).
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub wallet: ::std::option::Option<::std::string::String>,
+}
+impl ::std::default::Default for LoginRequest {
+    fn default() -> Self {
+        Self {
+            signature: Default::default(),
+            timestamp: Default::default(),
+            wallet: Default::default(),
+        }
+    }
+}
+impl LoginRequest {
+    pub fn builder() -> builder::LoginRequest {
+        Default::default()
+    }
+}
 ///A spot asset the manager accepts as collateral, with deposit metadata and the manager's margin discounts for it ("1" = full credit, cash).
 ///
 /// <details><summary>JSON schema</summary>
@@ -7325,6 +7907,107 @@ impl ::std::convert::TryFrom<::std::string::String> for MarginType {
         value: ::std::string::String,
     ) -> ::std::result::Result<Self, self::error::ConversionError> {
         value.parse()
+    }
+}
+///`MarginWatchNotification`
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "$ref": "#/definitions/MarginWatchResult"
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+#[serde(transparent)]
+pub struct MarginWatchNotification(pub MarginWatchResult);
+impl ::std::ops::Deref for MarginWatchNotification {
+    type Target = MarginWatchResult;
+    fn deref(&self) -> &MarginWatchResult {
+        &self.0
+    }
+}
+impl ::std::convert::From<MarginWatchNotification> for MarginWatchResult {
+    fn from(value: MarginWatchNotification) -> Self {
+        value.0
+    }
+}
+impl ::std::convert::From<MarginWatchResult> for MarginWatchNotification {
+    fn from(value: MarginWatchResult) -> Self {
+        Self(value)
+    }
+}
+///Payload for `margin.watch`.
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "description": "Payload for `margin.watch`.",
+///  "type": "object",
+///  "required": [
+///    "collaterals",
+///    "currency",
+///    "initial_margin",
+///    "maintenance_margin",
+///    "margin_type",
+///    "positions",
+///    "subaccount_id",
+///    "subaccount_value",
+///    "valuation_timestamp"
+///  ],
+///  "properties": {
+///    "collaterals": {
+///      "type": "array",
+///      "items": true
+///    },
+///    "currency": {
+///      "type": "string"
+///    },
+///    "initial_margin": {
+///      "type": "string"
+///    },
+///    "maintenance_margin": {
+///      "type": "string"
+///    },
+///    "margin_type": {
+///      "type": "string"
+///    },
+///    "positions": {
+///      "type": "array",
+///      "items": true
+///    },
+///    "subaccount_id": {
+///      "type": "integer",
+///      "format": "int64"
+///    },
+///    "subaccount_value": {
+///      "type": "string"
+///    },
+///    "valuation_timestamp": {
+///      "type": "integer",
+///      "format": "int64"
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct MarginWatchResult {
+    pub collaterals: ::std::vec::Vec<::serde_json::Value>,
+    pub currency: ::std::string::String,
+    pub initial_margin: ::std::string::String,
+    pub maintenance_margin: ::std::string::String,
+    pub margin_type: ::std::string::String,
+    pub positions: ::std::vec::Vec<::serde_json::Value>,
+    pub subaccount_id: i64,
+    pub subaccount_value: ::std::string::String,
+    pub valuation_timestamp: i64,
+}
+impl MarginWatchResult {
+    pub fn builder() -> builder::MarginWatchResult {
+        Default::default()
     }
 }
 ///`MarketType`
@@ -9257,6 +9940,38 @@ impl OrderQuoteResponse {
         Default::default()
     }
 }
+///`OrderSnapshot`
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "type": "object",
+///  "required": [
+///    "amount",
+///    "price"
+///  ],
+///  "properties": {
+///    "amount": {
+///      "type": "string"
+///    },
+///    "price": {
+///      "type": "string"
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct OrderSnapshot {
+    pub amount: ::std::string::String,
+    pub price: ::std::string::String,
+}
+impl OrderSnapshot {
+    pub fn builder() -> builder::OrderSnapshot {
+        Default::default()
+    }
+}
 ///`OrderStatus`
 ///
 /// <details><summary>JSON schema</summary>
@@ -9432,6 +10147,91 @@ impl ::std::convert::TryFrom<::std::string::String> for OrderType {
         value: ::std::string::String,
     ) -> ::std::result::Result<Self, self::error::ConversionError> {
         value.parse()
+    }
+}
+///`OrderbookNotification`
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "$ref": "#/definitions/OrderbookSnapshot"
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+#[serde(transparent)]
+pub struct OrderbookNotification(pub OrderbookSnapshot);
+impl ::std::ops::Deref for OrderbookNotification {
+    type Target = OrderbookSnapshot;
+    fn deref(&self) -> &OrderbookSnapshot {
+        &self.0
+    }
+}
+impl ::std::convert::From<OrderbookNotification> for OrderbookSnapshot {
+    fn from(value: OrderbookNotification) -> Self {
+        value.0
+    }
+}
+impl ::std::convert::From<OrderbookSnapshot> for OrderbookNotification {
+    fn from(value: OrderbookSnapshot) -> Self {
+        Self(value)
+    }
+}
+///`OrderbookSnapshot`
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "type": "object",
+///  "required": [
+///    "asks",
+///    "bids",
+///    "instrument_name",
+///    "publish_id",
+///    "timestamp"
+///  ],
+///  "properties": {
+///    "asks": {
+///      "type": "array",
+///      "items": {
+///        "$ref": "#/definitions/OrderSnapshot"
+///      }
+///    },
+///    "bids": {
+///      "type": "array",
+///      "items": {
+///        "$ref": "#/definitions/OrderSnapshot"
+///      }
+///    },
+///    "instrument_name": {
+///      "type": "string"
+///    },
+///    "publish_id": {
+///      "type": "integer",
+///      "format": "uint64",
+///      "minimum": 0.0
+///    },
+///    "timestamp": {
+///      "type": "integer",
+///      "format": "int64"
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct OrderbookSnapshot {
+    pub asks: ::std::vec::Vec<OrderSnapshot>,
+    pub bids: ::std::vec::Vec<OrderSnapshot>,
+    pub instrument_name: ::std::string::String,
+    pub publish_id: u64,
+    pub timestamp: i64,
+}
+impl OrderbookSnapshot {
+    pub fn builder() -> builder::OrderbookSnapshot {
+        Default::default()
     }
 }
 ///`PaginatedOrdersResult`
@@ -10908,6 +11708,107 @@ impl PrivateSessionKeysResponse {
         Default::default()
     }
 }
+///`PrivateSetCancelOnDisconnectRequest`
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "type": "object",
+///  "required": [
+///    "id",
+///    "method",
+///    "params"
+///  ],
+///  "properties": {
+///    "headers": {
+///      "description": "Non-standard; used by `auth/login`.",
+///      "type": [
+///        "object",
+///        "null"
+///      ],
+///      "additionalProperties": true
+///    },
+///    "id": {
+///      "$ref": "#/definitions/JsonRpcId"
+///    },
+///    "method": {
+///      "type": "string",
+///      "const": "private/set_cancel_on_disconnect"
+///    },
+///    "params": {
+///      "$ref": "#/definitions/SetCancelOnDisconnectRequest"
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct PrivateSetCancelOnDisconnectRequest {
+    ///Non-standard; used by `auth/login`.
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub headers: ::std::option::Option<
+        ::serde_json::Map<::std::string::String, ::serde_json::Value>,
+    >,
+    pub id: JsonRpcId,
+    pub method: ::std::string::String,
+    pub params: SetCancelOnDisconnectRequest,
+}
+impl PrivateSetCancelOnDisconnectRequest {
+    pub fn builder() -> builder::PrivateSetCancelOnDisconnectRequest {
+        Default::default()
+    }
+}
+///`PrivateSetCancelOnDisconnectResponse`
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "type": "object",
+///  "anyOf": [
+///    {
+///      "title": "Success",
+///      "type": "object",
+///      "required": [
+///        "result"
+///      ],
+///      "properties": {
+///        "result": {
+///          "$ref": "#/definitions/SetCancelOnDisconnectResponse"
+///        }
+///      }
+///    },
+///    {
+///      "title": "Error",
+///      "type": "object",
+///      "required": [
+///        "error"
+///      ],
+///      "properties": {
+///        "error": {
+///          "$ref": "#/definitions/RPCError"
+///        }
+///      }
+///    }
+///  ],
+///  "required": [
+///    "id"
+///  ],
+///  "properties": {
+///    "id": {
+///      "$ref": "#/definitions/JsonRpcId"
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+#[serde(untagged)]
+pub enum PrivateSetCancelOnDisconnectResponse {
+    Variant0 { id: JsonRpcId, result: SetCancelOnDisconnectResponse },
+    Variant1 { error: RpcError, id: JsonRpcId },
+}
 ///`PrivateSetSessionKeyResponse`
 ///
 /// <details><summary>JSON schema</summary>
@@ -11593,6 +12494,112 @@ impl PublicGetWalletsFromSessionKeyResponse {
         Default::default()
     }
 }
+///`PublicLoginRequest`
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "type": "object",
+///  "required": [
+///    "id",
+///    "method",
+///    "params"
+///  ],
+///  "properties": {
+///    "headers": {
+///      "description": "Non-standard; used by `auth/login`.",
+///      "type": [
+///        "object",
+///        "null"
+///      ],
+///      "additionalProperties": true
+///    },
+///    "id": {
+///      "$ref": "#/definitions/JsonRpcId"
+///    },
+///    "method": {
+///      "type": "string",
+///      "const": "public/login"
+///    },
+///    "params": {
+///      "$ref": "#/definitions/LoginRequest"
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct PublicLoginRequest {
+    ///Non-standard; used by `auth/login`.
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub headers: ::std::option::Option<
+        ::serde_json::Map<::std::string::String, ::serde_json::Value>,
+    >,
+    pub id: JsonRpcId,
+    pub method: ::std::string::String,
+    pub params: LoginRequest,
+}
+impl PublicLoginRequest {
+    pub fn builder() -> builder::PublicLoginRequest {
+        Default::default()
+    }
+}
+///`PublicLoginResponse`
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "type": "object",
+///  "anyOf": [
+///    {
+///      "title": "Success",
+///      "type": "object",
+///      "required": [
+///        "result"
+///      ],
+///      "properties": {
+///        "result": {
+///          "type": "array",
+///          "items": {
+///            "type": "integer",
+///            "format": "uint64",
+///            "minimum": 0.0
+///          }
+///        }
+///      }
+///    },
+///    {
+///      "title": "Error",
+///      "type": "object",
+///      "required": [
+///        "error"
+///      ],
+///      "properties": {
+///        "error": {
+///          "$ref": "#/definitions/RPCError"
+///        }
+///      }
+///    }
+///  ],
+///  "required": [
+///    "id"
+///  ],
+///  "properties": {
+///    "id": {
+///      "$ref": "#/definitions/JsonRpcId"
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+#[serde(untagged)]
+pub enum PublicLoginResponse {
+    Variant0 { id: JsonRpcId, result: ::std::vec::Vec<u64> },
+    Variant1 { error: RpcError, id: JsonRpcId },
+}
 ///`PublicQuote`
 ///
 /// <details><summary>JSON schema</summary>
@@ -12025,6 +13032,85 @@ pub struct PublicStartAuctionResponse {
 }
 impl PublicStartAuctionResponse {
     pub fn builder() -> builder::PublicStartAuctionResponse {
+        Default::default()
+    }
+}
+///`PublicTrade`
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "type": "object",
+///  "required": [
+///    "direction",
+///    "index_price",
+///    "instrument_name",
+///    "mark_price",
+///    "timestamp",
+///    "trade_amount",
+///    "trade_id",
+///    "trade_price"
+///  ],
+///  "properties": {
+///    "direction": {
+///      "$ref": "#/definitions/Direction"
+///    },
+///    "index_price": {
+///      "type": "string"
+///    },
+///    "instrument_name": {
+///      "type": "string"
+///    },
+///    "mark_price": {
+///      "type": "string"
+///    },
+///    "quote_id": {
+///      "type": [
+///        "string",
+///        "null"
+///      ]
+///    },
+///    "rfq_id": {
+///      "type": [
+///        "string",
+///        "null"
+///      ]
+///    },
+///    "timestamp": {
+///      "type": "integer",
+///      "format": "int64"
+///    },
+///    "trade_amount": {
+///      "type": "string"
+///    },
+///    "trade_id": {
+///      "type": "string"
+///    },
+///    "trade_price": {
+///      "type": "string"
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct PublicTrade {
+    pub direction: Direction,
+    pub index_price: ::std::string::String,
+    pub instrument_name: ::std::string::String,
+    pub mark_price: ::std::string::String,
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub quote_id: ::std::option::Option<::std::string::String>,
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub rfq_id: ::std::option::Option<::std::string::String>,
+    pub timestamp: i64,
+    pub trade_amount: ::std::string::String,
+    pub trade_id: ::std::string::String,
+    pub trade_price: ::std::string::String,
+}
+impl PublicTrade {
+    pub fn builder() -> builder::PublicTrade {
         Default::default()
     }
 }
@@ -12822,6 +13908,210 @@ pub struct QuotePollResponse {
 }
 impl QuotePollResponse {
     pub fn builder() -> builder::QuotePollResponse {
+        Default::default()
+    }
+}
+///`QuotePublishResult`
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "type": "object",
+///  "required": [
+///    "creation_timestamp",
+///    "direction",
+///    "extra_fee",
+///    "fee",
+///    "fill_pct",
+///    "is_transfer",
+///    "label",
+///    "last_update_timestamp",
+///    "legs",
+///    "legs_hash",
+///    "liquidity_role",
+///    "max_fee",
+///    "mmp",
+///    "nonce",
+///    "quote_id",
+///    "rfq_id",
+///    "signature",
+///    "signature_expiry_sec",
+///    "signer",
+///    "status",
+///    "subaccount_id"
+///  ],
+///  "properties": {
+///    "batch_status": {
+///      "anyOf": [
+///        {
+///          "$ref": "#/definitions/BatchStatus"
+///        },
+///        {
+///          "type": "null"
+///        }
+///      ]
+///    },
+///    "cancel_reason": {
+///      "anyOf": [
+///        {
+///          "$ref": "#/definitions/RFQCancelReason"
+///        },
+///        {
+///          "type": "null"
+///        }
+///      ]
+///    },
+///    "creation_timestamp": {
+///      "type": "integer",
+///      "format": "int64"
+///    },
+///    "direction": {
+///      "$ref": "#/definitions/Direction"
+///    },
+///    "extra_fee": {
+///      "description": "Non-negative decimal string of the human value (e.g. `\"1.5\"`), up to 12 fractional digits; a string or JSON number is accepted",
+///      "type": "string",
+///      "format": "decimal",
+///      "x-rust-type": {
+///        "crate": "bigdecimal",
+///        "path": "bigdecimal::BigDecimal",
+///        "version": ">=0.4.0, <0.5.0"
+///      }
+///    },
+///    "fee": {
+///      "description": "Non-negative decimal string of the human value (e.g. `\"1.5\"`), up to 12 fractional digits; a string or JSON number is accepted",
+///      "type": "string",
+///      "format": "decimal",
+///      "x-rust-type": {
+///        "crate": "bigdecimal",
+///        "path": "bigdecimal::BigDecimal",
+///        "version": ">=0.4.0, <0.5.0"
+///      }
+///    },
+///    "fill_pct": {
+///      "description": "Non-negative decimal string of the human value (e.g. `\"1.5\"`), up to 12 fractional digits; a string or JSON number is accepted",
+///      "type": "string",
+///      "format": "decimal",
+///      "x-rust-type": {
+///        "crate": "bigdecimal",
+///        "path": "bigdecimal::BigDecimal",
+///        "version": ">=0.4.0, <0.5.0"
+///      }
+///    },
+///    "is_transfer": {
+///      "type": "boolean"
+///    },
+///    "label": {
+///      "type": "string"
+///    },
+///    "last_update_timestamp": {
+///      "type": "integer",
+///      "format": "int64"
+///    },
+///    "legs": {
+///      "type": "array",
+///      "items": {
+///        "$ref": "#/definitions/PricedLegParamsAndResponse"
+///      }
+///    },
+///    "legs_hash": {
+///      "type": "string"
+///    },
+///    "liquidity_role": {
+///      "$ref": "#/definitions/LiquidityRole"
+///    },
+///    "max_fee": {
+///      "description": "Non-negative decimal string of the human value (e.g. `\"1.5\"`), up to 12 fractional digits; a string or JSON number is accepted",
+///      "type": "string",
+///      "format": "decimal",
+///      "x-rust-type": {
+///        "crate": "bigdecimal",
+///        "path": "bigdecimal::BigDecimal",
+///        "version": ">=0.4.0, <0.5.0"
+///      }
+///    },
+///    "mmp": {
+///      "type": "boolean"
+///    },
+///    "nonce": {
+///      "type": "string"
+///    },
+///    "quote_id": {
+///      "description": "UUID v4 string",
+///      "type": "string",
+///      "format": "uuid"
+///    },
+///    "rfq_id": {
+///      "description": "UUID v4 string",
+///      "type": "string",
+///      "format": "uuid"
+///    },
+///    "signature": {
+///      "type": "string"
+///    },
+///    "signature_expiry_sec": {
+///      "type": "integer",
+///      "format": "int64"
+///    },
+///    "signer": {
+///      "type": "string"
+///    },
+///    "status": {
+///      "$ref": "#/definitions/RFQStatus"
+///    },
+///    "subaccount_id": {
+///      "type": "integer",
+///      "format": "int64"
+///    },
+///    "tx_hash": {
+///      "type": [
+///        "string",
+///        "null"
+///      ]
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct QuotePublishResult {
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub batch_status: ::std::option::Option<BatchStatus>,
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub cancel_reason: ::std::option::Option<RfqCancelReason>,
+    pub creation_timestamp: i64,
+    pub direction: Direction,
+    ///Non-negative decimal string of the human value (e.g. `"1.5"`), up to 12 fractional digits; a string or JSON number is accepted
+    pub extra_fee: ::bigdecimal::BigDecimal,
+    ///Non-negative decimal string of the human value (e.g. `"1.5"`), up to 12 fractional digits; a string or JSON number is accepted
+    pub fee: ::bigdecimal::BigDecimal,
+    ///Non-negative decimal string of the human value (e.g. `"1.5"`), up to 12 fractional digits; a string or JSON number is accepted
+    pub fill_pct: ::bigdecimal::BigDecimal,
+    pub is_transfer: bool,
+    pub label: ::std::string::String,
+    pub last_update_timestamp: i64,
+    pub legs: ::std::vec::Vec<PricedLegParamsAndResponse>,
+    pub legs_hash: ::std::string::String,
+    pub liquidity_role: LiquidityRole,
+    ///Non-negative decimal string of the human value (e.g. `"1.5"`), up to 12 fractional digits; a string or JSON number is accepted
+    pub max_fee: ::bigdecimal::BigDecimal,
+    pub mmp: bool,
+    pub nonce: ::std::string::String,
+    ///UUID v4 string
+    pub quote_id: ::uuid::Uuid,
+    ///UUID v4 string
+    pub rfq_id: ::uuid::Uuid,
+    pub signature: ::std::string::String,
+    pub signature_expiry_sec: i64,
+    pub signer: ::std::string::String,
+    pub status: RfqStatus,
+    pub subaccount_id: i64,
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub tx_hash: ::std::option::Option<::std::string::String>,
+}
+impl QuotePublishResult {
+    pub fn builder() -> builder::QuotePublishResult {
         Default::default()
     }
 }
@@ -15548,6 +16838,129 @@ impl SessionKeysRequest {
         Default::default()
     }
 }
+///`private/set_cancel_on_disconnect` params. `wallet` is captured by the auth context.
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "description": "`private/set_cancel_on_disconnect` params. `wallet` is captured by the auth context.",
+///  "type": "object",
+///  "properties": {
+///    "enabled": {
+///      "description": "Whether to enable or disable cancel on disconnect.",
+///      "default": null,
+///      "type": [
+///        "boolean",
+///        "null"
+///      ]
+///    },
+///    "wallet": {
+///      "description": "Wallet address.",
+///      "default": null,
+///      "type": [
+///        "string",
+///        "null"
+///      ]
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct SetCancelOnDisconnectRequest {
+    ///Whether to enable or disable cancel on disconnect.
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub enabled: ::std::option::Option<bool>,
+    ///Wallet address.
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub wallet: ::std::option::Option<::std::string::String>,
+}
+impl ::std::default::Default for SetCancelOnDisconnectRequest {
+    fn default() -> Self {
+        Self {
+            enabled: Default::default(),
+            wallet: Default::default(),
+        }
+    }
+}
+impl SetCancelOnDisconnectRequest {
+    pub fn builder() -> builder::SetCancelOnDisconnectRequest {
+        Default::default()
+    }
+}
+///The literal string `"ok"` returned on success.
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "description": "The literal string `\"ok\"` returned on success.",
+///  "type": "string",
+///  "enum": [
+///    "ok"
+///  ]
+///}
+/// ```
+/// </details>
+#[derive(
+    ::serde::Deserialize,
+    ::serde::Serialize,
+    Clone,
+    Copy,
+    Debug,
+    Eq,
+    Hash,
+    Ord,
+    PartialEq,
+    PartialOrd
+)]
+pub enum SetCancelOnDisconnectResponse {
+    #[serde(rename = "ok")]
+    Ok,
+}
+impl ::std::fmt::Display for SetCancelOnDisconnectResponse {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        match *self {
+            Self::Ok => f.write_str("ok"),
+        }
+    }
+}
+impl ::std::str::FromStr for SetCancelOnDisconnectResponse {
+    type Err = self::error::ConversionError;
+    fn from_str(
+        value: &str,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        match value {
+            "ok" => Ok(Self::Ok),
+            _ => Err("invalid value".into()),
+        }
+    }
+}
+impl ::std::convert::TryFrom<&str> for SetCancelOnDisconnectResponse {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: &str,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<&::std::string::String> for SetCancelOnDisconnectResponse {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: &::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for SetCancelOnDisconnectResponse {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
 ///`mmp_interval` and `mmp_frozen_time` are specified in milliseconds (rounded down to the nearest whole second).
 ///
 /// <details><summary>JSON schema</summary>
@@ -16257,6 +17670,159 @@ impl SpotFeedDataResponse {
         Default::default()
     }
 }
+///`SpotFeedEntry`
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "type": "object",
+///  "required": [
+///    "confidence",
+///    "confidence_prev_daily",
+///    "price",
+///    "price_prev_daily",
+///    "timestamp_prev_daily"
+///  ],
+///  "properties": {
+///    "confidence": {
+///      "type": "string"
+///    },
+///    "confidence_prev_daily": {
+///      "type": "string"
+///    },
+///    "price": {
+///      "type": "string"
+///    },
+///    "price_prev_daily": {
+///      "type": "string"
+///    },
+///    "timestamp_prev_daily": {
+///      "type": "integer",
+///      "format": "int64"
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct SpotFeedEntry {
+    pub confidence: ::std::string::String,
+    pub confidence_prev_daily: ::std::string::String,
+    pub price: ::std::string::String,
+    pub price_prev_daily: ::std::string::String,
+    pub timestamp_prev_daily: i64,
+}
+impl SpotFeedEntry {
+    pub fn builder() -> builder::SpotFeedEntry {
+        Default::default()
+    }
+}
+///`SpotFeedNotification`
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "$ref": "#/definitions/SpotFeedPayload"
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+#[serde(transparent)]
+pub struct SpotFeedNotification(pub SpotFeedPayload);
+impl ::std::ops::Deref for SpotFeedNotification {
+    type Target = SpotFeedPayload;
+    fn deref(&self) -> &SpotFeedPayload {
+        &self.0
+    }
+}
+impl ::std::convert::From<SpotFeedNotification> for SpotFeedPayload {
+    fn from(value: SpotFeedNotification) -> Self {
+        value.0
+    }
+}
+impl ::std::convert::From<SpotFeedPayload> for SpotFeedNotification {
+    fn from(value: SpotFeedPayload) -> Self {
+        Self(value)
+    }
+}
+///Payload for `spot_feed.{currency}` (and `spot_feed.ALL`).
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "description": "Payload for `spot_feed.{currency}` (and `spot_feed.ALL`).",
+///  "type": "object",
+///  "required": [
+///    "feeds",
+///    "timestamp"
+///  ],
+///  "properties": {
+///    "feeds": {
+///      "type": "object",
+///      "properties": {
+///        "{key}": {
+///          "$ref": "#/definitions/SpotFeedEntry"
+///        }
+///      },
+///      "additionalProperties": {
+///        "$ref": "#/definitions/SpotFeedEntry"
+///      }
+///    },
+///    "timestamp": {
+///      "type": "integer",
+///      "format": "int64"
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct SpotFeedPayload {
+    pub feeds: SpotFeedPayloadFeeds,
+    pub timestamp: i64,
+}
+impl SpotFeedPayload {
+    pub fn builder() -> builder::SpotFeedPayload {
+        Default::default()
+    }
+}
+///`SpotFeedPayloadFeeds`
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "type": "object",
+///  "properties": {
+///    "{key}": {
+///      "$ref": "#/definitions/SpotFeedEntry"
+///    }
+///  },
+///  "additionalProperties": {
+///    "$ref": "#/definitions/SpotFeedEntry"
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct SpotFeedPayloadFeeds {
+    #[serde(
+        rename = "{key}",
+        default,
+        skip_serializing_if = "::std::option::Option::is_none"
+    )]
+    pub key: ::std::option::Option<SpotFeedEntry>,
+    #[serde(flatten)]
+    pub extra: ::std::collections::HashMap<::std::string::String, SpotFeedEntry>,
+}
+impl SpotFeedPayloadFeeds {
+    pub fn builder() -> builder::SpotFeedPayloadFeeds {
+        Default::default()
+    }
+}
 ///`SpotPublicDetails`
 ///
 /// <details><summary>JSON schema</summary>
@@ -16533,6 +18099,413 @@ pub struct Subaccount {
 }
 impl Subaccount {
     pub fn builder() -> builder::Subaccount {
+        Default::default()
+    }
+}
+///`SubaccountBalancesNotification`
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "$ref": "#/definitions/BalanceUpdate"
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+#[serde(transparent)]
+pub struct SubaccountBalancesNotification(pub BalanceUpdate);
+impl ::std::ops::Deref for SubaccountBalancesNotification {
+    type Target = BalanceUpdate;
+    fn deref(&self) -> &BalanceUpdate {
+        &self.0
+    }
+}
+impl ::std::convert::From<SubaccountBalancesNotification> for BalanceUpdate {
+    fn from(value: SubaccountBalancesNotification) -> Self {
+        value.0
+    }
+}
+impl ::std::convert::From<BalanceUpdate> for SubaccountBalancesNotification {
+    fn from(value: BalanceUpdate) -> Self {
+        Self(value)
+    }
+}
+///`SubaccountBestQuotesNotification`
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "$ref": "#/definitions/BestQuoteChannelResult"
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+#[serde(transparent)]
+pub struct SubaccountBestQuotesNotification(pub BestQuoteChannelResult);
+impl ::std::ops::Deref for SubaccountBestQuotesNotification {
+    type Target = BestQuoteChannelResult;
+    fn deref(&self) -> &BestQuoteChannelResult {
+        &self.0
+    }
+}
+impl ::std::convert::From<SubaccountBestQuotesNotification> for BestQuoteChannelResult {
+    fn from(value: SubaccountBestQuotesNotification) -> Self {
+        value.0
+    }
+}
+impl ::std::convert::From<BestQuoteChannelResult> for SubaccountBestQuotesNotification {
+    fn from(value: BestQuoteChannelResult) -> Self {
+        Self(value)
+    }
+}
+///`SubaccountOrdersNotification`
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "$ref": "#/definitions/Order"
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+#[serde(transparent)]
+pub struct SubaccountOrdersNotification(pub Order);
+impl ::std::ops::Deref for SubaccountOrdersNotification {
+    type Target = Order;
+    fn deref(&self) -> &Order {
+        &self.0
+    }
+}
+impl ::std::convert::From<SubaccountOrdersNotification> for Order {
+    fn from(value: SubaccountOrdersNotification) -> Self {
+        value.0
+    }
+}
+impl ::std::convert::From<Order> for SubaccountOrdersNotification {
+    fn from(value: Order) -> Self {
+        Self(value)
+    }
+}
+///`SubaccountQuotesNotification`
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "$ref": "#/definitions/QuotePublishResult"
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+#[serde(transparent)]
+pub struct SubaccountQuotesNotification(pub QuotePublishResult);
+impl ::std::ops::Deref for SubaccountQuotesNotification {
+    type Target = QuotePublishResult;
+    fn deref(&self) -> &QuotePublishResult {
+        &self.0
+    }
+}
+impl ::std::convert::From<SubaccountQuotesNotification> for QuotePublishResult {
+    fn from(value: SubaccountQuotesNotification) -> Self {
+        value.0
+    }
+}
+impl ::std::convert::From<QuotePublishResult> for SubaccountQuotesNotification {
+    fn from(value: QuotePublishResult) -> Self {
+        Self(value)
+    }
+}
+///`SubaccountTradesBatchStatusNotification`
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "$ref": "#/definitions/Trade"
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+#[serde(transparent)]
+pub struct SubaccountTradesBatchStatusNotification(pub Trade);
+impl ::std::ops::Deref for SubaccountTradesBatchStatusNotification {
+    type Target = Trade;
+    fn deref(&self) -> &Trade {
+        &self.0
+    }
+}
+impl ::std::convert::From<SubaccountTradesBatchStatusNotification> for Trade {
+    fn from(value: SubaccountTradesBatchStatusNotification) -> Self {
+        value.0
+    }
+}
+impl ::std::convert::From<Trade> for SubaccountTradesBatchStatusNotification {
+    fn from(value: Trade) -> Self {
+        Self(value)
+    }
+}
+///`SubaccountTradesNotification`
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "$ref": "#/definitions/Trade"
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+#[serde(transparent)]
+pub struct SubaccountTradesNotification(pub Trade);
+impl ::std::ops::Deref for SubaccountTradesNotification {
+    type Target = Trade;
+    fn deref(&self) -> &Trade {
+        &self.0
+    }
+}
+impl ::std::convert::From<SubaccountTradesNotification> for Trade {
+    fn from(value: SubaccountTradesNotification) -> Self {
+        value.0
+    }
+}
+impl ::std::convert::From<Trade> for SubaccountTradesNotification {
+    fn from(value: Trade) -> Self {
+        Self(value)
+    }
+}
+///Params for `subscribe`. `channels` is the required list of channel names to subscribe to.
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "description": "Params for `subscribe`. `channels` is the required list of channel names to subscribe to.",
+///  "type": "object",
+///  "required": [
+///    "channels"
+///  ],
+///  "properties": {
+///    "channels": {
+///      "type": "array",
+///      "items": {
+///        "type": "string"
+///      }
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct SubscribeParams {
+    pub channels: ::std::vec::Vec<::std::string::String>,
+}
+impl SubscribeParams {
+    pub fn builder() -> builder::SubscribeParams {
+        Default::default()
+    }
+}
+///`SubscribeRequest`
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "type": "object",
+///  "required": [
+///    "id",
+///    "method",
+///    "params"
+///  ],
+///  "properties": {
+///    "headers": {
+///      "description": "Non-standard; used by `auth/login`.",
+///      "type": [
+///        "object",
+///        "null"
+///      ],
+///      "additionalProperties": true
+///    },
+///    "id": {
+///      "$ref": "#/definitions/JsonRpcId"
+///    },
+///    "method": {
+///      "type": "string",
+///      "const": "subscribe"
+///    },
+///    "params": {
+///      "$ref": "#/definitions/SubscribeParams"
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct SubscribeRequest {
+    ///Non-standard; used by `auth/login`.
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub headers: ::std::option::Option<
+        ::serde_json::Map<::std::string::String, ::serde_json::Value>,
+    >,
+    pub id: JsonRpcId,
+    pub method: ::std::string::String,
+    pub params: SubscribeParams,
+}
+impl SubscribeRequest {
+    pub fn builder() -> builder::SubscribeRequest {
+        Default::default()
+    }
+}
+///`SubscribeResponse`
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "type": "object",
+///  "anyOf": [
+///    {
+///      "title": "Success",
+///      "type": "object",
+///      "required": [
+///        "result"
+///      ],
+///      "properties": {
+///        "result": {
+///          "$ref": "#/definitions/SubscribeResult"
+///        }
+///      }
+///    },
+///    {
+///      "title": "Error",
+///      "type": "object",
+///      "required": [
+///        "error"
+///      ],
+///      "properties": {
+///        "error": {
+///          "$ref": "#/definitions/RPCError"
+///        }
+///      }
+///    }
+///  ],
+///  "required": [
+///    "id"
+///  ],
+///  "properties": {
+///    "id": {
+///      "$ref": "#/definitions/JsonRpcId"
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+#[serde(untagged)]
+pub enum SubscribeResponse {
+    Variant0 { id: JsonRpcId, result: SubscribeResult },
+    Variant1 { error: RpcError, id: JsonRpcId },
+}
+///Result for `subscribe`. `status` maps each requested channel to `"ok"` or an error string; `current_subscriptions` is the full set of channels the connection is subscribed to after the operation.
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "description": "Result for `subscribe`. `status` maps each requested channel to `\"ok\"` or an error string; `current_subscriptions` is the full set of channels the connection is subscribed to after the operation.",
+///  "type": "object",
+///  "required": [
+///    "current_subscriptions",
+///    "status"
+///  ],
+///  "properties": {
+///    "current_subscriptions": {
+///      "type": "array",
+///      "items": {
+///        "type": "string"
+///      },
+///      "uniqueItems": true
+///    },
+///    "status": {
+///      "type": "object",
+///      "additionalProperties": true
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct SubscribeResult {
+    pub current_subscriptions: Vec<::std::string::String>,
+    pub status: ::serde_json::Map<::std::string::String, ::serde_json::Value>,
+}
+impl SubscribeResult {
+    pub fn builder() -> builder::SubscribeResult {
+        Default::default()
+    }
+}
+///`TickerSlimNotification`
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "$ref": "#/definitions/TickerSlimPayload"
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+#[serde(transparent)]
+pub struct TickerSlimNotification(pub TickerSlimPayload);
+impl ::std::ops::Deref for TickerSlimNotification {
+    type Target = TickerSlimPayload;
+    fn deref(&self) -> &TickerSlimPayload {
+        &self.0
+    }
+}
+impl ::std::convert::From<TickerSlimNotification> for TickerSlimPayload {
+    fn from(value: TickerSlimNotification) -> Self {
+        value.0
+    }
+}
+impl ::std::convert::From<TickerSlimPayload> for TickerSlimNotification {
+    fn from(value: TickerSlimPayload) -> Self {
+        Self(value)
+    }
+}
+///Payload for `ticker_slim.{instrument}.{interval}`.
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "description": "Payload for `ticker_slim.{instrument}.{interval}`.",
+///  "type": "object",
+///  "required": [
+///    "instrument_ticker",
+///    "timestamp"
+///  ],
+///  "properties": {
+///    "instrument_ticker": {
+///      "$ref": "#/definitions/TickerSlimSnapshot"
+///    },
+///    "timestamp": {
+///      "type": "integer",
+///      "format": "int64"
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct TickerSlimPayload {
+    pub instrument_ticker: crate::models::ticker_slim_schema::TickerSlimSchema,
+    pub timestamp: i64,
+}
+impl TickerSlimPayload {
+    pub fn builder() -> builder::TickerSlimPayload {
         Default::default()
     }
 }
@@ -17093,6 +19066,95 @@ impl TradeHistoryResponse {
         Default::default()
     }
 }
+///`TradesByInstrumentNotification`
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "$ref": "#/definitions/PublicTrade"
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+#[serde(transparent)]
+pub struct TradesByInstrumentNotification(pub PublicTrade);
+impl ::std::ops::Deref for TradesByInstrumentNotification {
+    type Target = PublicTrade;
+    fn deref(&self) -> &PublicTrade {
+        &self.0
+    }
+}
+impl ::std::convert::From<TradesByInstrumentNotification> for PublicTrade {
+    fn from(value: TradesByInstrumentNotification) -> Self {
+        value.0
+    }
+}
+impl ::std::convert::From<PublicTrade> for TradesByInstrumentNotification {
+    fn from(value: PublicTrade) -> Self {
+        Self(value)
+    }
+}
+///`TradesByInstrumentTypeCurrencyBatchStatusNotification`
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "$ref": "#/definitions/SettledTrade"
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+#[serde(transparent)]
+pub struct TradesByInstrumentTypeCurrencyBatchStatusNotification(pub SettledTrade);
+impl ::std::ops::Deref for TradesByInstrumentTypeCurrencyBatchStatusNotification {
+    type Target = SettledTrade;
+    fn deref(&self) -> &SettledTrade {
+        &self.0
+    }
+}
+impl ::std::convert::From<TradesByInstrumentTypeCurrencyBatchStatusNotification>
+for SettledTrade {
+    fn from(value: TradesByInstrumentTypeCurrencyBatchStatusNotification) -> Self {
+        value.0
+    }
+}
+impl ::std::convert::From<SettledTrade>
+for TradesByInstrumentTypeCurrencyBatchStatusNotification {
+    fn from(value: SettledTrade) -> Self {
+        Self(value)
+    }
+}
+///`TradesByInstrumentTypeCurrencyNotification`
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "$ref": "#/definitions/PublicTrade"
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+#[serde(transparent)]
+pub struct TradesByInstrumentTypeCurrencyNotification(pub PublicTrade);
+impl ::std::ops::Deref for TradesByInstrumentTypeCurrencyNotification {
+    type Target = PublicTrade;
+    fn deref(&self) -> &PublicTrade {
+        &self.0
+    }
+}
+impl ::std::convert::From<TradesByInstrumentTypeCurrencyNotification> for PublicTrade {
+    fn from(value: TradesByInstrumentTypeCurrencyNotification) -> Self {
+        value.0
+    }
+}
+impl ::std::convert::From<PublicTrade> for TradesByInstrumentTypeCurrencyNotification {
+    fn from(value: PublicTrade) -> Self {
+        Self(value)
+    }
+}
 ///Single trades OHLCV candle in `public/get_tradingview_chart_data`. `timestamp` and `timestamp_bucket` are the bucket start in UTC seconds.
 ///
 /// <details><summary>JSON schema</summary>
@@ -17585,6 +19647,187 @@ pub struct UniverseManagers {
 }
 impl UniverseManagers {
     pub fn builder() -> builder::UniverseManagers {
+        Default::default()
+    }
+}
+/**Params for `unsubscribe`. `channels` is optional.
+
+When omitted (or null) the connection unsubscribes from all channels.*/
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "description": "Params for `unsubscribe`. `channels` is optional.\n\nWhen omitted (or null) the connection unsubscribes from all channels.",
+///  "type": "object",
+///  "properties": {
+///    "channels": {
+///      "default": null,
+///      "type": [
+///        "array",
+///        "null"
+///      ],
+///      "items": {
+///        "type": "string"
+///      }
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct UnsubscribeParams {
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub channels: ::std::option::Option<::std::vec::Vec<::std::string::String>>,
+}
+impl ::std::default::Default for UnsubscribeParams {
+    fn default() -> Self {
+        Self {
+            channels: Default::default(),
+        }
+    }
+}
+impl UnsubscribeParams {
+    pub fn builder() -> builder::UnsubscribeParams {
+        Default::default()
+    }
+}
+///`UnsubscribeRequest`
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "type": "object",
+///  "required": [
+///    "id",
+///    "method",
+///    "params"
+///  ],
+///  "properties": {
+///    "headers": {
+///      "description": "Non-standard; used by `auth/login`.",
+///      "type": [
+///        "object",
+///        "null"
+///      ],
+///      "additionalProperties": true
+///    },
+///    "id": {
+///      "$ref": "#/definitions/JsonRpcId"
+///    },
+///    "method": {
+///      "type": "string",
+///      "const": "unsubscribe"
+///    },
+///    "params": {
+///      "$ref": "#/definitions/UnsubscribeParams"
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct UnsubscribeRequest {
+    ///Non-standard; used by `auth/login`.
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub headers: ::std::option::Option<
+        ::serde_json::Map<::std::string::String, ::serde_json::Value>,
+    >,
+    pub id: JsonRpcId,
+    pub method: ::std::string::String,
+    pub params: UnsubscribeParams,
+}
+impl UnsubscribeRequest {
+    pub fn builder() -> builder::UnsubscribeRequest {
+        Default::default()
+    }
+}
+///`UnsubscribeResponse`
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "type": "object",
+///  "anyOf": [
+///    {
+///      "title": "Success",
+///      "type": "object",
+///      "required": [
+///        "result"
+///      ],
+///      "properties": {
+///        "result": {
+///          "$ref": "#/definitions/UnsubscribeResult"
+///        }
+///      }
+///    },
+///    {
+///      "title": "Error",
+///      "type": "object",
+///      "required": [
+///        "error"
+///      ],
+///      "properties": {
+///        "error": {
+///          "$ref": "#/definitions/RPCError"
+///        }
+///      }
+///    }
+///  ],
+///  "required": [
+///    "id"
+///  ],
+///  "properties": {
+///    "id": {
+///      "$ref": "#/definitions/JsonRpcId"
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+#[serde(untagged)]
+pub enum UnsubscribeResponse {
+    Variant0 { id: JsonRpcId, result: UnsubscribeResult },
+    Variant1 { error: RpcError, id: JsonRpcId },
+}
+///Result for `unsubscribe`. `status` maps each requested channel to `"ok"` or an error string; `remaining_subscriptions` is the set of channels the connection is still subscribed to after the operation.
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "description": "Result for `unsubscribe`. `status` maps each requested channel to `\"ok\"` or an error string; `remaining_subscriptions` is the set of channels the connection is still subscribed to after the operation.",
+///  "type": "object",
+///  "required": [
+///    "remaining_subscriptions",
+///    "status"
+///  ],
+///  "properties": {
+///    "remaining_subscriptions": {
+///      "type": "array",
+///      "items": {
+///        "type": "string"
+///      },
+///      "uniqueItems": true
+///    },
+///    "status": {
+///      "type": "object",
+///      "additionalProperties": true
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct UnsubscribeResult {
+    pub remaining_subscriptions: Vec<::std::string::String>,
+    pub status: ::serde_json::Map<::std::string::String, ::serde_json::Value>,
+}
+impl UnsubscribeResult {
+    pub fn builder() -> builder::UnsubscribeResult {
         Default::default()
     }
 }
@@ -19014,6 +21257,35 @@ impl VolSviParamDataResponse {
         Default::default()
     }
 }
+///`WalletRfqsNotification`
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "$ref": "#/definitions/PublicRfq"
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+#[serde(transparent)]
+pub struct WalletRfqsNotification(pub PublicRfq);
+impl ::std::ops::Deref for WalletRfqsNotification {
+    type Target = PublicRfq;
+    fn deref(&self) -> &PublicRfq {
+        &self.0
+    }
+}
+impl ::std::convert::From<WalletRfqsNotification> for PublicRfq {
+    fn from(value: WalletRfqsNotification) -> Self {
+        value.0
+    }
+}
+impl ::std::convert::From<PublicRfq> for WalletRfqsNotification {
+    fn from(value: PublicRfq) -> Self {
+        Self(value)
+    }
+}
 ///`amount` and `fee` are decimal strings (e.g. `"1.1"`); the net sent to the recipient is `amount - fee`. `wallet` is the account owner; `recipient` is the L1 destination. `asset` is the protocol asset (the native-ETH sentinel for ETH); `erc20_address` is the on-chain ERC20 the funds settle against (WETH for native ETH). `operation_id`/`batch_uuid` are the stable uuids.
 ///
 /// <details><summary>JSON schema</summary>
@@ -19966,6 +22238,507 @@ pub mod builder {
                 oi: Ok(value.oi),
                 risk_universe_id: Ok(value.risk_universe_id),
                 risk_universe_name: Ok(value.risk_universe_name),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct AuctionDetails {
+        currency: ::std::result::Result<
+            ::std::option::Option<::std::string::String>,
+            ::std::string::String,
+        >,
+        estimated_bid_price: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+        estimated_discount_pnl: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+        estimated_mtm: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+        estimated_percent_bid: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+        last_seen_trade_id: ::std::result::Result<i64, ::std::string::String>,
+        margin_type: ::std::result::Result<::std::string::String, ::std::string::String>,
+        min_cash_transfer: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+        min_price_limit: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+        subaccount_balances: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+    }
+    impl ::std::default::Default for AuctionDetails {
+        fn default() -> Self {
+            Self {
+                currency: Ok(Default::default()),
+                estimated_bid_price: Err(
+                    "no value supplied for estimated_bid_price".to_string(),
+                ),
+                estimated_discount_pnl: Err(
+                    "no value supplied for estimated_discount_pnl".to_string(),
+                ),
+                estimated_mtm: Err("no value supplied for estimated_mtm".to_string()),
+                estimated_percent_bid: Err(
+                    "no value supplied for estimated_percent_bid".to_string(),
+                ),
+                last_seen_trade_id: Err(
+                    "no value supplied for last_seen_trade_id".to_string(),
+                ),
+                margin_type: Err("no value supplied for margin_type".to_string()),
+                min_cash_transfer: Err(
+                    "no value supplied for min_cash_transfer".to_string(),
+                ),
+                min_price_limit: Err(
+                    "no value supplied for min_price_limit".to_string(),
+                ),
+                subaccount_balances: Err(
+                    "no value supplied for subaccount_balances".to_string(),
+                ),
+            }
+        }
+    }
+    impl AuctionDetails {
+        pub fn currency<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.currency = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for currency: {e}")
+                });
+            self
+        }
+        pub fn estimated_bid_price<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.estimated_bid_price = value
+                .try_into()
+                .map_err(|e| {
+                    format!(
+                        "error converting supplied value for estimated_bid_price: {e}"
+                    )
+                });
+            self
+        }
+        pub fn estimated_discount_pnl<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.estimated_discount_pnl = value
+                .try_into()
+                .map_err(|e| {
+                    format!(
+                        "error converting supplied value for estimated_discount_pnl: {e}"
+                    )
+                });
+            self
+        }
+        pub fn estimated_mtm<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.estimated_mtm = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for estimated_mtm: {e}")
+                });
+            self
+        }
+        pub fn estimated_percent_bid<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.estimated_percent_bid = value
+                .try_into()
+                .map_err(|e| {
+                    format!(
+                        "error converting supplied value for estimated_percent_bid: {e}"
+                    )
+                });
+            self
+        }
+        pub fn last_seen_trade_id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<i64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.last_seen_trade_id = value
+                .try_into()
+                .map_err(|e| {
+                    format!(
+                        "error converting supplied value for last_seen_trade_id: {e}"
+                    )
+                });
+            self
+        }
+        pub fn margin_type<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.margin_type = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for margin_type: {e}")
+                });
+            self
+        }
+        pub fn min_cash_transfer<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.min_cash_transfer = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for min_cash_transfer: {e}")
+                });
+            self
+        }
+        pub fn min_price_limit<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.min_price_limit = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for min_price_limit: {e}")
+                });
+            self
+        }
+        pub fn subaccount_balances<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.subaccount_balances = value
+                .try_into()
+                .map_err(|e| {
+                    format!(
+                        "error converting supplied value for subaccount_balances: {e}"
+                    )
+                });
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<AuctionDetails> for super::AuctionDetails {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: AuctionDetails,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                currency: value.currency?,
+                estimated_bid_price: value.estimated_bid_price?,
+                estimated_discount_pnl: value.estimated_discount_pnl?,
+                estimated_mtm: value.estimated_mtm?,
+                estimated_percent_bid: value.estimated_percent_bid?,
+                last_seen_trade_id: value.last_seen_trade_id?,
+                margin_type: value.margin_type?,
+                min_cash_transfer: value.min_cash_transfer?,
+                min_price_limit: value.min_price_limit?,
+                subaccount_balances: value.subaccount_balances?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::AuctionDetails> for AuctionDetails {
+        fn from(value: super::AuctionDetails) -> Self {
+            Self {
+                currency: Ok(value.currency),
+                estimated_bid_price: Ok(value.estimated_bid_price),
+                estimated_discount_pnl: Ok(value.estimated_discount_pnl),
+                estimated_mtm: Ok(value.estimated_mtm),
+                estimated_percent_bid: Ok(value.estimated_percent_bid),
+                last_seen_trade_id: Ok(value.last_seen_trade_id),
+                margin_type: Ok(value.margin_type),
+                min_cash_transfer: Ok(value.min_cash_transfer),
+                min_price_limit: Ok(value.min_price_limit),
+                subaccount_balances: Ok(value.subaccount_balances),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct AuctionResult {
+        details: ::std::result::Result<
+            ::std::option::Option<super::AuctionDetails>,
+            ::std::string::String,
+        >,
+        state: ::std::result::Result<super::AuctionStateType, ::std::string::String>,
+        subaccount_id: ::std::result::Result<i64, ::std::string::String>,
+        timestamp: ::std::result::Result<i64, ::std::string::String>,
+    }
+    impl ::std::default::Default for AuctionResult {
+        fn default() -> Self {
+            Self {
+                details: Ok(Default::default()),
+                state: Err("no value supplied for state".to_string()),
+                subaccount_id: Err("no value supplied for subaccount_id".to_string()),
+                timestamp: Err("no value supplied for timestamp".to_string()),
+            }
+        }
+    }
+    impl AuctionResult {
+        pub fn details<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<super::AuctionDetails>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.details = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for details: {e}")
+                });
+            self
+        }
+        pub fn state<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::AuctionStateType>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.state = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for state: {e}"));
+            self
+        }
+        pub fn subaccount_id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<i64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.subaccount_id = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for subaccount_id: {e}")
+                });
+            self
+        }
+        pub fn timestamp<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<i64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.timestamp = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for timestamp: {e}")
+                });
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<AuctionResult> for super::AuctionResult {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: AuctionResult,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                details: value.details?,
+                state: value.state?,
+                subaccount_id: value.subaccount_id?,
+                timestamp: value.timestamp?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::AuctionResult> for AuctionResult {
+        fn from(value: super::AuctionResult) -> Self {
+            Self {
+                details: Ok(value.details),
+                state: Ok(value.state),
+                subaccount_id: Ok(value.subaccount_id),
+                timestamp: Ok(value.timestamp),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct BalanceUpdate {
+        name: ::std::result::Result<::std::string::String, ::std::string::String>,
+        new_balance: ::std::result::Result<
+            ::bigdecimal::BigDecimal,
+            ::std::string::String,
+        >,
+        previous_balance: ::std::result::Result<
+            ::bigdecimal::BigDecimal,
+            ::std::string::String,
+        >,
+        update_type: ::std::result::Result<
+            super::BalanceUpdateType,
+            ::std::string::String,
+        >,
+    }
+    impl ::std::default::Default for BalanceUpdate {
+        fn default() -> Self {
+            Self {
+                name: Err("no value supplied for name".to_string()),
+                new_balance: Err("no value supplied for new_balance".to_string()),
+                previous_balance: Err(
+                    "no value supplied for previous_balance".to_string(),
+                ),
+                update_type: Err("no value supplied for update_type".to_string()),
+            }
+        }
+    }
+    impl BalanceUpdate {
+        pub fn name<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.name = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for name: {e}"));
+            self
+        }
+        pub fn new_balance<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::bigdecimal::BigDecimal>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.new_balance = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for new_balance: {e}")
+                });
+            self
+        }
+        pub fn previous_balance<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::bigdecimal::BigDecimal>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.previous_balance = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for previous_balance: {e}")
+                });
+            self
+        }
+        pub fn update_type<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::BalanceUpdateType>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.update_type = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for update_type: {e}")
+                });
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<BalanceUpdate> for super::BalanceUpdate {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: BalanceUpdate,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                name: value.name?,
+                new_balance: value.new_balance?,
+                previous_balance: value.previous_balance?,
+                update_type: value.update_type?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::BalanceUpdate> for BalanceUpdate {
+        fn from(value: super::BalanceUpdate) -> Self {
+            Self {
+                name: Ok(value.name),
+                new_balance: Ok(value.new_balance),
+                previous_balance: Ok(value.previous_balance),
+                update_type: Ok(value.update_type),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct BestQuoteChannelResult {
+        error: ::std::result::Result<
+            ::std::option::Option<super::RpcError>,
+            ::std::string::String,
+        >,
+        result: ::std::result::Result<
+            ::std::option::Option<super::RfqGetBestQuoteResponse>,
+            ::std::string::String,
+        >,
+        rfq_id: ::std::result::Result<::uuid::Uuid, ::std::string::String>,
+    }
+    impl ::std::default::Default for BestQuoteChannelResult {
+        fn default() -> Self {
+            Self {
+                error: Ok(Default::default()),
+                result: Ok(Default::default()),
+                rfq_id: Err("no value supplied for rfq_id".to_string()),
+            }
+        }
+    }
+    impl BestQuoteChannelResult {
+        pub fn error<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<super::RpcError>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.error = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for error: {e}"));
+            self
+        }
+        pub fn result<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<
+                ::std::option::Option<super::RfqGetBestQuoteResponse>,
+            >,
+            T::Error: ::std::fmt::Display,
+        {
+            self.result = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for result: {e}"));
+            self
+        }
+        pub fn rfq_id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::uuid::Uuid>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.rfq_id = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for rfq_id: {e}"));
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<BestQuoteChannelResult>
+    for super::BestQuoteChannelResult {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: BestQuoteChannelResult,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                error: value.error?,
+                result: value.result?,
+                rfq_id: value.rfq_id?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::BestQuoteChannelResult> for BestQuoteChannelResult {
+        fn from(value: super::BestQuoteChannelResult) -> Self {
+            Self {
+                error: Ok(value.error),
+                result: Ok(value.result),
+                rfq_id: Ok(value.rfq_id),
             }
         }
     }
@@ -29896,6 +32669,87 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
+    pub struct LoginRequest {
+        signature: ::std::result::Result<
+            ::std::option::Option<::std::string::String>,
+            ::std::string::String,
+        >,
+        timestamp: ::std::result::Result<
+            ::std::option::Option<u64>,
+            ::std::string::String,
+        >,
+        wallet: ::std::result::Result<
+            ::std::option::Option<::std::string::String>,
+            ::std::string::String,
+        >,
+    }
+    impl ::std::default::Default for LoginRequest {
+        fn default() -> Self {
+            Self {
+                signature: Ok(Default::default()),
+                timestamp: Ok(Default::default()),
+                wallet: Ok(Default::default()),
+            }
+        }
+    }
+    impl LoginRequest {
+        pub fn signature<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.signature = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for signature: {e}")
+                });
+            self
+        }
+        pub fn timestamp<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<u64>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.timestamp = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for timestamp: {e}")
+                });
+            self
+        }
+        pub fn wallet<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.wallet = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for wallet: {e}"));
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<LoginRequest> for super::LoginRequest {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: LoginRequest,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                signature: value.signature?,
+                timestamp: value.timestamp?,
+                wallet: value.wallet?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::LoginRequest> for LoginRequest {
+        fn from(value: super::LoginRequest) -> Self {
+            Self {
+                signature: Ok(value.signature),
+                timestamp: Ok(value.timestamp),
+                wallet: Ok(value.wallet),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
     pub struct ManagerCollateral {
         address: ::std::result::Result<::std::string::String, ::std::string::String>,
         erc20: ::std::result::Result<super::Erc20Details, ::std::string::String>,
@@ -30015,6 +32869,201 @@ pub mod builder {
                 min_deposit_usd: Ok(value.min_deposit_usd),
                 mm_discount: Ok(value.mm_discount),
                 name: Ok(value.name),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct MarginWatchResult {
+        collaterals: ::std::result::Result<
+            ::std::vec::Vec<::serde_json::Value>,
+            ::std::string::String,
+        >,
+        currency: ::std::result::Result<::std::string::String, ::std::string::String>,
+        initial_margin: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+        maintenance_margin: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+        margin_type: ::std::result::Result<::std::string::String, ::std::string::String>,
+        positions: ::std::result::Result<
+            ::std::vec::Vec<::serde_json::Value>,
+            ::std::string::String,
+        >,
+        subaccount_id: ::std::result::Result<i64, ::std::string::String>,
+        subaccount_value: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+        valuation_timestamp: ::std::result::Result<i64, ::std::string::String>,
+    }
+    impl ::std::default::Default for MarginWatchResult {
+        fn default() -> Self {
+            Self {
+                collaterals: Err("no value supplied for collaterals".to_string()),
+                currency: Err("no value supplied for currency".to_string()),
+                initial_margin: Err("no value supplied for initial_margin".to_string()),
+                maintenance_margin: Err(
+                    "no value supplied for maintenance_margin".to_string(),
+                ),
+                margin_type: Err("no value supplied for margin_type".to_string()),
+                positions: Err("no value supplied for positions".to_string()),
+                subaccount_id: Err("no value supplied for subaccount_id".to_string()),
+                subaccount_value: Err(
+                    "no value supplied for subaccount_value".to_string(),
+                ),
+                valuation_timestamp: Err(
+                    "no value supplied for valuation_timestamp".to_string(),
+                ),
+            }
+        }
+    }
+    impl MarginWatchResult {
+        pub fn collaterals<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::vec::Vec<::serde_json::Value>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.collaterals = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for collaterals: {e}")
+                });
+            self
+        }
+        pub fn currency<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.currency = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for currency: {e}")
+                });
+            self
+        }
+        pub fn initial_margin<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.initial_margin = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for initial_margin: {e}")
+                });
+            self
+        }
+        pub fn maintenance_margin<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.maintenance_margin = value
+                .try_into()
+                .map_err(|e| {
+                    format!(
+                        "error converting supplied value for maintenance_margin: {e}"
+                    )
+                });
+            self
+        }
+        pub fn margin_type<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.margin_type = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for margin_type: {e}")
+                });
+            self
+        }
+        pub fn positions<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::vec::Vec<::serde_json::Value>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.positions = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for positions: {e}")
+                });
+            self
+        }
+        pub fn subaccount_id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<i64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.subaccount_id = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for subaccount_id: {e}")
+                });
+            self
+        }
+        pub fn subaccount_value<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.subaccount_value = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for subaccount_value: {e}")
+                });
+            self
+        }
+        pub fn valuation_timestamp<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<i64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.valuation_timestamp = value
+                .try_into()
+                .map_err(|e| {
+                    format!(
+                        "error converting supplied value for valuation_timestamp: {e}"
+                    )
+                });
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<MarginWatchResult> for super::MarginWatchResult {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: MarginWatchResult,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                collaterals: value.collaterals?,
+                currency: value.currency?,
+                initial_margin: value.initial_margin?,
+                maintenance_margin: value.maintenance_margin?,
+                margin_type: value.margin_type?,
+                positions: value.positions?,
+                subaccount_id: value.subaccount_id?,
+                subaccount_value: value.subaccount_value?,
+                valuation_timestamp: value.valuation_timestamp?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::MarginWatchResult> for MarginWatchResult {
+        fn from(value: super::MarginWatchResult) -> Self {
+            Self {
+                collaterals: Ok(value.collaterals),
+                currency: Ok(value.currency),
+                initial_margin: Ok(value.initial_margin),
+                maintenance_margin: Ok(value.maintenance_margin),
+                margin_type: Ok(value.margin_type),
+                positions: Ok(value.positions),
+                subaccount_id: Ok(value.subaccount_id),
+                subaccount_value: Ok(value.subaccount_value),
+                valuation_timestamp: Ok(value.valuation_timestamp),
             }
         }
     }
@@ -33507,6 +36556,173 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
+    pub struct OrderSnapshot {
+        amount: ::std::result::Result<::std::string::String, ::std::string::String>,
+        price: ::std::result::Result<::std::string::String, ::std::string::String>,
+    }
+    impl ::std::default::Default for OrderSnapshot {
+        fn default() -> Self {
+            Self {
+                amount: Err("no value supplied for amount".to_string()),
+                price: Err("no value supplied for price".to_string()),
+            }
+        }
+    }
+    impl OrderSnapshot {
+        pub fn amount<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.amount = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for amount: {e}"));
+            self
+        }
+        pub fn price<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.price = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for price: {e}"));
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<OrderSnapshot> for super::OrderSnapshot {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: OrderSnapshot,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                amount: value.amount?,
+                price: value.price?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::OrderSnapshot> for OrderSnapshot {
+        fn from(value: super::OrderSnapshot) -> Self {
+            Self {
+                amount: Ok(value.amount),
+                price: Ok(value.price),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct OrderbookSnapshot {
+        asks: ::std::result::Result<
+            ::std::vec::Vec<super::OrderSnapshot>,
+            ::std::string::String,
+        >,
+        bids: ::std::result::Result<
+            ::std::vec::Vec<super::OrderSnapshot>,
+            ::std::string::String,
+        >,
+        instrument_name: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+        publish_id: ::std::result::Result<u64, ::std::string::String>,
+        timestamp: ::std::result::Result<i64, ::std::string::String>,
+    }
+    impl ::std::default::Default for OrderbookSnapshot {
+        fn default() -> Self {
+            Self {
+                asks: Err("no value supplied for asks".to_string()),
+                bids: Err("no value supplied for bids".to_string()),
+                instrument_name: Err(
+                    "no value supplied for instrument_name".to_string(),
+                ),
+                publish_id: Err("no value supplied for publish_id".to_string()),
+                timestamp: Err("no value supplied for timestamp".to_string()),
+            }
+        }
+    }
+    impl OrderbookSnapshot {
+        pub fn asks<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::vec::Vec<super::OrderSnapshot>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.asks = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for asks: {e}"));
+            self
+        }
+        pub fn bids<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::vec::Vec<super::OrderSnapshot>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.bids = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for bids: {e}"));
+            self
+        }
+        pub fn instrument_name<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.instrument_name = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for instrument_name: {e}")
+                });
+            self
+        }
+        pub fn publish_id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<u64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.publish_id = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for publish_id: {e}")
+                });
+            self
+        }
+        pub fn timestamp<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<i64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.timestamp = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for timestamp: {e}")
+                });
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<OrderbookSnapshot> for super::OrderbookSnapshot {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: OrderbookSnapshot,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                asks: value.asks?,
+                bids: value.bids?,
+                instrument_name: value.instrument_name?,
+                publish_id: value.publish_id?,
+                timestamp: value.timestamp?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::OrderbookSnapshot> for OrderbookSnapshot {
+        fn from(value: super::OrderbookSnapshot) -> Self {
+            Self {
+                asks: Ok(value.asks),
+                bids: Ok(value.bids),
+                instrument_name: Ok(value.instrument_name),
+                publish_id: Ok(value.publish_id),
+                timestamp: Ok(value.timestamp),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
     pub struct PaginatedOrdersResult {
         orders: ::std::result::Result<
             ::std::vec::Vec<super::Order>,
@@ -36451,6 +39667,104 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
+    pub struct PrivateSetCancelOnDisconnectRequest {
+        headers: ::std::result::Result<
+            ::std::option::Option<
+                ::serde_json::Map<::std::string::String, ::serde_json::Value>,
+            >,
+            ::std::string::String,
+        >,
+        id: ::std::result::Result<super::JsonRpcId, ::std::string::String>,
+        method: ::std::result::Result<::std::string::String, ::std::string::String>,
+        params: ::std::result::Result<
+            super::SetCancelOnDisconnectRequest,
+            ::std::string::String,
+        >,
+    }
+    impl ::std::default::Default for PrivateSetCancelOnDisconnectRequest {
+        fn default() -> Self {
+            Self {
+                headers: Ok(Default::default()),
+                id: Err("no value supplied for id".to_string()),
+                method: Err("no value supplied for method".to_string()),
+                params: Err("no value supplied for params".to_string()),
+            }
+        }
+    }
+    impl PrivateSetCancelOnDisconnectRequest {
+        pub fn headers<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<
+                ::std::option::Option<
+                    ::serde_json::Map<::std::string::String, ::serde_json::Value>,
+                >,
+            >,
+            T::Error: ::std::fmt::Display,
+        {
+            self.headers = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for headers: {e}")
+                });
+            self
+        }
+        pub fn id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::JsonRpcId>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.id = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for id: {e}"));
+            self
+        }
+        pub fn method<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.method = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for method: {e}"));
+            self
+        }
+        pub fn params<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::SetCancelOnDisconnectRequest>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.params = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for params: {e}"));
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<PrivateSetCancelOnDisconnectRequest>
+    for super::PrivateSetCancelOnDisconnectRequest {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: PrivateSetCancelOnDisconnectRequest,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                headers: value.headers?,
+                id: value.id?,
+                method: value.method?,
+                params: value.params?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::PrivateSetCancelOnDisconnectRequest>
+    for PrivateSetCancelOnDisconnectRequest {
+        fn from(value: super::PrivateSetCancelOnDisconnectRequest) -> Self {
+            Self {
+                headers: Ok(value.headers),
+                id: Ok(value.id),
+                method: Ok(value.method),
+                params: Ok(value.params),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
     pub struct PrivateSetSessionKeyResponse {
         expiry_sec: ::std::result::Result<u64, ::std::string::String>,
         ip_whitelist: ::std::result::Result<
@@ -37795,6 +41109,99 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
+    pub struct PublicLoginRequest {
+        headers: ::std::result::Result<
+            ::std::option::Option<
+                ::serde_json::Map<::std::string::String, ::serde_json::Value>,
+            >,
+            ::std::string::String,
+        >,
+        id: ::std::result::Result<super::JsonRpcId, ::std::string::String>,
+        method: ::std::result::Result<::std::string::String, ::std::string::String>,
+        params: ::std::result::Result<super::LoginRequest, ::std::string::String>,
+    }
+    impl ::std::default::Default for PublicLoginRequest {
+        fn default() -> Self {
+            Self {
+                headers: Ok(Default::default()),
+                id: Err("no value supplied for id".to_string()),
+                method: Err("no value supplied for method".to_string()),
+                params: Err("no value supplied for params".to_string()),
+            }
+        }
+    }
+    impl PublicLoginRequest {
+        pub fn headers<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<
+                ::std::option::Option<
+                    ::serde_json::Map<::std::string::String, ::serde_json::Value>,
+                >,
+            >,
+            T::Error: ::std::fmt::Display,
+        {
+            self.headers = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for headers: {e}")
+                });
+            self
+        }
+        pub fn id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::JsonRpcId>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.id = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for id: {e}"));
+            self
+        }
+        pub fn method<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.method = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for method: {e}"));
+            self
+        }
+        pub fn params<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::LoginRequest>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.params = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for params: {e}"));
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<PublicLoginRequest> for super::PublicLoginRequest {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: PublicLoginRequest,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                headers: value.headers?,
+                id: value.id?,
+                method: value.method?,
+                params: value.params?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::PublicLoginRequest> for PublicLoginRequest {
+        fn from(value: super::PublicLoginRequest) -> Self {
+            Self {
+                headers: Ok(value.headers),
+                id: Ok(value.id),
+                method: Ok(value.method),
+                params: Ok(value.params),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
     pub struct PublicQuote {
         cancel_reason: ::std::result::Result<
             super::RfqCancelReason,
@@ -38607,6 +42014,204 @@ pub mod builder {
             Self {
                 op_uuid: Ok(value.op_uuid),
                 operation_id: Ok(value.operation_id),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct PublicTrade {
+        direction: ::std::result::Result<super::Direction, ::std::string::String>,
+        index_price: ::std::result::Result<::std::string::String, ::std::string::String>,
+        instrument_name: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+        mark_price: ::std::result::Result<::std::string::String, ::std::string::String>,
+        quote_id: ::std::result::Result<
+            ::std::option::Option<::std::string::String>,
+            ::std::string::String,
+        >,
+        rfq_id: ::std::result::Result<
+            ::std::option::Option<::std::string::String>,
+            ::std::string::String,
+        >,
+        timestamp: ::std::result::Result<i64, ::std::string::String>,
+        trade_amount: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+        trade_id: ::std::result::Result<::std::string::String, ::std::string::String>,
+        trade_price: ::std::result::Result<::std::string::String, ::std::string::String>,
+    }
+    impl ::std::default::Default for PublicTrade {
+        fn default() -> Self {
+            Self {
+                direction: Err("no value supplied for direction".to_string()),
+                index_price: Err("no value supplied for index_price".to_string()),
+                instrument_name: Err(
+                    "no value supplied for instrument_name".to_string(),
+                ),
+                mark_price: Err("no value supplied for mark_price".to_string()),
+                quote_id: Ok(Default::default()),
+                rfq_id: Ok(Default::default()),
+                timestamp: Err("no value supplied for timestamp".to_string()),
+                trade_amount: Err("no value supplied for trade_amount".to_string()),
+                trade_id: Err("no value supplied for trade_id".to_string()),
+                trade_price: Err("no value supplied for trade_price".to_string()),
+            }
+        }
+    }
+    impl PublicTrade {
+        pub fn direction<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::Direction>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.direction = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for direction: {e}")
+                });
+            self
+        }
+        pub fn index_price<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.index_price = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for index_price: {e}")
+                });
+            self
+        }
+        pub fn instrument_name<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.instrument_name = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for instrument_name: {e}")
+                });
+            self
+        }
+        pub fn mark_price<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.mark_price = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for mark_price: {e}")
+                });
+            self
+        }
+        pub fn quote_id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.quote_id = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for quote_id: {e}")
+                });
+            self
+        }
+        pub fn rfq_id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.rfq_id = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for rfq_id: {e}"));
+            self
+        }
+        pub fn timestamp<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<i64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.timestamp = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for timestamp: {e}")
+                });
+            self
+        }
+        pub fn trade_amount<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.trade_amount = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for trade_amount: {e}")
+                });
+            self
+        }
+        pub fn trade_id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.trade_id = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for trade_id: {e}")
+                });
+            self
+        }
+        pub fn trade_price<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.trade_price = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for trade_price: {e}")
+                });
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<PublicTrade> for super::PublicTrade {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: PublicTrade,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                direction: value.direction?,
+                index_price: value.index_price?,
+                instrument_name: value.instrument_name?,
+                mark_price: value.mark_price?,
+                quote_id: value.quote_id?,
+                rfq_id: value.rfq_id?,
+                timestamp: value.timestamp?,
+                trade_amount: value.trade_amount?,
+                trade_id: value.trade_id?,
+                trade_price: value.trade_price?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::PublicTrade> for PublicTrade {
+        fn from(value: super::PublicTrade) -> Self {
+            Self {
+                direction: Ok(value.direction),
+                index_price: Ok(value.index_price),
+                instrument_name: Ok(value.instrument_name),
+                mark_price: Ok(value.mark_price),
+                quote_id: Ok(value.quote_id),
+                rfq_id: Ok(value.rfq_id),
+                timestamp: Ok(value.timestamp),
+                trade_amount: Ok(value.trade_amount),
+                trade_id: Ok(value.trade_id),
+                trade_price: Ok(value.trade_price),
             }
         }
     }
@@ -40195,6 +43800,432 @@ pub mod builder {
             Self {
                 pagination: Ok(value.pagination),
                 quotes: Ok(value.quotes),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct QuotePublishResult {
+        batch_status: ::std::result::Result<
+            ::std::option::Option<super::BatchStatus>,
+            ::std::string::String,
+        >,
+        cancel_reason: ::std::result::Result<
+            ::std::option::Option<super::RfqCancelReason>,
+            ::std::string::String,
+        >,
+        creation_timestamp: ::std::result::Result<i64, ::std::string::String>,
+        direction: ::std::result::Result<super::Direction, ::std::string::String>,
+        extra_fee: ::std::result::Result<
+            ::bigdecimal::BigDecimal,
+            ::std::string::String,
+        >,
+        fee: ::std::result::Result<::bigdecimal::BigDecimal, ::std::string::String>,
+        fill_pct: ::std::result::Result<::bigdecimal::BigDecimal, ::std::string::String>,
+        is_transfer: ::std::result::Result<bool, ::std::string::String>,
+        label: ::std::result::Result<::std::string::String, ::std::string::String>,
+        last_update_timestamp: ::std::result::Result<i64, ::std::string::String>,
+        legs: ::std::result::Result<
+            ::std::vec::Vec<super::PricedLegParamsAndResponse>,
+            ::std::string::String,
+        >,
+        legs_hash: ::std::result::Result<::std::string::String, ::std::string::String>,
+        liquidity_role: ::std::result::Result<
+            super::LiquidityRole,
+            ::std::string::String,
+        >,
+        max_fee: ::std::result::Result<::bigdecimal::BigDecimal, ::std::string::String>,
+        mmp: ::std::result::Result<bool, ::std::string::String>,
+        nonce: ::std::result::Result<::std::string::String, ::std::string::String>,
+        quote_id: ::std::result::Result<::uuid::Uuid, ::std::string::String>,
+        rfq_id: ::std::result::Result<::uuid::Uuid, ::std::string::String>,
+        signature: ::std::result::Result<::std::string::String, ::std::string::String>,
+        signature_expiry_sec: ::std::result::Result<i64, ::std::string::String>,
+        signer: ::std::result::Result<::std::string::String, ::std::string::String>,
+        status: ::std::result::Result<super::RfqStatus, ::std::string::String>,
+        subaccount_id: ::std::result::Result<i64, ::std::string::String>,
+        tx_hash: ::std::result::Result<
+            ::std::option::Option<::std::string::String>,
+            ::std::string::String,
+        >,
+    }
+    impl ::std::default::Default for QuotePublishResult {
+        fn default() -> Self {
+            Self {
+                batch_status: Ok(Default::default()),
+                cancel_reason: Ok(Default::default()),
+                creation_timestamp: Err(
+                    "no value supplied for creation_timestamp".to_string(),
+                ),
+                direction: Err("no value supplied for direction".to_string()),
+                extra_fee: Err("no value supplied for extra_fee".to_string()),
+                fee: Err("no value supplied for fee".to_string()),
+                fill_pct: Err("no value supplied for fill_pct".to_string()),
+                is_transfer: Err("no value supplied for is_transfer".to_string()),
+                label: Err("no value supplied for label".to_string()),
+                last_update_timestamp: Err(
+                    "no value supplied for last_update_timestamp".to_string(),
+                ),
+                legs: Err("no value supplied for legs".to_string()),
+                legs_hash: Err("no value supplied for legs_hash".to_string()),
+                liquidity_role: Err("no value supplied for liquidity_role".to_string()),
+                max_fee: Err("no value supplied for max_fee".to_string()),
+                mmp: Err("no value supplied for mmp".to_string()),
+                nonce: Err("no value supplied for nonce".to_string()),
+                quote_id: Err("no value supplied for quote_id".to_string()),
+                rfq_id: Err("no value supplied for rfq_id".to_string()),
+                signature: Err("no value supplied for signature".to_string()),
+                signature_expiry_sec: Err(
+                    "no value supplied for signature_expiry_sec".to_string(),
+                ),
+                signer: Err("no value supplied for signer".to_string()),
+                status: Err("no value supplied for status".to_string()),
+                subaccount_id: Err("no value supplied for subaccount_id".to_string()),
+                tx_hash: Ok(Default::default()),
+            }
+        }
+    }
+    impl QuotePublishResult {
+        pub fn batch_status<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<super::BatchStatus>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.batch_status = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for batch_status: {e}")
+                });
+            self
+        }
+        pub fn cancel_reason<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<super::RfqCancelReason>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.cancel_reason = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for cancel_reason: {e}")
+                });
+            self
+        }
+        pub fn creation_timestamp<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<i64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.creation_timestamp = value
+                .try_into()
+                .map_err(|e| {
+                    format!(
+                        "error converting supplied value for creation_timestamp: {e}"
+                    )
+                });
+            self
+        }
+        pub fn direction<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::Direction>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.direction = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for direction: {e}")
+                });
+            self
+        }
+        pub fn extra_fee<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::bigdecimal::BigDecimal>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.extra_fee = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for extra_fee: {e}")
+                });
+            self
+        }
+        pub fn fee<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::bigdecimal::BigDecimal>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.fee = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for fee: {e}"));
+            self
+        }
+        pub fn fill_pct<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::bigdecimal::BigDecimal>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.fill_pct = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for fill_pct: {e}")
+                });
+            self
+        }
+        pub fn is_transfer<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<bool>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.is_transfer = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for is_transfer: {e}")
+                });
+            self
+        }
+        pub fn label<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.label = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for label: {e}"));
+            self
+        }
+        pub fn last_update_timestamp<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<i64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.last_update_timestamp = value
+                .try_into()
+                .map_err(|e| {
+                    format!(
+                        "error converting supplied value for last_update_timestamp: {e}"
+                    )
+                });
+            self
+        }
+        pub fn legs<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<
+                ::std::vec::Vec<super::PricedLegParamsAndResponse>,
+            >,
+            T::Error: ::std::fmt::Display,
+        {
+            self.legs = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for legs: {e}"));
+            self
+        }
+        pub fn legs_hash<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.legs_hash = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for legs_hash: {e}")
+                });
+            self
+        }
+        pub fn liquidity_role<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::LiquidityRole>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.liquidity_role = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for liquidity_role: {e}")
+                });
+            self
+        }
+        pub fn max_fee<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::bigdecimal::BigDecimal>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.max_fee = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for max_fee: {e}")
+                });
+            self
+        }
+        pub fn mmp<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<bool>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.mmp = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for mmp: {e}"));
+            self
+        }
+        pub fn nonce<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.nonce = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for nonce: {e}"));
+            self
+        }
+        pub fn quote_id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::uuid::Uuid>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.quote_id = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for quote_id: {e}")
+                });
+            self
+        }
+        pub fn rfq_id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::uuid::Uuid>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.rfq_id = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for rfq_id: {e}"));
+            self
+        }
+        pub fn signature<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.signature = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for signature: {e}")
+                });
+            self
+        }
+        pub fn signature_expiry_sec<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<i64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.signature_expiry_sec = value
+                .try_into()
+                .map_err(|e| {
+                    format!(
+                        "error converting supplied value for signature_expiry_sec: {e}"
+                    )
+                });
+            self
+        }
+        pub fn signer<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.signer = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for signer: {e}"));
+            self
+        }
+        pub fn status<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::RfqStatus>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.status = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for status: {e}"));
+            self
+        }
+        pub fn subaccount_id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<i64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.subaccount_id = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for subaccount_id: {e}")
+                });
+            self
+        }
+        pub fn tx_hash<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.tx_hash = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for tx_hash: {e}")
+                });
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<QuotePublishResult> for super::QuotePublishResult {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: QuotePublishResult,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                batch_status: value.batch_status?,
+                cancel_reason: value.cancel_reason?,
+                creation_timestamp: value.creation_timestamp?,
+                direction: value.direction?,
+                extra_fee: value.extra_fee?,
+                fee: value.fee?,
+                fill_pct: value.fill_pct?,
+                is_transfer: value.is_transfer?,
+                label: value.label?,
+                last_update_timestamp: value.last_update_timestamp?,
+                legs: value.legs?,
+                legs_hash: value.legs_hash?,
+                liquidity_role: value.liquidity_role?,
+                max_fee: value.max_fee?,
+                mmp: value.mmp?,
+                nonce: value.nonce?,
+                quote_id: value.quote_id?,
+                rfq_id: value.rfq_id?,
+                signature: value.signature?,
+                signature_expiry_sec: value.signature_expiry_sec?,
+                signer: value.signer?,
+                status: value.status?,
+                subaccount_id: value.subaccount_id?,
+                tx_hash: value.tx_hash?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::QuotePublishResult> for QuotePublishResult {
+        fn from(value: super::QuotePublishResult) -> Self {
+            Self {
+                batch_status: Ok(value.batch_status),
+                cancel_reason: Ok(value.cancel_reason),
+                creation_timestamp: Ok(value.creation_timestamp),
+                direction: Ok(value.direction),
+                extra_fee: Ok(value.extra_fee),
+                fee: Ok(value.fee),
+                fill_pct: Ok(value.fill_pct),
+                is_transfer: Ok(value.is_transfer),
+                label: Ok(value.label),
+                last_update_timestamp: Ok(value.last_update_timestamp),
+                legs: Ok(value.legs),
+                legs_hash: Ok(value.legs_hash),
+                liquidity_role: Ok(value.liquidity_role),
+                max_fee: Ok(value.max_fee),
+                mmp: Ok(value.mmp),
+                nonce: Ok(value.nonce),
+                quote_id: Ok(value.quote_id),
+                rfq_id: Ok(value.rfq_id),
+                signature: Ok(value.signature),
+                signature_expiry_sec: Ok(value.signature_expiry_sec),
+                signer: Ok(value.signer),
+                status: Ok(value.status),
+                subaccount_id: Ok(value.subaccount_id),
+                tx_hash: Ok(value.tx_hash),
             }
         }
     }
@@ -44498,6 +48529,70 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
+    pub struct SetCancelOnDisconnectRequest {
+        enabled: ::std::result::Result<
+            ::std::option::Option<bool>,
+            ::std::string::String,
+        >,
+        wallet: ::std::result::Result<
+            ::std::option::Option<::std::string::String>,
+            ::std::string::String,
+        >,
+    }
+    impl ::std::default::Default for SetCancelOnDisconnectRequest {
+        fn default() -> Self {
+            Self {
+                enabled: Ok(Default::default()),
+                wallet: Ok(Default::default()),
+            }
+        }
+    }
+    impl SetCancelOnDisconnectRequest {
+        pub fn enabled<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<bool>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.enabled = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for enabled: {e}")
+                });
+            self
+        }
+        pub fn wallet<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.wallet = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for wallet: {e}"));
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<SetCancelOnDisconnectRequest>
+    for super::SetCancelOnDisconnectRequest {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: SetCancelOnDisconnectRequest,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                enabled: value.enabled?,
+                wallet: value.wallet?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::SetCancelOnDisconnectRequest>
+    for SetCancelOnDisconnectRequest {
+        fn from(value: super::SetCancelOnDisconnectRequest) -> Self {
+            Self {
+                enabled: Ok(value.enabled),
+                wallet: Ok(value.wallet),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
     pub struct SetMmpConfigRequest {
         currency: ::std::result::Result<::std::string::String, ::std::string::String>,
         mmp_amount_limit: ::std::result::Result<
@@ -45867,6 +49962,244 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
+    pub struct SpotFeedEntry {
+        confidence: ::std::result::Result<::std::string::String, ::std::string::String>,
+        confidence_prev_daily: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+        price: ::std::result::Result<::std::string::String, ::std::string::String>,
+        price_prev_daily: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+        timestamp_prev_daily: ::std::result::Result<i64, ::std::string::String>,
+    }
+    impl ::std::default::Default for SpotFeedEntry {
+        fn default() -> Self {
+            Self {
+                confidence: Err("no value supplied for confidence".to_string()),
+                confidence_prev_daily: Err(
+                    "no value supplied for confidence_prev_daily".to_string(),
+                ),
+                price: Err("no value supplied for price".to_string()),
+                price_prev_daily: Err(
+                    "no value supplied for price_prev_daily".to_string(),
+                ),
+                timestamp_prev_daily: Err(
+                    "no value supplied for timestamp_prev_daily".to_string(),
+                ),
+            }
+        }
+    }
+    impl SpotFeedEntry {
+        pub fn confidence<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.confidence = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for confidence: {e}")
+                });
+            self
+        }
+        pub fn confidence_prev_daily<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.confidence_prev_daily = value
+                .try_into()
+                .map_err(|e| {
+                    format!(
+                        "error converting supplied value for confidence_prev_daily: {e}"
+                    )
+                });
+            self
+        }
+        pub fn price<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.price = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for price: {e}"));
+            self
+        }
+        pub fn price_prev_daily<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.price_prev_daily = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for price_prev_daily: {e}")
+                });
+            self
+        }
+        pub fn timestamp_prev_daily<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<i64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.timestamp_prev_daily = value
+                .try_into()
+                .map_err(|e| {
+                    format!(
+                        "error converting supplied value for timestamp_prev_daily: {e}"
+                    )
+                });
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<SpotFeedEntry> for super::SpotFeedEntry {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: SpotFeedEntry,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                confidence: value.confidence?,
+                confidence_prev_daily: value.confidence_prev_daily?,
+                price: value.price?,
+                price_prev_daily: value.price_prev_daily?,
+                timestamp_prev_daily: value.timestamp_prev_daily?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::SpotFeedEntry> for SpotFeedEntry {
+        fn from(value: super::SpotFeedEntry) -> Self {
+            Self {
+                confidence: Ok(value.confidence),
+                confidence_prev_daily: Ok(value.confidence_prev_daily),
+                price: Ok(value.price),
+                price_prev_daily: Ok(value.price_prev_daily),
+                timestamp_prev_daily: Ok(value.timestamp_prev_daily),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct SpotFeedPayload {
+        feeds: ::std::result::Result<super::SpotFeedPayloadFeeds, ::std::string::String>,
+        timestamp: ::std::result::Result<i64, ::std::string::String>,
+    }
+    impl ::std::default::Default for SpotFeedPayload {
+        fn default() -> Self {
+            Self {
+                feeds: Err("no value supplied for feeds".to_string()),
+                timestamp: Err("no value supplied for timestamp".to_string()),
+            }
+        }
+    }
+    impl SpotFeedPayload {
+        pub fn feeds<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::SpotFeedPayloadFeeds>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.feeds = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for feeds: {e}"));
+            self
+        }
+        pub fn timestamp<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<i64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.timestamp = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for timestamp: {e}")
+                });
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<SpotFeedPayload> for super::SpotFeedPayload {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: SpotFeedPayload,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                feeds: value.feeds?,
+                timestamp: value.timestamp?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::SpotFeedPayload> for SpotFeedPayload {
+        fn from(value: super::SpotFeedPayload) -> Self {
+            Self {
+                feeds: Ok(value.feeds),
+                timestamp: Ok(value.timestamp),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct SpotFeedPayloadFeeds {
+        key: ::std::result::Result<
+            ::std::option::Option<super::SpotFeedEntry>,
+            ::std::string::String,
+        >,
+        extra: ::std::result::Result<
+            ::std::collections::HashMap<::std::string::String, super::SpotFeedEntry>,
+            ::std::string::String,
+        >,
+    }
+    impl ::std::default::Default for SpotFeedPayloadFeeds {
+        fn default() -> Self {
+            Self {
+                key: Ok(Default::default()),
+                extra: Err("no value supplied for extra".to_string()),
+            }
+        }
+    }
+    impl SpotFeedPayloadFeeds {
+        pub fn key<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<super::SpotFeedEntry>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.key = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for key: {e}"));
+            self
+        }
+        pub fn extra<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<
+                ::std::collections::HashMap<::std::string::String, super::SpotFeedEntry>,
+            >,
+            T::Error: ::std::fmt::Display,
+        {
+            self.extra = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for extra: {e}"));
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<SpotFeedPayloadFeeds> for super::SpotFeedPayloadFeeds {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: SpotFeedPayloadFeeds,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                key: value.key?,
+                extra: value.extra?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::SpotFeedPayloadFeeds> for SpotFeedPayloadFeeds {
+        fn from(value: super::SpotFeedPayloadFeeds) -> Self {
+            Self {
+                key: Ok(value.key),
+                extra: Ok(value.extra),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
     pub struct SpotPublicDetails {
         borrow_index: ::std::result::Result<
             ::std::string::String,
@@ -46611,6 +50944,275 @@ pub mod builder {
                 subaccount_id: Ok(value.subaccount_id),
                 subaccount_value: Ok(value.subaccount_value),
                 vault_deposit_holds: Ok(value.vault_deposit_holds),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct SubscribeParams {
+        channels: ::std::result::Result<
+            ::std::vec::Vec<::std::string::String>,
+            ::std::string::String,
+        >,
+    }
+    impl ::std::default::Default for SubscribeParams {
+        fn default() -> Self {
+            Self {
+                channels: Err("no value supplied for channels".to_string()),
+            }
+        }
+    }
+    impl SubscribeParams {
+        pub fn channels<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::vec::Vec<::std::string::String>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.channels = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for channels: {e}")
+                });
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<SubscribeParams> for super::SubscribeParams {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: SubscribeParams,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self { channels: value.channels? })
+        }
+    }
+    impl ::std::convert::From<super::SubscribeParams> for SubscribeParams {
+        fn from(value: super::SubscribeParams) -> Self {
+            Self {
+                channels: Ok(value.channels),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct SubscribeRequest {
+        headers: ::std::result::Result<
+            ::std::option::Option<
+                ::serde_json::Map<::std::string::String, ::serde_json::Value>,
+            >,
+            ::std::string::String,
+        >,
+        id: ::std::result::Result<super::JsonRpcId, ::std::string::String>,
+        method: ::std::result::Result<::std::string::String, ::std::string::String>,
+        params: ::std::result::Result<super::SubscribeParams, ::std::string::String>,
+    }
+    impl ::std::default::Default for SubscribeRequest {
+        fn default() -> Self {
+            Self {
+                headers: Ok(Default::default()),
+                id: Err("no value supplied for id".to_string()),
+                method: Err("no value supplied for method".to_string()),
+                params: Err("no value supplied for params".to_string()),
+            }
+        }
+    }
+    impl SubscribeRequest {
+        pub fn headers<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<
+                ::std::option::Option<
+                    ::serde_json::Map<::std::string::String, ::serde_json::Value>,
+                >,
+            >,
+            T::Error: ::std::fmt::Display,
+        {
+            self.headers = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for headers: {e}")
+                });
+            self
+        }
+        pub fn id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::JsonRpcId>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.id = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for id: {e}"));
+            self
+        }
+        pub fn method<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.method = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for method: {e}"));
+            self
+        }
+        pub fn params<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::SubscribeParams>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.params = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for params: {e}"));
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<SubscribeRequest> for super::SubscribeRequest {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: SubscribeRequest,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                headers: value.headers?,
+                id: value.id?,
+                method: value.method?,
+                params: value.params?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::SubscribeRequest> for SubscribeRequest {
+        fn from(value: super::SubscribeRequest) -> Self {
+            Self {
+                headers: Ok(value.headers),
+                id: Ok(value.id),
+                method: Ok(value.method),
+                params: Ok(value.params),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct SubscribeResult {
+        current_subscriptions: ::std::result::Result<
+            Vec<::std::string::String>,
+            ::std::string::String,
+        >,
+        status: ::std::result::Result<
+            ::serde_json::Map<::std::string::String, ::serde_json::Value>,
+            ::std::string::String,
+        >,
+    }
+    impl ::std::default::Default for SubscribeResult {
+        fn default() -> Self {
+            Self {
+                current_subscriptions: Err(
+                    "no value supplied for current_subscriptions".to_string(),
+                ),
+                status: Err("no value supplied for status".to_string()),
+            }
+        }
+    }
+    impl SubscribeResult {
+        pub fn current_subscriptions<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<Vec<::std::string::String>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.current_subscriptions = value
+                .try_into()
+                .map_err(|e| {
+                    format!(
+                        "error converting supplied value for current_subscriptions: {e}"
+                    )
+                });
+            self
+        }
+        pub fn status<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<
+                ::serde_json::Map<::std::string::String, ::serde_json::Value>,
+            >,
+            T::Error: ::std::fmt::Display,
+        {
+            self.status = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for status: {e}"));
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<SubscribeResult> for super::SubscribeResult {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: SubscribeResult,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                current_subscriptions: value.current_subscriptions?,
+                status: value.status?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::SubscribeResult> for SubscribeResult {
+        fn from(value: super::SubscribeResult) -> Self {
+            Self {
+                current_subscriptions: Ok(value.current_subscriptions),
+                status: Ok(value.status),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct TickerSlimPayload {
+        instrument_ticker: ::std::result::Result<
+            crate::models::ticker_slim_schema::TickerSlimSchema,
+            ::std::string::String,
+        >,
+        timestamp: ::std::result::Result<i64, ::std::string::String>,
+    }
+    impl ::std::default::Default for TickerSlimPayload {
+        fn default() -> Self {
+            Self {
+                instrument_ticker: Err(
+                    "no value supplied for instrument_ticker".to_string(),
+                ),
+                timestamp: Err("no value supplied for timestamp".to_string()),
+            }
+        }
+    }
+    impl TickerSlimPayload {
+        pub fn instrument_ticker<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<
+                crate::models::ticker_slim_schema::TickerSlimSchema,
+            >,
+            T::Error: ::std::fmt::Display,
+        {
+            self.instrument_ticker = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for instrument_ticker: {e}")
+                });
+            self
+        }
+        pub fn timestamp<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<i64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.timestamp = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for timestamp: {e}")
+                });
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<TickerSlimPayload> for super::TickerSlimPayload {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: TickerSlimPayload,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                instrument_ticker: value.instrument_ticker?,
+                timestamp: value.timestamp?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::TickerSlimPayload> for TickerSlimPayload {
+        fn from(value: super::TickerSlimPayload) -> Self {
+            Self {
+                instrument_ticker: Ok(value.instrument_ticker),
+                timestamp: Ok(value.timestamp),
             }
         }
     }
@@ -48177,6 +52779,212 @@ pub mod builder {
                 risk_universe_id: Ok(value.risk_universe_id),
                 risk_universe_name: Ok(value.risk_universe_name),
                 sm: Ok(value.sm),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct UnsubscribeParams {
+        channels: ::std::result::Result<
+            ::std::option::Option<::std::vec::Vec<::std::string::String>>,
+            ::std::string::String,
+        >,
+    }
+    impl ::std::default::Default for UnsubscribeParams {
+        fn default() -> Self {
+            Self {
+                channels: Ok(Default::default()),
+            }
+        }
+    }
+    impl UnsubscribeParams {
+        pub fn channels<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<
+                ::std::option::Option<::std::vec::Vec<::std::string::String>>,
+            >,
+            T::Error: ::std::fmt::Display,
+        {
+            self.channels = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for channels: {e}")
+                });
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<UnsubscribeParams> for super::UnsubscribeParams {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: UnsubscribeParams,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self { channels: value.channels? })
+        }
+    }
+    impl ::std::convert::From<super::UnsubscribeParams> for UnsubscribeParams {
+        fn from(value: super::UnsubscribeParams) -> Self {
+            Self {
+                channels: Ok(value.channels),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct UnsubscribeRequest {
+        headers: ::std::result::Result<
+            ::std::option::Option<
+                ::serde_json::Map<::std::string::String, ::serde_json::Value>,
+            >,
+            ::std::string::String,
+        >,
+        id: ::std::result::Result<super::JsonRpcId, ::std::string::String>,
+        method: ::std::result::Result<::std::string::String, ::std::string::String>,
+        params: ::std::result::Result<super::UnsubscribeParams, ::std::string::String>,
+    }
+    impl ::std::default::Default for UnsubscribeRequest {
+        fn default() -> Self {
+            Self {
+                headers: Ok(Default::default()),
+                id: Err("no value supplied for id".to_string()),
+                method: Err("no value supplied for method".to_string()),
+                params: Err("no value supplied for params".to_string()),
+            }
+        }
+    }
+    impl UnsubscribeRequest {
+        pub fn headers<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<
+                ::std::option::Option<
+                    ::serde_json::Map<::std::string::String, ::serde_json::Value>,
+                >,
+            >,
+            T::Error: ::std::fmt::Display,
+        {
+            self.headers = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for headers: {e}")
+                });
+            self
+        }
+        pub fn id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::JsonRpcId>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.id = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for id: {e}"));
+            self
+        }
+        pub fn method<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.method = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for method: {e}"));
+            self
+        }
+        pub fn params<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::UnsubscribeParams>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.params = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for params: {e}"));
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<UnsubscribeRequest> for super::UnsubscribeRequest {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: UnsubscribeRequest,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                headers: value.headers?,
+                id: value.id?,
+                method: value.method?,
+                params: value.params?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::UnsubscribeRequest> for UnsubscribeRequest {
+        fn from(value: super::UnsubscribeRequest) -> Self {
+            Self {
+                headers: Ok(value.headers),
+                id: Ok(value.id),
+                method: Ok(value.method),
+                params: Ok(value.params),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct UnsubscribeResult {
+        remaining_subscriptions: ::std::result::Result<
+            Vec<::std::string::String>,
+            ::std::string::String,
+        >,
+        status: ::std::result::Result<
+            ::serde_json::Map<::std::string::String, ::serde_json::Value>,
+            ::std::string::String,
+        >,
+    }
+    impl ::std::default::Default for UnsubscribeResult {
+        fn default() -> Self {
+            Self {
+                remaining_subscriptions: Err(
+                    "no value supplied for remaining_subscriptions".to_string(),
+                ),
+                status: Err("no value supplied for status".to_string()),
+            }
+        }
+    }
+    impl UnsubscribeResult {
+        pub fn remaining_subscriptions<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<Vec<::std::string::String>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.remaining_subscriptions = value
+                .try_into()
+                .map_err(|e| {
+                    format!(
+                        "error converting supplied value for remaining_subscriptions: {e}"
+                    )
+                });
+            self
+        }
+        pub fn status<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<
+                ::serde_json::Map<::std::string::String, ::serde_json::Value>,
+            >,
+            T::Error: ::std::fmt::Display,
+        {
+            self.status = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for status: {e}"));
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<UnsubscribeResult> for super::UnsubscribeResult {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: UnsubscribeResult,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                remaining_subscriptions: value.remaining_subscriptions?,
+                status: value.status?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::UnsubscribeResult> for UnsubscribeResult {
+        fn from(value: super::UnsubscribeResult) -> Self {
+            Self {
+                remaining_subscriptions: Ok(value.remaining_subscriptions),
+                status: Ok(value.status),
             }
         }
     }

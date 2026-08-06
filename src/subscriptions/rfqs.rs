@@ -1,6 +1,5 @@
 use crate::{
-    models::asyncapi_subs::*, subscriptions::channel_specs::rfqs::*,
-    types::{ClientError, EventStream},
+    models::*, subscriptions::channel_specs::rfqs::*, types::{ClientError, EventStream},
     ws_client::WsClient,
 };
 pub struct RfqsSubscriptions<'a> {

@@ -3,7 +3,7 @@ use std::str::FromStr;
 use bigdecimal::BigDecimal;
 use derive_rs::{
     actions::{ExecuteQuoteArgs, SendQuoteArgs},
-    models::openapi::{
+    models::{
         CancelBatchRfqsRequest, Direction, GetTickerRequest, LegUnpricedParams, PollRfqsRequest,
         PricedLegParamsAndResponse, PublicRfq, RfqGetBestQuoteRequest, RfqStatus, SendRfqRequest,
     },

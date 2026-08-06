@@ -2,7 +2,7 @@
 // Run with `cargo run --example ws_stream_tickers`
 
 mod common;
-use derive_rs::{models::asyncapi_subs::TickerSlimNotification, types::ExternalEvent};
+use derive_rs::{models::TickerSlimNotification, types::ExternalEvent};
 use tokio_stream::{StreamExt, wrappers::BroadcastStream};
 
 use crate::common::get_test_ws_client;

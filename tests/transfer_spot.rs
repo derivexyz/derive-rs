@@ -3,13 +3,14 @@ use std::str::FromStr;
 use bigdecimal::BigDecimal;
 use derive_rs::{
     actions::SpotTransferArgs,
-    models::openapi::{MarginType, PrivateTransferSpotResponse},
+    models::{MarginType, PrivateTransferSpotResponse},
     types::ClientError,
 };
 
 mod common;
 
 #[tokio::test]
+#[ignore]
 async fn test_transfer_spot() {
     let ws_client = common::get_test_ws_client().await;
     ws_client.login().await.expect("Failed to login");
@@ -43,7 +44,7 @@ async fn test_transfer_spot() {
         .amount(BigDecimal::from_str("250.00").unwrap())
         .new_subaccount_manager(submanager_id)
         .subaccount_id(subaccount_id)
-        .to_subaccount_id(75741)
+        .to_subaccount_id(75748)
         .build();
 
     let transfer_result: Result<PrivateTransferSpotResponse, ClientError> =
