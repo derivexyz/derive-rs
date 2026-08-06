@@ -1,4 +1,3 @@
-// use ethers::prelude::{I256, U256};
 use std::str::FromStr;
 
 use alloy::primitives::{I256, U256};
@@ -35,27 +34,6 @@ pub fn decimal_to_i256_with_prec(decimal: &BigDecimal, prec: u32) -> Result<I256
     Ok(I256::from_dec_str(&s)?)
 }
 
-pub fn u256_to_decimal_with_prec(u256: U256, prec: u32) -> Result<BigDecimal> {
-    let numer = BigDecimal::from_str(&u256.to_string())?;
-    let denom = pow10_bigdecimal(prec);
-    Ok(numer / denom)
-}
-
-pub fn i256_to_decimal_with_prec(i256: I256, prec: u32) -> Result<BigDecimal> {
-    let numer = BigDecimal::from_str(&i256.to_string())?;
-    let denom = pow10_bigdecimal(prec);
-    Ok(numer / denom)
-}
-
-pub fn u256_to_decimal(u256: U256) -> Result<BigDecimal> {
-    u256_to_decimal_with_prec(u256, 18)
-}
-
-pub fn i256_to_decimal(i256: I256) -> Result<BigDecimal> {
-    i256_to_decimal_with_prec(i256, 18)
-}
-
 pub fn to_e18(value: &BigDecimal) -> Result<U256> {
-    // we scale to an e18 representation, which is the standard for ERC20 tokens
     decimal_to_u256_with_prec(value, 18)
 }

@@ -46,9 +46,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             event = ws_client.run_till_event() => {
                 match event {
                     ExternalEvent::Connected => {
-                        // let _ = ws_client.login().await;
-                        // let _ = ws_client.resubscribe_all().await;
-                        println!("WebSocket connected");
+                        let _ = ws_client.login().await;
+                        let _ = ws_client.resubscribe_all().await;
+                        println!("WebSocket connected and resubscribed to all channels.");
                     }
                     ExternalEvent::Disconnected => {
                         println!("WebSocket disconnected");

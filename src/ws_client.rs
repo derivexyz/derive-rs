@@ -201,7 +201,6 @@ impl WsClient {
             wallet,
             public_address,
             smart_contract_wallet_address,
-            // .and_then(|addr| addr.parse::<Address>().ok()),
             subaccount_id,
             instruments_cache: Arc::new(DashMap::new()),
             erc20_cache: Arc::new(DashMap::new()),
@@ -213,9 +212,6 @@ impl WsClient {
         client.cache_erc20_assets().await?;
         client.cache_risk_universes().await?;
         client.cache_assets().await?;
-        // if private_key.is_some() {
-        //     client.wait_for_connection().await;
-        // }
         Ok(client)
     }
 
@@ -381,48 +377,48 @@ impl WsClient {
         Err(ClientError::Rpc(serde_json::json!({})))
     }
 
-    // pub async fn resubscribe_all(&self) -> Result<(), ClientError> {
-    //     let public_channels: Vec<String> = self
-    //         .public_subscriptions
-    //         .iter()
-    //         .map(|e| e.key().clone())
-    //         .collect();
-    //     let private_channels: Vec<String> = self
-    //         .private_subscriptions
-    //         .iter()
-    //         .map(|e| e.key().clone())
-    //         .collect();
-    //     let all_channels: Vec<String> = public_channels
-    //         .iter()
-    //         .chain(private_channels.iter())
-    //         .cloned()
-    //         .collect();
-    //     for attempt in 1..=5 {
-    //         let res = self
-    //             .send_rpc::<ChannelResponse>(
-    //                 "subscribe",
-    //                 serde_json::json!({
-    //                     "channels": all_channels
-    //                 }),
-    //             )
-    //             .await;
-    //         match res {
-    //             Ok(res) => {
-    //                 info!(
-    //                     "Re-subscribed to all channels: {all_channels:?}: response: {res:?} on attempt {attempt}"
-    //                 );
-    //                 return Ok(());
-    //             }
-    //             Err(e) => {
-    //                 warn!("Failed to re-subscribe to channels: {e:?}; attempt {attempt}");
-    //                 tokio::time::sleep(Duration::from_secs(2)).await;
-    //             }
-    //         }
-    //     }
-    //     Err(ClientError::Rpc(serde_json::json!({
-    //         "message": "Failed to re-subscribe to channels after multiple attempts"
-    //     })))
-    // }
+    pub async fn resubscribe_all(&self) -> Result<(), ClientError> {
+        let public_channels: Vec<String> = self
+            .public_subscriptions
+            .iter()
+            .map(|e| e.key().clone())
+            .collect();
+        let private_channels: Vec<String> = self
+            .private_subscriptions
+            .iter()
+            .map(|e| e.key().clone())
+            .collect();
+        let all_channels: Vec<String> = public_channels
+            .iter()
+            .chain(private_channels.iter())
+            .cloned()
+            .collect();
+        for attempt in 1..=5 {
+            let res = self
+                .send_rpc::<ChannelResponse>(
+                    "subscribe",
+                    serde_json::json!({
+                        "channels": all_channels
+                    }),
+                )
+                .await;
+            match res {
+                Ok(res) => {
+                    info!(
+                        "Re-subscribed to all channels: {all_channels:?}: response: {res:?} on attempt {attempt}"
+                    );
+                    return Ok(());
+                }
+                Err(e) => {
+                    warn!("Failed to re-subscribe to channels: {e:?}; attempt {attempt}");
+                    tokio::time::sleep(Duration::from_secs(2)).await;
+                }
+            }
+        }
+        Err(ClientError::Rpc(serde_json::json!({
+            "message": "Failed to re-subscribe to channels after multiple attempts"
+        })))
+    }
 
     pub async fn run_till_event(&self) -> ExternalEvent {
         let mut rx = self.connection_state_rx.clone();
@@ -504,29 +500,18 @@ impl WsClient {
         }
     }
 
-    // async fn get_instruments(&self) -> Result<PublicGetAllInstrumentsResultSchema, ClientError> {
-    //     let result: PublicGetAllInstrumentsResultSchema = self
-    //         .send_rpc(
-    //             "public/get_all_instruments",
-    //             serde_json::json!({
-    //                 "expired": false,
-    //                 "instrument_type": "perp"
-    //             }),
-    //         )
-    //         .await?;
-    //     Ok(result)
-    // }
-
     async fn cache_instruments(&self) -> Result<(), ClientError> {
-        let params = GetAllInstrumentsRequest::builder()
-            .expired(false)
-            .instrument_type(AssetType::Perp)
-            .try_into()?;
-        let instruments = self.rpc().market_data().get_all_instruments(params).await?;
         self.instruments_cache.clear();
-        for instrument in &instruments.instruments {
-            self.instruments_cache
-                .insert(instrument.instrument_name.clone(), instrument.clone());
+        for asset_type in &[AssetType::Perp, AssetType::Erc20, AssetType::Option] {
+            let params = GetAllInstrumentsRequest::builder()
+                .expired(false)
+                .instrument_type(*asset_type)
+                .try_into()?;
+            let instruments = self.rpc().market_data().get_all_instruments(params).await?;
+            for instrument in &instruments.instruments {
+                self.instruments_cache
+                    .insert(instrument.instrument_name.clone(), instrument.clone());
+            }
         }
         Ok(())
     }
