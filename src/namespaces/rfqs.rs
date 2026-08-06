@@ -65,7 +65,6 @@ impl<'a> RfqsNamespace<'a> {
             self.ws_client.subaccount_id.unwrap(),
         )?;
 
-        println!("Params: {:?}", params);
         self.ws_client.rpc().rfq().send_quote(params).await
     }
 
@@ -111,7 +110,6 @@ impl<'a> RfqsNamespace<'a> {
             self.ws_client.subaccount_id.unwrap(),
         )?;
 
-        println!("Params: {:?}", params);
         self.ws_client.rpc().rfq().execute_quote(params).await
     }
 

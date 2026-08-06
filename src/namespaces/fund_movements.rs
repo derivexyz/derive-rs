@@ -56,8 +56,6 @@ impl<'a> FundMovementsNamespace<'a> {
         let params =
             action.populate_withdraw_params(&signer, withdraw_args.clone(), env, subaccount_id)?;
 
-        println!("Withdrawal params: {:?}", params);
-
         self.ws_client
             .rpc()
             .transfers_withdrawals()
@@ -117,8 +115,6 @@ impl<'a> FundMovementsNamespace<'a> {
 
         let params = action.populate_transfer_spot_params(&signer, args.clone(), env, &asset)?;
 
-        println!("Transfer Spot params: {:?}", params);
-
         self.ws_client
             .rpc()
             .transfers_withdrawals()
@@ -161,8 +157,6 @@ impl<'a> FundMovementsNamespace<'a> {
             &self.ws_client.derive_wallet.clone().unwrap(),
             &instruments,
         )?;
-
-        println!("Transfer Position params: {:?}", params);
 
         self.ws_client
             .rpc()

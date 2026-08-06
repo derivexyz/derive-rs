@@ -263,7 +263,7 @@ impl WsClient {
                         error: rpc_error.error,
                     })
                 } else {
-                    println!(
+                    error!(
                         "Failed to parse RPC response; raw: {}",
                         String::from_utf8_lossy(&response)
                     );
@@ -756,7 +756,6 @@ pub fn handle_incoming(
     }
 
     if let Some(channel) = extract_channel(&bytes) {
-        println!("Received message for channel: {channel}");
         for routes in [private_subscriptions, public_subscriptions] {
             if let Some(route) = routes.get(channel) {
                 match (route.dispatch)(&bytes) {
