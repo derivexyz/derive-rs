@@ -49,7 +49,7 @@ impl<'a> RfqsNamespace<'a> {
             self.ws_client.wallet.clone().unwrap().address(),
             &self
                 .ws_client
-                .smart_contract_wallet_address
+                .derive_wallet
                 .clone()
                 .unwrap()
                 .parse()
@@ -95,7 +95,7 @@ impl<'a> RfqsNamespace<'a> {
             self.ws_client.wallet.clone().unwrap().address(),
             &self
                 .ws_client
-                .smart_contract_wallet_address
+                .derive_wallet
                 .clone()
                 .unwrap()
                 .parse()

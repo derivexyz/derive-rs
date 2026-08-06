@@ -8,7 +8,7 @@ use crate::common::get_test_ws_client;
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let ws_client = get_test_ws_client().await;
     ws_client.login().await.expect("Failed to login");
-    let wallet = ws_client.smart_contract_wallet_address.clone().unwrap();
+    let wallet = ws_client.derive_wallet.clone().unwrap();
 
     let mut new_rfs = ws_client
         .subscriptions()
