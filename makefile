@@ -38,8 +38,8 @@ release: version package tag
 	@gh release create v$(NEW_VERSION) \
 		--title "v$(NEW_VERSION)" \
 		--notes "Release v$(NEW_VERSION)"
-	# @echo "Creating crate release v$(NEW_VERSION)"
-	# @cargo publish
+	@echo "Creating crate release v$(NEW_VERSION)"
+	@cargo publish
 
 lint: 
 	cargo clippy --benches --examples --tests -- -D warnings 
