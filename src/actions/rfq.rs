@@ -28,12 +28,28 @@ use crate::{
 
 use bon::Builder;
 
+pub trait ExecuteQuoteArgsLike {
+    fn max_fee(&self) -> &BigDecimal;
+    fn legs(&self) -> &[PricedLegParamsAndResponse];
+}
+
 #[derive(Clone, Debug, Deserialize, Builder)]
 pub struct TransferPositionsArgs {
     pub legs: Vec<PricedLegParamsAndResponse>,
     pub from_subaccount_id: u64,
     pub to_subaccount_id: u64,
     pub maker_direction: Direction,
+    pub max_fee: BigDecimal,
+}
+
+impl ExecuteQuoteArgsLike for TransferPositionsArgs {
+    fn max_fee(&self) -> &BigDecimal {
+        &self.max_fee
+    }
+
+    fn legs(&self) -> &[PricedLegParamsAndResponse] {
+        &self.legs
+    }
 }
 
 #[derive(Clone, Debug, Deserialize, Builder)]
@@ -49,6 +65,16 @@ pub struct ExecuteQuoteArgs {
     pub rfq_id: Uuid,
     pub quote_id: Uuid,
     pub max_fee: BigDecimal,
+}
+
+impl ExecuteQuoteArgsLike for ExecuteQuoteArgs {
+    fn max_fee(&self) -> &BigDecimal {
+        &self.max_fee
+    }
+
+    fn legs(&self) -> &[PricedLegParamsAndResponse] {
+        &self.legs
+    }
 }
 
 sol! {
@@ -72,12 +98,12 @@ sol! {
 }
 
 fn build_rfq_position_transfer_legs(
-    legs: Vec<PricedLegParamsAndResponse>,
+    legs: &[PricedLegParamsAndResponse],
     quote_direction: Direction,
     perspective_sign: i8,
     instrument_map: &HashMap<String, Instrument>,
 ) -> Result<Vec<RfqPositionTransferLeg>> {
-    let mut sorted_legs = legs;
+    let mut sorted_legs = legs.to_vec();
     sorted_legs.sort_by(|a, b| a.instrument_name.cmp(&b.instrument_name));
     sorted_legs
         .into_iter()
@@ -140,7 +166,7 @@ impl TransferPositionsData {
         Ok(Self {
             maxFee: decimal_to_u256(&BigDecimal::from(0))?,
             legs: build_rfq_position_transfer_legs(
-                args.legs,
+                &args.legs,
                 quote_direction,
                 perspective_sign,
                 instrument_map,
@@ -157,24 +183,7 @@ impl TransferPositionsData {
         Ok(Self {
             maxFee: to_e18(&args.max_fee).expect("Unable to scale fee"),
             legs: build_rfq_position_transfer_legs(
-                args.legs,
-                quote_direction,
-                perspective_sign,
-                instrument_map,
-            )?,
-        })
-    }
-
-    pub fn from_execute_quote_args(
-        args: ExecuteQuoteArgs,
-        quote_direction: Direction,
-        perspective_sign: i8,
-        instrument_map: &HashMap<String, Instrument>,
-    ) -> Result<Self> {
-        Ok(Self {
-            maxFee: to_e18(&args.max_fee).expect("Unable to scale fee"),
-            legs: build_rfq_position_transfer_legs(
-                args.legs,
+                &args.legs,
                 quote_direction,
                 perspective_sign,
                 instrument_map,
@@ -197,14 +206,19 @@ impl ModuleData for RfqExecuteData {
 
 impl RfqExecuteData {
     // this is such that we can hash the legs and then use that hash to create the RfqExecuteData struct
-    pub fn from_execute_quote_args(
-        execute_args: ExecuteQuoteArgs,
+    pub fn from_execute_quote_args<T>(
+        execute_args: T,
         instrument_map: &HashMap<String, Instrument>,
-    ) -> Result<Self> {
+        direction: Direction,
+        perspective_sign: i8,
+    ) -> Result<Self>
+    where
+        T: ExecuteQuoteArgsLike,
+    {
         let leg_abis = build_rfq_position_transfer_legs(
-            execute_args.legs,
-            Direction::Buy,
-            -1,
+            execute_args.legs(),
+            direction,
+            perspective_sign,
             instrument_map,
         )?;
         let order_hash = keccak256(leg_abis.abi_encode());
@@ -212,7 +226,7 @@ impl RfqExecuteData {
 
         Ok(Self {
             orderHash: order_hash,
-            maxFee: to_e18(&execute_args.max_fee).expect("Unable to scale fee"),
+            maxFee: to_e18(execute_args.max_fee()).expect("Unable to scale fee"),
         })
     }
 }
@@ -227,11 +241,11 @@ impl ActionData {
     ) -> Result<TransferPositionsRequest> {
         let maker_module_data =
             TransferPositionsData::from_args(args.clone(), args.maker_direction, 1, instruments)?;
-        let taker_module_data = TransferPositionsData::from_args(
+        let taker_module_data = RfqExecuteData::from_execute_quote_args(
             args.clone(),
+            instruments,
             args.maker_direction.opposite(),
             -1,
-            instruments,
         )?;
 
         let maker_action_data = ActionData::new(

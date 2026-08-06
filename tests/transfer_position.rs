@@ -38,7 +38,8 @@ async fn test_transfer_position() {
         .legs(vec![position])
         .from_subaccount_id(subaccounts.subaccount_ids[1])
         .to_subaccount_id(subaccounts.subaccount_ids[2])
-        .maker_direction(Direction::Buy)
+        .maker_direction(Direction::Sell)
+        .max_fee(BigDecimal::from_str("0").expect("Failed to parse max fee"))
         .build();
 
     println!("Transfer positions args: {:?}", pos_transfer);

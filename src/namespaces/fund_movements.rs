@@ -140,12 +140,6 @@ impl<'a> FundMovementsNamespace<'a> {
     ) -> Result<TransferPositionsResponse, ClientError> {
         let signer = self.ws_client.wallet.clone().unwrap();
 
-        // let subaccount_id = self.ws_client.subaccount_id.unwrap();
-        // let wallet = self
-        //     .ws_client
-        //     .smart_contract_wallet_address
-        //     .clone()
-        //     .unwrap();
         let env = &self.ws_client.environment;
 
         let required_instruments: Vec<String> = args

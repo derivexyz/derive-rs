@@ -83,7 +83,12 @@ impl<'a> RfqsNamespace<'a> {
             })
             .collect::<std::collections::HashMap<String, crate::models::openapi::Instrument>>();
 
-        let rfq_data = RfqExecuteData::from_execute_quote_args(request.clone(), &instrument_map)?;
+        let rfq_data = RfqExecuteData::from_execute_quote_args(
+            request.clone(),
+            &instrument_map,
+            Direction::Buy,
+            -1,
+        )?;
         let action_data = ActionData::new(
             rfq_data.clone(),
             self.ws_client.subaccount_id.unwrap(),

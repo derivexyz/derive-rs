@@ -9349,6 +9349,7 @@
         "type": "object",
         "required": [
           "cancel_on_disconnect",
+          "fallback_subaccount_id",
           "fee_info",
           "is_rfq_maker",
           "per_endpoint_tps",
@@ -9369,6 +9370,12 @@
               "integer",
               "null"
             ],
+            "format": "uint64",
+            "minimum": 0.0
+          },
+          "fallback_subaccount_id": {
+            "description": "Subaccount that receives deposits whose requested destination is unusable — unknown manager id, or the per-wallet subaccount cap already reached. Allocated with the account, and always in the fallback risk universe (id 0).",
+            "type": "integer",
             "format": "uint64",
             "minimum": 0.0
           },

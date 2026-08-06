@@ -1,5 +1,7 @@
 use alloy::{
-    hex::{self, encode_prefixed}, primitives::{Address, U256}, signers::{SignerSync, local::PrivateKeySigner},
+    hex::{self, encode_prefixed},
+    primitives::{Address, U256},
+    signers::{SignerSync, local::PrivateKeySigner},
 };
 use alloy_sol_types::{SolValue, sol};
 use anyhow::Result;
@@ -98,7 +100,7 @@ sol! {
 
 impl ModuleData for SetSessionKeyData {
     fn get_action_data(&self) -> Vec<u8> {
-        let bytes =(
+        let bytes = (
             self.session_key,
             self.expiry_sec,
             self.scopes.clone(),

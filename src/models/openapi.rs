@@ -10501,6 +10501,7 @@ impl PrivateChangeSubaccountLabelResponse {
 ///  "type": "object",
 ///  "required": [
 ///    "cancel_on_disconnect",
+///    "fallback_subaccount_id",
 ///    "fee_info",
 ///    "is_rfq_maker",
 ///    "per_endpoint_tps",
@@ -10521,6 +10522,12 @@ impl PrivateChangeSubaccountLabelResponse {
 ///        "integer",
 ///        "null"
 ///      ],
+///      "format": "uint64",
+///      "minimum": 0.0
+///    },
+///    "fallback_subaccount_id": {
+///      "description": "Subaccount that receives deposits whose requested destination is unusable — unknown manager id, or the per-wallet subaccount cap already reached. Allocated with the account, and always in the fallback risk universe (id 0).",
+///      "type": "integer",
 ///      "format": "uint64",
 ///      "minimum": 0.0
 ///    },
@@ -10591,6 +10598,8 @@ pub struct PrivateGetAccountResponse {
     pub cancel_on_disconnect: bool,
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub creation_timestamp_sec: ::std::option::Option<u64>,
+    ///Subaccount that receives deposits whose requested destination is unusable — unknown manager id, or the per-wallet subaccount cap already reached. Allocated with the account, and always in the fallback risk universe (id 0).
+    pub fallback_subaccount_id: u64,
     pub fee_info: AccountFeeInfo,
     pub is_rfq_maker: bool,
     pub per_endpoint_tps: ::std::collections::HashMap<::std::string::String, u16>,
@@ -35630,6 +35639,7 @@ pub mod builder {
             ::std::option::Option<u64>,
             ::std::string::String,
         >,
+        fallback_subaccount_id: ::std::result::Result<u64, ::std::string::String>,
         fee_info: ::std::result::Result<super::AccountFeeInfo, ::std::string::String>,
         is_rfq_maker: ::std::result::Result<bool, ::std::string::String>,
         per_endpoint_tps: ::std::result::Result<
@@ -35661,6 +35671,9 @@ pub mod builder {
                     "no value supplied for cancel_on_disconnect".to_string(),
                 ),
                 creation_timestamp_sec: Ok(Default::default()),
+                fallback_subaccount_id: Err(
+                    "no value supplied for fallback_subaccount_id".to_string(),
+                ),
                 fee_info: Err("no value supplied for fee_info".to_string()),
                 is_rfq_maker: Err("no value supplied for is_rfq_maker".to_string()),
                 per_endpoint_tps: Err(
@@ -35712,6 +35725,20 @@ pub mod builder {
                 .map_err(|e| {
                     format!(
                         "error converting supplied value for creation_timestamp_sec: {e}"
+                    )
+                });
+            self
+        }
+        pub fn fallback_subaccount_id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<u64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.fallback_subaccount_id = value
+                .try_into()
+                .map_err(|e| {
+                    format!(
+                        "error converting supplied value for fallback_subaccount_id: {e}"
                     )
                 });
             self
@@ -35868,6 +35895,7 @@ pub mod builder {
             Ok(Self {
                 cancel_on_disconnect: value.cancel_on_disconnect?,
                 creation_timestamp_sec: value.creation_timestamp_sec?,
+                fallback_subaccount_id: value.fallback_subaccount_id?,
                 fee_info: value.fee_info?,
                 is_rfq_maker: value.is_rfq_maker?,
                 per_endpoint_tps: value.per_endpoint_tps?,
@@ -35888,6 +35916,7 @@ pub mod builder {
             Self {
                 cancel_on_disconnect: Ok(value.cancel_on_disconnect),
                 creation_timestamp_sec: Ok(value.creation_timestamp_sec),
+                fallback_subaccount_id: Ok(value.fallback_subaccount_id),
                 fee_info: Ok(value.fee_info),
                 is_rfq_maker: Ok(value.is_rfq_maker),
                 per_endpoint_tps: Ok(value.per_endpoint_tps),
