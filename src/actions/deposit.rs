@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use alloy::{
     primitives::{Address, TxHash, U256},
-    providers::ProviderBuilder,
+    providers::{Provider, ProviderBuilder},
     signers::local::PrivateKeySigner,
     sol,
 };
@@ -79,6 +79,7 @@ pub struct DepositArgs {
     #[builder(into)]
     recepient_address: Address,
     subaccount_id: Option<u64>,
+    manager_id: Option<u32>,
     rpc_provider: Option<String>,
     // we use a default to specific subaccount
     #[builder(default=DepositTypes::Direct(DirectDepositType::Deposit))]
@@ -154,26 +155,32 @@ impl DepositManager {
         match &self.deposit_args.deposit_type {
             DepositTypes::Direct(deposit_type) => match deposit_type {
                 DirectDepositType::Deposit => {
-                    if let Some(subaccount_id) = self.deposit_args.subaccount_id {
-                        return Err(ClientError::SubaccountError(format!(
-                            "Subaccount ID {} is not supported for direct deposit",
-                            subaccount_id
-                        )));
+                    if self.deposit_args.subaccount_id.is_some() {
+                        let tx_hash = self.send_deposit().await?;
+                        tx_hashes.push(tx_hash);
+                    } else {
+                        return Err(ClientError::SubaccountError(
+                            "Subaccount ID must be passed for direct deposit to subaccount"
+                                .to_string(),
+                        ));
                     }
-
-                    let tx_hash = self.send_deposit().await?;
-                    tx_hashes.push(tx_hash);
                 }
 
                 DirectDepositType::DepositToNewSubaccount => {
-                    if self.deposit_args.subaccount_id.is_none() {
+                    if self.deposit_args.subaccount_id.is_some() {
                         return Err(ClientError::SubaccountError(
-                            "Subaccount ID is required for DepositToNewSubaccount".into(),
+                            "Subaccount ID should not be passed required for DepositToNewSubaccount".into(),
                         ));
                     }
 
-                    let tx_hash = self.send_deposit().await?;
-                    tx_hashes.push(tx_hash);
+                    if let Some(manager_id) = self.deposit_args.manager_id {
+                        let tx_hash = self.send_deposit_to_new_subaccount(manager_id).await?;
+                        tx_hashes.push(tx_hash);
+                    } else {
+                        return Err(ClientError::SubaccountError(
+                            "Manager ID must be passed for DepositToNewSubaccount".into(),
+                        ));
+                    }
                 }
             },
         }
@@ -233,19 +240,23 @@ impl DepositManager {
             .wallet(self.private_key.clone())
             .connect_http(self.rpc_url.clone());
 
+        let fees = provider
+            .estimate_eip1559_fees()
+            .await
+            .map_err(Self::string_error)?;
         let erc20 = Erc20::new(asset_info.underlying_erc20, provider);
 
         let pending_tx = erc20
             .approve(self.manager_address, amount)
+            .max_priority_fee_per_gas(fees.max_priority_fee_per_gas * 2)
+            .max_fee_per_gas(fees.max_fee_per_gas * 2)
             .send()
             .await
             .map_err(Self::string_error)?;
 
         let tx_hash = *pending_tx.tx_hash();
-
-        // The deposit depends on the approval being mined.
+        println!("Approval transaction sent: {:?}", tx_hash);
         pending_tx.get_receipt().await.map_err(Self::string_error)?;
-
         Ok(tx_hash)
     }
 
@@ -261,6 +272,10 @@ impl DepositManager {
             .wallet(self.private_key.clone())
             .connect_http(self.rpc_url.clone());
 
+        let fees = provider
+            .estimate_eip1559_fees()
+            .await
+            .map_err(Self::string_error)?;
         let manager = OnchainActionManager::new(self.manager_address, provider);
 
         let pending_tx = manager
@@ -270,11 +285,49 @@ impl DepositManager {
                 subaccount_id,
                 self.deposit_args.recepient_address,
             )
+            .max_priority_fee_per_gas(fees.max_priority_fee_per_gas * 2)
+            .max_fee_per_gas(fees.max_fee_per_gas * 2)
             .send()
             .await
             .map_err(Self::string_error)?;
 
-        Ok(*pending_tx.tx_hash())
+        let tx_hash = *pending_tx.tx_hash();
+        println!("Deposit transaction sent: {:?}", tx_hash);
+        pending_tx.get_receipt().await.map_err(Self::string_error)?;
+        Ok(tx_hash)
+    }
+
+    async fn send_deposit_to_new_subaccount(&self, manager_id: u32) -> Result<TxHash, ClientError> {
+        let asset_info = self.asset_info(&self.deposit_args.asset)?;
+        let amount = self.amount_to_units(&self.deposit_args.amount, asset_info.decimals)?;
+
+        let provider = ProviderBuilder::new()
+            .wallet(self.private_key.clone())
+            .connect_http(self.rpc_url.clone());
+
+        let fees = provider
+            .estimate_eip1559_fees()
+            .await
+            .map_err(Self::string_error)?;
+        let manager = OnchainActionManager::new(self.manager_address, provider);
+
+        let pending_tx = manager
+            .depositToNewSubaccount(
+                asset_info.token_address,
+                amount,
+                manager_id,
+                self.deposit_args.recepient_address,
+            )
+            .max_priority_fee_per_gas(fees.max_priority_fee_per_gas * 2)
+            .max_fee_per_gas(fees.max_fee_per_gas * 2)
+            .send()
+            .await
+            .map_err(Self::string_error)?;
+
+        let tx_hash = *pending_tx.tx_hash();
+        println!("Deposit to new subaccount transaction sent: {:?}", tx_hash);
+        pending_tx.get_receipt().await.map_err(Self::string_error)?;
+        Ok(tx_hash)
     }
 
     fn asset_info(&self, asset: &SupportDepositAssets) -> Result<AssetInfo, ClientError> {
