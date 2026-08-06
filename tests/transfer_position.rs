@@ -54,8 +54,4 @@ async fn test_transfer_position() {
         "Position transfer failed: {:?}",
         transfer_result.err()
     );
-
-    // for sub in subaccounts.subaccount_ids {
-    //     println!("{}", sub);
-    // }
 }
