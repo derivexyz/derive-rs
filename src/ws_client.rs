@@ -377,48 +377,48 @@ impl WsClient {
         Err(ClientError::Rpc(serde_json::json!({})))
     }
 
-    // pub async fn resubscribe_all(&self) -> Result<(), ClientError> {
-    //     let public_channels: Vec<String> = self
-    //         .public_subscriptions
-    //         .iter()
-    //         .map(|e| e.key().clone())
-    //         .collect();
-    //     let private_channels: Vec<String> = self
-    //         .private_subscriptions
-    //         .iter()
-    //         .map(|e| e.key().clone())
-    //         .collect();
-    //     let all_channels: Vec<String> = public_channels
-    //         .iter()
-    //         .chain(private_channels.iter())
-    //         .cloned()
-    //         .collect();
-    //     for attempt in 1..=5 {
-    //         let res = self
-    //             .send_rpc::<ChannelResponse>(
-    //                 "subscribe",
-    //                 serde_json::json!({
-    //                     "channels": all_channels
-    //                 }),
-    //             )
-    //             .await;
-    //         match res {
-    //             Ok(res) => {
-    //                 info!(
-    //                     "Re-subscribed to all channels: {all_channels:?}: response: {res:?} on attempt {attempt}"
-    //                 );
-    //                 return Ok(());
-    //             }
-    //             Err(e) => {
-    //                 warn!("Failed to re-subscribe to channels: {e:?}; attempt {attempt}");
-    //                 tokio::time::sleep(Duration::from_secs(2)).await;
-    //             }
-    //         }
-    //     }
-    //     Err(ClientError::Rpc(serde_json::json!({
-    //         "message": "Failed to re-subscribe to channels after multiple attempts"
-    //     })))
-    // }
+    pub async fn resubscribe_all(&self) -> Result<(), ClientError> {
+        let public_channels: Vec<String> = self
+            .public_subscriptions
+            .iter()
+            .map(|e| e.key().clone())
+            .collect();
+        let private_channels: Vec<String> = self
+            .private_subscriptions
+            .iter()
+            .map(|e| e.key().clone())
+            .collect();
+        let all_channels: Vec<String> = public_channels
+            .iter()
+            .chain(private_channels.iter())
+            .cloned()
+            .collect();
+        for attempt in 1..=5 {
+            let res = self
+                .send_rpc::<ChannelResponse>(
+                    "subscribe",
+                    serde_json::json!({
+                        "channels": all_channels
+                    }),
+                )
+                .await;
+            match res {
+                Ok(res) => {
+                    info!(
+                        "Re-subscribed to all channels: {all_channels:?}: response: {res:?} on attempt {attempt}"
+                    );
+                    return Ok(());
+                }
+                Err(e) => {
+                    warn!("Failed to re-subscribe to channels: {e:?}; attempt {attempt}");
+                    tokio::time::sleep(Duration::from_secs(2)).await;
+                }
+            }
+        }
+        Err(ClientError::Rpc(serde_json::json!({
+            "message": "Failed to re-subscribe to channels after multiple attempts"
+        })))
+    }
 
     pub async fn run_till_event(&self) -> ExternalEvent {
         let mut rx = self.connection_state_rx.clone();
