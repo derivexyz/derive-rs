@@ -1,14 +1,28 @@
+use std::collections::HashMap;
+
 use alloy::primitives::TxHash;
 
 use crate::{
     actions::{
         ActionData, DepositArgs, DepositManager, ModuleType, SpotTransferArgs, SpotTransferData,
-        WithdrawArgs, WithdrawData,
+        TransferPositionsArgs, WithdrawArgs, WithdrawData,
     },
-    models::openapi::{PrivateTransferSpotResponse, PrivateWithdrawResponse},
+    models::openapi::{
+        Direction, Instrument, PrivateTransferSpotResponse, PrivateWithdrawResponse,
+        TransferPositionsResponse,
+    },
     types::ClientError,
     ws_client::WsClient,
 };
+
+impl Direction {
+    pub fn opposite(&self) -> Self {
+        match self {
+            Direction::Buy => Direction::Sell,
+            Direction::Sell => Direction::Buy,
+        }
+    }
+}
 pub struct FundMovementsNamespace<'a> {
     pub ws_client: &'a WsClient,
 }
@@ -117,6 +131,55 @@ impl<'a> FundMovementsNamespace<'a> {
             .rpc()
             .transfers_withdrawals()
             .transfer_spot(params)
+            .await
+    }
+
+    pub async fn transfer_positions(
+        &self,
+        args: TransferPositionsArgs,
+    ) -> Result<TransferPositionsResponse, ClientError> {
+        let signer = self.ws_client.wallet.clone().unwrap();
+
+        let env = &self.ws_client.environment;
+
+        let required_instruments: Vec<String> = args
+            .legs
+            .iter()
+            .map(|leg| leg.instrument_name.clone())
+            .collect();
+
+        let instruments: HashMap<String, Instrument> = self
+            .ws_client
+            .instruments_cache
+            .iter()
+            .filter_map(|entry| {
+                let instrument = entry.value();
+                if required_instruments.contains(&instrument.instrument_name) {
+                    Some((instrument.instrument_name.clone(), instrument.clone()))
+                } else {
+                    None
+                }
+            })
+            .collect::<HashMap<String, Instrument>>();
+
+        let params = ActionData::populate_transfer_positions(
+            &signer,
+            args.clone(),
+            env,
+            &self
+                .ws_client
+                .smart_contract_wallet_address
+                .clone()
+                .unwrap(),
+            &instruments,
+        )?;
+
+        println!("Transfer Position params: {:?}", params);
+
+        self.ws_client
+            .rpc()
+            .transfers_withdrawals()
+            .transfer_positions(params)
             .await
     }
 }

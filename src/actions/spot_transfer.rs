@@ -1,6 +1,6 @@
 use alloy::{
     hex::encode_prefixed,
-    primitives::{Address, U256},
+    primitives::U256,
     signers::{SignerSync, local::PrivateKeySigner},
 };
 use alloy_sol_types::{SolValue, sol};
@@ -59,11 +59,6 @@ sol! {
 }
 
 impl ModuleData for SpotTransferData {
-    fn address(&self) -> Address {
-        panic!(
-            "ModuleData for SpotTransferData should not be used directly, it should be encoded into ActionData with ActionData::new"
-        );
-    }
     fn get_action_data(&self) -> Vec<u8> {
         self.abi_encode()
     }

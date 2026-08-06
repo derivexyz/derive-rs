@@ -16,12 +16,12 @@ pub use deposit::*;
 pub mod spot_transfer;
 pub use spot_transfer::*;
 
+pub mod rfq;
+pub use rfq::*;
 // pub mod liquidate;
 // pub mod deposit;
-// pub mod rfq;
 // pub mod withdraw;
 //
 // pub use deposit::*;
 // pub use liquidate::*;
-// pub use rfq::*;
 // pub use withdraw::*;

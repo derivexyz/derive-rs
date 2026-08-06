@@ -13,7 +13,6 @@ use chrono::{Duration, Utc};
 use crate::types::Environment;
 
 pub trait ModuleData {
-    fn address(&self) -> Address;
     fn get_action_data(&self) -> Vec<u8>;
 }
 
@@ -21,19 +20,20 @@ pub enum ModuleType {
     Trade,
     SpotTransfer,
     Withdraw,
-    // RfqPositionTransfer,
+    RfqPositionTransfer,
     // ExternalTransfer,
     // WhitelistedRecipient,
     // Vault,
-    CreateSessionKey,
+    SetSessionKey,
 }
 
 fn get_trade_module(module: ModuleType) -> &'static str {
     match module {
         ModuleType::Trade => "0xB8D20c2B7a1Ad2EE33Bc50eF10876eD3035b5e7b",
-        ModuleType::CreateSessionKey => "0xe330CF64ff6EbF41699aad344Cb21d78db1D2bb6",
+        ModuleType::SetSessionKey => "0xe330CF64ff6EbF41699aad344Cb21d78db1D2bb6",
         ModuleType::Withdraw => "0x9d0E8f5b25384C7310CB8C6aE32C8fbeb645d083",
         ModuleType::SpotTransfer => "0x01259207A40925b794C8ac320456F7F6c8FE2636",
+        ModuleType::RfqPositionTransfer => "0x9371352CCef6f5b36EfDFE90942fFE622Ab77F1D",
     }
 }
 
@@ -48,7 +48,7 @@ fn get_action_typehash(env: &Environment) -> &'static str {
     }
 }
 
-fn get_domain_separator(env: &Environment) -> &'static str {
+pub fn get_domain_separator(env: &Environment) -> &'static str {
     match env {
         Environment::Mainnet => {
             "0xd96e5f90797da7ec8dc4e276260c7f3f87fedf68775fbe1ef116e996fc60441b"
@@ -82,7 +82,7 @@ impl ActionData {
         let nonce = now
             .timestamp_nanos_opt()
             .context("current timestamp cannot be represented in nanoseconds")?;
-        let signature_expiry_sec = (now + Duration::seconds(3_000_000)).timestamp();
+        let signature_expiry_sec = (now + Duration::seconds(3_500)).timestamp();
         Ok((
             U256::from(u64::try_from(nonce)?),
             U256::from(u64::try_from(signature_expiry_sec)?),

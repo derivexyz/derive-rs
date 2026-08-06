@@ -2540,126 +2540,6 @@ impl CreateOrderRequest {
         Default::default()
     }
 }
-///Request parameters for registering a scoped session key. Address fields are 0x-prefixed hex strings.
-///
-/// <details><summary>JSON schema</summary>
-///
-/// ```json
-///{
-///  "description": "Request parameters for registering a scoped session key. Address fields are 0x-prefixed hex strings.",
-///  "type": "object",
-///  "required": [
-///    "expiry_sec",
-///    "nonce",
-///    "offchain_scopes",
-///    "protocol_scopes",
-///    "public_session_key",
-///    "signature",
-///    "signature_expiry_sec",
-///    "signer",
-///    "wallet"
-///  ],
-///  "properties": {
-///    "expiry_sec": {
-///      "type": "integer",
-///      "format": "uint64",
-///      "minimum": 0.0
-///    },
-///    "ip_whitelist": {
-///      "type": [
-///        "array",
-///        "null"
-///      ],
-///      "items": {
-///        "type": "string"
-///      }
-///    },
-///    "label": {
-///      "type": [
-///        "string",
-///        "null"
-///      ]
-///    },
-///    "nonce": {
-///      "type": "string"
-///    },
-///    "offchain_scopes": {
-///      "description": "Off-chain scopes which are validated in backend only",
-///      "type": "array",
-///      "items": {
-///        "type": "string"
-///      }
-///    },
-///    "protocol_scopes": {
-///      "description": "Scopes granted to the session key, validated by the protocol. Each is a string like `\"trade:orderbook:all\"`.",
-///      "type": "array",
-///      "items": {
-///        "type": "string"
-///      }
-///    },
-///    "public_session_key": {
-///      "description": "Session key address being authorized.",
-///      "type": "string"
-///    },
-///    "signature": {
-///      "description": "0x-prefixed hex, 65-byte r||s||v.",
-///      "type": "string"
-///    },
-///    "signature_expiry_sec": {
-///      "type": "integer",
-///      "format": "uint64",
-///      "minimum": 0.0
-///    },
-///    "signer": {
-///      "type": "string"
-///    },
-///    "subaccount_ids": {
-///      "type": [
-///        "array",
-///        "null"
-///      ],
-///      "items": {
-///        "type": "integer",
-///        "format": "uint64",
-///        "minimum": 0.0
-///      }
-///    },
-///    "wallet": {
-///      "description": "Wallet the session key is being registered for.",
-///      "type": "string"
-///    }
-///  }
-///}
-/// ```
-/// </details>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
-pub struct CreateSessionKeyRequest {
-    pub expiry_sec: u64,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
-    pub ip_whitelist: ::std::option::Option<::std::vec::Vec<::std::string::String>>,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
-    pub label: ::std::option::Option<::std::string::String>,
-    pub nonce: ::std::string::String,
-    ///Off-chain scopes which are validated in backend only
-    pub offchain_scopes: ::std::vec::Vec<::std::string::String>,
-    ///Scopes granted to the session key, validated by the protocol. Each is a string like `"trade:orderbook:all"`.
-    pub protocol_scopes: ::std::vec::Vec<::std::string::String>,
-    ///Session key address being authorized.
-    pub public_session_key: ::std::string::String,
-    ///0x-prefixed hex, 65-byte r||s||v.
-    pub signature: ::std::string::String,
-    pub signature_expiry_sec: u64,
-    pub signer: ::std::string::String,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
-    pub subaccount_ids: ::std::option::Option<::std::vec::Vec<u64>>,
-    ///Wallet the session key is being registered for.
-    pub wallet: ::std::string::String,
-}
-impl CreateSessionKeyRequest {
-    pub fn builder() -> builder::CreateSessionKeyRequest {
-        Default::default()
-    }
-}
 ///Fields common to every signed vault action. They appear alongside each endpoint's action-specific parameters in the same request object.
 ///
 /// <details><summary>JSON schema</summary>
@@ -7801,20 +7681,9 @@ impl OffchainAckResponse {
 /// ```json
 ///{
 ///  "description": "Additional permission scopes enforced off-chain (not part of the on-chain session-key scopes).",
-///  "oneOf": [
-///    {
-///      "type": "string",
-///      "enum": [
-///        "account_info"
-///      ]
-///    },
-///    {
-///      "description": "Permission to delete a session key. This is an off-chain-only permission, not part of the on-chain protocol scopes.",
-///      "type": "string",
-///      "enum": [
-///        "delete_session_key"
-///      ]
-///    }
+///  "type": "string",
+///  "enum": [
+///    "account_info"
 ///  ]
 ///}
 /// ```
@@ -7834,15 +7703,11 @@ impl OffchainAckResponse {
 pub enum OffchainKeyScope {
     #[serde(rename = "account_info")]
     AccountInfo,
-    ///Permission to delete a session key. This is an off-chain-only permission, not part of the on-chain protocol scopes.
-    #[serde(rename = "delete_session_key")]
-    DeleteSessionKey,
 }
 impl ::std::fmt::Display for OffchainKeyScope {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         match *self {
             Self::AccountInfo => f.write_str("account_info"),
-            Self::DeleteSessionKey => f.write_str("delete_session_key"),
         }
     }
 }
@@ -7853,7 +7718,6 @@ impl ::std::str::FromStr for OffchainKeyScope {
     ) -> ::std::result::Result<Self, self::error::ConversionError> {
         match value {
             "account_info" => Ok(Self::AccountInfo),
-            "delete_session_key" => Ok(Self::DeleteSessionKey),
             _ => Err("invalid value".into()),
         }
     }
@@ -10628,84 +10492,6 @@ impl PrivateChangeSubaccountLabelResponse {
         Default::default()
     }
 }
-///`PrivateCreateSessionKeyResponse`
-///
-/// <details><summary>JSON schema</summary>
-///
-/// ```json
-///{
-///  "type": "object",
-///  "required": [
-///    "expiry_sec",
-///    "ip_whitelist",
-///    "offchain_scopes",
-///    "protocol_scopes",
-///    "public_session_key",
-///    "subaccount_ids"
-///  ],
-///  "properties": {
-///    "expiry_sec": {
-///      "type": "integer",
-///      "format": "uint64",
-///      "minimum": 0.0
-///    },
-///    "ip_whitelist": {
-///      "type": "array",
-///      "items": {
-///        "type": "string"
-///      }
-///    },
-///    "label": {
-///      "type": [
-///        "string",
-///        "null"
-///      ]
-///    },
-///    "offchain_scopes": {
-///      "type": "array",
-///      "items": {
-///        "type": "string"
-///      }
-///    },
-///    "protocol_scopes": {
-///      "type": "array",
-///      "items": {
-///        "type": "string"
-///      }
-///    },
-///    "public_session_key": {
-///      "type": "string"
-///    },
-///    "subaccount_ids": {
-///      "description": "Subaccounts the key may act on. Empty/omitted request (all subaccounts) is expanded to the wallet's current subaccount list.",
-///      "type": "array",
-///      "items": {
-///        "type": "integer",
-///        "format": "uint64",
-///        "minimum": 0.0
-///      }
-///    }
-///  }
-///}
-/// ```
-/// </details>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
-pub struct PrivateCreateSessionKeyResponse {
-    pub expiry_sec: u64,
-    pub ip_whitelist: ::std::vec::Vec<::std::string::String>,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
-    pub label: ::std::option::Option<::std::string::String>,
-    pub offchain_scopes: ::std::vec::Vec<::std::string::String>,
-    pub protocol_scopes: ::std::vec::Vec<::std::string::String>,
-    pub public_session_key: ::std::string::String,
-    ///Subaccounts the key may act on. Empty/omitted request (all subaccounts) is expanded to the wallet's current subaccount list.
-    pub subaccount_ids: ::std::vec::Vec<u64>,
-}
-impl PrivateCreateSessionKeyResponse {
-    pub fn builder() -> builder::PrivateCreateSessionKeyResponse {
-        Default::default()
-    }
-}
 ///`PrivateGetAccountResponse`
 ///
 /// <details><summary>JSON schema</summary>
@@ -10715,6 +10501,7 @@ impl PrivateCreateSessionKeyResponse {
 ///  "type": "object",
 ///  "required": [
 ///    "cancel_on_disconnect",
+///    "fallback_subaccount_id",
 ///    "fee_info",
 ///    "is_rfq_maker",
 ///    "per_endpoint_tps",
@@ -10723,7 +10510,8 @@ impl PrivateCreateSessionKeyResponse {
 ///    "websocket_matching_tps",
 ///    "websocket_non_matching_tps",
 ///    "websocket_option_tps",
-///    "websocket_perp_tps"
+///    "websocket_perp_tps",
+///    "whitelisted_recipients"
 ///  ],
 ///  "properties": {
 ///    "cancel_on_disconnect": {
@@ -10734,6 +10522,12 @@ impl PrivateCreateSessionKeyResponse {
 ///        "integer",
 ///        "null"
 ///      ],
+///      "format": "uint64",
+///      "minimum": 0.0
+///    },
+///    "fallback_subaccount_id": {
+///      "description": "Subaccount that receives deposits whose requested destination is unusable — unknown manager id, or the per-wallet subaccount cap already reached. Allocated with the account, and always in the fallback risk universe (id 0).",
+///      "type": "integer",
 ///      "format": "uint64",
 ///      "minimum": 0.0
 ///    },
@@ -10787,6 +10581,13 @@ impl PrivateCreateSessionKeyResponse {
 ///      "type": "integer",
 ///      "format": "uint16",
 ///      "minimum": 0.0
+///    },
+///    "whitelisted_recipients": {
+///      "description": "Recipients that session keys may withdraw or transfer ERC-20s to. The owner and `Admin`-scoped session keys bypass this list.",
+///      "type": "array",
+///      "items": {
+///        "type": "string"
+///      }
 ///    }
 ///  }
 ///}
@@ -10797,6 +10598,8 @@ pub struct PrivateGetAccountResponse {
     pub cancel_on_disconnect: bool,
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub creation_timestamp_sec: ::std::option::Option<u64>,
+    ///Subaccount that receives deposits whose requested destination is unusable — unknown manager id, or the per-wallet subaccount cap already reached. Allocated with the account, and always in the fallback risk universe (id 0).
+    pub fallback_subaccount_id: u64,
     pub fee_info: AccountFeeInfo,
     pub is_rfq_maker: bool,
     pub per_endpoint_tps: ::std::collections::HashMap<::std::string::String, u16>,
@@ -10808,6 +10611,8 @@ pub struct PrivateGetAccountResponse {
     pub websocket_non_matching_tps: u16,
     pub websocket_option_tps: u16,
     pub websocket_perp_tps: u16,
+    ///Recipients that session keys may withdraw or transfer ERC-20s to. The owner and `Admin`-scoped session keys bypass this list.
+    pub whitelisted_recipients: ::std::vec::Vec<::std::string::String>,
 }
 impl PrivateGetAccountResponse {
     pub fn builder() -> builder::PrivateGetAccountResponse {
@@ -11100,6 +10905,84 @@ pub struct PrivateSessionKeysResponse {
 }
 impl PrivateSessionKeysResponse {
     pub fn builder() -> builder::PrivateSessionKeysResponse {
+        Default::default()
+    }
+}
+///`PrivateSetSessionKeyResponse`
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "type": "object",
+///  "required": [
+///    "expiry_sec",
+///    "ip_whitelist",
+///    "offchain_scopes",
+///    "protocol_scopes",
+///    "public_session_key",
+///    "subaccount_ids"
+///  ],
+///  "properties": {
+///    "expiry_sec": {
+///      "type": "integer",
+///      "format": "uint64",
+///      "minimum": 0.0
+///    },
+///    "ip_whitelist": {
+///      "type": "array",
+///      "items": {
+///        "type": "string"
+///      }
+///    },
+///    "label": {
+///      "type": [
+///        "string",
+///        "null"
+///      ]
+///    },
+///    "offchain_scopes": {
+///      "type": "array",
+///      "items": {
+///        "type": "string"
+///      }
+///    },
+///    "protocol_scopes": {
+///      "type": "array",
+///      "items": {
+///        "type": "string"
+///      }
+///    },
+///    "public_session_key": {
+///      "type": "string"
+///    },
+///    "subaccount_ids": {
+///      "description": "Subaccounts the key may act on. Empty/omitted request (all subaccounts) is expanded to the wallet's current subaccount list.",
+///      "type": "array",
+///      "items": {
+///        "type": "integer",
+///        "format": "uint64",
+///        "minimum": 0.0
+///      }
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct PrivateSetSessionKeyResponse {
+    pub expiry_sec: u64,
+    pub ip_whitelist: ::std::vec::Vec<::std::string::String>,
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub label: ::std::option::Option<::std::string::String>,
+    pub offchain_scopes: ::std::vec::Vec<::std::string::String>,
+    pub protocol_scopes: ::std::vec::Vec<::std::string::String>,
+    pub public_session_key: ::std::string::String,
+    ///Subaccounts the key may act on. Empty/omitted request (all subaccounts) is expanded to the wallet's current subaccount list.
+    pub subaccount_ids: ::std::vec::Vec<u64>,
+}
+impl PrivateSetSessionKeyResponse {
+    pub fn builder() -> builder::PrivateSetSessionKeyResponse {
         Default::default()
     }
 }
@@ -14503,7 +14386,8 @@ impl Rfq {
 ///    "session_key_deregistered",
 ///    "subaccount_withdrawn",
 ///    "rfq_no_longer_open",
-///    "compliance"
+///    "compliance",
+///    "validation_failed"
 ///  ]
 ///}
 /// ```
@@ -14541,6 +14425,8 @@ pub enum RfqCancelReason {
     RfqNoLongerOpen,
     #[serde(rename = "compliance")]
     Compliance,
+    #[serde(rename = "validation_failed")]
+    ValidationFailed,
 }
 impl ::std::fmt::Display for RfqCancelReason {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
@@ -14555,6 +14441,7 @@ impl ::std::fmt::Display for RfqCancelReason {
             Self::SubaccountWithdrawn => f.write_str("subaccount_withdrawn"),
             Self::RfqNoLongerOpen => f.write_str("rfq_no_longer_open"),
             Self::Compliance => f.write_str("compliance"),
+            Self::ValidationFailed => f.write_str("validation_failed"),
         }
     }
 }
@@ -14574,6 +14461,7 @@ impl ::std::str::FromStr for RfqCancelReason {
             "subaccount_withdrawn" => Ok(Self::SubaccountWithdrawn),
             "rfq_no_longer_open" => Ok(Self::RfqNoLongerOpen),
             "compliance" => Ok(Self::Compliance),
+            "validation_failed" => Ok(Self::ValidationFailed),
             _ => Err("invalid value".into()),
         }
     }
@@ -15793,6 +15681,126 @@ pub struct SetMmpConfigResponse {
 }
 impl SetMmpConfigResponse {
     pub fn builder() -> builder::SetMmpConfigResponse {
+        Default::default()
+    }
+}
+///Request parameters for registering a scoped session key. Address fields are 0x-prefixed hex strings.
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "description": "Request parameters for registering a scoped session key. Address fields are 0x-prefixed hex strings.",
+///  "type": "object",
+///  "required": [
+///    "expiry_sec",
+///    "nonce",
+///    "offchain_scopes",
+///    "protocol_scopes",
+///    "public_session_key",
+///    "signature",
+///    "signature_expiry_sec",
+///    "signer",
+///    "wallet"
+///  ],
+///  "properties": {
+///    "expiry_sec": {
+///      "type": "integer",
+///      "format": "uint64",
+///      "minimum": 0.0
+///    },
+///    "ip_whitelist": {
+///      "type": [
+///        "array",
+///        "null"
+///      ],
+///      "items": {
+///        "type": "string"
+///      }
+///    },
+///    "label": {
+///      "type": [
+///        "string",
+///        "null"
+///      ]
+///    },
+///    "nonce": {
+///      "type": "string"
+///    },
+///    "offchain_scopes": {
+///      "description": "Off-chain scopes which are validated in backend only",
+///      "type": "array",
+///      "items": {
+///        "type": "string"
+///      }
+///    },
+///    "protocol_scopes": {
+///      "description": "Scopes granted to the session key, validated by the protocol. Each is a string like `\"trade:orderbook:all\"`.",
+///      "type": "array",
+///      "items": {
+///        "type": "string"
+///      }
+///    },
+///    "public_session_key": {
+///      "description": "Session key address being authorized.",
+///      "type": "string"
+///    },
+///    "signature": {
+///      "description": "0x-prefixed hex, 65-byte r||s||v.",
+///      "type": "string"
+///    },
+///    "signature_expiry_sec": {
+///      "type": "integer",
+///      "format": "uint64",
+///      "minimum": 0.0
+///    },
+///    "signer": {
+///      "type": "string"
+///    },
+///    "subaccount_ids": {
+///      "type": [
+///        "array",
+///        "null"
+///      ],
+///      "items": {
+///        "type": "integer",
+///        "format": "uint64",
+///        "minimum": 0.0
+///      }
+///    },
+///    "wallet": {
+///      "description": "Wallet the session key is being registered for.",
+///      "type": "string"
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct SetSessionKeyRequest {
+    pub expiry_sec: u64,
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub ip_whitelist: ::std::option::Option<::std::vec::Vec<::std::string::String>>,
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub label: ::std::option::Option<::std::string::String>,
+    pub nonce: ::std::string::String,
+    ///Off-chain scopes which are validated in backend only
+    pub offchain_scopes: ::std::vec::Vec<::std::string::String>,
+    ///Scopes granted to the session key, validated by the protocol. Each is a string like `"trade:orderbook:all"`.
+    pub protocol_scopes: ::std::vec::Vec<::std::string::String>,
+    ///Session key address being authorized.
+    pub public_session_key: ::std::string::String,
+    ///0x-prefixed hex, 65-byte r||s||v.
+    pub signature: ::std::string::String,
+    pub signature_expiry_sec: u64,
+    pub signer: ::std::string::String,
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub subaccount_ids: ::std::option::Option<::std::vec::Vec<u64>>,
+    ///Wallet the session key is being registered for.
+    pub wallet: ::std::string::String,
+}
+impl SetSessionKeyRequest {
+    pub fn builder() -> builder::SetSessionKeyRequest {
         Default::default()
     }
 }
@@ -22425,250 +22433,6 @@ pub mod builder {
                 trigger_price: Ok(value.trigger_price),
                 trigger_price_type: Ok(value.trigger_price_type),
                 trigger_type: Ok(value.trigger_type),
-            }
-        }
-    }
-    #[derive(Clone, Debug)]
-    pub struct CreateSessionKeyRequest {
-        expiry_sec: ::std::result::Result<u64, ::std::string::String>,
-        ip_whitelist: ::std::result::Result<
-            ::std::option::Option<::std::vec::Vec<::std::string::String>>,
-            ::std::string::String,
-        >,
-        label: ::std::result::Result<
-            ::std::option::Option<::std::string::String>,
-            ::std::string::String,
-        >,
-        nonce: ::std::result::Result<::std::string::String, ::std::string::String>,
-        offchain_scopes: ::std::result::Result<
-            ::std::vec::Vec<::std::string::String>,
-            ::std::string::String,
-        >,
-        protocol_scopes: ::std::result::Result<
-            ::std::vec::Vec<::std::string::String>,
-            ::std::string::String,
-        >,
-        public_session_key: ::std::result::Result<
-            ::std::string::String,
-            ::std::string::String,
-        >,
-        signature: ::std::result::Result<::std::string::String, ::std::string::String>,
-        signature_expiry_sec: ::std::result::Result<u64, ::std::string::String>,
-        signer: ::std::result::Result<::std::string::String, ::std::string::String>,
-        subaccount_ids: ::std::result::Result<
-            ::std::option::Option<::std::vec::Vec<u64>>,
-            ::std::string::String,
-        >,
-        wallet: ::std::result::Result<::std::string::String, ::std::string::String>,
-    }
-    impl ::std::default::Default for CreateSessionKeyRequest {
-        fn default() -> Self {
-            Self {
-                expiry_sec: Err("no value supplied for expiry_sec".to_string()),
-                ip_whitelist: Ok(Default::default()),
-                label: Ok(Default::default()),
-                nonce: Err("no value supplied for nonce".to_string()),
-                offchain_scopes: Err(
-                    "no value supplied for offchain_scopes".to_string(),
-                ),
-                protocol_scopes: Err(
-                    "no value supplied for protocol_scopes".to_string(),
-                ),
-                public_session_key: Err(
-                    "no value supplied for public_session_key".to_string(),
-                ),
-                signature: Err("no value supplied for signature".to_string()),
-                signature_expiry_sec: Err(
-                    "no value supplied for signature_expiry_sec".to_string(),
-                ),
-                signer: Err("no value supplied for signer".to_string()),
-                subaccount_ids: Ok(Default::default()),
-                wallet: Err("no value supplied for wallet".to_string()),
-            }
-        }
-    }
-    impl CreateSessionKeyRequest {
-        pub fn expiry_sec<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<u64>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.expiry_sec = value
-                .try_into()
-                .map_err(|e| {
-                    format!("error converting supplied value for expiry_sec: {e}")
-                });
-            self
-        }
-        pub fn ip_whitelist<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<
-                ::std::option::Option<::std::vec::Vec<::std::string::String>>,
-            >,
-            T::Error: ::std::fmt::Display,
-        {
-            self.ip_whitelist = value
-                .try_into()
-                .map_err(|e| {
-                    format!("error converting supplied value for ip_whitelist: {e}")
-                });
-            self
-        }
-        pub fn label<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.label = value
-                .try_into()
-                .map_err(|e| format!("error converting supplied value for label: {e}"));
-            self
-        }
-        pub fn nonce<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::std::string::String>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.nonce = value
-                .try_into()
-                .map_err(|e| format!("error converting supplied value for nonce: {e}"));
-            self
-        }
-        pub fn offchain_scopes<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::std::vec::Vec<::std::string::String>>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.offchain_scopes = value
-                .try_into()
-                .map_err(|e| {
-                    format!("error converting supplied value for offchain_scopes: {e}")
-                });
-            self
-        }
-        pub fn protocol_scopes<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::std::vec::Vec<::std::string::String>>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.protocol_scopes = value
-                .try_into()
-                .map_err(|e| {
-                    format!("error converting supplied value for protocol_scopes: {e}")
-                });
-            self
-        }
-        pub fn public_session_key<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::std::string::String>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.public_session_key = value
-                .try_into()
-                .map_err(|e| {
-                    format!(
-                        "error converting supplied value for public_session_key: {e}"
-                    )
-                });
-            self
-        }
-        pub fn signature<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::std::string::String>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.signature = value
-                .try_into()
-                .map_err(|e| {
-                    format!("error converting supplied value for signature: {e}")
-                });
-            self
-        }
-        pub fn signature_expiry_sec<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<u64>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.signature_expiry_sec = value
-                .try_into()
-                .map_err(|e| {
-                    format!(
-                        "error converting supplied value for signature_expiry_sec: {e}"
-                    )
-                });
-            self
-        }
-        pub fn signer<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::std::string::String>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.signer = value
-                .try_into()
-                .map_err(|e| format!("error converting supplied value for signer: {e}"));
-            self
-        }
-        pub fn subaccount_ids<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::std::option::Option<::std::vec::Vec<u64>>>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.subaccount_ids = value
-                .try_into()
-                .map_err(|e| {
-                    format!("error converting supplied value for subaccount_ids: {e}")
-                });
-            self
-        }
-        pub fn wallet<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::std::string::String>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.wallet = value
-                .try_into()
-                .map_err(|e| format!("error converting supplied value for wallet: {e}"));
-            self
-        }
-    }
-    impl ::std::convert::TryFrom<CreateSessionKeyRequest>
-    for super::CreateSessionKeyRequest {
-        type Error = super::error::ConversionError;
-        fn try_from(
-            value: CreateSessionKeyRequest,
-        ) -> ::std::result::Result<Self, super::error::ConversionError> {
-            Ok(Self {
-                expiry_sec: value.expiry_sec?,
-                ip_whitelist: value.ip_whitelist?,
-                label: value.label?,
-                nonce: value.nonce?,
-                offchain_scopes: value.offchain_scopes?,
-                protocol_scopes: value.protocol_scopes?,
-                public_session_key: value.public_session_key?,
-                signature: value.signature?,
-                signature_expiry_sec: value.signature_expiry_sec?,
-                signer: value.signer?,
-                subaccount_ids: value.subaccount_ids?,
-                wallet: value.wallet?,
-            })
-        }
-    }
-    impl ::std::convert::From<super::CreateSessionKeyRequest>
-    for CreateSessionKeyRequest {
-        fn from(value: super::CreateSessionKeyRequest) -> Self {
-            Self {
-                expiry_sec: Ok(value.expiry_sec),
-                ip_whitelist: Ok(value.ip_whitelist),
-                label: Ok(value.label),
-                nonce: Ok(value.nonce),
-                offchain_scopes: Ok(value.offchain_scopes),
-                protocol_scopes: Ok(value.protocol_scopes),
-                public_session_key: Ok(value.public_session_key),
-                signature: Ok(value.signature),
-                signature_expiry_sec: Ok(value.signature_expiry_sec),
-                signer: Ok(value.signer),
-                subaccount_ids: Ok(value.subaccount_ids),
-                wallet: Ok(value.wallet),
             }
         }
     }
@@ -35869,176 +35633,13 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
-    pub struct PrivateCreateSessionKeyResponse {
-        expiry_sec: ::std::result::Result<u64, ::std::string::String>,
-        ip_whitelist: ::std::result::Result<
-            ::std::vec::Vec<::std::string::String>,
-            ::std::string::String,
-        >,
-        label: ::std::result::Result<
-            ::std::option::Option<::std::string::String>,
-            ::std::string::String,
-        >,
-        offchain_scopes: ::std::result::Result<
-            ::std::vec::Vec<::std::string::String>,
-            ::std::string::String,
-        >,
-        protocol_scopes: ::std::result::Result<
-            ::std::vec::Vec<::std::string::String>,
-            ::std::string::String,
-        >,
-        public_session_key: ::std::result::Result<
-            ::std::string::String,
-            ::std::string::String,
-        >,
-        subaccount_ids: ::std::result::Result<
-            ::std::vec::Vec<u64>,
-            ::std::string::String,
-        >,
-    }
-    impl ::std::default::Default for PrivateCreateSessionKeyResponse {
-        fn default() -> Self {
-            Self {
-                expiry_sec: Err("no value supplied for expiry_sec".to_string()),
-                ip_whitelist: Err("no value supplied for ip_whitelist".to_string()),
-                label: Ok(Default::default()),
-                offchain_scopes: Err(
-                    "no value supplied for offchain_scopes".to_string(),
-                ),
-                protocol_scopes: Err(
-                    "no value supplied for protocol_scopes".to_string(),
-                ),
-                public_session_key: Err(
-                    "no value supplied for public_session_key".to_string(),
-                ),
-                subaccount_ids: Err("no value supplied for subaccount_ids".to_string()),
-            }
-        }
-    }
-    impl PrivateCreateSessionKeyResponse {
-        pub fn expiry_sec<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<u64>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.expiry_sec = value
-                .try_into()
-                .map_err(|e| {
-                    format!("error converting supplied value for expiry_sec: {e}")
-                });
-            self
-        }
-        pub fn ip_whitelist<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::std::vec::Vec<::std::string::String>>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.ip_whitelist = value
-                .try_into()
-                .map_err(|e| {
-                    format!("error converting supplied value for ip_whitelist: {e}")
-                });
-            self
-        }
-        pub fn label<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.label = value
-                .try_into()
-                .map_err(|e| format!("error converting supplied value for label: {e}"));
-            self
-        }
-        pub fn offchain_scopes<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::std::vec::Vec<::std::string::String>>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.offchain_scopes = value
-                .try_into()
-                .map_err(|e| {
-                    format!("error converting supplied value for offchain_scopes: {e}")
-                });
-            self
-        }
-        pub fn protocol_scopes<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::std::vec::Vec<::std::string::String>>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.protocol_scopes = value
-                .try_into()
-                .map_err(|e| {
-                    format!("error converting supplied value for protocol_scopes: {e}")
-                });
-            self
-        }
-        pub fn public_session_key<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::std::string::String>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.public_session_key = value
-                .try_into()
-                .map_err(|e| {
-                    format!(
-                        "error converting supplied value for public_session_key: {e}"
-                    )
-                });
-            self
-        }
-        pub fn subaccount_ids<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::std::vec::Vec<u64>>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.subaccount_ids = value
-                .try_into()
-                .map_err(|e| {
-                    format!("error converting supplied value for subaccount_ids: {e}")
-                });
-            self
-        }
-    }
-    impl ::std::convert::TryFrom<PrivateCreateSessionKeyResponse>
-    for super::PrivateCreateSessionKeyResponse {
-        type Error = super::error::ConversionError;
-        fn try_from(
-            value: PrivateCreateSessionKeyResponse,
-        ) -> ::std::result::Result<Self, super::error::ConversionError> {
-            Ok(Self {
-                expiry_sec: value.expiry_sec?,
-                ip_whitelist: value.ip_whitelist?,
-                label: value.label?,
-                offchain_scopes: value.offchain_scopes?,
-                protocol_scopes: value.protocol_scopes?,
-                public_session_key: value.public_session_key?,
-                subaccount_ids: value.subaccount_ids?,
-            })
-        }
-    }
-    impl ::std::convert::From<super::PrivateCreateSessionKeyResponse>
-    for PrivateCreateSessionKeyResponse {
-        fn from(value: super::PrivateCreateSessionKeyResponse) -> Self {
-            Self {
-                expiry_sec: Ok(value.expiry_sec),
-                ip_whitelist: Ok(value.ip_whitelist),
-                label: Ok(value.label),
-                offchain_scopes: Ok(value.offchain_scopes),
-                protocol_scopes: Ok(value.protocol_scopes),
-                public_session_key: Ok(value.public_session_key),
-                subaccount_ids: Ok(value.subaccount_ids),
-            }
-        }
-    }
-    #[derive(Clone, Debug)]
     pub struct PrivateGetAccountResponse {
         cancel_on_disconnect: ::std::result::Result<bool, ::std::string::String>,
         creation_timestamp_sec: ::std::result::Result<
             ::std::option::Option<u64>,
             ::std::string::String,
         >,
+        fallback_subaccount_id: ::std::result::Result<u64, ::std::string::String>,
         fee_info: ::std::result::Result<super::AccountFeeInfo, ::std::string::String>,
         is_rfq_maker: ::std::result::Result<bool, ::std::string::String>,
         per_endpoint_tps: ::std::result::Result<
@@ -36058,6 +35659,10 @@ pub mod builder {
         websocket_non_matching_tps: ::std::result::Result<u16, ::std::string::String>,
         websocket_option_tps: ::std::result::Result<u16, ::std::string::String>,
         websocket_perp_tps: ::std::result::Result<u16, ::std::string::String>,
+        whitelisted_recipients: ::std::result::Result<
+            ::std::vec::Vec<::std::string::String>,
+            ::std::string::String,
+        >,
     }
     impl ::std::default::Default for PrivateGetAccountResponse {
         fn default() -> Self {
@@ -36066,6 +35671,9 @@ pub mod builder {
                     "no value supplied for cancel_on_disconnect".to_string(),
                 ),
                 creation_timestamp_sec: Ok(Default::default()),
+                fallback_subaccount_id: Err(
+                    "no value supplied for fallback_subaccount_id".to_string(),
+                ),
                 fee_info: Err("no value supplied for fee_info".to_string()),
                 is_rfq_maker: Err("no value supplied for is_rfq_maker".to_string()),
                 per_endpoint_tps: Err(
@@ -36085,6 +35693,9 @@ pub mod builder {
                 ),
                 websocket_perp_tps: Err(
                     "no value supplied for websocket_perp_tps".to_string(),
+                ),
+                whitelisted_recipients: Err(
+                    "no value supplied for whitelisted_recipients".to_string(),
                 ),
             }
         }
@@ -36114,6 +35725,20 @@ pub mod builder {
                 .map_err(|e| {
                     format!(
                         "error converting supplied value for creation_timestamp_sec: {e}"
+                    )
+                });
+            self
+        }
+        pub fn fallback_subaccount_id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<u64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.fallback_subaccount_id = value
+                .try_into()
+                .map_err(|e| {
+                    format!(
+                        "error converting supplied value for fallback_subaccount_id: {e}"
                     )
                 });
             self
@@ -36246,6 +35871,20 @@ pub mod builder {
                 });
             self
         }
+        pub fn whitelisted_recipients<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::vec::Vec<::std::string::String>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.whitelisted_recipients = value
+                .try_into()
+                .map_err(|e| {
+                    format!(
+                        "error converting supplied value for whitelisted_recipients: {e}"
+                    )
+                });
+            self
+        }
     }
     impl ::std::convert::TryFrom<PrivateGetAccountResponse>
     for super::PrivateGetAccountResponse {
@@ -36256,6 +35895,7 @@ pub mod builder {
             Ok(Self {
                 cancel_on_disconnect: value.cancel_on_disconnect?,
                 creation_timestamp_sec: value.creation_timestamp_sec?,
+                fallback_subaccount_id: value.fallback_subaccount_id?,
                 fee_info: value.fee_info?,
                 is_rfq_maker: value.is_rfq_maker?,
                 per_endpoint_tps: value.per_endpoint_tps?,
@@ -36266,6 +35906,7 @@ pub mod builder {
                 websocket_non_matching_tps: value.websocket_non_matching_tps?,
                 websocket_option_tps: value.websocket_option_tps?,
                 websocket_perp_tps: value.websocket_perp_tps?,
+                whitelisted_recipients: value.whitelisted_recipients?,
             })
         }
     }
@@ -36275,6 +35916,7 @@ pub mod builder {
             Self {
                 cancel_on_disconnect: Ok(value.cancel_on_disconnect),
                 creation_timestamp_sec: Ok(value.creation_timestamp_sec),
+                fallback_subaccount_id: Ok(value.fallback_subaccount_id),
                 fee_info: Ok(value.fee_info),
                 is_rfq_maker: Ok(value.is_rfq_maker),
                 per_endpoint_tps: Ok(value.per_endpoint_tps),
@@ -36285,6 +35927,7 @@ pub mod builder {
                 websocket_non_matching_tps: Ok(value.websocket_non_matching_tps),
                 websocket_option_tps: Ok(value.websocket_option_tps),
                 websocket_perp_tps: Ok(value.websocket_perp_tps),
+                whitelisted_recipients: Ok(value.whitelisted_recipients),
             }
         }
     }
@@ -36804,6 +36447,170 @@ pub mod builder {
         fn from(value: super::PrivateSessionKeysResponse) -> Self {
             Self {
                 public_session_keys: Ok(value.public_session_keys),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct PrivateSetSessionKeyResponse {
+        expiry_sec: ::std::result::Result<u64, ::std::string::String>,
+        ip_whitelist: ::std::result::Result<
+            ::std::vec::Vec<::std::string::String>,
+            ::std::string::String,
+        >,
+        label: ::std::result::Result<
+            ::std::option::Option<::std::string::String>,
+            ::std::string::String,
+        >,
+        offchain_scopes: ::std::result::Result<
+            ::std::vec::Vec<::std::string::String>,
+            ::std::string::String,
+        >,
+        protocol_scopes: ::std::result::Result<
+            ::std::vec::Vec<::std::string::String>,
+            ::std::string::String,
+        >,
+        public_session_key: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+        subaccount_ids: ::std::result::Result<
+            ::std::vec::Vec<u64>,
+            ::std::string::String,
+        >,
+    }
+    impl ::std::default::Default for PrivateSetSessionKeyResponse {
+        fn default() -> Self {
+            Self {
+                expiry_sec: Err("no value supplied for expiry_sec".to_string()),
+                ip_whitelist: Err("no value supplied for ip_whitelist".to_string()),
+                label: Ok(Default::default()),
+                offchain_scopes: Err(
+                    "no value supplied for offchain_scopes".to_string(),
+                ),
+                protocol_scopes: Err(
+                    "no value supplied for protocol_scopes".to_string(),
+                ),
+                public_session_key: Err(
+                    "no value supplied for public_session_key".to_string(),
+                ),
+                subaccount_ids: Err("no value supplied for subaccount_ids".to_string()),
+            }
+        }
+    }
+    impl PrivateSetSessionKeyResponse {
+        pub fn expiry_sec<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<u64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.expiry_sec = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for expiry_sec: {e}")
+                });
+            self
+        }
+        pub fn ip_whitelist<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::vec::Vec<::std::string::String>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.ip_whitelist = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for ip_whitelist: {e}")
+                });
+            self
+        }
+        pub fn label<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.label = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for label: {e}"));
+            self
+        }
+        pub fn offchain_scopes<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::vec::Vec<::std::string::String>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.offchain_scopes = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for offchain_scopes: {e}")
+                });
+            self
+        }
+        pub fn protocol_scopes<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::vec::Vec<::std::string::String>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.protocol_scopes = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for protocol_scopes: {e}")
+                });
+            self
+        }
+        pub fn public_session_key<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.public_session_key = value
+                .try_into()
+                .map_err(|e| {
+                    format!(
+                        "error converting supplied value for public_session_key: {e}"
+                    )
+                });
+            self
+        }
+        pub fn subaccount_ids<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::vec::Vec<u64>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.subaccount_ids = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for subaccount_ids: {e}")
+                });
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<PrivateSetSessionKeyResponse>
+    for super::PrivateSetSessionKeyResponse {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: PrivateSetSessionKeyResponse,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                expiry_sec: value.expiry_sec?,
+                ip_whitelist: value.ip_whitelist?,
+                label: value.label?,
+                offchain_scopes: value.offchain_scopes?,
+                protocol_scopes: value.protocol_scopes?,
+                public_session_key: value.public_session_key?,
+                subaccount_ids: value.subaccount_ids?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::PrivateSetSessionKeyResponse>
+    for PrivateSetSessionKeyResponse {
+        fn from(value: super::PrivateSetSessionKeyResponse) -> Self {
+            Self {
+                expiry_sec: Ok(value.expiry_sec),
+                ip_whitelist: Ok(value.ip_whitelist),
+                label: Ok(value.label),
+                offchain_scopes: Ok(value.offchain_scopes),
+                protocol_scopes: Ok(value.protocol_scopes),
+                public_session_key: Ok(value.public_session_key),
+                subaccount_ids: Ok(value.subaccount_ids),
             }
         }
     }
@@ -44955,6 +44762,248 @@ pub mod builder {
                 mmp_frozen_time: Ok(value.mmp_frozen_time),
                 mmp_interval: Ok(value.mmp_interval),
                 subaccount_id: Ok(value.subaccount_id),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct SetSessionKeyRequest {
+        expiry_sec: ::std::result::Result<u64, ::std::string::String>,
+        ip_whitelist: ::std::result::Result<
+            ::std::option::Option<::std::vec::Vec<::std::string::String>>,
+            ::std::string::String,
+        >,
+        label: ::std::result::Result<
+            ::std::option::Option<::std::string::String>,
+            ::std::string::String,
+        >,
+        nonce: ::std::result::Result<::std::string::String, ::std::string::String>,
+        offchain_scopes: ::std::result::Result<
+            ::std::vec::Vec<::std::string::String>,
+            ::std::string::String,
+        >,
+        protocol_scopes: ::std::result::Result<
+            ::std::vec::Vec<::std::string::String>,
+            ::std::string::String,
+        >,
+        public_session_key: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+        signature: ::std::result::Result<::std::string::String, ::std::string::String>,
+        signature_expiry_sec: ::std::result::Result<u64, ::std::string::String>,
+        signer: ::std::result::Result<::std::string::String, ::std::string::String>,
+        subaccount_ids: ::std::result::Result<
+            ::std::option::Option<::std::vec::Vec<u64>>,
+            ::std::string::String,
+        >,
+        wallet: ::std::result::Result<::std::string::String, ::std::string::String>,
+    }
+    impl ::std::default::Default for SetSessionKeyRequest {
+        fn default() -> Self {
+            Self {
+                expiry_sec: Err("no value supplied for expiry_sec".to_string()),
+                ip_whitelist: Ok(Default::default()),
+                label: Ok(Default::default()),
+                nonce: Err("no value supplied for nonce".to_string()),
+                offchain_scopes: Err(
+                    "no value supplied for offchain_scopes".to_string(),
+                ),
+                protocol_scopes: Err(
+                    "no value supplied for protocol_scopes".to_string(),
+                ),
+                public_session_key: Err(
+                    "no value supplied for public_session_key".to_string(),
+                ),
+                signature: Err("no value supplied for signature".to_string()),
+                signature_expiry_sec: Err(
+                    "no value supplied for signature_expiry_sec".to_string(),
+                ),
+                signer: Err("no value supplied for signer".to_string()),
+                subaccount_ids: Ok(Default::default()),
+                wallet: Err("no value supplied for wallet".to_string()),
+            }
+        }
+    }
+    impl SetSessionKeyRequest {
+        pub fn expiry_sec<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<u64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.expiry_sec = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for expiry_sec: {e}")
+                });
+            self
+        }
+        pub fn ip_whitelist<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<
+                ::std::option::Option<::std::vec::Vec<::std::string::String>>,
+            >,
+            T::Error: ::std::fmt::Display,
+        {
+            self.ip_whitelist = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for ip_whitelist: {e}")
+                });
+            self
+        }
+        pub fn label<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.label = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for label: {e}"));
+            self
+        }
+        pub fn nonce<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.nonce = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for nonce: {e}"));
+            self
+        }
+        pub fn offchain_scopes<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::vec::Vec<::std::string::String>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.offchain_scopes = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for offchain_scopes: {e}")
+                });
+            self
+        }
+        pub fn protocol_scopes<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::vec::Vec<::std::string::String>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.protocol_scopes = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for protocol_scopes: {e}")
+                });
+            self
+        }
+        pub fn public_session_key<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.public_session_key = value
+                .try_into()
+                .map_err(|e| {
+                    format!(
+                        "error converting supplied value for public_session_key: {e}"
+                    )
+                });
+            self
+        }
+        pub fn signature<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.signature = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for signature: {e}")
+                });
+            self
+        }
+        pub fn signature_expiry_sec<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<u64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.signature_expiry_sec = value
+                .try_into()
+                .map_err(|e| {
+                    format!(
+                        "error converting supplied value for signature_expiry_sec: {e}"
+                    )
+                });
+            self
+        }
+        pub fn signer<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.signer = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for signer: {e}"));
+            self
+        }
+        pub fn subaccount_ids<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<::std::vec::Vec<u64>>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.subaccount_ids = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for subaccount_ids: {e}")
+                });
+            self
+        }
+        pub fn wallet<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.wallet = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for wallet: {e}"));
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<SetSessionKeyRequest> for super::SetSessionKeyRequest {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: SetSessionKeyRequest,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                expiry_sec: value.expiry_sec?,
+                ip_whitelist: value.ip_whitelist?,
+                label: value.label?,
+                nonce: value.nonce?,
+                offchain_scopes: value.offchain_scopes?,
+                protocol_scopes: value.protocol_scopes?,
+                public_session_key: value.public_session_key?,
+                signature: value.signature?,
+                signature_expiry_sec: value.signature_expiry_sec?,
+                signer: value.signer?,
+                subaccount_ids: value.subaccount_ids?,
+                wallet: value.wallet?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::SetSessionKeyRequest> for SetSessionKeyRequest {
+        fn from(value: super::SetSessionKeyRequest) -> Self {
+            Self {
+                expiry_sec: Ok(value.expiry_sec),
+                ip_whitelist: Ok(value.ip_whitelist),
+                label: Ok(value.label),
+                nonce: Ok(value.nonce),
+                offchain_scopes: Ok(value.offchain_scopes),
+                protocol_scopes: Ok(value.protocol_scopes),
+                public_session_key: Ok(value.public_session_key),
+                signature: Ok(value.signature),
+                signature_expiry_sec: Ok(value.signature_expiry_sec),
+                signer: Ok(value.signer),
+                subaccount_ids: Ok(value.subaccount_ids),
+                wallet: Ok(value.wallet),
             }
         }
     }

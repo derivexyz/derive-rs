@@ -1,5 +1,5 @@
 use alloy::signers::local::PrivateKeySigner;
-use derive_rs::actions::session_key::{CreateSessionKeyArgs, OffChainScope, ProtocolScope};
+use derive_rs::actions::session_key::{OffChainScope, ProtocolScope, SetSessionKeyArgs};
 
 mod common;
 
@@ -16,7 +16,7 @@ async fn test_ws_create_session_key() -> Result<(), Box<dyn std::error::Error>> 
     let session_key_address = signer.address().to_string();
     let expiry_second = (chrono::Utc::now().timestamp() + 300) as u64; // Set expiry to 5 minutes from now
 
-    let session_key_args = CreateSessionKeyArgs::builder()
+    let session_key_args = SetSessionKeyArgs::builder()
         .public_session_key(session_key_address.to_string())
         .expiry_second(expiry_second)
         .protocol_scopes(vec![ProtocolScope::Admin])
