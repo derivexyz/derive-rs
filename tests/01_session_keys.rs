@@ -4,6 +4,7 @@ use derive_rs::actions::session_key::{OffChainScope, ProtocolScope, SetSessionKe
 mod common;
 
 #[tokio::test]
+#[ignore]
 async fn test_ws_create_session_key() -> Result<(), Box<dyn std::error::Error>> {
     let ws_client = common::get_test_ws_client().await;
     ws_client

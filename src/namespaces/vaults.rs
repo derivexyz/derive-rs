@@ -35,7 +35,10 @@ impl<'a> VaultsNamespace<'a> {
             &self.ws_client.environment,
         )?;
 
-        println!("Create Vault Params: {}", serde_json::to_string_pretty(&params).unwrap());
+        println!(
+            "Create Vault Params: {}",
+            serde_json::to_string_pretty(&params).unwrap()
+        );
 
         self.ws_client
             .rpc()

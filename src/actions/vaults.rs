@@ -6,6 +6,7 @@ use bigdecimal::BigDecimal;
 use bon::Builder;
 use serde::Deserialize;
 
+use crate::constants::ZERO_ADDRESS;
 use crate::{
     Environment,
     actions::{ActionData, ModuleData, utils::to_e18},
@@ -59,8 +60,6 @@ impl ModuleData for CreateVaultData {
     }
 }
 
-const ZERO_ADDRESS: &str = "0x0000000000000000000000000000000000000000";
-
 impl CreateVaultData {
     pub fn from_args(args: CreateVaultArgs) -> Self {
         let benchmark_asset_address = args
@@ -81,7 +80,7 @@ impl CreateVaultData {
             max_slippage_bps: args.max_slippage_bps as u32,
             cooldown_sec: args.cooldown_sec as u32,
             max_fee_usd: to_e18(&args.max_fee_usd).expect("Couldnt convert max_fee_usd to e18"),
-            benchmark_asset_address: benchmark_asset_address,
+            benchmark_asset_address,
             use_benchmark_asset: args.benchmark_asset.is_some(),
         }
     }

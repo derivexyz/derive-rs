@@ -99,7 +99,7 @@ impl ActionData {
     {
         let encoded_data = module_data.get_action_data();
         let hex = format!("0x{}", encode(&encoded_data));
-        debug!( "Encoded data: {}", hex);
+        debug!("Encoded data: {}", hex);
         let (nonce, expiry) = Self::get_nonce_and_expiry()?;
         let module = get_trade_module(module_type).parse::<Address>()?;
         let data = keccak256(&encoded_data);

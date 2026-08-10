@@ -302,14 +302,12 @@ fn rewrite_refs(value: &mut Value, models_to_rename: &[(&str, &str)]) {
     }
 }
 
-
 fn patch_openapi_definitions(all_definitions: &mut HashMap<String, Value>) {
     // Patch the OpenAPI definitions to remove the "mm_credits" property from the Subaccount schema
-    if let Some(subaccount_schema) = all_definitions.get_mut("Subaccount") {
-        if let Some(required) = subaccount_schema.get_mut("required") {
-            if let Some(required_array) = required.as_array_mut() {
-                required_array.retain(|item| item != "mm_credits");
-            }
-        }
+    if let Some(subaccount_schema) = all_definitions.get_mut("Subaccount")
+        && let Some(required) = subaccount_schema.get_mut("required")
+        && let Some(required_array) = required.as_array_mut()
+    {
+        required_array.retain(|item| item != "mm_credits");
     }
 }

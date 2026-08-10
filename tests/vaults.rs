@@ -1,13 +1,13 @@
 use std::str::FromStr;
 
 use bigdecimal::BigDecimal;
-use derive_rs::{actions::CreateVaultArgs, models::{GetCurrencyRequest, GetSubaccountRequest, MarginType}};
+use derive_rs::{actions::CreateVaultArgs, models::GetSubaccountRequest};
 
 mod common;
 
 #[tokio::test]
 async fn test_vault_lifecycle() {
-    let ws_client = common::get_test_ws_client().await;
+    let ws_client = common::get_test_ws_client_2().await;
     ws_client.login().await.expect("Failed to login");
     let subaccount_id = ws_client.subaccount_id.unwrap();
     // we use the tracing subscriber to capture logs for debugging
@@ -15,49 +15,16 @@ async fn test_vault_lifecycle() {
         .with_max_level(tracing::Level::DEBUG)
         .init();
 
-    // let risk_universe = ws_client
-    //     .risk_universe_cache
-    //     .get("PRIME")
-    //     .expect("Expected to find PRIME risk universe!")
-    //     .clone();
-
-    // // we now get a manager capable of trading ETH-OPTIONS
-    // let managers = risk_universe
-    //     .managers
-    //     .clone()
-    //     .into_iter()
-    //     .filter(|manager| manager.margin_type == MarginType::Sm)
-    //     .filter(|manager| {
-    //         manager
-    //             .instruments
-    //             .iter()
-    //             .any(|instrument| instrument == "ETH-OPTION")
-    //     })
-    //     .collect::<Vec<_>>();
-
-    // assert!(
-    //     managers.len() == 1,
-    //     "Expected to find exactly one subaccount manager for PRIME with margin type PM2 and instrument ETH-OPTION, found {}",
-    //     managers.len()
-    // );
-
-    // let manager = managers
-    //     .first()
-    //     .expect("Expected to find a subaccount manager for PRIME with margin type PM2 and instrument ETH-OPTION")
-    //     .clone();
-
     let subaccount = ws_client
         .rpc()
         .subaccounts()
-        .get_subaccount(GetSubaccountRequest {
-            subaccount_id: subaccount_id,
-        })
+        .get_subaccount(GetSubaccountRequest { subaccount_id })
         .await
         .expect("Failed to get subaccount");
 
     // we now fetch the assets and filter for this subaccount manager
 
-    let risk_universes= ws_client
+    let risk_universes = ws_client
         .rpc()
         .market_data()
         .get_risk_universes()
@@ -66,7 +33,11 @@ async fn test_vault_lifecycle() {
 
     let risk_universe = risk_universes
         .into_iter()
-        .find(|ru| ru.managers.iter().any(|m| m.manager_id == subaccount.manager_id))
+        .find(|ru| {
+            ru.managers
+                .iter()
+                .any(|m| m.manager_id == subaccount.manager_id)
+        })
         .expect("Expected to find PRIME risk universe!");
 
     println!("Risk Universe: {:?}", risk_universe);
@@ -86,8 +57,6 @@ async fn test_vault_lifecycle() {
         .find(|c| c.name == "USDC")
         .expect("Expected to find USDC collateral for the subaccount manager!");
 
-
-
     let create_args = CreateVaultArgs::builder()
         .subaccount_id(subaccount_id)
         .manager_id(subaccount.manager_id as u64)
@@ -95,7 +64,7 @@ async fn test_vault_lifecycle() {
         .initial_deposit(BigDecimal::from_str("10200").unwrap())
         .initial_share_price_usd(BigDecimal::from_str("1").unwrap())
         .management_fee_bps(100) // 1% management fee
-        .performance_fee_bps(2000)  // 10% performance fee
+        .performance_fee_bps(2000) // 10% performance fee
         .max_slippage_bps(100)
         .cooldown_sec(3600) // 10 seconds for testing purposes
         .max_fee_usd(BigDecimal::from_str("1000").unwrap())
