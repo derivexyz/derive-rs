@@ -16,3 +16,6 @@ pub use spot_transfer::*;
 
 pub mod rfq;
 pub use rfq::*;
+
+pub mod vaults;
+pub use vaults::*;

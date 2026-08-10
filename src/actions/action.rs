@@ -19,7 +19,7 @@ pub enum ModuleType {
     SetSessionKey,
     // ExternalTransfer,
     // WhitelistedRecipient,
-    // Vault,
+    Vault,
 }
 
 fn get_trade_module(module: ModuleType) -> &'static str {
@@ -29,6 +29,7 @@ fn get_trade_module(module: ModuleType) -> &'static str {
         ModuleType::Withdraw => "0x9d0E8f5b25384C7310CB8C6aE32C8fbeb645d083",
         ModuleType::SpotTransfer => "0x01259207A40925b794C8ac320456F7F6c8FE2636",
         ModuleType::RfqPositionTransfer => "0x9371352CCef6f5b36EfDFE90942fFE622Ab77F1D",
+        ModuleType::Vault => "0x2885c174ebf5524aED9c721d60c12b1537685186",
     }
 }
 
@@ -55,6 +56,7 @@ pub fn get_domain_separator(env: &Environment) -> &'static str {
 }
 
 use anyhow::Context;
+use tracing::debug;
 sol! {
     #![sol(all_derives)]
 
@@ -96,7 +98,8 @@ impl ActionData {
         T: SolValue + ModuleData,
     {
         let encoded_data = module_data.get_action_data();
-        let _hex = format!("0x{}", encode(&encoded_data));
+        let hex = format!("0x{}", encode(&encoded_data));
+        debug!( "Encoded data: {}", hex);
         let (nonce, expiry) = Self::get_nonce_and_expiry()?;
         let module = get_trade_module(module_type).parse::<Address>()?;
         let data = keccak256(&encoded_data);
