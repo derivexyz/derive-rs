@@ -76,6 +76,7 @@ impl ActionData {
             asset_name: args.asset,
             force_batch: args.force_batch,
             max_fee_usd: args.max_fee_usd,
+            recipient: Some(args.recepient_address.to_string()),
             nonce: self
                 .nonce
                 .to_string()
