@@ -28,7 +28,7 @@ use crate::{
     },
     namespaces::{
         fund_movements::FundMovementsNamespace, orders::OrdersNamespace, rfqs::RfqsNamespace,
-        session_keys::SessionKeys,
+        session_keys::SessionKeys, vaults::VaultsNamespace,
     },
     routing::{extract_channel, extract_id, extract_id_tail},
     rpc::Rpc,
@@ -76,7 +76,7 @@ pub struct WsClient {
     subscription_tasks: Arc<Mutex<Vec<JoinHandle<()>>>>,
     pub wallet: Option<PrivateKeySigner>,
     pub public_address: Option<String>,
-    pub smart_contract_wallet_address: Option<String>,
+    pub derive_wallet: Option<String>,
     pub subaccount_id: Option<u64>,
     pub environment: Environment,
 }
@@ -103,6 +103,10 @@ impl WsClient {
 
     pub fn rfqs(&self) -> RfqsNamespace<'_> {
         RfqsNamespace { ws_client: self }
+    }
+
+    pub fn vaults(&self) -> VaultsNamespace<'_> {
+        VaultsNamespace { ws_client: self }
     }
 
     pub async fn from_env() -> Result<Self, ClientError> {
@@ -146,7 +150,7 @@ impl WsClient {
     pub async fn new(
         env: Environment,
         private_key: Option<String>,
-        smart_contract_wallet_address: Option<String>,
+        derive_wallet: Option<String>,
         subaccount_id: Option<u64>,
     ) -> Result<Self, ClientError> {
         let url = env.get_url().to_string();
@@ -206,7 +210,7 @@ impl WsClient {
             subscription_tasks: Arc::new(Mutex::new(Vec::new())),
             wallet,
             public_address,
-            smart_contract_wallet_address,
+            derive_wallet,
             subaccount_id,
             instruments_cache: Arc::new(DashMap::new()),
             erc20_cache: Arc::new(DashMap::new()),
@@ -263,7 +267,7 @@ impl WsClient {
                         error: rpc_error.error,
                     })
                 } else {
-                    println!(
+                    error!(
                         "Failed to parse RPC response; raw: {}",
                         String::from_utf8_lossy(&response)
                     );
@@ -447,15 +451,15 @@ impl WsClient {
                 "message": "No wallet available for login"
             })));
         }
-        if self.smart_contract_wallet_address.is_none() {
-            warn!("No smart contract wallet available for login");
+        if self.derive_wallet.is_none() {
+            warn!("No derive wallet available for login");
             return Err(ClientError::Rpc(serde_json::json!({
-                "message": "No smart contract wallet available for login"
+                "message": "No derive wallet available for login"
             })));
         }
-        let scw = self.smart_contract_wallet_address.as_ref().unwrap();
+        let dw = self.derive_wallet.as_ref().unwrap();
         let wallet = self.wallet.as_ref().unwrap();
-        let login_data = sign_ws_login(scw, wallet).await;
+        let login_data = sign_ws_login(dw, wallet).await;
 
         self.send_rpc("public/login", login_data).await
     }
@@ -464,18 +468,18 @@ impl WsClient {
         &self,
         enabled: bool,
     ) -> Result<SetCancelOnDisconnectResponse, ClientError> {
-        let scw = match &self.smart_contract_wallet_address {
+        let dw = match &self.derive_wallet {
             Some(addr) => addr.clone(),
             None => {
-                warn!("No smart contract wallet available for set_cancel_on_disconnect");
+                warn!("No derive wallet available for set_cancel_on_disconnect");
                 return Err(ClientError::Rpc(serde_json::json!({
-                    "message": "No smart contract wallet available for set_cancel_on_disconnect"
+                    "message": "No derive wallet available for set_cancel_on_disconnect"
                 })));
             }
         };
         let msg = SetCancelOnDisconnectRequest {
             enabled: Some(enabled),
-            wallet: Some(scw),
+            wallet: Some(dw),
         };
         self.send_rpc(
             "private/set_cancel_on_disconnect",
@@ -756,7 +760,6 @@ pub fn handle_incoming(
     }
 
     if let Some(channel) = extract_channel(&bytes) {
-        println!("Received message for channel: {channel}");
         for routes in [private_subscriptions, public_subscriptions] {
             if let Some(route) = routes.get(channel) {
                 match (route.dispatch)(&bytes) {

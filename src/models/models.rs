@@ -18503,7 +18503,6 @@ impl SpotUniverse {
 ///    "maintenance_margin",
 ///    "manager_id",
 ///    "margin_type",
-///    "mm_credits",
 ///    "open_orders",
 ///    "open_orders_margin",
 ///    "positions",
@@ -18632,7 +18631,8 @@ pub struct Subaccount {
     pub manager_id: u32,
     pub margin_type: ::std::string::String,
     ///MM credit from universe loss-socialization events: the socialized USDC debit lands on cash in full, and `debit × (1 − write_down)` is added back to maintenance margin while the 15-minute write-down runs. Events this subaccount has not yet realized contribute their expected credit, with the current subaccount value standing in for the MtM at realization. Zero while under auction — the credit is cleared when liquidation starts.
-    pub mm_credits: ::std::string::String,
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub mm_credits: ::std::option::Option<::std::string::String>,
     pub open_orders: ::std::vec::Vec<Order>,
     pub open_orders_margin: ::std::string::String,
     pub positions: ::std::vec::Vec<Position>,
@@ -51858,7 +51858,10 @@ pub mod builder {
         >,
         manager_id: ::std::result::Result<u32, ::std::string::String>,
         margin_type: ::std::result::Result<::std::string::String, ::std::string::String>,
-        mm_credits: ::std::result::Result<::std::string::String, ::std::string::String>,
+        mm_credits: ::std::result::Result<
+            ::std::option::Option<::std::string::String>,
+            ::std::string::String,
+        >,
         open_orders: ::std::result::Result<
             ::std::vec::Vec<super::Order>,
             ::std::string::String,
@@ -51925,7 +51928,7 @@ pub mod builder {
                 ),
                 manager_id: Err("no value supplied for manager_id".to_string()),
                 margin_type: Err("no value supplied for margin_type".to_string()),
-                mm_credits: Err("no value supplied for mm_credits".to_string()),
+                mm_credits: Ok(Default::default()),
                 open_orders: Err("no value supplied for open_orders".to_string()),
                 open_orders_margin: Err(
                     "no value supplied for open_orders_margin".to_string(),
@@ -52109,7 +52112,7 @@ pub mod builder {
         }
         pub fn mm_credits<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::std::string::String>,
+            T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
             T::Error: ::std::fmt::Display,
         {
             self.mm_credits = value

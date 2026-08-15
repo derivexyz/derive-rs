@@ -29,8 +29,12 @@ package:
 	@echo packaging crate
 	git add $(TOML_FILE) Cargo.lock
 	@git commit -m "Bump version to v$(NEW_VERSION)"
-	@git push
-	echo added git
+	@git checkout -b release/v$(NEW_VERSION)
+	@git push origin release/v$(NEW_VERSION)
+	@gh pr create --base master \
+		--title "Release v$(NEW_VERSION)" \
+		--body "Release v$(NEW_VERSION)" \
+		--label "release"
 	@cargo package
 
 release: version package tag
@@ -38,8 +42,8 @@ release: version package tag
 	@gh release create v$(NEW_VERSION) \
 		--title "v$(NEW_VERSION)" \
 		--notes "Release v$(NEW_VERSION)"
-	# @echo "Creating crate release v$(NEW_VERSION)"
-	# @cargo publish
+	@echo "Creating crate release v$(NEW_VERSION)"
+	@cargo publish
 
 lint: 
 	cargo clippy --benches --examples --tests -- -D warnings 
@@ -49,7 +53,7 @@ fmt:
 build:
 	cargo build --all-features
 test:
-	cargo test -- --nocapture
+	cargo test -- --nocapture --test-threads 1
 run:
 	cargo run --all-features
 

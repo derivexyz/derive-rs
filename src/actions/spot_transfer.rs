@@ -15,25 +15,6 @@ use crate::{
     types::Environment,
 };
 
-// export interface TransferFields {
-//   toSubaccountId: number | bigint;
-//   /**
-//    * Routing sentinel: 0 credits the existing `toSubaccountId`; non-zero
-//    * creates a new subaccount under this manager id instead (the
-//    * destination id is then ignored).
-//    */
-//   newSubaccountManager: number | bigint;
-//   /** Protocol spot-asset address (not the underlying ERC-20). */
-//   asset: string;
-//   subId: number | bigint;
-//   /** Strictly positive; signed at e18. */
-//   amount: DecimalLike;
-//   /** Maximum fee the signer authorises, in USD; signed at e18. */
-//   maxFeeUsd: DecimalLike;
-// }
-
-// const TRANSFER_ABI = ['uint256', 'uint256', 'address', 'uint256', 'uint256', 'uint256'];
-
 #[derive(Debug, Clone, Deserialize, Builder)]
 pub struct SpotTransferArgs {
     #[builder(default = 0)]
@@ -72,10 +53,6 @@ impl SpotTransferData {
     ) -> Result<Self> {
         let scaled_amt = to_e18(&args.amount)?;
         let scaled_fee = to_e18(&args.max_fee_usd)?;
-        println!(
-            "Scaled amount: {:?}, Scaled fee: {:?}",
-            scaled_amt, scaled_fee
-        );
         Ok(Self {
             toSubaccountId: U256::from(args.to_subaccount_id),
             newSubaccountManager: U256::from(args.new_subaccount_manager),

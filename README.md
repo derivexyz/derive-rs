@@ -1,12 +1,10 @@
 <div align="center"># Derive Rust Sdk
 
-
-
 # 🦀 derive-rs
 
 This is the official Rust SDK for the Derive Protocol. It is designed to interact with the Derive Protocol's smart contracts and provides a set of tools and utilities for developers to interact with the protocol in a Rust environment.
 
-
+</div>
 
 ### Official Rust SDK for Derive Protocol
 
@@ -22,7 +20,6 @@ We expose Websocket as the transport layer. The SDK is designed to be easy to us
 
 [![Build Status](https://img.shields.io/github/actions/workflow/status/derivexyz/derive-rs/ci.yml?branch=master)](https://github.com/derivexyz/derive-rs/actions)cargo add derive-rs
 
-```
 
 **High-performance, type-safe Rust client for interacting with Derive Protocol's perpetual futures and options platform**
 
@@ -38,17 +35,9 @@ We expose Websocket as the transport layer. The SDK is designed to be easy to us
 
 [Contributing](#-contributing)
 
-## Features & Roadmap
-
-</div>
 
 
-
----- [x] Support rfq
-
-- [x] Support position movements
-
-## ✨ Overview- [] Test reconnection flow
+## ✨ Overview
 
 
 `derive-rs` is a comprehensive Rust SDK for [Derive Protocol](https://derive.xyz), providing seamless access to decentralized derivatives trading. Built with modern async Rust, it offers a robust, production-ready solution for algorithmic trading, market making, and DeFi integrations.
@@ -68,15 +57,7 @@ We expose Websocket as the transport layer. The SDK is designed to be easy to us
 
 ### Installation
 
-Add `derive-rs` to your `Cargo.toml`:
-
-```toml
-[dependencies]
-derive-rs = "0.1.5"
-tokio = { version = "1.53", features = ["full"] }
-```
-
-Or use cargo:
+Use cargo:
 
 ```bash
 cargo add derive-rs
@@ -270,7 +251,7 @@ use derive_rs::actions::{OrderArgs, ReplaceArgs, ExecuteQuoteArgs};
 
 ### Namespace API
 
-Organized API surface for intuitive usage:
+Organized API surface for intuitive usage across signing, RPC, and subscriptions:
 
 ```
 // Orders
@@ -295,25 +276,25 @@ client.session_keys().add(session_key_args).await?;
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                         Your Application                     │
+│                         Your Application                    │
 └──────────────────────────┬──────────────────────────────────┘
                            │
 ┌──────────────────────────┴──────────────────────────────────┐
-│                        derive-rs SDK                         │
-├──────────────────────────────────────────────────────────────┤
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐ │
-│  │   Actions   │  │     RPC     │  │   Subscriptions     │ │
-│  │  (Signing)  │  │  (Request)  │  │   (Streaming)       │ │
-│  └─────────────┘  └─────────────┘  └─────────────────────┘ │
+│                        derive-rs SDK                        │
+├─────────────────────────────────────────────────────────────┤
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐  │
+│  │   Actions   │  │     RPC     │  │   Subscriptions     │  │
+│  │  (Signing)  │  │  (Request)  │  │   (Streaming)       │  │
+│  └─────────────┘  └─────────────┘  └─────────────────────┘  │
 │  ┌──────────────────────────────────────────────────────────┤
 │  │              WebSocket Client (yawc)                     │
 │  └──────────────────────────────────────────────────────────┤
 └──────────────────────────┬──────────────────────────────────┘
                            │
 ┌──────────────────────────┴──────────────────────────────────┐
-│                    Derive Protocol API                       │
+│                    Derive Protocol API                      │
 │           wss://testnet.api.derive.xyz/v3/ws                │
-└──────────────────────────────────────────────────────────────┘
+└─────────────────────────────────────────────────────────────┘
 ```
 
 ---

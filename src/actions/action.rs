@@ -19,7 +19,7 @@ pub enum ModuleType {
     SetSessionKey,
     // ExternalTransfer,
     // WhitelistedRecipient,
-    // Vault,
+    Vault,
 }
 
 fn get_trade_module(module: ModuleType) -> &'static str {
@@ -29,6 +29,7 @@ fn get_trade_module(module: ModuleType) -> &'static str {
         ModuleType::Withdraw => "0x9d0E8f5b25384C7310CB8C6aE32C8fbeb645d083",
         ModuleType::SpotTransfer => "0x01259207A40925b794C8ac320456F7F6c8FE2636",
         ModuleType::RfqPositionTransfer => "0x9371352CCef6f5b36EfDFE90942fFE622Ab77F1D",
+        ModuleType::Vault => "0x2885c174ebf5524aED9c721d60c12b1537685186",
     }
 }
 
@@ -55,6 +56,7 @@ pub fn get_domain_separator(env: &Environment) -> &'static str {
 }
 
 use anyhow::Context;
+use tracing::debug;
 sol! {
     #![sol(all_derives)]
 
@@ -97,14 +99,11 @@ impl ActionData {
     {
         let encoded_data = module_data.get_action_data();
         let hex = format!("0x{}", encode(&encoded_data));
-        println!("encoded_data: {hex}");
+        debug!("Encoded data: {}", hex);
         let (nonce, expiry) = Self::get_nonce_and_expiry()?;
         let module = get_trade_module(module_type).parse::<Address>()?;
-        println!("module: {:?}", module);
         let data = keccak256(&encoded_data);
-        println!("encoded_data_hashed: {:?}", data);
         let action_typehash = get_action_typehash(env).parse::<B256>()?;
-        println!("action_typehash: {:?}", action_typehash);
         Ok(Self {
             action_typehash,
             subaccount_id: U256::from(subaccount_id),
@@ -126,8 +125,6 @@ impl ActionData {
             .parse::<B256>()
             .expect("invalid DOMAIN_SEPARATOR");
         let action_hash = self.action_hash();
-        println!("domain_separator: {:?}", domain_separator);
-        println!("action_hash: {:?}", action_hash);
         let mut encoded = [0u8; 66];
         encoded[0] = 0x19;
         encoded[1] = 0x01;

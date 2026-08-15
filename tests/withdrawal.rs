@@ -16,7 +16,7 @@ async fn test_withdrawal() {
         .amount(BigDecimal::from_str("10.00").unwrap())
         .recepient_address(
             ws_client
-                .smart_contract_wallet_address
+                .derive_wallet
                 .clone()
                 .unwrap()
                 .parse()
