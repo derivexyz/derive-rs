@@ -85,6 +85,7 @@ impl ActionData {
             signature_expiry_sec: u64::try_from(&self.expiry)?,
             signer: encode_prefixed(self.signer),
             subaccount_id,
+            recipient: Some(args.recepient_address.to_string()),
         })
     }
 }
