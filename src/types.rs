@@ -68,6 +68,8 @@ pub enum ClientError {
     InsufficientBalance(String),
     #[error("Rounding error: {0}")]
     RoundingError(#[from] ParseBigDecimalError),
+    #[error("Timeout error: {0}")]
+    TimeoutError(#[from] tokio::time::error::Elapsed),
 }
 
 // environment enum
