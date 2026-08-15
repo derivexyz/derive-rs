@@ -81,12 +81,14 @@ impl<'a> OrdersNamespace<'a> {
                 )
             })
             .expect("Couldnt collect instrument.");
+        let rounded_price = round_to_ticks(&replace_args.limit_price, &instrument.tick_size);
+        let rounded_amount = round_to_ticks(&replace_args.amount, &instrument.minimum_amount);
         let trade_data = TradeData::new(
             &instrument,
             // ticker,
             subaccount_id,
-            &replace_args.limit_price,
-            &replace_args.amount,
+            &rounded_price,
+            &rounded_amount,
             replace_args.direction == Direction::Buy,
         )?;
 
@@ -108,6 +110,8 @@ impl<'a> OrdersNamespace<'a> {
             &signer,
             replace_args.clone(),
             &self.ws_client.environment,
+            rounded_price,
+            rounded_amount,
         )?;
 
         self.ws_client.rpc().orderbook().replace(params).await

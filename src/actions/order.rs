@@ -159,11 +159,13 @@ impl ActionData {
         signer: &PrivateKeySigner,
         args: ReplaceArgs,
         env: &Environment,
+        rounded_price: BigDecimal,
+        rounded_amount: BigDecimal,
     ) -> Result<ReplaceParams> {
         Ok(ReplaceParams {
             instrument_name: args.instrument_name,
-            amount: args.amount,
-            limit_price: args.limit_price,
+            amount: rounded_amount,
+            limit_price: rounded_price,
             direction: args.direction,
             time_in_force: args.time_in_force,
             order_type: args.order_type,
