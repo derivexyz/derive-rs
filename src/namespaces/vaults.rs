@@ -1,9 +1,13 @@
 use crate::{
     actions::{
-        ActionData, CreateVaultArgs, CreateVaultData, DepositVaultArgs, DepositVaultData,
-        ModuleType,
+        ActionData, BurnVaultSharesArgs, BurnVaultSharesData, CancelAllVaultRequestsArgs,
+        CancelAllVaultRequestsData, CreateVaultArgs, CreateVaultData, DepositVaultArgs,
+        DepositVaultData, MintVaultSharesArgs, MintVaultSharesData, ModuleType, WithdrawVaultArgs,
+        WithdrawVaultData,
     },
-    models::{VaultCreateResponse, VaultRequestAckResponse},
+    models::{
+        VaultCancelResponse, VaultCreateResponse, VaultRequestAckResponse, VaultSettleResponse,
+    },
     types::ClientError,
     ws_client::WsClient,
 };
@@ -86,6 +90,159 @@ impl<'a> VaultsNamespace<'a> {
             .rpc()
             .vault_shareholders()
             .request_vault_deposit(params)
+            .await
+    }
+
+    pub async fn withdraw(
+        &self,
+        withdraw_args: WithdrawVaultArgs,
+    ) -> Result<VaultRequestAckResponse, ClientError> {
+        let module_data = WithdrawVaultData::from_args(withdraw_args.clone());
+
+        let action_data = ActionData::new(
+            module_data,
+            self.ws_client.subaccount_id.unwrap(),
+            self.ws_client.wallet.clone().unwrap().address(),
+            &self
+                .ws_client
+                .derive_wallet
+                .clone()
+                .unwrap()
+                .parse()
+                .expect("Couldnt parse wallet address"),
+            &self.ws_client.environment,
+            ModuleType::Vault,
+        )?;
+
+        let params = action_data.populate_withdraw_vault_params(
+            &self.ws_client.wallet.clone().unwrap(),
+            withdraw_args.clone(),
+            &self.ws_client.environment,
+        )?;
+
+        println!(
+            "Withdraw Vault Params: {}",
+            serde_json::to_string_pretty(&params).unwrap()
+        );
+
+        self.ws_client
+            .rpc()
+            .vault_shareholders()
+            .request_vault_withdraw(params)
+            .await
+    }
+
+    pub async fn mint_shares(
+        &self,
+        mint_shares_args: MintVaultSharesArgs,
+    ) -> Result<VaultSettleResponse, ClientError> {
+        let module_data = MintVaultSharesData::from_args(mint_shares_args.clone());
+        let action_data = ActionData::new(
+            module_data,
+            self.ws_client.subaccount_id.unwrap(),
+            self.ws_client.wallet.clone().unwrap().address(),
+            &self
+                .ws_client
+                .derive_wallet
+                .clone()
+                .unwrap()
+                .parse()
+                .expect("Couldnt parse wallet address"),
+            &self.ws_client.environment,
+            ModuleType::Vault,
+        )?;
+
+        let params = action_data.populate_mint_vault_shares_params(
+            &self.ws_client.wallet.clone().unwrap(),
+            mint_shares_args.clone(),
+            &self.ws_client.environment,
+        )?;
+
+        println!(
+            "Mint Vault Shares Params: {}",
+            serde_json::to_string_pretty(&params).unwrap()
+        );
+
+        self.ws_client
+            .rpc()
+            .vault_curators()
+            .mint_vault_shares(params)
+            .await
+    }
+
+    pub async fn burn_shares(
+        &self,
+        burn_shares_args: BurnVaultSharesArgs,
+    ) -> Result<VaultSettleResponse, ClientError> {
+        let module_data = BurnVaultSharesData::from_args(burn_shares_args.clone());
+        let action_data = ActionData::new(
+            module_data,
+            self.ws_client.subaccount_id.unwrap(),
+            self.ws_client.wallet.clone().unwrap().address(),
+            &self
+                .ws_client
+                .derive_wallet
+                .clone()
+                .unwrap()
+                .parse()
+                .expect("Couldnt parse wallet address"),
+            &self.ws_client.environment,
+            ModuleType::Vault,
+        )?;
+
+        let params = action_data.populate_burn_vault_shares_params(
+            &self.ws_client.wallet.clone().unwrap(),
+            burn_shares_args.clone(),
+            &self.ws_client.environment,
+        )?;
+
+        println!(
+            "Burn Vault Shares Params: {}",
+            serde_json::to_string_pretty(&params).unwrap()
+        );
+
+        self.ws_client
+            .rpc()
+            .vault_curators()
+            .burn_vault_shares(params)
+            .await
+    }
+
+    pub async fn cancel_all_vault_requests(
+        &self,
+        args: CancelAllVaultRequestsArgs,
+    ) -> Result<VaultCancelResponse, ClientError> {
+        let module_data = CancelAllVaultRequestsData::from_args(args.clone());
+        let action_data = ActionData::new(
+            module_data,
+            self.ws_client.subaccount_id.unwrap(),
+            self.ws_client.wallet.clone().unwrap().address(),
+            &self
+                .ws_client
+                .derive_wallet
+                .clone()
+                .unwrap()
+                .parse()
+                .expect("Couldnt parse wallet address"),
+            &self.ws_client.environment,
+            ModuleType::Vault,
+        )?;
+
+        let params = action_data.populate_cancel_all_vault_requests_params(
+            &self.ws_client.wallet.clone().unwrap(),
+            args.clone(),
+            &self.ws_client.environment,
+        )?;
+
+        println!(
+            "Cancel All Vault Requests Params: {}",
+            serde_json::to_string_pretty(&params).unwrap()
+        );
+
+        self.ws_client
+            .rpc()
+            .vault_shareholders()
+            .cancel_all_vault_requests(params)
             .await
     }
 }

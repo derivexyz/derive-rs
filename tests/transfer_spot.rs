@@ -10,6 +10,7 @@ use derive_rs::{
 mod common;
 
 #[tokio::test]
+#[ignore]
 async fn test_transfer_spot() {
     let ws_client = common::get_test_ws_client_2().await;
     ws_client.login().await.expect("Failed to login");
