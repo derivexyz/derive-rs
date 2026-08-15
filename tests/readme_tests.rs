@@ -4,10 +4,7 @@ use regex::Regex;
 use std::fs;
 use std::path::{Path, PathBuf};
 
-const SNIPPETS_INDEX_TO_IGNORE: &[usize] = &[
-    4,
-    5,
-];
+const SNIPPETS_INDEX_TO_IGNORE: &[usize] = &[4, 5];
 fn extract_code_snippets(readme_path: &Path) -> Result<Vec<String>, Box<dyn std::error::Error>> {
     let readme_content = fs::read_to_string(readme_path)?;
 
