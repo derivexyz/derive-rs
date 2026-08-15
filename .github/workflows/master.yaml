@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     ## NOT on a specific commit
     # NOT IF THE LAST COMMIT IS A RELEASE COMMIT
-    if: "!contains(github.event.head_commit.message, 'Bump version to v:')"
+    if: "!contains(github.event.head_commit.message, 'Bump version to v')"
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
