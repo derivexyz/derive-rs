@@ -1,5 +1,6 @@
 use std::{error::Error as StdError, fmt, str::FromStr, sync::Arc};
 
+use bigdecimal::ParseBigDecimalError;
 use bytes::Bytes;
 use serde::{Deserialize, de::DeserializeOwned};
 use serde_json::Value;
@@ -65,6 +66,8 @@ pub enum ClientError {
     SubaccountError(String),
     #[error("Balance error: {0}")]
     InsufficientBalance(String),
+    #[error("Rounding error: {0}")]
+    RoundingError(#[from] ParseBigDecimalError),
 }
 
 // environment enum

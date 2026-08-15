@@ -7748,10 +7748,22 @@ impl IndexCandle {
 ///      ]
 ///    },
 ///    "maximum_amount": {
-///      "type": "string"
+///      "type": "string",
+///      "format": "decimal",
+///      "x-rust-type": {
+///        "crate": "bigdecimal",
+///        "path": "bigdecimal::BigDecimal",
+///        "version": ">=0.4.0, <0.5.0"
+///      }
 ///    },
 ///    "minimum_amount": {
-///      "type": "string"
+///      "type": "string",
+///      "format": "decimal",
+///      "x-rust-type": {
+///        "crate": "bigdecimal",
+///        "path": "bigdecimal::BigDecimal",
+///        "version": ">=0.4.0, <0.5.0"
+///      }
 ///    },
 ///    "option_details": {
 ///      "anyOf": [
@@ -7794,7 +7806,13 @@ impl IndexCandle {
 ///      "type": "string"
 ///    },
 ///    "tick_size": {
-///      "type": "string"
+///      "type": "string",
+///      "format": "decimal",
+///      "x-rust-type": {
+///        "crate": "bigdecimal",
+///        "path": "bigdecimal::BigDecimal",
+///        "version": ">=0.4.0, <0.5.0"
+///      }
 ///    }
 ///  }
 ///}
@@ -7818,8 +7836,8 @@ pub struct Instrument {
     pub maker_fee_rate: ::std::string::String,
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub mark_price_fee_rate_cap: ::std::option::Option<::std::string::String>,
-    pub maximum_amount: ::std::string::String,
-    pub minimum_amount: ::std::string::String,
+    pub maximum_amount: ::bigdecimal::BigDecimal,
+    pub minimum_amount: ::bigdecimal::BigDecimal,
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub option_details: ::std::option::Option<OptionDetails>,
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
@@ -7830,7 +7848,7 @@ pub struct Instrument {
     pub scheduled_activation: i64,
     pub scheduled_deactivation: i64,
     pub taker_fee_rate: ::std::string::String,
-    pub tick_size: ::std::string::String,
+    pub tick_size: ::bigdecimal::BigDecimal,
 }
 impl Instrument {
     pub fn builder() -> builder::Instrument {
@@ -33051,11 +33069,11 @@ pub mod builder {
             ::std::string::String,
         >,
         maximum_amount: ::std::result::Result<
-            ::std::string::String,
+            ::bigdecimal::BigDecimal,
             ::std::string::String,
         >,
         minimum_amount: ::std::result::Result<
-            ::std::string::String,
+            ::bigdecimal::BigDecimal,
             ::std::string::String,
         >,
         option_details: ::std::result::Result<
@@ -33084,7 +33102,10 @@ pub mod builder {
             ::std::string::String,
             ::std::string::String,
         >,
-        tick_size: ::std::result::Result<::std::string::String, ::std::string::String>,
+        tick_size: ::std::result::Result<
+            ::bigdecimal::BigDecimal,
+            ::std::string::String,
+        >,
     }
     impl ::std::default::Default for Instrument {
         fn default() -> Self {
@@ -33286,7 +33307,7 @@ pub mod builder {
         }
         pub fn maximum_amount<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::std::string::String>,
+            T: ::std::convert::TryInto<::bigdecimal::BigDecimal>,
             T::Error: ::std::fmt::Display,
         {
             self.maximum_amount = value
@@ -33298,7 +33319,7 @@ pub mod builder {
         }
         pub fn minimum_amount<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::std::string::String>,
+            T: ::std::convert::TryInto<::bigdecimal::BigDecimal>,
             T::Error: ::std::fmt::Display,
         {
             self.minimum_amount = value
@@ -33412,7 +33433,7 @@ pub mod builder {
         }
         pub fn tick_size<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::std::string::String>,
+            T: ::std::convert::TryInto<::bigdecimal::BigDecimal>,
             T::Error: ::std::fmt::Display,
         {
             self.tick_size = value

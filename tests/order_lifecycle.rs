@@ -1,5 +1,3 @@
-use std::str::FromStr;
-
 use bigdecimal::{BigDecimal, FromPrimitive};
 use derive_rs::{
     actions::{OrderArgs, ReplaceArgs},
@@ -44,11 +42,8 @@ async fn test_ws_order_lifecycle() {
 
     let order_args = OrderArgs::builder()
         .instrument_name(instrument_name.clone())
-        .amount(
-            BigDecimal::from_str(&instrument.minimum_amount)
-                .expect("Failed to parse minimum amount"),
-        )
-        .limit_price(ticker.i.clone())
+        .amount(instrument.minimum_amount.clone())
+        .limit_price(ticker.i.clone() * BigDecimal::from_f64(0.99).expect("Failed to make offset"))
         .direction(Direction::Buy)
         .order_type(OrderType::Limit)
         .time_in_force(TimeInForce::Gtc)
@@ -87,8 +82,7 @@ async fn test_ws_order_lifecycle() {
     let replace_params = ReplaceArgs::builder()
         .instrument_name(instrument_name.clone())
         .amount(
-            BigDecimal::from_str(&instrument.minimum_amount)
-                .expect("Failed to parse minimum amount"),
+            instrument.minimum_amount * BigDecimal::from_f64(2.0).expect("Failed to make offset"),
         )
         .limit_price(ticker.i.clone() - BigDecimal::from_f64(1.0).expect("Failed to parse 1.01"))
         .direction(Direction::Buy)

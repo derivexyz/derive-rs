@@ -92,15 +92,15 @@ impl TradeData {
     pub fn new(
         instrument: &Instrument,
         subaccount_id: u64,
-        limit_price: BigDecimal,
-        amount: BigDecimal,
+        limit_price: &BigDecimal,
+        amount: &BigDecimal,
         is_bid: bool,
     ) -> Result<Self> {
         Ok(Self {
             asset_address: instrument.base_asset_address.parse::<Address>()?,
             sub_id: U256::from(instrument.base_asset_sub_id.parse::<u128>()?),
-            limit_price: decimal_to_i256(&limit_price)?,
-            amount: decimal_to_i256(&amount)?,
+            limit_price: decimal_to_i256(limit_price)?,
+            amount: decimal_to_i256(amount)?,
             max_fee: decimal_to_u256(&default_max_fee())?,
             subaccount_id: U256::try_from(subaccount_id)?,
             is_bid,
@@ -120,11 +120,13 @@ impl ActionData {
         signer: &PrivateKeySigner,
         args: OrderArgs,
         env: &Environment,
+        rounded_price: BigDecimal,
+        rounded_amount: BigDecimal,
     ) -> Result<OrderParams> {
         Ok(OrderParams {
             instrument_name: args.instrument_name,
-            amount: args.amount,
-            limit_price: args.limit_price,
+            amount: rounded_amount,
+            limit_price: rounded_price,
             direction: args.direction,
             time_in_force: args.time_in_force,
             order_type: args.order_type,
