@@ -10,7 +10,7 @@ use crate::constants::ZERO_ADDRESS;
 use crate::{
     Environment,
     actions::{ActionData, ModuleData, utils::to_e18},
-    models::CreateVaultRequest,
+    models::{CreateVaultRequest, RequestVaultDepositRequest},
 };
 
 pub enum VaultActionKind {
@@ -34,6 +34,28 @@ impl From<VaultActionKind> for U256 {
         }
     }
 }
+#[derive(Debug, Clone, Deserialize, Builder)]
+pub struct CreateVaultArgs {
+    subaccount_id: u64,
+    manager_id: u64,
+    deposit_spot_asset: String,
+    initial_deposit: BigDecimal,
+    initial_share_price_usd: BigDecimal,
+    management_fee_bps: u64,
+    performance_fee_bps: u64,
+    max_slippage_bps: u64,
+    cooldown_sec: u64,
+    max_fee_usd: BigDecimal,
+    benchmark_asset: Option<String>,
+}
+
+#[derive(Debug, Clone, Deserialize, Builder)]
+pub struct DepositVaultArgs {
+    vault_id: u64,
+    deposit_spot_asset: String,
+    deposit_amount: BigDecimal,
+    subaccount_id: u64,
+}
 
 sol! {
     #![sol(all_derives)]
@@ -52,9 +74,22 @@ sol! {
         address benchmark_asset_address;
         bool use_benchmark_asset;
     }
+
+    struct DepositVaultData {
+        uint256 action_kind;
+        uint256 vault_id;
+        uint256 deposit_spot_asset_address;
+        uint256 deposit_amount;
+    }
 }
 
 impl ModuleData for CreateVaultData {
+    fn get_action_data(&self) -> Vec<u8> {
+        self.abi_encode()
+    }
+}
+
+impl ModuleData for DepositVaultData {
     fn get_action_data(&self) -> Vec<u8> {
         self.abi_encode()
     }
@@ -86,19 +121,16 @@ impl CreateVaultData {
     }
 }
 
-#[derive(Debug, Clone, Deserialize, Builder)]
-pub struct CreateVaultArgs {
-    subaccount_id: u64,
-    manager_id: u64,
-    deposit_spot_asset: String,
-    initial_deposit: BigDecimal,
-    initial_share_price_usd: BigDecimal,
-    management_fee_bps: u64,
-    performance_fee_bps: u64,
-    max_slippage_bps: u64,
-    cooldown_sec: u64,
-    max_fee_usd: BigDecimal,
-    benchmark_asset: Option<String>,
+impl DepositVaultData {
+    pub fn from_args(args: DepositVaultArgs) -> Self {
+        Self {
+            action_kind: VaultActionKind::Deposit.into(),
+            vault_id: U256::from(args.vault_id),
+            deposit_spot_asset_address: args.deposit_spot_asset.parse().unwrap(),
+            deposit_amount: to_e18(&args.deposit_amount)
+                .expect("Couldnt convert deposit_amount to e18"),
+        }
+    }
 }
 
 impl ActionData {
@@ -129,6 +161,29 @@ impl ActionData {
             signer: encode_prefixed(self.signer).parse()?,
             subaccount_id: args.subaccount_id,
             signature,
+        })
+    }
+
+    pub fn populate_deposit_vault_params(
+        &self,
+        signer: &PrivateKeySigner,
+        args: DepositVaultArgs,
+        env: &Environment,
+    ) -> Result<RequestVaultDepositRequest> {
+        let encoded_data_hashed = &self.hash(env);
+        let signature = format!("{}", signer.sign_hash_sync(encoded_data_hashed)?);
+        let nonce = self.nonce.to_string().parse()?;
+        let signature_expiry_sec = u64::try_from(&self.expiry)?;
+
+        Ok(RequestVaultDepositRequest {
+            amount: args.deposit_amount,
+            deposit_spot_asset: args.deposit_spot_asset.parse()?,
+            nonce,
+            signature,
+            signature_expiry_sec,
+            signer: encode_prefixed(self.signer).parse()?,
+            subaccount_id: args.subaccount_id,
+            vault_subaccount_id: args.vault_id,
         })
     }
 }
