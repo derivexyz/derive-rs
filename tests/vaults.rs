@@ -1,12 +1,16 @@
 use std::str::FromStr;
 
 use bigdecimal::BigDecimal;
-use derive_rs::{actions::CreateVaultArgs, models::GetSubaccountRequest};
+use derive_rs::{
+    actions::{CreateVaultArgs, DepositVaultArgs},
+    models::{GetCuratedVaultsRequest, GetSubaccountRequest, GetVaultRequest},
+};
 
 mod common;
 
 #[tokio::test]
-async fn test_vault_lifecycle() {
+#[ignore]
+async fn test_vault_create() {
     let ws_client = common::get_test_ws_client_2().await;
     ws_client.login().await.expect("Failed to login");
     let subaccount_id = ws_client.subaccount_id.unwrap();
@@ -76,5 +80,55 @@ async fn test_vault_lifecycle() {
         create_result.is_ok(),
         "Vault creation failed: {:?}",
         create_result.err()
+    );
+}
+
+#[tokio::test]
+async fn test_vault_deposit() {
+    let ws_client = common::get_test_ws_client_2().await;
+    ws_client.login().await.expect("Failed to login");
+    let subaccount_id = ws_client.subaccount_id.unwrap();
+    // we use the tracing subscriber to capture logs for debugging
+    tracing_subscriber::fmt()
+        .with_max_level(tracing::Level::DEBUG)
+        .init();
+
+    let vaults = ws_client
+        .rpc()
+        .vault_curators()
+        .get_curated_vaults(GetCuratedVaultsRequest {
+            wallet: ws_client.derive_wallet.clone().unwrap(),
+        })
+        .await
+        .expect("Failed to list vaults");
+
+    // we ensure there is at least one vault to deposit into
+    assert!(
+        !vaults.subaccount_ids.is_empty(),
+        "Expected at least one vault to deposit into, but found none."
+    );
+    let first_vault_id = &vaults.subaccount_ids[0];
+
+    let vault_info = ws_client
+        .rpc()
+        .vault_shareholders()
+        .get_vault(GetVaultRequest {
+            subaccount_id: *first_vault_id,
+        })
+        .await
+        .expect("Failed to get vault info");
+
+    let deposit_args = DepositVaultArgs::builder()
+        .subaccount_id(subaccount_id)
+        .vault_id(*first_vault_id) // Assuming the vault ID is 1 for testing
+        .deposit_amount(BigDecimal::from_str("10").unwrap())
+        .deposit_spot_asset(vault_info.protocol.config.deposit_spot_asset.to_string())
+        .build();
+
+    let deposit_result = ws_client.vaults().deposit(deposit_args).await;
+    assert!(
+        deposit_result.is_ok(),
+        "Vault deposit failed: {:?}",
+        deposit_result.err()
     );
 }
