@@ -12,6 +12,7 @@ use dashmap::DashMap;
 use reqwest::Url;
 use serde::Deserialize;
 use strum::EnumString;
+use tracing::debug;
 
 use crate::{
     actions::utils::decimal_to_u256_with_prec,
@@ -255,7 +256,7 @@ impl DepositManager {
             .map_err(Self::string_error)?;
 
         let tx_hash = *pending_tx.tx_hash();
-        println!("Approval transaction sent: {:?}", tx_hash);
+        debug!("Approval transaction sent: {:?}", tx_hash);
         pending_tx.get_receipt().await.map_err(Self::string_error)?;
         Ok(tx_hash)
     }
@@ -292,7 +293,7 @@ impl DepositManager {
             .map_err(Self::string_error)?;
 
         let tx_hash = *pending_tx.tx_hash();
-        println!("Deposit transaction sent: {:?}", tx_hash);
+        debug!("Deposit transaction sent: {:?}", tx_hash);
         pending_tx.get_receipt().await.map_err(Self::string_error)?;
         Ok(tx_hash)
     }
@@ -325,7 +326,7 @@ impl DepositManager {
             .map_err(Self::string_error)?;
 
         let tx_hash = *pending_tx.tx_hash();
-        println!("Deposit to new subaccount transaction sent: {:?}", tx_hash);
+        debug!("Deposit to new subaccount transaction sent: {:?}", tx_hash);
         pending_tx.get_receipt().await.map_err(Self::string_error)?;
         Ok(tx_hash)
     }

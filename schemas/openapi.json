@@ -3539,7 +3539,7 @@
             "description": "JSON-RPC error (see Error Codes)"
           }
         },
-        "description": "Returns the most recent oracle-signed feed data — spot, forward, volatility (SVI), rate, and perp feeds — each with signer addresses and signatures for on-chain submission. Optional `currency` and `expiry` filters narrow the result (use `expiry` 0 for spot/perp only); both default to all. Public endpoint.",
+        "description": "Returns the most recent oracle-signed feed data — spot, forward, volatility (SVI), rate, perp, and perpetual funding-rate feeds — each with signer addresses and signatures for on-chain submission. Optional `currency` and `expiry` filters narrow the result (use `expiry` 0 for the non-expiry feeds: spot, perp and funding); both default to all. Public endpoint.",
         "x-rate-limit-class": "non_matching",
         "requestBody": {
           "required": true,
@@ -5639,6 +5639,42 @@
           }
         }
       },
+      "FundingFeedDataResponse": {
+        "type": "object",
+        "required": [
+          "confidence",
+          "currency",
+          "deadline",
+          "funding_rate",
+          "signatures",
+          "timestamp"
+        ],
+        "properties": {
+          "confidence": {
+            "type": "string"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "deadline": {
+            "type": "integer",
+            "format": "uint64",
+            "minimum": 0.0
+          },
+          "funding_rate": {
+            "description": "Per-hour funding rate as a decimal string.",
+            "type": "string"
+          },
+          "signatures": {
+            "$ref": "#/components/schemas/OracleSignatureDataResponse"
+          },
+          "timestamp": {
+            "type": "integer",
+            "format": "uint64",
+            "minimum": 0.0
+          }
+        }
+      },
       "FundingRateCandle": {
         "description": "Single funding-rate OHLC candle. `funding_rate` mirrors `close` for backward compatibility with the pre-OHLC response shape; `timestamp` is the bucket start in UTC milliseconds.",
         "type": "object",
@@ -6190,6 +6226,7 @@
       "GetLatestSignedFeedsResponse": {
         "type": "object",
         "required": [
+          "funding_data",
           "fwd_data",
           "perp_data",
           "rate_data",
@@ -6197,6 +6234,13 @@
           "vol_data"
         ],
         "properties": {
+          "funding_data": {
+            "description": "currency -> latest funding-rate feed data",
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/FundingFeedDataResponse"
+            }
+          },
           "fwd_data": {
             "description": "currency -> expiry -> latest forward feed data",
             "type": "object",
@@ -8944,8 +8988,7 @@
           "funding_rate",
           "index",
           "max_rate_per_hour",
-          "min_rate_per_hour",
-          "static_interest_rate"
+          "min_rate_per_hour"
         ],
         "properties": {
           "aggregate_funding": {
@@ -8961,9 +9004,6 @@
             "type": "string"
           },
           "min_rate_per_hour": {
-            "type": "string"
-          },
-          "static_interest_rate": {
             "type": "string"
           }
         }
@@ -9504,7 +9544,7 @@
         "required": [
           "cash_transfer",
           "last_seen_trade_id",
-          "liquidated_account_id",
+          "liquidate_subaccount_id",
           "merge_account",
           "nonce",
           "percent_of_acc",
@@ -9525,8 +9565,8 @@
             "format": "uint64",
             "minimum": 0.0
           },
-          "liquidated_account_id": {
-            "description": "Account being liquidated.",
+          "liquidate_subaccount_id": {
+            "description": "Subaccount being liquidated.",
             "type": "integer",
             "format": "uint64",
             "minimum": 0.0
@@ -9539,7 +9579,7 @@
             "format": "int64"
           },
           "percent_of_acc": {
-            "description": "Fraction of the account to liquidate (`\"1.0\"` = 100%), decimal string or JSON number.",
+            "description": "Fraction of the account to liquidate (`\"1.0\"` = 100%), decimal string or JSON number. Must be a whole percent, i.e. a multiple of `\"0.01\"`.",
             "type": "string",
             "format": "decimal"
           },
@@ -9858,6 +9898,14 @@
           "nonce": {
             "type": "integer",
             "format": "int64"
+          },
+          "recipient": {
+            "description": "L1 address the funds are paid out to. Defaults to the subaccount's owner wallet when omitted.\n\nA non-owner signer (session key) may only pay out to an address on the owner's `whitelisted_recipients`, unless the key holds `Admin`.",
+            "default": null,
+            "type": [
+              "string",
+              "null"
+            ]
           },
           "signature": {
             "type": "string"
@@ -10416,6 +10464,14 @@
           "nonce": {
             "type": "integer",
             "format": "int64"
+          },
+          "recipient": {
+            "description": "L1 address the funds are paid out to. Defaults to the subaccount's owner wallet when omitted — matching what `private/withdraw` reconstructs.",
+            "default": null,
+            "type": [
+              "string",
+              "null"
+            ]
           },
           "signature_expiry_sec": {
             "type": "integer",
@@ -12707,6 +12763,7 @@
           "maintenance_margin",
           "manager_id",
           "margin_type",
+          "mm_credits",
           "open_orders",
           "open_orders_margin",
           "positions",
@@ -12763,6 +12820,10 @@
             "minimum": 0.0
           },
           "margin_type": {
+            "type": "string"
+          },
+          "mm_credits": {
+            "description": "MM credit from universe loss-socialization events: the socialized USDC debit lands on cash in full, and `debit × (1 − write_down)` is added back to maintenance margin while the 15-minute write-down runs. Events this subaccount has not yet realized contribute their expected credit, with the current subaccount value standing in for the MtM at realization. Zero while under auction — the credit is cleared when liquidation starts.",
             "type": "string"
           },
           "open_orders": {

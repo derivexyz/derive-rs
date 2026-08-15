@@ -752,7 +752,16 @@ impl AssetUniverse {
 ///      "type": "string"
 ///    },
 ///    "subaccount_balances": {
-///      "type": "string"
+///      "description": "Balance per asset name, as a decimal string.",
+///      "type": "object",
+///      "properties": {
+///        "{key}": {
+///          "type": "string"
+///        }
+///      },
+///      "additionalProperties": {
+///        "type": "string"
+///      }
 ///    }
 ///  }
 ///}
@@ -770,10 +779,45 @@ pub struct AuctionDetails {
     pub margin_type: ::std::string::String,
     pub min_cash_transfer: ::std::string::String,
     pub min_price_limit: ::std::string::String,
-    pub subaccount_balances: ::std::string::String,
+    pub subaccount_balances: AuctionDetailsSubaccountBalances,
 }
 impl AuctionDetails {
     pub fn builder() -> builder::AuctionDetails {
+        Default::default()
+    }
+}
+///Balance per asset name, as a decimal string.
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "description": "Balance per asset name, as a decimal string.",
+///  "type": "object",
+///  "properties": {
+///    "{key}": {
+///      "type": "string"
+///    }
+///  },
+///  "additionalProperties": {
+///    "type": "string"
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct AuctionDetailsSubaccountBalances {
+    #[serde(
+        rename = "{key}",
+        default,
+        skip_serializing_if = "::std::option::Option::is_none"
+    )]
+    pub key: ::std::option::Option<::std::string::String>,
+    #[serde(flatten)]
+    pub extra: ::std::collections::HashMap<::std::string::String, ::std::string::String>,
+}
+impl AuctionDetailsSubaccountBalances {
+    pub fn builder() -> builder::AuctionDetailsSubaccountBalances {
         Default::default()
     }
 }
@@ -4105,6 +4149,64 @@ impl ForwardFeedDataResponse {
         Default::default()
     }
 }
+///`FundingFeedDataResponse`
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "type": "object",
+///  "required": [
+///    "confidence",
+///    "currency",
+///    "deadline",
+///    "funding_rate",
+///    "signatures",
+///    "timestamp"
+///  ],
+///  "properties": {
+///    "confidence": {
+///      "type": "string"
+///    },
+///    "currency": {
+///      "type": "string"
+///    },
+///    "deadline": {
+///      "type": "integer",
+///      "format": "uint64",
+///      "minimum": 0.0
+///    },
+///    "funding_rate": {
+///      "description": "Per-hour funding rate as a decimal string.",
+///      "type": "string"
+///    },
+///    "signatures": {
+///      "$ref": "#/definitions/OracleSignatureDataResponse"
+///    },
+///    "timestamp": {
+///      "type": "integer",
+///      "format": "uint64",
+///      "minimum": 0.0
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct FundingFeedDataResponse {
+    pub confidence: ::std::string::String,
+    pub currency: ::std::string::String,
+    pub deadline: u64,
+    ///Per-hour funding rate as a decimal string.
+    pub funding_rate: ::std::string::String,
+    pub signatures: OracleSignatureDataResponse,
+    pub timestamp: u64,
+}
+impl FundingFeedDataResponse {
+    pub fn builder() -> builder::FundingFeedDataResponse {
+        Default::default()
+    }
+}
 ///Single funding-rate OHLC candle. `funding_rate` mirrors `close` for backward compatibility with the pre-OHLC response shape; `timestamp` is the bucket start in UTC milliseconds.
 ///
 /// <details><summary>JSON schema</summary>
@@ -5149,6 +5251,7 @@ impl GetLatestSignedFeedsRequest {
 ///{
 ///  "type": "object",
 ///  "required": [
+///    "funding_data",
 ///    "fwd_data",
 ///    "perp_data",
 ///    "rate_data",
@@ -5156,6 +5259,13 @@ impl GetLatestSignedFeedsRequest {
 ///    "vol_data"
 ///  ],
 ///  "properties": {
+///    "funding_data": {
+///      "description": "currency -> latest funding-rate feed data",
+///      "type": "object",
+///      "additionalProperties": {
+///        "$ref": "#/definitions/FundingFeedDataResponse"
+///      }
+///    },
 ///    "fwd_data": {
 ///      "description": "currency -> expiry -> latest forward feed data",
 ///      "type": "object",
@@ -5209,6 +5319,11 @@ impl GetLatestSignedFeedsRequest {
 /// </details>
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
 pub struct GetLatestSignedFeedsResponse {
+    ///currency -> latest funding-rate feed data
+    pub funding_data: ::std::collections::HashMap<
+        ::std::string::String,
+        FundingFeedDataResponse,
+    >,
     ///currency -> expiry -> latest forward feed data
     pub fwd_data: ::std::collections::HashMap<
         ::std::string::String,
@@ -10658,8 +10773,7 @@ impl ::std::convert::TryFrom<::std::string::String> for PerformanceResolution {
 ///    "funding_rate",
 ///    "index",
 ///    "max_rate_per_hour",
-///    "min_rate_per_hour",
-///    "static_interest_rate"
+///    "min_rate_per_hour"
 ///  ],
 ///  "properties": {
 ///    "aggregate_funding": {
@@ -10676,9 +10790,6 @@ impl ::std::convert::TryFrom<::std::string::String> for PerformanceResolution {
 ///    },
 ///    "min_rate_per_hour": {
 ///      "type": "string"
-///    },
-///    "static_interest_rate": {
-///      "type": "string"
 ///    }
 ///  }
 ///}
@@ -10691,7 +10802,6 @@ pub struct PerpDetails {
     pub index: ::std::string::String,
     pub max_rate_per_hour: ::std::string::String,
     pub min_rate_per_hour: ::std::string::String,
-    pub static_interest_rate: ::std::string::String,
 }
 impl PerpDetails {
     pub fn builder() -> builder::PerpDetails {
@@ -11540,7 +11650,7 @@ impl PrivateGetSubaccountsResponse {
 ///  "required": [
 ///    "cash_transfer",
 ///    "last_seen_trade_id",
-///    "liquidated_account_id",
+///    "liquidate_subaccount_id",
 ///    "merge_account",
 ///    "nonce",
 ///    "percent_of_acc",
@@ -11566,8 +11676,8 @@ impl PrivateGetSubaccountsResponse {
 ///      "format": "uint64",
 ///      "minimum": 0.0
 ///    },
-///    "liquidated_account_id": {
-///      "description": "Account being liquidated.",
+///    "liquidate_subaccount_id": {
+///      "description": "Subaccount being liquidated.",
 ///      "type": "integer",
 ///      "format": "uint64",
 ///      "minimum": 0.0
@@ -11580,7 +11690,7 @@ impl PrivateGetSubaccountsResponse {
 ///      "format": "int64"
 ///    },
 ///    "percent_of_acc": {
-///      "description": "Fraction of the account to liquidate (`\"1.0\"` = 100%), decimal string or JSON number.",
+///      "description": "Fraction of the account to liquidate (`\"1.0\"` = 100%), decimal string or JSON number. Must be a whole percent, i.e. a multiple of `\"0.01\"`.",
 ///      "type": "string",
 ///      "format": "decimal",
 ///      "x-rust-type": {
@@ -11625,11 +11735,11 @@ pub struct PrivateLiquidateRequest {
     ///Cash to transfer during liquidation, in USD as a decimal string (e.g. `"5.0"`) or a JSON number.
     pub cash_transfer: ::bigdecimal::BigDecimal,
     pub last_seen_trade_id: u64,
-    ///Account being liquidated.
-    pub liquidated_account_id: u64,
+    ///Subaccount being liquidated.
+    pub liquidate_subaccount_id: u64,
     pub merge_account: bool,
     pub nonce: i64,
-    ///Fraction of the account to liquidate (`"1.0"` = 100%), decimal string or JSON number.
+    ///Fraction of the account to liquidate (`"1.0"` = 100%), decimal string or JSON number. Must be a whole percent, i.e. a multiple of `"0.01"`.
     pub percent_of_acc: ::bigdecimal::BigDecimal,
     ///Signed limit price (`"0"` opts out), decimal string or JSON number.
     pub price_limit: ::bigdecimal::BigDecimal,
@@ -12220,6 +12330,14 @@ impl PrivateTransferSpotResponse {
 ///      "type": "integer",
 ///      "format": "int64"
 ///    },
+///    "recipient": {
+///      "description": "L1 address the funds are paid out to. Defaults to the subaccount's owner wallet when omitted.\n\nA non-owner signer (session key) may only pay out to an address on the owner's `whitelisted_recipients`, unless the key holds `Admin`.",
+///      "default": null,
+///      "type": [
+///        "string",
+///        "null"
+///      ]
+///    },
 ///    "signature": {
 ///      "type": "string"
 ///    },
@@ -12248,6 +12366,11 @@ pub struct PrivateWithdrawRequest {
     ///Maximum sequencer fee the signer authorises, in USD, as a decimal string (e.g. `"1.5"`) or a JSON number.
     pub max_fee_usd: ::bigdecimal::BigDecimal,
     pub nonce: i64,
+    /**L1 address the funds are paid out to. Defaults to the subaccount's owner wallet when omitted.
+
+A non-owner signer (session key) may only pay out to an address on the owner's `whitelisted_recipients`, unless the key holds `Admin`.*/
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub recipient: ::std::option::Option<::std::string::String>,
     pub signature: ::std::string::String,
     pub signature_expiry_sec: u64,
     pub signer: ::std::string::String,
@@ -13384,6 +13507,14 @@ impl PublicVaultActionResponse {
 ///      "type": "integer",
 ///      "format": "int64"
 ///    },
+///    "recipient": {
+///      "description": "L1 address the funds are paid out to. Defaults to the subaccount's owner wallet when omitted — matching what `private/withdraw` reconstructs.",
+///      "default": null,
+///      "type": [
+///        "string",
+///        "null"
+///      ]
+///    },
 ///    "signature_expiry_sec": {
 ///      "type": "integer",
 ///      "format": "uint64",
@@ -13409,6 +13540,9 @@ pub struct PublicWithdrawDebugRequest {
     ///Maximum sequencer fee the signer authorises, in USD, as a decimal string (e.g. `"1.5"`) or a JSON number.
     pub max_fee_usd: ::bigdecimal::BigDecimal,
     pub nonce: i64,
+    ///L1 address the funds are paid out to. Defaults to the subaccount's owner wallet when omitted — matching what `private/withdraw` reconstructs.
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub recipient: ::std::option::Option<::std::string::String>,
     pub signature_expiry_sec: u64,
     pub signer: ::std::string::String,
     pub subaccount_id: u64,
@@ -18020,6 +18154,10 @@ impl SpotUniverse {
 ///    "margin_type": {
 ///      "type": "string"
 ///    },
+///    "mm_credits": {
+///      "description": "MM credit from universe loss-socialization events: the socialized USDC debit lands on cash in full, and `debit × (1 − write_down)` is added back to maintenance margin while the 15-minute write-down runs. Events this subaccount has not yet realized contribute their expected credit, with the current subaccount value standing in for the MtM at realization. Zero while under auction — the credit is cleared when liquidation starts.",
+///      "type": "string"
+///    },
 ///    "open_orders": {
 ///      "type": "array",
 ///      "items": {
@@ -18085,6 +18223,9 @@ pub struct Subaccount {
     pub maintenance_margin: ::std::string::String,
     pub manager_id: u32,
     pub margin_type: ::std::string::String,
+    ///MM credit from universe loss-socialization events: the socialized USDC debit lands on cash in full, and `debit × (1 − write_down)` is added back to maintenance margin while the 15-minute write-down runs. Events this subaccount has not yet realized contribute their expected credit, with the current subaccount value standing in for the MtM at realization. Zero while under auction — the credit is cleared when liquidation starts.
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub mm_credits: ::std::option::Option<::std::string::String>,
     pub open_orders: ::std::vec::Vec<Order>,
     pub open_orders_margin: ::std::string::String,
     pub positions: ::std::vec::Vec<Position>,
@@ -22274,7 +22415,7 @@ pub mod builder {
             ::std::string::String,
         >,
         subaccount_balances: ::std::result::Result<
-            ::std::string::String,
+            super::AuctionDetailsSubaccountBalances,
             ::std::string::String,
         >,
     }
@@ -22427,7 +22568,7 @@ pub mod builder {
         }
         pub fn subaccount_balances<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::std::string::String>,
+            T: ::std::convert::TryInto<super::AuctionDetailsSubaccountBalances>,
             T::Error: ::std::fmt::Display,
         {
             self.subaccount_balances = value
@@ -22472,6 +22613,70 @@ pub mod builder {
                 min_cash_transfer: Ok(value.min_cash_transfer),
                 min_price_limit: Ok(value.min_price_limit),
                 subaccount_balances: Ok(value.subaccount_balances),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct AuctionDetailsSubaccountBalances {
+        key: ::std::result::Result<
+            ::std::option::Option<::std::string::String>,
+            ::std::string::String,
+        >,
+        extra: ::std::result::Result<
+            ::std::collections::HashMap<::std::string::String, ::std::string::String>,
+            ::std::string::String,
+        >,
+    }
+    impl ::std::default::Default for AuctionDetailsSubaccountBalances {
+        fn default() -> Self {
+            Self {
+                key: Ok(Default::default()),
+                extra: Err("no value supplied for extra".to_string()),
+            }
+        }
+    }
+    impl AuctionDetailsSubaccountBalances {
+        pub fn key<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.key = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for key: {e}"));
+            self
+        }
+        pub fn extra<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<
+                ::std::collections::HashMap<::std::string::String, ::std::string::String>,
+            >,
+            T::Error: ::std::fmt::Display,
+        {
+            self.extra = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for extra: {e}"));
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<AuctionDetailsSubaccountBalances>
+    for super::AuctionDetailsSubaccountBalances {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: AuctionDetailsSubaccountBalances,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                key: value.key?,
+                extra: value.extra?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::AuctionDetailsSubaccountBalances>
+    for AuctionDetailsSubaccountBalances {
+        fn from(value: super::AuctionDetailsSubaccountBalances) -> Self {
+            Self {
+                key: Ok(value.key),
+                extra: Ok(value.extra),
             }
         }
     }
@@ -26827,6 +27032,136 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
+    pub struct FundingFeedDataResponse {
+        confidence: ::std::result::Result<::std::string::String, ::std::string::String>,
+        currency: ::std::result::Result<::std::string::String, ::std::string::String>,
+        deadline: ::std::result::Result<u64, ::std::string::String>,
+        funding_rate: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+        signatures: ::std::result::Result<
+            super::OracleSignatureDataResponse,
+            ::std::string::String,
+        >,
+        timestamp: ::std::result::Result<u64, ::std::string::String>,
+    }
+    impl ::std::default::Default for FundingFeedDataResponse {
+        fn default() -> Self {
+            Self {
+                confidence: Err("no value supplied for confidence".to_string()),
+                currency: Err("no value supplied for currency".to_string()),
+                deadline: Err("no value supplied for deadline".to_string()),
+                funding_rate: Err("no value supplied for funding_rate".to_string()),
+                signatures: Err("no value supplied for signatures".to_string()),
+                timestamp: Err("no value supplied for timestamp".to_string()),
+            }
+        }
+    }
+    impl FundingFeedDataResponse {
+        pub fn confidence<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.confidence = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for confidence: {e}")
+                });
+            self
+        }
+        pub fn currency<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.currency = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for currency: {e}")
+                });
+            self
+        }
+        pub fn deadline<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<u64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.deadline = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for deadline: {e}")
+                });
+            self
+        }
+        pub fn funding_rate<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.funding_rate = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for funding_rate: {e}")
+                });
+            self
+        }
+        pub fn signatures<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::OracleSignatureDataResponse>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.signatures = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for signatures: {e}")
+                });
+            self
+        }
+        pub fn timestamp<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<u64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.timestamp = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for timestamp: {e}")
+                });
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<FundingFeedDataResponse>
+    for super::FundingFeedDataResponse {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: FundingFeedDataResponse,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                confidence: value.confidence?,
+                currency: value.currency?,
+                deadline: value.deadline?,
+                funding_rate: value.funding_rate?,
+                signatures: value.signatures?,
+                timestamp: value.timestamp?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::FundingFeedDataResponse>
+    for FundingFeedDataResponse {
+        fn from(value: super::FundingFeedDataResponse) -> Self {
+            Self {
+                confidence: Ok(value.confidence),
+                currency: Ok(value.currency),
+                deadline: Ok(value.deadline),
+                funding_rate: Ok(value.funding_rate),
+                signatures: Ok(value.signatures),
+                timestamp: Ok(value.timestamp),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
     pub struct FundingRateCandle {
         close: ::std::result::Result<::std::string::String, ::std::string::String>,
         currency: ::std::result::Result<::std::string::String, ::std::string::String>,
@@ -28409,6 +28744,13 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct GetLatestSignedFeedsResponse {
+        funding_data: ::std::result::Result<
+            ::std::collections::HashMap<
+                ::std::string::String,
+                super::FundingFeedDataResponse,
+            >,
+            ::std::string::String,
+        >,
         fwd_data: ::std::result::Result<
             ::std::collections::HashMap<
                 ::std::string::String,
@@ -28460,6 +28802,7 @@ pub mod builder {
     impl ::std::default::Default for GetLatestSignedFeedsResponse {
         fn default() -> Self {
             Self {
+                funding_data: Err("no value supplied for funding_data".to_string()),
                 fwd_data: Err("no value supplied for fwd_data".to_string()),
                 perp_data: Err("no value supplied for perp_data".to_string()),
                 rate_data: Err("no value supplied for rate_data".to_string()),
@@ -28469,6 +28812,23 @@ pub mod builder {
         }
     }
     impl GetLatestSignedFeedsResponse {
+        pub fn funding_data<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<
+                ::std::collections::HashMap<
+                    ::std::string::String,
+                    super::FundingFeedDataResponse,
+                >,
+            >,
+            T::Error: ::std::fmt::Display,
+        {
+            self.funding_data = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for funding_data: {e}")
+                });
+            self
+        }
         pub fn fwd_data<T>(mut self, value: T) -> Self
         where
             T: ::std::convert::TryInto<
@@ -28574,6 +28934,7 @@ pub mod builder {
             value: GetLatestSignedFeedsResponse,
         ) -> ::std::result::Result<Self, super::error::ConversionError> {
             Ok(Self {
+                funding_data: value.funding_data?,
                 fwd_data: value.fwd_data?,
                 perp_data: value.perp_data?,
                 rate_data: value.rate_data?,
@@ -28586,6 +28947,7 @@ pub mod builder {
     for GetLatestSignedFeedsResponse {
         fn from(value: super::GetLatestSignedFeedsResponse) -> Self {
             Self {
+                funding_data: Ok(value.funding_data),
                 fwd_data: Ok(value.fwd_data),
                 perp_data: Ok(value.perp_data),
                 rate_data: Ok(value.rate_data),
@@ -37355,10 +37717,6 @@ pub mod builder {
             ::std::string::String,
             ::std::string::String,
         >,
-        static_interest_rate: ::std::result::Result<
-            ::std::string::String,
-            ::std::string::String,
-        >,
     }
     impl ::std::default::Default for PerpDetails {
         fn default() -> Self {
@@ -37373,9 +37731,6 @@ pub mod builder {
                 ),
                 min_rate_per_hour: Err(
                     "no value supplied for min_rate_per_hour".to_string(),
-                ),
-                static_interest_rate: Err(
-                    "no value supplied for static_interest_rate".to_string(),
                 ),
             }
         }
@@ -37439,20 +37794,6 @@ pub mod builder {
                 });
             self
         }
-        pub fn static_interest_rate<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::std::string::String>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.static_interest_rate = value
-                .try_into()
-                .map_err(|e| {
-                    format!(
-                        "error converting supplied value for static_interest_rate: {e}"
-                    )
-                });
-            self
-        }
     }
     impl ::std::convert::TryFrom<PerpDetails> for super::PerpDetails {
         type Error = super::error::ConversionError;
@@ -37465,7 +37806,6 @@ pub mod builder {
                 index: value.index?,
                 max_rate_per_hour: value.max_rate_per_hour?,
                 min_rate_per_hour: value.min_rate_per_hour?,
-                static_interest_rate: value.static_interest_rate?,
             })
         }
     }
@@ -37477,7 +37817,6 @@ pub mod builder {
                 index: Ok(value.index),
                 max_rate_per_hour: Ok(value.max_rate_per_hour),
                 min_rate_per_hour: Ok(value.min_rate_per_hour),
-                static_interest_rate: Ok(value.static_interest_rate),
             }
         }
     }
@@ -39341,7 +39680,7 @@ pub mod builder {
             ::std::string::String,
         >,
         last_seen_trade_id: ::std::result::Result<u64, ::std::string::String>,
-        liquidated_account_id: ::std::result::Result<u64, ::std::string::String>,
+        liquidate_subaccount_id: ::std::result::Result<u64, ::std::string::String>,
         merge_account: ::std::result::Result<bool, ::std::string::String>,
         nonce: ::std::result::Result<i64, ::std::string::String>,
         percent_of_acc: ::std::result::Result<
@@ -39364,8 +39703,8 @@ pub mod builder {
                 last_seen_trade_id: Err(
                     "no value supplied for last_seen_trade_id".to_string(),
                 ),
-                liquidated_account_id: Err(
-                    "no value supplied for liquidated_account_id".to_string(),
+                liquidate_subaccount_id: Err(
+                    "no value supplied for liquidate_subaccount_id".to_string(),
                 ),
                 merge_account: Err("no value supplied for merge_account".to_string()),
                 nonce: Err("no value supplied for nonce".to_string()),
@@ -39407,16 +39746,16 @@ pub mod builder {
                 });
             self
         }
-        pub fn liquidated_account_id<T>(mut self, value: T) -> Self
+        pub fn liquidate_subaccount_id<T>(mut self, value: T) -> Self
         where
             T: ::std::convert::TryInto<u64>,
             T::Error: ::std::fmt::Display,
         {
-            self.liquidated_account_id = value
+            self.liquidate_subaccount_id = value
                 .try_into()
                 .map_err(|e| {
                     format!(
-                        "error converting supplied value for liquidated_account_id: {e}"
+                        "error converting supplied value for liquidate_subaccount_id: {e}"
                     )
                 });
             self
@@ -39525,7 +39864,7 @@ pub mod builder {
             Ok(Self {
                 cash_transfer: value.cash_transfer?,
                 last_seen_trade_id: value.last_seen_trade_id?,
-                liquidated_account_id: value.liquidated_account_id?,
+                liquidate_subaccount_id: value.liquidate_subaccount_id?,
                 merge_account: value.merge_account?,
                 nonce: value.nonce?,
                 percent_of_acc: value.percent_of_acc?,
@@ -39543,7 +39882,7 @@ pub mod builder {
             Self {
                 cash_transfer: Ok(value.cash_transfer),
                 last_seen_trade_id: Ok(value.last_seen_trade_id),
-                liquidated_account_id: Ok(value.liquidated_account_id),
+                liquidate_subaccount_id: Ok(value.liquidate_subaccount_id),
                 merge_account: Ok(value.merge_account),
                 nonce: Ok(value.nonce),
                 percent_of_acc: Ok(value.percent_of_acc),
@@ -40500,6 +40839,10 @@ pub mod builder {
             ::std::string::String,
         >,
         nonce: ::std::result::Result<i64, ::std::string::String>,
+        recipient: ::std::result::Result<
+            ::std::option::Option<::std::string::String>,
+            ::std::string::String,
+        >,
         signature: ::std::result::Result<::std::string::String, ::std::string::String>,
         signature_expiry_sec: ::std::result::Result<u64, ::std::string::String>,
         signer: ::std::result::Result<::std::string::String, ::std::string::String>,
@@ -40515,6 +40858,7 @@ pub mod builder {
                 force_batch: Err("no value supplied for force_batch".to_string()),
                 max_fee_usd: Err("no value supplied for max_fee_usd".to_string()),
                 nonce: Err("no value supplied for nonce".to_string()),
+                recipient: Ok(Default::default()),
                 signature: Err("no value supplied for signature".to_string()),
                 signature_expiry_sec: Err(
                     "no value supplied for signature_expiry_sec".to_string(),
@@ -40585,6 +40929,18 @@ pub mod builder {
                 .map_err(|e| format!("error converting supplied value for nonce: {e}"));
             self
         }
+        pub fn recipient<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.recipient = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for recipient: {e}")
+                });
+            self
+        }
         pub fn signature<T>(mut self, value: T) -> Self
         where
             T: ::std::convert::TryInto<::std::string::String>,
@@ -40646,6 +41002,7 @@ pub mod builder {
                 force_batch: value.force_batch?,
                 max_fee_usd: value.max_fee_usd?,
                 nonce: value.nonce?,
+                recipient: value.recipient?,
                 signature: value.signature?,
                 signature_expiry_sec: value.signature_expiry_sec?,
                 signer: value.signer?,
@@ -40661,6 +41018,7 @@ pub mod builder {
                 force_batch: Ok(value.force_batch),
                 max_fee_usd: Ok(value.max_fee_usd),
                 nonce: Ok(value.nonce),
+                recipient: Ok(value.recipient),
                 signature: Ok(value.signature),
                 signature_expiry_sec: Ok(value.signature_expiry_sec),
                 signer: Ok(value.signer),
@@ -42619,6 +42977,10 @@ pub mod builder {
             ::std::string::String,
         >,
         nonce: ::std::result::Result<i64, ::std::string::String>,
+        recipient: ::std::result::Result<
+            ::std::option::Option<::std::string::String>,
+            ::std::string::String,
+        >,
         signature_expiry_sec: ::std::result::Result<u64, ::std::string::String>,
         signer: ::std::result::Result<::std::string::String, ::std::string::String>,
         subaccount_id: ::std::result::Result<u64, ::std::string::String>,
@@ -42633,6 +42995,7 @@ pub mod builder {
                 force_batch: Err("no value supplied for force_batch".to_string()),
                 max_fee_usd: Err("no value supplied for max_fee_usd".to_string()),
                 nonce: Err("no value supplied for nonce".to_string()),
+                recipient: Ok(Default::default()),
                 signature_expiry_sec: Err(
                     "no value supplied for signature_expiry_sec".to_string(),
                 ),
@@ -42702,6 +43065,18 @@ pub mod builder {
                 .map_err(|e| format!("error converting supplied value for nonce: {e}"));
             self
         }
+        pub fn recipient<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.recipient = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for recipient: {e}")
+                });
+            self
+        }
         pub fn signature_expiry_sec<T>(mut self, value: T) -> Self
         where
             T: ::std::convert::TryInto<u64>,
@@ -42751,6 +43126,7 @@ pub mod builder {
                 force_batch: value.force_batch?,
                 max_fee_usd: value.max_fee_usd?,
                 nonce: value.nonce?,
+                recipient: value.recipient?,
                 signature_expiry_sec: value.signature_expiry_sec?,
                 signer: value.signer?,
                 subaccount_id: value.subaccount_id?,
@@ -42766,6 +43142,7 @@ pub mod builder {
                 force_batch: Ok(value.force_batch),
                 max_fee_usd: Ok(value.max_fee_usd),
                 nonce: Ok(value.nonce),
+                recipient: Ok(value.recipient),
                 signature_expiry_sec: Ok(value.signature_expiry_sec),
                 signer: Ok(value.signer),
                 subaccount_id: Ok(value.subaccount_id),
@@ -50496,6 +50873,10 @@ pub mod builder {
         >,
         manager_id: ::std::result::Result<u32, ::std::string::String>,
         margin_type: ::std::result::Result<::std::string::String, ::std::string::String>,
+        mm_credits: ::std::result::Result<
+            ::std::option::Option<::std::string::String>,
+            ::std::string::String,
+        >,
         open_orders: ::std::result::Result<
             ::std::vec::Vec<super::Order>,
             ::std::string::String,
@@ -50562,6 +50943,7 @@ pub mod builder {
                 ),
                 manager_id: Err("no value supplied for manager_id".to_string()),
                 margin_type: Err("no value supplied for margin_type".to_string()),
+                mm_credits: Ok(Default::default()),
                 open_orders: Err("no value supplied for open_orders".to_string()),
                 open_orders_margin: Err(
                     "no value supplied for open_orders_margin".to_string(),
@@ -50743,6 +51125,18 @@ pub mod builder {
                 });
             self
         }
+        pub fn mm_credits<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.mm_credits = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for mm_credits: {e}")
+                });
+            self
+        }
         pub fn open_orders<T>(mut self, value: T) -> Self
         where
             T: ::std::convert::TryInto<::std::vec::Vec<super::Order>>,
@@ -50904,6 +51298,7 @@ pub mod builder {
                 maintenance_margin: value.maintenance_margin?,
                 manager_id: value.manager_id?,
                 margin_type: value.margin_type?,
+                mm_credits: value.mm_credits?,
                 open_orders: value.open_orders?,
                 open_orders_margin: value.open_orders_margin?,
                 positions: value.positions?,
@@ -50933,6 +51328,7 @@ pub mod builder {
                 maintenance_margin: Ok(value.maintenance_margin),
                 manager_id: Ok(value.manager_id),
                 margin_type: Ok(value.margin_type),
+                mm_credits: Ok(value.mm_credits),
                 open_orders: Ok(value.open_orders),
                 open_orders_margin: Ok(value.open_orders_margin),
                 positions: Ok(value.positions),

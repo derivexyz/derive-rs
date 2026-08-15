@@ -222,8 +222,6 @@ impl RfqExecuteData {
             instrument_map,
         )?;
         let order_hash = keccak256(leg_abis.abi_encode());
-        println!("Order Hash: {:?}", order_hash);
-
         Ok(Self {
             orderHash: order_hash,
             maxFee: to_e18(execute_args.max_fee()).expect("Unable to scale fee"),

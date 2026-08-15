@@ -22,7 +22,7 @@ impl<'a> SessionKeys<'a> {
             .expect("Must have set wallet to create session key");
         let scw_address = self
             .ws_client
-            .smart_contract_wallet_address
+            .derive_wallet
             .clone()
             .expect("Must have set smart contract wallet address to create session key");
 
