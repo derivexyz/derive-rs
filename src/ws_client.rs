@@ -253,7 +253,9 @@ impl WsClient {
             return Err(ClientError::Transport(Box::new(e)));
         }
 
-        let response = rx.await?;
+        let timeout_duration = Duration::from_secs(10);
+        let response = tokio::time::timeout(timeout_duration, rx).await??;
+
         match serde_json::from_slice::<RpcResult<T>>(&response) {
             Ok(result) => Ok(result.result),
             Err(parse_err) => {
