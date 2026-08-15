@@ -1,19 +1,17 @@
 <div align="center">
 
-[![Derive Protocol](header.png)](https://derive.xyz)
+[![Derive Protocol](https://github.com/derivexyz/derive-rs/raw/master/header.png)](https://derive.xyz)
 
 
 [![Crates.io](https://img.shields.io/crates/v/derive-rs.svg)](https://crates.io/crates/derive-rs)
-[![Documentation](https://docs.rs/derive-rs/badge.svg)](https://docs.rs/derive-rs)
 [![Tests](https://github.com/derivexyz/derive-rs/actions/workflows/common.yaml/badge.svg)](https://github.com/derivexyz/derive-rs/actions/workflows/common.yaml)
-[![License](https://img.shields.io/crates/l/derive-rs.svg)](https://github.com/derivexyz/derive-rs/blob/master/LICENSE.md)
-
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/derivexyz/derive-rs/blob/master/LICENSE.md)
 
 **Official Rust SDK for the Derive Protocol**
 
 A type-safe, async Rust client for trading, market data, account management, RFQs, and protocol interactions over WebSocket.
 
-[Documentation](https://docs.rs/derive-rs) ·
+[Documentation](https://v3.docs.derive.xyz/) ·
 [Examples](#examples) ·
 [API coverage](#api-coverage) ·
 [Contributing](#contributing)
