@@ -3,7 +3,6 @@ name = "derive-rs"
 version = "0.1.11"
 edition = "2024"
 license = "MIT"
-license-file = "LICENSE.md"
 homepage = "https://github.com/derivexyz/derive-rs"
 
 [dependencies]
