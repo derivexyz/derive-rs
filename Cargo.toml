@@ -1,6 +1,6 @@
 [package]
 name = "derive-rs"
-version = "0.1.11"
+version = "0.1.12"
 edition = "2024"
 license = "MIT"
 homepage = "https://github.com/derivexyz/derive-rs"
