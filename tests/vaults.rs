@@ -218,6 +218,11 @@ async fn test_vault_withdraw() {
         .find(|vault| vault.vault.protocol.subaccount_id == vault_id)
         .expect("Should have shares in this vault.");
 
+    println!(
+        "Vault Shares for Vault {}: {:?}",
+        vault_id, vault_shares_for_vault
+    );
+
     let withdraw_args = WithdrawVaultArgs::builder()
         .subaccount_id(ws_client.subaccount_id.unwrap())
         .vault_id(vault_id) // Assuming the vault ID is 1 for testing

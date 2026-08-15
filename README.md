@@ -1,71 +1,36 @@
-<div align="center"># Derive Rust Sdk
+<div align="center">
 
-# 🦀 derive-rs
+[![Derive Protocol](header.png)](https://derive.xyz)
 
-This is the official Rust SDK for the Derive Protocol. It is designed to interact with the Derive Protocol's smart contracts and provides a set of tools and utilities for developers to interact with the protocol in a Rust environment.
+
+[![Crates.io](https://img.shields.io/crates/v/derive-rs.svg)](https://crates.io/crates/derive-rs)
+[![Documentation](https://docs.rs/derive-rs/badge.svg)](https://docs.rs/derive-rs)
+[![Tests](https://github.com/derivexyz/derive-rs/actions/workflows/common.yaml/badge.svg)](https://github.com/derivexyz/derive-rs/actions/workflows/common.yaml)
+[![License](https://img.shields.io/crates/l/derive-rs.svg)](https://github.com/derivexyz/derive-rs/blob/master/LICENSE.md)
+
+
+**Official Rust SDK for the Derive Protocol**
+
+A type-safe, async Rust client for trading, market data, account management, RFQs, and protocol interactions over WebSocket.
+
+[Documentation](https://docs.rs/derive-rs) ·
+[Examples](#examples) ·
+[API coverage](#api-coverage) ·
+[Contributing](#contributing)
 
 </div>
 
-### Official Rust SDK for Derive Protocol
-
-We expose Websocket as the transport layer. The SDK is designed to be easy to use and integrate into existing Rust projects.
-
-[![Crates.io](https://img.shields.io/crates/v/derive-rs.svg)](https://crates.io/crates/derive-rs)
-
-[![Documentation](https://docs.rs/derive-rs/badge.svg)](https://docs.rs/derive-rs)## Installation
-
-[![License](https://img.shields.io/crates/l/derive-rs.svg)](https://github.com/derivexyz/derive-rs/blob/master/LICENSE)
-
-[![Rust](https://img.shields.io/badge/rust-2024%2B-orange.svg)](https://www.rust-lang.org)```
-
-[![Build Status](https://img.shields.io/github/actions/workflow/status/derivexyz/derive-rs/ci.yml?branch=master)](https://github.com/derivexyz/derive-rs/actions)cargo add derive-rs
-
-
-**High-performance, type-safe Rust client for interacting with Derive Protocol's perpetual futures and options platform**
-
-## Examples
-
-[Getting Started](#-getting-started) •
-
-[Documentation](https://docs.rs/derive-rs) •
-
-[Examples](#-examples) •
-
-[Features](#-features) •
-
-[Contributing](#-contributing)
-
-
-
-## ✨ Overview
-
-
-`derive-rs` is a comprehensive Rust SDK for [Derive Protocol](https://derive.xyz), providing seamless access to decentralized derivatives trading. Built with modern async Rust, it offers a robust, production-ready solution for algorithmic trading, market making, and DeFi integrations.
-
-### Why derive-rs?
-
-- 🚀 **Blazingly Fast** - Built on Tokio with async/await for maximum concurrency
-- 🔒 **Type-Safe** - Compile-time guarantees with comprehensive type definitions
-- 🔌 **WebSocket & REST** - Real-time market data and reliable REST endpoints
-- 📦 **Zero Config** - Works out of the box with sensible defaults
-- 🧪 **Battle-Tested** - Extensive test coverage and production-ready
-- 🛠️ **Developer Friendly** - Intuitive API design with builder patterns
-
 ---
 
-## 🚀 Getting Started
-
-### Installation
-
-Use cargo:
+## Installation
 
 ```bash
 cargo add derive-rs
 ```
 
-### Quick Start
+## Quick start
 
-#### Public Market Data
+### Public market data
 
 ```rust
 // examples/get_all_instruments.rs
@@ -95,165 +60,112 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 ```
 
-#### Authenticated Trading
+### Authenticated trading
 
-```
-use derive_rs::{WsClient, Environment};
+```rust
+// examples/simple_order.rs
+use bigdecimal::BigDecimal;
+use derive_rs::{
+    WsClient,
+    actions::OrderArgs,
+    models::{CancelOrderRequest, Direction, OrderType, TimeInForce},
+};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // Initialize client with credentials
-    let client = WsClient::new(
-        Environment::Testnet,
-        Some("YOUR_PRIVATE_KEY".to_string()),
-        Some("YOUR_WALLET_ADDRESS".to_string()),
-        Some(1234), // subaccount_id
-    ).await?;
-    
-    // Login to the WebSocket
+    let client = WsClient::from_env().await?;
+
     client.login().await?;
-    
-    // Place your first order
-    use derive_rs::actions::OrderArgs;
-    use derive_rs::models::{Direction, OrderType, TimeInForce};
-    use bigdecimal::BigDecimal;
-    
+
     let order = OrderArgs::builder()
-        .instrument_name("ETH-PERP")
+        .instrument_name("ETH-PERP".to_string())
         .amount(BigDecimal::from(1))
-        .limit_price(BigDecimal::from(3000))
+        .limit_price(BigDecimal::from(1500))
         .direction(Direction::Buy)
         .order_type(OrderType::Limit)
-        .time_in_force(TimeInForce::GTC)
+        .time_in_force(TimeInForce::Gtc)
         .build();
-    
+
     let result = client.orders().place(order).await?;
-    println!("Order placed: {:#?}", result);
-    
+
+    println!("Order placed: {result:#?}");
+
+    let cancel_params = CancelOrderRequest::builder()
+        .order_id(result.order.order_id)
+        .instrument_name("ETH-PERP".to_string())
+        .subaccount_id(client.subaccount_id.unwrap())
+        .try_into()?;
+    let cancel_result = client.orders().cancel_order(cancel_params).await?;
+
+    println!("Order cancelled: {cancel_result:#?}");
+
     Ok(())
 }
-```
-
-#### Real-Time Market Data Streams
 
 ```
-use derive_rs::{WsClient, Environment, types::ExternalEvent};
-use tokio_stream::StreamExt;
+
+### Streaming market data
+
+```rust
+// examples/ws_stream_ticker.rs
+mod common;
+use derive_rs::{models::TickerSlimNotification, types::ExternalEvent};
+use tokio_stream::{StreamExt, wrappers::BroadcastStream};
+
+use crate::common::get_test_ws_client;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let client = WsClient::new_public(Environment::Testnet).await?;
-    
-    // Subscribe to ticker updates
-    let mut ticker_stream = client.subscriptions()
+    let ws_client = get_test_ws_client().await;
+
+    let mut eth_ticker_stream: BroadcastStream<TickerSlimNotification> = ws_client
+        .subscriptions()
         .market_data()
         .ticker_slim("ETH-USDC", "100")
         .await?;
-    
-    // Process tickers in real-time
+
     loop {
         tokio::select! {
-            Some(ticker) = ticker_stream.next() => {
-                match ticker {
-                    Ok(data) => println!("ETH Price: {:?}", data),
-                    Err(e) => eprintln!("Error: {:?}", e),
+            Some(eth_ticker) = eth_ticker_stream.next() => {
+                match eth_ticker {
+                    Ok(ticker) => println!("ETH Ticker: {:?}", ticker),
+                    Err(e) => {
+                        eprintln!("Error receiving ETH ticker: {:?}", e);
+                        break; // Exit the loop on error
+                    }
                 }
             }
-            event = client.run_till_event() => {
+            event = ws_client.run_till_event() => {
                 match event {
                     ExternalEvent::Connected => {
-                        println!("WebSocket connected");
-                        client.resubscribe_all().await?;
+                        let _ = ws_client.login().await;
+                        let _ = ws_client.resubscribe_all().await;
+                        println!("WebSocket connected and resubscribed to all channels.");
                     }
-                    ExternalEvent::Disconnected => println!("Disconnected"),
-                    ExternalEvent::Exited => break,
+                    ExternalEvent::Disconnected => {
+                        println!("WebSocket disconnected");
+                    }
+                    ExternalEvent::Exited => {
+                        println!("WebSocket exited");
+                        break;
+                    }
                 }
             }
         }
     }
-    
+
     Ok(())
 }
-```
-
----
-
-## 📚 Examples
-
-The repository includes comprehensive examples demonstrating various features:
-
-| Example | Description |
-|---------|-------------|
-| [`get_all_currencies`](examples/get_all_currencies.rs) | Fetch all supported currencies and ERC-20 details |
-| [`ws_stream_tickers`](examples/ws_stream_tickers.rs) | Real-time ticker streaming for multiple instruments |
-| [`ws_rfq_subscriber`](examples/ws_rfq_subscriber.rs) | Subscribe to Request for Quote (RFQ) updates |
-| [`order_lifecycle`](tests/order_lifecycle.rs) | Complete order management: create, replace, cancel |
-| [`rfq`](tests/rfq.rs) | Request for Quote workflow for large trades |
-
-Run any example with:
-
-```bash
-cargo run --example ws_stream_tickers
-```
-
----
-
-## ✨ Features
-
-### Core Capabilities
-
-- ✅ **WebSocket API**
-  - Real-time market data streaming
-  - Private account updates
-  - Automatic reconnection with state recovery
-  - Heartbeat/ping-pong handling
-
-- ✅ **Order Management**
-  - Place, replace, and cancel orders
-  - Support for all order types (limit, market, stop-loss)
-  - Time-in-force options (GTC, IOC, FOK)
-  - Post-only and reduce-only orders
-
-- ✅ **Request for Quote (RFQ)**
-  - Multi-leg RFQ creation
-  - Quote execution
-  - Position transfers between subaccounts
-
-- ✅ **Market Data**
-  - Instrument details and specifications
-  - Order book snapshots and updates
-  - Trade history
-  - Ticker data (full and slim)
-
-- ✅ **Account Management**
-  - Subaccount operations
-  - Session key authentication
-  - Position tracking
-  - Balance queries
-
-- ✅ **Risk Management**
-  - Market maker protection
-  - Cancel on disconnect
-  - Portfolio margining
-
-- ✅ **Fund Movements**
-  - Deposits and withdrawals
-  - Spot transfers
-  - Position transfers
-
-### Type-Safe Actions
-
-All trading actions are EIP-712 compliant with cryptographic signing:
 
 ```
-use derive_rs::actions::{OrderArgs, ReplaceArgs, ExecuteQuoteArgs};
-```
 
-### Namespace API
+## API design
 
-Organized API surface for intuitive usage across signing, RPC, and subscriptions:
+### Signable Actions 
 
-```
+The SDK groups functionality by signing domain rather than exposing a single flat client API.
+
+```rust
 // Orders
 client.orders().place(order_args).await?;
 client.orders().replace(replace_args).await?;
@@ -262,140 +174,134 @@ client.orders().replace(replace_args).await?;
 client.rfqs().send_rfq(rfq_request).await?;
 client.rfqs().execute_best_quote(quote_args).await?;
 
-// Fund Movements
+// Fund movements
 client.fund_movements().deposit(deposit_args).await?;
 client.fund_movements().withdraw(withdraw_args).await?;
 
-// Session Keys
+// Session keys
 client.session_keys().add(session_key_args).await?;
 ```
 
----
+Signable actions use typed argument structures and EIP-712 signing.
 
-## 🏗️ Architecture
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                         Your Application                    │
-└──────────────────────────┬──────────────────────────────────┘
-                           │
-┌──────────────────────────┴──────────────────────────────────┐
-│                        derive-rs SDK                        │
-├─────────────────────────────────────────────────────────────┤
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐  │
-│  │   Actions   │  │     RPC     │  │   Subscriptions     │  │
-│  │  (Signing)  │  │  (Request)  │  │   (Streaming)       │  │
-│  └─────────────┘  └─────────────┘  └─────────────────────┘  │
-│  ┌──────────────────────────────────────────────────────────┤
-│  │              WebSocket Client (yawc)                     │
-│  └──────────────────────────────────────────────────────────┤
-└──────────────────────────┬──────────────────────────────────┘
-                           │
-┌──────────────────────────┴──────────────────────────────────┐
-│                    Derive Protocol API                      │
-│           wss://testnet.api.derive.xyz/v3/ws                │
-└─────────────────────────────────────────────────────────────┘
+```rust
+use derive_rs::actions::{ExecuteQuoteArgs, OrderArgs, ReplaceArgs};
 ```
 
----
+### RPC requests
 
-## 🧪 Testing
+The SDK provides typed RPC requests for market data, account management, and other protocol interactions. Every RPC request is strongly typed and returns a typed response.
 
-Run the test suite:
+The RPC client is accessible via `client.rpc()` and is grouped by namespace.
+
+
+
+## Capabilities
+
+| Area | Supported functionality |
+|---|---|
+| Market data | Instruments, order books, trades, tickers |
+| Streaming | Public and private WebSocket subscriptions |
+| Orders | Place, replace, cancel, post-only and reduce-only orders |
+| RFQ | Create RFQs, submit quotes, execute quotes |
+| Accounts | Subaccounts, positions, collateral and balances |
+| Authentication | Wallet authentication and session keys |
+| Risk controls | Cancel-on-disconnect and market-maker protection |
+| Fund movements | Deposits, withdrawals and transfers |
+
+The client also handles WebSocket heartbeats, reconnection, and subscription recovery.
+
+## Examples
+
+The repository contains runnable examples and integration tests covering common workflows.
+
+| Example | Description |
+|---|---|
+| [`get_all_currencies`](examples/get_all_currencies.rs) | Fetch supported currencies and ERC-20 details |
+| [`ws_stream_tickers`](examples/ws_stream_tickers.rs) | Stream ticker updates for multiple instruments |
+| [`ws_rfq_subscriber`](examples/ws_rfq_subscriber.rs) | Subscribe to RFQ updates |
+| [`order_lifecycle`](tests/order_lifecycle.rs) | Create, replace, and cancel orders |
+| [`rfq`](tests/rfq.rs) | End-to-end RFQ workflow |
+
+Run an example with:
 
 ```bash
-# All tests
-cargo test
-
-# Specific test
-cargo test order_lifecycle
-
-# With logging
-RUST_LOG=debug cargo test
+cargo run --example ws_stream_tickers
 ```
 
----
-
-## 📖 API Coverage
-
-### RPC Methods
+## API coverage
 
 <details>
-<summary><b>Market Data</b></summary>
+<summary><strong>Market data RPC</strong></summary>
 
-- `get_all_instruments` - List all available instruments
-- `get_instrument` - Get specific instrument details
-- `get_all_currencies` - List supported currencies
-- `get_ticker` - Get current ticker data
-- `get_orderbook` - Fetch order book snapshot
-- `get_trade_history` - Query historical trades
+- `get_all_instruments`
+- `get_instrument`
+- `get_all_currencies`
+- `get_ticker`
+- `get_orderbook`
+- `get_trade_history`
 
 </details>
 
 <details>
-<summary><b>Trading</b></summary>
+<summary><strong>Trading RPC</strong></summary>
 
-- `order` - Place new order
-- `replace_order` - Replace existing order
-- `cancel_order` - Cancel order
-- `cancel_all_orders` - Cancel all orders
-- `get_order` - Get order details
-- `get_open_orders` - List open orders
-
-</details>
-
-<details>
-<summary><b>RFQ</b></summary>
-
-- `send_rfq` - Create RFQ
-- `poll_rfqs` - Poll for RFQs
-- `send_quote` - Submit quote
-- `execute_best_quote` - Execute quote
-- `cancel_batch_rfqs` - Cancel multiple RFQs
+- `order`
+- `replace_order`
+- `cancel_order`
+- `cancel_all_orders`
+- `get_order`
+- `get_open_orders`
 
 </details>
 
 <details>
-<summary><b>Account</b></summary>
+<summary><strong>RFQ RPC</strong></summary>
 
-- `get_subaccount` - Get subaccount details
-- `get_subaccounts` - List all subaccounts
-- `get_positions` - Get open positions
-- `get_collateral` - Get collateral balances
-- `set_cancel_on_disconnect` - Configure cancel on disconnect
-
-</details>
-
-### WebSocket Subscriptions
-
-<details>
-<summary><b>Public Channels</b></summary>
-
-- `ticker` / `ticker_slim` - Real-time price updates
-- `orderbook` - Order book updates
-- `trades` - Trade feed
-- `instrument` - Instrument updates
+- `send_rfq`
+- `poll_rfqs`
+- `send_quote`
+- `execute_best_quote`
+- `cancel_batch_rfqs`
 
 </details>
 
 <details>
-<summary><b>Private Channels</b></summary>
+<summary><strong>Account RPC</strong></summary>
 
-- `orders` - Order updates
-- `positions` - Position updates
-- `account_summary` - Account balance updates
-- `trades` - User trade executions
-- `rfqs` - RFQ notifications
+- `get_subaccount`
+- `get_subaccounts`
+- `get_positions`
+- `get_collateral`
+- `set_cancel_on_disconnect`
 
 </details>
 
----
+<details>
+<summary><strong>Public subscriptions</strong></summary>
 
-## 🛠️ Advanced Usage
+- `ticker`
+- `ticker_slim`
+- `orderbook`
+- `trades`
+- `instrument`
 
-### Environment Variables
+</details>
 
-Load configuration from environment:
+<details>
+<summary><strong>Private subscriptions</strong></summary>
+
+- `orders`
+- `positions`
+- `account_summary`
+- `trades`
+- `rfqs`
+
+</details>
+
+## Configuration
+
+`WsClient::from_env()` reads client configuration from environment variables.
 
 ```rust
 // examples/env_login.rs
@@ -403,94 +309,101 @@ use derive_rs::WsClient;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // Reads DERIVE_PRIVATE_KEY, DERIVE_WALLET, DERIVE_SUBACCOUNT_ID, DERIVE_ENVIRONMENT from the environment
     let client = WsClient::from_env().await?;
+
     client.login().await?;
+
     Ok(())
 }
 
 ```
 
----
+The current client expects:
 
-## 🌍 Environments
+```text
+DERIVE_PRIVATE_KEY
+DERIVE_WALLET
+DERIVE_SUBACCOUNT_ID
+DERIVE_ENVIRONMENT
+```
+
+## Environments
 
 | Environment | WebSocket URL | Network |
-|-------------|---------------|---------|
-| **Testnet** | `wss://testnet.api.derive.xyz/v3/ws` | Sepolia |
-| **Mainnet** | `wss://api.lyra.finance/ws` | Ethereum |
+|---|---|---|
+| Testnet | `wss://testnet.api.derive.xyz/v3/ws` | Sepolia |
+| Mainnet | `wss://api.lyra.finance/ws` | Ethereum |
 
----
+## Architecture
 
-## 🤝 Contributing
+```text
+Your application
+      │
+      ▼
+┌───────────────────────────────────────┐
+│              derive-rs                │
+│                                       │
+│  Actions       RPC      Subscriptions │
+│  (signing)  (request)     (streaming) │
+│                                       │
+│          WebSocket client             │
+└──────────────────┬────────────────────┘
+                   │
+                   ▼
+          Derive Protocol API
+```
 
-We welcome contributions! Here's how you can help:
-
-1. **Fork** the repository
-2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
-3. **Commit** your changes (`git commit -m 'Add amazing feature'`)
-4. **Push** to the branch (`git push origin feature/amazing-feature`)
-5. **Open** a Pull Request
-
-### Development Setup
+## Testing
 
 ```bash
-# Clone the repository
+cargo test
+```
+
+Run a specific test:
+
+```bash
+cargo test order_lifecycle
+```
+
+Enable debug logging:
+
+```bash
+RUST_LOG=debug cargo test
+```
+
+## Development
+
+```bash
 git clone https://github.com/derivexyz/derive-rs.git
 cd derive-rs
 
-# Build the project
 make build
-
-# Run tests
 make test
-
-# Check formatting
 make fmt
-
-# Run linter
 make lint
 ```
 
----
+## Contributing
 
-## 📜 License
+1. Fork the repository.
+2. Create a feature branch.
+3. Make and test your changes.
+4. Push the branch.
+5. Open a pull request into `dev` branch.
+6. The PR will be reviewed and merged by the maintainers.
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+## Resources
 
----
+- [Derive](https://derive.xyz)
+- [Protocol documentation](https://docs.derive.xyz)
+- [Rust API documentation](https://docs.rs/derive-rs)
+- [Discord](https://discord.gg/derive)
+- [X / Twitter](https://twitter.com/derivexyz)
 
-## 🔗 Resources
+## License
 
-- **Website:** [https://derive.xyz](https://derive.xyz)
-- **Documentation:** [https://docs.derive.xyz](https://docs.derive.xyz)
-- **API Docs:** [https://docs.rs/derive-rs](https://docs.rs/derive-rs)
-- **Discord:** [Join our community](https://discord.gg/derive)
-- **Twitter:** [@derivexyz](https://twitter.com/derivexyz)
+Licensed under the MIT License. See [LICENSE](LICENSE).
 
----
+## Disclaimer
 
-## ⚠️ Disclaimer
-
-This software is provided "as is" without warranty of any kind. Trading derivatives involves substantial risk of loss. Use at your own risk.
-
----
-
-## 🙏 Acknowledgments
-
-Built with ❤️ by the Derive team and contributors.
-
-Special thanks to:
-- [Tokio](https://tokio.rs) for async runtime
-- [Alloy](https://github.com/alloy-rs) for Ethereum integrations
-- The Rust community for amazing tooling
-
----
-
-<div align="center">
-
-**[⬆ back to top](#-derive-rs)**
-
-Made with 🦀 and ☕
-
-</div>
+This software is provided as-is, without warranty. Trading derivatives involves substantial risk of loss.

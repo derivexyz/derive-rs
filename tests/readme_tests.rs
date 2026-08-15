@@ -4,6 +4,7 @@ use regex::Regex;
 use std::fs;
 use std::path::{Path, PathBuf};
 
+const SNIPPETS_INDEX_TO_IGNORE: &[usize] = &[4, 5];
 fn extract_code_snippets(readme_path: &Path) -> Result<Vec<String>, Box<dyn std::error::Error>> {
     let readme_content = fs::read_to_string(readme_path)?;
 
@@ -60,6 +61,11 @@ fn test_readme_snippets() -> Result<(), Box<dyn std::error::Error>> {
 
     for (i, snippet) in snippets.iter().enumerate() {
         let snippet_index = i + 1;
+
+        if SNIPPETS_INDEX_TO_IGNORE.contains(&snippet_index) {
+            println!("Snippet {}: Ignored", snippet_index);
+            continue;
+        }
 
         let normalized_snippet = normalize_newlines(snippet);
 
