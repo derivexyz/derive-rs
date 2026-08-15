@@ -1,10 +1,13 @@
 use crate::{
     actions::{
-        ActionData, BurnVaultSharesArgs, BurnVaultSharesData, CreateVaultArgs, CreateVaultData,
-        DepositVaultArgs, DepositVaultData, MintVaultSharesArgs, MintVaultSharesData, ModuleType,
-        WithdrawVaultArgs, WithdrawVaultData,
+        ActionData, BurnVaultSharesArgs, BurnVaultSharesData, CancelAllVaultRequestsArgs,
+        CancelAllVaultRequestsData, CreateVaultArgs, CreateVaultData, DepositVaultArgs,
+        DepositVaultData, MintVaultSharesArgs, MintVaultSharesData, ModuleType, WithdrawVaultArgs,
+        WithdrawVaultData,
     },
-    models::{VaultCreateResponse, VaultRequestAckResponse, VaultSettleResponse},
+    models::{
+        VaultCancelResponse, VaultCreateResponse, VaultRequestAckResponse, VaultSettleResponse,
+    },
     types::ClientError,
     ws_client::WsClient,
 };
@@ -202,6 +205,44 @@ impl<'a> VaultsNamespace<'a> {
             .rpc()
             .vault_curators()
             .burn_vault_shares(params)
+            .await
+    }
+
+    pub async fn cancel_all_vault_requests(
+        &self,
+        args: CancelAllVaultRequestsArgs,
+    ) -> Result<VaultCancelResponse, ClientError> {
+        let module_data = CancelAllVaultRequestsData::from_args(args.clone());
+        let action_data = ActionData::new(
+            module_data,
+            self.ws_client.subaccount_id.unwrap(),
+            self.ws_client.wallet.clone().unwrap().address(),
+            &self
+                .ws_client
+                .derive_wallet
+                .clone()
+                .unwrap()
+                .parse()
+                .expect("Couldnt parse wallet address"),
+            &self.ws_client.environment,
+            ModuleType::Vault,
+        )?;
+
+        let params = action_data.populate_cancel_all_vault_requests_params(
+            &self.ws_client.wallet.clone().unwrap(),
+            args.clone(),
+            &self.ws_client.environment,
+        )?;
+
+        println!(
+            "Cancel All Vault Requests Params: {}",
+            serde_json::to_string_pretty(&params).unwrap()
+        );
+
+        self.ws_client
+            .rpc()
+            .vault_shareholders()
+            .cancel_all_vault_requests(params)
             .await
     }
 }

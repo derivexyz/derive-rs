@@ -3,8 +3,8 @@ use std::str::FromStr;
 use bigdecimal::BigDecimal;
 use derive_rs::{
     actions::{
-        BurnVaultSharesArgs, CreateVaultArgs, DepositVaultArgs, MintVaultSharesArgs,
-        WithdrawVaultArgs,
+        BurnVaultSharesArgs, CancelAllVaultRequestsArgs, CreateVaultArgs, DepositVaultArgs,
+        MintVaultSharesArgs, WithdrawVaultArgs,
     },
     models::{
         GetCuratedVaultsRequest, GetLiveBurnRequestsRequest, GetLiveMintRequestsRequest,
@@ -279,4 +279,25 @@ async fn test_vault_withdraw() {
             burn_result.err()
         );
     }
+}
+
+#[tokio::test]
+async fn test_vault_cancel_all() {
+    let ws_client = common::get_test_ws_client().await;
+    ws_client.login().await.expect("Failed to login");
+
+    let vault_id = 75763;
+
+    let args = CancelAllVaultRequestsArgs::builder()
+        .subaccount_id(ws_client.subaccount_id.unwrap())
+        .vault_id(vault_id)
+        .build();
+
+    let cancel_result = ws_client.vaults().cancel_all_vault_requests(args).await;
+
+    assert!(
+        cancel_result.is_ok(),
+        "Cancel all vault requests failed: {:?}",
+        cancel_result.err()
+    );
 }

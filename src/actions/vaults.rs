@@ -8,7 +8,8 @@ use serde::Deserialize;
 
 use crate::constants::ZERO_ADDRESS;
 use crate::models::{
-    BurnSharesRequest, MintSharesRequest, RequestVaultWithdrawRequest, VaultRequestId,
+    BurnSharesRequest, CancelVaultRequestRequest, MintSharesRequest, RequestVaultWithdrawRequest,
+    VaultRequestId,
 };
 use crate::{
     Environment,
@@ -83,6 +84,12 @@ pub struct BurnVaultSharesArgs {
     request_id: VaultRequestId,
 }
 
+#[derive(Debug, Clone, Deserialize, Builder)]
+pub struct CancelAllVaultRequestsArgs {
+    subaccount_id: u64,
+    vault_id: u64,
+}
+
 sol! {
     #![sol(all_derives)]
 
@@ -124,6 +131,12 @@ sol! {
         uint256 share_price;
         bytes32 user_action_hash;
     }
+
+    struct CancelAllVaultRequestsData {
+        uint256 action_kind;
+        uint256 vault_id;
+    }
+
 }
 
 impl ModuleData for CreateVaultData {
@@ -149,6 +162,12 @@ impl ModuleData for BurnVaultSharesData {
 }
 
 impl ModuleData for WithdrawVaultData {
+    fn get_action_data(&self) -> Vec<u8> {
+        self.abi_encode()
+    }
+}
+
+impl ModuleData for CancelAllVaultRequestsData {
     fn get_action_data(&self) -> Vec<u8> {
         self.abi_encode()
     }
@@ -219,6 +238,15 @@ impl BurnVaultSharesData {
             action_kind: VaultActionKind::BurnShares.into(),
             share_price: to_e18(&args.share_price).expect("Couldnt convert share_price to e18"),
             user_action_hash: args.user_action_hash.parse().unwrap(),
+        }
+    }
+}
+
+impl CancelAllVaultRequestsData {
+    pub fn from_args(args: CancelAllVaultRequestsArgs) -> Self {
+        Self {
+            action_kind: VaultActionKind::Cancel.into(),
+            vault_id: U256::from(args.vault_id),
         }
     }
 }
@@ -341,6 +369,27 @@ impl ActionData {
             subaccount_id: args.subaccount_id,
             vault_subaccount_id: args.vault_id,
             shares_to_burn: args.shares_to_burn,
+        })
+    }
+
+    pub fn populate_cancel_all_vault_requests_params(
+        &self,
+        signer: &PrivateKeySigner,
+        args: CancelAllVaultRequestsArgs,
+        env: &Environment,
+    ) -> Result<CancelVaultRequestRequest> {
+        let encoded_data_hashed = &self.hash(env);
+        let signature = format!("{}", signer.sign_hash_sync(encoded_data_hashed)?);
+        let nonce = self.nonce.to_string().parse()?;
+        let signature_expiry_sec = u64::try_from(&self.expiry)?;
+
+        Ok(CancelVaultRequestRequest {
+            nonce,
+            signature,
+            signature_expiry_sec,
+            signer: encode_prefixed(self.signer).parse()?,
+            subaccount_id: args.subaccount_id,
+            vault_subaccount_id: args.vault_id,
         })
     }
 }
