@@ -251,7 +251,7 @@ use derive_rs::actions::{OrderArgs, ReplaceArgs, ExecuteQuoteArgs};
 
 ### Namespace API
 
-Organized API surface for intuitive usage:
+Organized API surface for intuitive usage across signing, RPC, and subscriptions:
 
 ```
 // Orders
