@@ -7,6 +7,9 @@ use bon::Builder;
 use serde::Deserialize;
 
 use crate::constants::ZERO_ADDRESS;
+use crate::models::{
+    BurnSharesRequest, MintSharesRequest, RequestVaultWithdrawRequest, VaultRequestId,
+};
 use crate::{
     Environment,
     actions::{ActionData, ModuleData, utils::to_e18},
@@ -57,6 +60,29 @@ pub struct DepositVaultArgs {
     subaccount_id: u64,
 }
 
+#[derive(Debug, Clone, Deserialize, Builder)]
+pub struct WithdrawVaultArgs {
+    vault_id: u64,
+    shares_to_burn: BigDecimal,
+    subaccount_id: u64,
+}
+
+#[derive(Debug, Clone, Deserialize, Builder)]
+pub struct MintVaultSharesArgs {
+    vault_id: u64,
+    share_price: BigDecimal,
+    user_action_hash: String,
+    request_id: VaultRequestId,
+}
+
+#[derive(Debug, Clone, Deserialize, Builder)]
+pub struct BurnVaultSharesArgs {
+    vault_id: u64,
+    share_price: BigDecimal,
+    user_action_hash: String,
+    request_id: VaultRequestId,
+}
+
 sol! {
     #![sol(all_derives)]
 
@@ -81,6 +107,23 @@ sol! {
         uint256 deposit_spot_asset_address;
         uint256 deposit_amount;
     }
+
+    struct WithdrawVaultData {
+        uint256 action_kind;
+        uint256 vault_id;
+        uint256 shares_to_burn;
+    }
+
+    struct MintVaultSharesData {
+        uint256 action_kind;
+        uint256 share_price;
+        bytes32 user_action_hash;
+    }
+    struct BurnVaultSharesData {
+        uint256 action_kind;
+        uint256 share_price;
+        bytes32 user_action_hash;
+    }
 }
 
 impl ModuleData for CreateVaultData {
@@ -92,6 +135,33 @@ impl ModuleData for CreateVaultData {
 impl ModuleData for DepositVaultData {
     fn get_action_data(&self) -> Vec<u8> {
         self.abi_encode()
+    }
+}
+impl ModuleData for MintVaultSharesData {
+    fn get_action_data(&self) -> Vec<u8> {
+        self.abi_encode()
+    }
+}
+impl ModuleData for BurnVaultSharesData {
+    fn get_action_data(&self) -> Vec<u8> {
+        self.abi_encode()
+    }
+}
+
+impl ModuleData for WithdrawVaultData {
+    fn get_action_data(&self) -> Vec<u8> {
+        self.abi_encode()
+    }
+}
+
+impl WithdrawVaultData {
+    pub fn from_args(args: WithdrawVaultArgs) -> Self {
+        Self {
+            action_kind: VaultActionKind::Withdraw.into(),
+            vault_id: U256::from(args.vault_id),
+            shares_to_burn: to_e18(&args.shares_to_burn)
+                .expect("Couldnt convert shares_to_burn to e18"),
+        }
     }
 }
 
@@ -129,6 +199,26 @@ impl DepositVaultData {
             deposit_spot_asset_address: args.deposit_spot_asset.parse().unwrap(),
             deposit_amount: to_e18(&args.deposit_amount)
                 .expect("Couldnt convert deposit_amount to e18"),
+        }
+    }
+}
+
+impl MintVaultSharesData {
+    pub fn from_args(args: MintVaultSharesArgs) -> Self {
+        Self {
+            action_kind: VaultActionKind::MintShares.into(),
+            share_price: to_e18(&args.share_price).expect("Couldnt convert share_price to e18"),
+            user_action_hash: args.user_action_hash.parse().unwrap(),
+        }
+    }
+}
+
+impl BurnVaultSharesData {
+    pub fn from_args(args: BurnVaultSharesArgs) -> Self {
+        Self {
+            action_kind: VaultActionKind::BurnShares.into(),
+            share_price: to_e18(&args.share_price).expect("Couldnt convert share_price to e18"),
+            user_action_hash: args.user_action_hash.parse().unwrap(),
         }
     }
 }
@@ -184,6 +274,73 @@ impl ActionData {
             signer: encode_prefixed(self.signer).parse()?,
             subaccount_id: args.subaccount_id,
             vault_subaccount_id: args.vault_id,
+        })
+    }
+
+    pub fn populate_mint_vault_shares_params(
+        &self,
+        signer: &PrivateKeySigner,
+        args: MintVaultSharesArgs,
+        env: &Environment,
+    ) -> Result<MintSharesRequest> {
+        let encoded_data_hashed = &self.hash(env);
+        let signature = format!("{}", signer.sign_hash_sync(encoded_data_hashed)?);
+        let nonce = self.nonce.to_string().parse()?;
+        let signature_expiry_sec = u64::try_from(&self.expiry)?;
+
+        Ok(MintSharesRequest {
+            deposit_hash: args.user_action_hash.parse()?,
+            nonce,
+            request_id: args.request_id,
+            share_price: args.share_price,
+            signature,
+            signature_expiry_sec,
+            signer: encode_prefixed(self.signer).parse()?,
+            subaccount_id: args.vault_id,
+        })
+    }
+
+    pub fn populate_burn_vault_shares_params(
+        &self,
+        signer: &PrivateKeySigner,
+        args: BurnVaultSharesArgs,
+        env: &Environment,
+    ) -> Result<BurnSharesRequest> {
+        let encoded_data_hashed = &self.hash(env);
+        let signature = format!("{}", signer.sign_hash_sync(encoded_data_hashed)?);
+        let nonce = self.nonce.to_string().parse()?;
+        let signature_expiry_sec = u64::try_from(&self.expiry)?;
+        Ok(BurnSharesRequest {
+            nonce,
+            request_id: args.request_id,
+            share_price: args.share_price,
+            signature,
+            signature_expiry_sec,
+            signer: encode_prefixed(self.signer).parse()?,
+            subaccount_id: args.vault_id,
+            withdraw_hash: args.user_action_hash.parse()?,
+        })
+    }
+
+    pub fn populate_withdraw_vault_params(
+        &self,
+        signer: &PrivateKeySigner,
+        args: WithdrawVaultArgs,
+        env: &Environment,
+    ) -> Result<RequestVaultWithdrawRequest> {
+        let encoded_data_hashed = &self.hash(env);
+        let signature = format!("{}", signer.sign_hash_sync(encoded_data_hashed)?);
+        let nonce = self.nonce.to_string().parse()?;
+        let signature_expiry_sec = u64::try_from(&self.expiry)?;
+
+        Ok(RequestVaultWithdrawRequest {
+            nonce,
+            signature,
+            signature_expiry_sec,
+            signer: encode_prefixed(self.signer).parse()?,
+            subaccount_id: args.subaccount_id,
+            vault_subaccount_id: args.vault_id,
+            shares_to_burn: args.shares_to_burn,
         })
     }
 }
