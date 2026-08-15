@@ -29,8 +29,12 @@ package:
 	@echo packaging crate
 	git add $(TOML_FILE) Cargo.lock
 	@git commit -m "Bump version to v$(NEW_VERSION)"
-	@git push origin HEAD:dev
-	echo added git
+	@git checkout -b release/v$(NEW_VERSION)
+	@git push origin release/v$(NEW_VERSION)
+	@gh pr create --base master \
+		--title "Release v$(NEW_VERSION)" \
+		--body "Release v$(NEW_VERSION)" \
+		--label "release"
 	@cargo package
 
 release: version package tag
