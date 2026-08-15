@@ -5,6 +5,7 @@ use crate::{
         ReplaceOrderResponse,
     },
     types::ClientError,
+    utils::round_to_ticks,
     ws_client::WsClient,
 };
 pub struct OrdersNamespace<'a> {
@@ -26,12 +27,16 @@ impl<'a> OrdersNamespace<'a> {
             })
             .expect("Couldnt collect instrument.");
 
+        // we round the limit price to the nearest tick size to avoid errors from the exchange
+        let rounded_price = round_to_ticks(&order_args.limit_price, &instrument.tick_size);
+        let rounded_amount = round_to_ticks(&order_args.amount, &instrument.minimum_amount);
+
         let trade_data = TradeData::new(
             &instrument,
             // ticker,
             subaccount_id,
-            order_args.limit_price.clone(),
-            order_args.amount.clone(),
+            &rounded_price,
+            &rounded_amount,
             order_args.direction == Direction::Buy,
         )?;
 
@@ -53,6 +58,8 @@ impl<'a> OrdersNamespace<'a> {
             &signer,
             order_args.clone(),
             &self.ws_client.environment,
+            rounded_price,
+            rounded_amount,
         )?;
         self.ws_client.rpc().orderbook().order(params).await
     }
@@ -74,12 +81,14 @@ impl<'a> OrdersNamespace<'a> {
                 )
             })
             .expect("Couldnt collect instrument.");
+        let rounded_price = round_to_ticks(&replace_args.limit_price, &instrument.tick_size);
+        let rounded_amount = round_to_ticks(&replace_args.amount, &instrument.minimum_amount);
         let trade_data = TradeData::new(
             &instrument,
             // ticker,
             subaccount_id,
-            replace_args.limit_price.clone(),
-            replace_args.amount.clone(),
+            &rounded_price,
+            &rounded_amount,
             replace_args.direction == Direction::Buy,
         )?;
 
@@ -101,6 +110,8 @@ impl<'a> OrdersNamespace<'a> {
             &signer,
             replace_args.clone(),
             &self.ws_client.environment,
+            rounded_price,
+            rounded_amount,
         )?;
 
         self.ws_client.rpc().orderbook().replace(params).await

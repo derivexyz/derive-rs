@@ -76,7 +76,6 @@ impl ActionData {
             asset_name: args.asset,
             force_batch: args.force_batch,
             max_fee_usd: args.max_fee_usd,
-            recipient: Some(args.recepient_address.to_string()),
             nonce: self
                 .nonce
                 .to_string()
@@ -86,6 +85,7 @@ impl ActionData {
             signature_expiry_sec: u64::try_from(&self.expiry)?,
             signer: encode_prefixed(self.signer),
             subaccount_id,
+            recipient: Some(args.recepient_address.to_string()),
         })
     }
 }

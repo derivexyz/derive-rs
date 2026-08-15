@@ -64,4 +64,11 @@ impl<'a> HistoryNamespace<'a> {
         let params_json = serde_json::to_value(&params)?;
         self.ws_client.send_rpc("private/get_withdrawal_history", params_json).await
     }
+    pub async fn get_liquidation_history(
+        &self,
+        params: GetLiquidationHistoryRequest,
+    ) -> Result<LiquidationHistoryResult, ClientError> {
+        let params_json = serde_json::to_value(&params)?;
+        self.ws_client.send_rpc("public/get_liquidation_history", params_json).await
+    }
 }

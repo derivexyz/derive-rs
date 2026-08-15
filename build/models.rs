@@ -5,6 +5,11 @@ use typify::{CrateVers, TypeSpace, TypeSpaceImpl, TypeSpaceSettings};
 
 use crate::utils::{annotate_decimal_types, merge_definitions, normalize_schema, write_if_changed};
 
+struct FieldDecimalPatch {
+    model_name: &'static str,
+    fields: &'static [&'static str],
+}
+
 pub fn generate() {
     println!("cargo:warning=Generating unified models from all specs");
 
@@ -17,6 +22,14 @@ pub fn generate() {
 
     // Models that should be renamed for consistency
     let models_to_rename = [("ERC20Details", "Erc20CompleteDetails")];
+    // let models_to_patch_to_decimal = [
+    //     ("Instrument", ["tick_size"])
+    // ];
+
+    let models_to_patch_to_decimal: Vec<FieldDecimalPatch> = vec![FieldDecimalPatch {
+        model_name: "Instrument",
+        fields: &["tick_size", "minimum_amount", "maximum_amount"],
+    }];
 
     let mut all_definitions: HashMap<String, Value> = HashMap::new();
 
@@ -54,6 +67,9 @@ pub fn generate() {
 
     // Rewrite all refs to point to renamed models
     rewrite_refs(&mut definitions, &models_to_rename);
+
+    // Patch specific models to add big decimal format annotations for fields that are expected to be BigDecimal in Rust
+    patch_specific_models(&mut definitions, &models_to_patch_to_decimal);
 
     // Annotate decimal types for BigDecimal
     annotate_decimal_types(&mut definitions);
@@ -309,5 +325,26 @@ fn patch_openapi_definitions(all_definitions: &mut HashMap<String, Value>) {
         && let Some(required_array) = required.as_array_mut()
     {
         required_array.retain(|item| item != "mm_credits");
+    }
+}
+
+// add format: decimal to specific fields in specific models
+fn patch_specific_models(
+    all_definitions: &mut serde_json::Value,
+    models_to_patch: &[FieldDecimalPatch],
+) {
+    for patch in models_to_patch.iter() {
+        if let Some(model_schema) = all_definitions.get_mut(patch.model_name)
+            && let Some(properties) = model_schema.get_mut("properties")
+            && let Some(properties_obj) = properties.as_object_mut()
+        {
+            for field in patch.fields {
+                if let Some(field_schema) = properties_obj.get_mut(*field)
+                    && let Some(field_obj) = field_schema.as_object_mut()
+                {
+                    field_obj.insert("format".to_string(), Value::String("decimal".to_string()));
+                }
+            }
+        }
     }
 }
