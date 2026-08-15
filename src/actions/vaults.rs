@@ -2,7 +2,7 @@ use alloy::signers::SignerSync;
 use alloy::{hex::encode_prefixed, primitives::U256, signers::local::PrivateKeySigner, sol};
 use alloy_sol_types::SolValue;
 use anyhow::Result;
-use bigdecimal::BigDecimal;
+use bigdecimal::{BigDecimal, RoundingMode};
 use bon::Builder;
 use serde::Deserialize;
 
@@ -178,8 +178,12 @@ impl WithdrawVaultData {
         Self {
             action_kind: VaultActionKind::Withdraw.into(),
             vault_id: U256::from(args.vault_id),
-            shares_to_burn: to_e18(&args.shares_to_burn)
-                .expect("Couldnt convert shares_to_burn to e18"),
+            shares_to_burn: to_e18(
+                &args
+                    .shares_to_burn
+                    .with_scale_round(12, RoundingMode::HalfEven),
+            )
+            .expect("Couldnt convert shares_to_burn to e18"),
         }
     }
 }
@@ -368,7 +372,9 @@ impl ActionData {
             signer: encode_prefixed(self.signer).parse()?,
             subaccount_id: args.subaccount_id,
             vault_subaccount_id: args.vault_id,
-            shares_to_burn: args.shares_to_burn,
+            shares_to_burn: args
+                .shares_to_burn
+                .with_scale_round(12, RoundingMode::HalfEven),
         })
     }
 
