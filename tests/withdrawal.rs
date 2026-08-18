@@ -14,7 +14,7 @@ async fn test_withdrawal() {
         .asset("USDC".to_string())
         .max_fee_usd(BigDecimal::from_str("1.00").unwrap())
         .amount(BigDecimal::from_str("10.00").unwrap())
-        .recepient_address(
+        .recipient(
             ws_client
                 .derive_wallet
                 .clone()

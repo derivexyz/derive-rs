@@ -78,7 +78,7 @@ pub struct DepositArgs {
     asset: SupportDepositAssets,
     amount: BigDecimal,
     #[builder(into)]
-    recepient_address: Address,
+    recipient: Address,
     subaccount_id: Option<u64>,
     manager_id: Option<u32>,
     rpc_provider: Option<String>,
@@ -284,7 +284,7 @@ impl DepositManager {
                 asset_info.token_address,
                 amount,
                 subaccount_id,
-                self.deposit_args.recepient_address,
+                self.deposit_args.recipient,
             )
             .max_priority_fee_per_gas(fees.max_priority_fee_per_gas * 2)
             .max_fee_per_gas(fees.max_fee_per_gas * 2)
@@ -317,7 +317,7 @@ impl DepositManager {
                 asset_info.token_address,
                 amount,
                 manager_id,
-                self.deposit_args.recepient_address,
+                self.deposit_args.recipient,
             )
             .max_priority_fee_per_gas(fees.max_priority_fee_per_gas * 2)
             .max_fee_per_gas(fees.max_fee_per_gas * 2)

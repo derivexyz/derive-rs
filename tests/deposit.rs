@@ -37,7 +37,7 @@ async fn test_deposit_to_new_subaccount() {
     let args = DepositArgs::builder()
         .asset(SupportDepositAssets::USDC)
         .amount(BigDecimal::from_str("10.00").unwrap())
-        .recepient_address(address)
+        .recipient(address)
         .manager_id(manager.manager_id)
         .deposit_type(DepositTypes::Direct(
             DirectDepositType::DepositToNewSubaccount,
@@ -73,7 +73,7 @@ async fn test_deposit_to_existing_subaccount() {
     let args = DepositArgs::builder()
         .asset(SupportDepositAssets::USDC)
         .amount(BigDecimal::from_str("10.00").unwrap())
-        .recepient_address(address)
+        .recipient(address)
         .subaccount_id(75741)
         .deposit_type(DepositTypes::Direct(DirectDepositType::Deposit))
         .build();
