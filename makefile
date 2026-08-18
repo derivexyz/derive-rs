@@ -37,8 +37,6 @@ release:
 	@set -e; \
 	VERSION=$$(sed -n 's/^version *= *"\(.*\)"/\1/p' $(TOML_FILE)); \
 	echo "Releasing v$$VERSION"; \
-	cargo package; \
-	cargo publish; \
 	git tag -a "v$$VERSION" -m "Release v$$VERSION"; \
 	git push origin "v$$VERSION"; \
 	gh release create "v$$VERSION" \
