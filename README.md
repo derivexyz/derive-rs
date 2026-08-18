@@ -383,6 +383,8 @@ make lint
 
 ## Contributing
 
+Any issues and feature requests can be submitted via GitHub issues. Pull requests are welcome!
+
 1. Fork the repository.
 2. Create a feature branch.
 3. Make and test your changes.
