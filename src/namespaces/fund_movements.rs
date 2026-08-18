@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 use alloy::primitives::TxHash;
+use tracing::debug;
 
 use crate::{
     actions::{
@@ -115,7 +116,7 @@ impl<'a> FundMovementsNamespace<'a> {
 
         let params = action.populate_transfer_spot_params(&signer, args.clone(), env, &asset)?;
 
-        println!("{}", serde_json::to_string_pretty(&params).unwrap());
+        debug!("{}", serde_json::to_string_pretty(&params).unwrap());
 
         self.ws_client
             .rpc()

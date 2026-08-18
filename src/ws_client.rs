@@ -753,7 +753,6 @@ pub fn handle_incoming(
     public_subscriptions: &Arc<DashMap<String, SubscriptionRoute>>,
     private_subscriptions: &Arc<DashMap<String, SubscriptionRoute>>,
 ) {
-    // println!("Received message: {}", String::from_utf8_lossy(&bytes));
     if let Some(id) = extract_id(&bytes)
         && let Some((_, tx)) = pending_requests.remove(&id)
     {

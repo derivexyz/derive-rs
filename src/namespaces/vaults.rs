@@ -1,3 +1,5 @@
+use tracing::debug;
+
 use crate::{
     actions::{
         ActionData, BurnVaultSharesArgs, BurnVaultSharesData, CancelAllVaultRequestsArgs,
@@ -42,7 +44,7 @@ impl<'a> VaultsNamespace<'a> {
             &self.ws_client.environment,
         )?;
 
-        println!(
+        debug!(
             "Create Vault Params: {}",
             serde_json::to_string_pretty(&params).unwrap()
         );
@@ -81,7 +83,7 @@ impl<'a> VaultsNamespace<'a> {
             &self.ws_client.environment,
         )?;
 
-        println!(
+        debug!(
             "Deposit Vault Params: {}",
             serde_json::to_string_pretty(&params).unwrap()
         );
@@ -120,7 +122,7 @@ impl<'a> VaultsNamespace<'a> {
             &self.ws_client.environment,
         )?;
 
-        println!(
+        debug!(
             "Withdraw Vault Params: {}",
             serde_json::to_string_pretty(&params).unwrap()
         );
@@ -158,7 +160,7 @@ impl<'a> VaultsNamespace<'a> {
             &self.ws_client.environment,
         )?;
 
-        println!(
+        debug!(
             "Mint Vault Shares Params: {}",
             serde_json::to_string_pretty(&params).unwrap()
         );
@@ -196,7 +198,7 @@ impl<'a> VaultsNamespace<'a> {
             &self.ws_client.environment,
         )?;
 
-        println!(
+        debug!(
             "Burn Vault Shares Params: {}",
             serde_json::to_string_pretty(&params).unwrap()
         );
@@ -234,7 +236,7 @@ impl<'a> VaultsNamespace<'a> {
             &self.ws_client.environment,
         )?;
 
-        println!(
+        debug!(
             "Cancel All Vault Requests Params: {}",
             serde_json::to_string_pretty(&params).unwrap()
         );

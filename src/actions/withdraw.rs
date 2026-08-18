@@ -22,7 +22,7 @@ use crate::{
 pub struct WithdrawArgs {
     pub asset: String,
     pub max_fee_usd: BigDecimal,
-    pub recepient_address: Address,
+    pub recipient: Address,
     pub amount: BigDecimal,
     pub force_batch: bool,
 }
@@ -53,7 +53,7 @@ impl WithdrawData {
                 .parse()
                 .expect("Couldnt parse underlying_erc20_address"),
             max_fee_usd: to_e18(&args.max_fee_usd).expect("Couldnt convert max_fee_usd to e18"),
-            recepient_address: args.recepient_address,
+            recepient_address: args.recipient,
             amount: decimal_to_u256_with_prec(&args.amount, er20_details.erc20.decimals as u32)
                 .expect("Couldnt convert amount to e18"),
             force_batch: args.force_batch,
@@ -85,7 +85,7 @@ impl ActionData {
             signature_expiry_sec: u64::try_from(&self.expiry)?,
             signer: encode_prefixed(self.signer),
             subaccount_id,
-            recipient: Some(args.recepient_address.to_string()),
+            recipient: Some(args.recipient.to_string()),
         })
     }
 }

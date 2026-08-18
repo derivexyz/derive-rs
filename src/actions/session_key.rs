@@ -72,8 +72,6 @@ pub enum ProtocolScope {
 pub enum OffChainScope {
     #[strum(to_string = "account_info")]
     AccountInfo = 0,
-    #[strum(to_string = "delete_session_key")]
-    DeleteSessionKey = 1,
 }
 
 // use bigdecimal::{BigDecimal, FromPrimitive};
