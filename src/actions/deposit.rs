@@ -24,7 +24,34 @@ const ONCHAIN_ACTION_MANAGER: &str = "0x1b4f369b585D40a27F66775844FC265151f278A4
 #[derive(Clone, Debug, Deserialize, EnumString)]
 #[strum(ascii_case_insensitive)]
 pub enum SupportDepositAssets {
+    USDH,
+    XAUT,
+    SFP,
+    DAI,
+    SDAI,
+    CBADA,
+    KHYPE,
+    RSETH,
+    ETH,
+    HYPE,
+    OLAS,
+    WSTETH,
+    WEETH,
+    FXUSDC,
+    RSWETH,
+    SUSDE,
+    OP,
+    EBTC,
     USDC,
+    DRV,
+    USDT,
+    WBTC,
+    JITOSOL,
+    LBTC,
+    USDE,
+    SOL,
+    CBBTC,
+    AAVE,
 }
 
 #[derive(Clone, Debug, Deserialize)]

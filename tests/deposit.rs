@@ -1,4 +1,4 @@
-use std::str::FromStr;
+use std::{collections::HashMap, str::FromStr};
 
 use alloy::primitives::Address;
 use bigdecimal::BigDecimal;
@@ -89,5 +89,58 @@ async fn test_deposit_to_existing_subaccount() {
 
     for hash in hashes {
         println!("Deposit transaction hash: {:?}", hash);
+    }
+}
+
+#[tokio::test]
+async fn are_all_assets_supported_for_deposit() {
+    let ws_client = common::get_test_ws_client().await;
+    let currencies = ws_client
+        .rpc()
+        .market_data()
+        .get_all_currencies()
+        .await
+        .expect("Failed to get all currencies");
+
+    let asset_name_to_erc20_details = currencies
+        .into_iter()
+        .filter_map(|currency| {
+            let mut spots = currency.spot.into_iter();
+            let spot = spots.next()?;
+            if spots.next().is_some() {
+                panic!(
+                    "Currency {:?} has more than one spot entry",
+                    currency.currency,
+                );
+            }
+            Some((currency.currency, spot))
+        })
+        .collect::<HashMap<_, _>>();
+
+    // create an array of tuples of (currency, address) for all currencies with an address
+    let currencies_with_address = asset_name_to_erc20_details
+        .iter()
+        .filter_map(|(currency, curreny)| {
+            curreny
+                .erc20
+                .underlying_erc20
+                .as_ref()
+                .map(|address| (currency.clone(), address.clone()))
+        })
+        .collect::<Vec<_>>();
+
+    for (currency, address) in currencies_with_address {
+        // we check that the SupportDepositAssets enum has a variant for this currency
+        let variant_name = format!("SupportDepositAssets::{}", currency);
+        let variant_exists = SupportDepositAssets::from_str(&currency).is_ok();
+        assert!(
+            variant_exists,
+            "Variant {} does not exist for currency {}",
+            variant_name, currency
+        );
+        println!(
+            "Currency: {}, Address: {}, Variant: {}",
+            currency, address, variant_name
+        );
     }
 }
