@@ -16,10 +16,10 @@ use tracing::debug;
 
 use crate::{
     actions::utils::decimal_to_u256_with_prec,
+    constants::ACTION_MANAGER,
     models::SpotAssetEntry,
     types::{ClientError, Environment},
 };
-const ONCHAIN_ACTION_MANAGER: &str = "0x1b4f369b585D40a27F66775844FC265151f278A4";
 
 #[derive(Clone, Debug, Deserialize, EnumString)]
 #[strum(ascii_case_insensitive)]
@@ -148,7 +148,7 @@ impl DepositManager {
             .parse::<Address>()
             .map_err(Self::string_error)?;
 
-        let manager_address = ONCHAIN_ACTION_MANAGER
+        let manager_address = ACTION_MANAGER
             .parse::<Address>()
             .map_err(Self::string_error)?;
 
