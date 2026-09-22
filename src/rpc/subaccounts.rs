@@ -13,6 +13,13 @@ impl<'a> SubaccountsNamespace<'a> {
         let params_json = serde_json::to_value(&params)?;
         self.ws_client.send_rpc("private/change_subaccount_label", params_json).await
     }
+    pub async fn delete_subaccount(
+        &self,
+        params: DeleteSubaccountRequest,
+    ) -> Result<DeleteSubaccountResponse, ClientError> {
+        let params_json = serde_json::to_value(&params)?;
+        self.ws_client.send_rpc("private/delete_subaccount", params_json).await
+    }
     pub async fn get_all_portfolios(
         &self,
         params: GetAllPortfoliosRequest,
@@ -26,6 +33,13 @@ impl<'a> SubaccountsNamespace<'a> {
     ) -> Result<PrivateGetCollateralsResponse, ClientError> {
         let params_json = serde_json::to_value(&params)?;
         self.ws_client.send_rpc("private/get_collaterals", params_json).await
+    }
+    pub async fn get_margin(
+        &self,
+        params: PrivateGetMarginRequest,
+    ) -> Result<GetMarginResponse, ClientError> {
+        let params_json = serde_json::to_value(&params)?;
+        self.ws_client.send_rpc("private/get_margin", params_json).await
     }
     pub async fn get_positions(
         &self,
@@ -47,5 +61,12 @@ impl<'a> SubaccountsNamespace<'a> {
     ) -> Result<PrivateGetSubaccountsResponse, ClientError> {
         let params_json = serde_json::to_value(&params)?;
         self.ws_client.send_rpc("private/get_subaccounts", params_json).await
+    }
+    pub async fn margin_watch(
+        &self,
+        params: MarginWatchRequest,
+    ) -> Result<PublicMarginWatchResponse, ClientError> {
+        let params_json = serde_json::to_value(&params)?;
+        self.ws_client.send_rpc("public/margin_watch", params_json).await
     }
 }

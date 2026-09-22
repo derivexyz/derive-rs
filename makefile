@@ -61,9 +61,9 @@ run:
 	cargo run --all-features
 
 codegen:
-	curl https://v3.docs.derive.xyz/openapi.json | yq '.' > schemas/openapi.json
-	curl https://v3.docs.derive.xyz/websocket.asyncapi.json | yq '.' > schemas/ws_asyncapi_rpc.json
-	curl https://v3.docs.derive.xyz/subscriptions.asyncapi.json | yq '.' > schemas/ws_asyncapi_subscriptions.json
+	curl -fsSL https://docs.derive.xyz/openapi.json | yq '.' > schemas/openapi.json
+	curl -fsSL https://docs.derive.xyz/websocket.asyncapi.json | yq '.' > schemas/ws_asyncapi_rpc.json
+	curl -fsSL https://docs.derive.xyz/subscriptions.asyncapi.json | yq '.' > schemas/ws_asyncapi_subscriptions.json
 	redocly lint schemas/openapi.json --lint-config=error
 	cargo build
 

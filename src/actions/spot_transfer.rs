@@ -11,7 +11,7 @@ use serde::Deserialize;
 
 use crate::{
     actions::{ActionData, ModuleData, utils::to_e18},
-    models::{Asset, PrivateTransferSpotRequest, SpotAssetEntry},
+    models::{PrivateTransferSpotRequest, SpotAssetEntry},
     types::Environment,
 };
 
@@ -24,6 +24,9 @@ pub struct SpotTransferArgs {
     pub subaccount_id: u64,
     pub amount: BigDecimal,
     pub max_fee_usd: BigDecimal,
+    /// Protocol sub id of the spot asset. ERC-20 spot assets are always `0`.
+    #[builder(default = 0)]
+    pub sub_id: u64,
 }
 
 sol! {
@@ -46,11 +49,7 @@ impl ModuleData for SpotTransferData {
 }
 
 impl SpotTransferData {
-    pub fn from_args(
-        args: SpotTransferArgs,
-        erc20_details: SpotAssetEntry,
-        asset: Asset,
-    ) -> Result<Self> {
+    pub fn from_args(args: SpotTransferArgs, erc20_details: SpotAssetEntry) -> Result<Self> {
         let scaled_amt = to_e18(&args.amount)?;
         let scaled_fee = to_e18(&args.max_fee_usd)?;
         Ok(Self {
@@ -60,12 +59,7 @@ impl SpotTransferData {
                 .address
                 .parse()
                 .expect("Couldnt parse underlying_erc20_address"),
-            subId: U256::from(
-                asset
-                    .sub_id
-                    .parse::<u64>()
-                    .expect("Couldnt parse base_asset_sub_id"),
-            ),
+            subId: U256::from(args.sub_id),
             amount: scaled_amt,
             max_fee_usd: scaled_fee,
         })
@@ -78,7 +72,6 @@ impl ActionData {
         signer: &PrivateKeySigner,
         args: SpotTransferArgs,
         env: &Environment,
-        asset: &Asset,
     ) -> Result<PrivateTransferSpotRequest> {
         let encoded_data_hashed = &self.hash(env);
         let signature = format!("{}", signer.sign_hash_sync(encoded_data_hashed)?);
@@ -97,10 +90,7 @@ impl ActionData {
                 .expect("Couldnt parse nonce to u64"),
             signature_expiry_sec: u64::try_from(&self.expiry)?,
             signer: encode_prefixed(self.signer),
-            sub_id: asset
-                .sub_id
-                .parse::<u64>()
-                .expect("Couldnt parse asset sub_id"),
+            sub_id: args.sub_id,
         };
         Ok(params)
     }

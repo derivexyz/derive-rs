@@ -1,7 +1,7 @@
 use crate::{
     rpc::{
         account::AccountNamespace, history::HistoryNamespace,
-        market_data::MarketDataNamespace,
+        maker_scoring::MakerScoringNamespace, market_data::MarketDataNamespace,
         market_maker_protection::MarketMakerProtectionNamespace,
         onchain_actions::OnchainActionsNamespace, orderbook::OrderbookNamespace,
         other::OtherNamespace, referrals::ReferralsNamespace, rfq::RfqNamespace,
@@ -14,6 +14,7 @@ use crate::{
 };
 pub mod account;
 pub mod history;
+pub mod maker_scoring;
 pub mod market_data;
 pub mod market_maker_protection;
 pub mod onchain_actions;
@@ -39,6 +40,9 @@ impl<'a> Rpc<'a> {
     }
     pub fn history(&self) -> HistoryNamespace<'a> {
         HistoryNamespace::new(self.client)
+    }
+    pub fn maker_scoring(&self) -> MakerScoringNamespace<'a> {
+        MakerScoringNamespace::new(self.client)
     }
     pub fn market_data(&self) -> MarketDataNamespace<'a> {
         MarketDataNamespace::new(self.client)

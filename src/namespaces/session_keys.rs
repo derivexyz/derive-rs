@@ -41,6 +41,10 @@ impl<'a> SessionKeys<'a> {
             &self.ws_client.environment,
             scw_address,
         )?;
-        self.ws_client.rpc().other().set_session_key(params).await
+        self.ws_client
+            .rpc()
+            .session_keys()
+            .set_session_key(params)
+            .await
     }
 }

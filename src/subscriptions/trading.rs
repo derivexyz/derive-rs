@@ -30,33 +30,4 @@ impl<'a> TradingSubscriptions<'a> {
             })
             .await
     }
-    pub async fn subaccount_trades_batch_status(
-        &self,
-        subaccount_id: &str,
-        batch_status: &str,
-    ) -> Result<EventStream<SubaccountTradesBatchStatusNotification>, ClientError> {
-        self.client
-            .subscribe(SubaccountTradesBatchStatusChannelSpec {
-                subaccount_id: subaccount_id.to_owned(),
-                batch_status: batch_status.to_owned(),
-            })
-            .await
-    }
-    pub async fn trades_by_instrument_type_currency_batch_status(
-        &self,
-        instrument_type: &str,
-        currency: &str,
-        batch_status: &str,
-    ) -> Result<
-        EventStream<TradesByInstrumentTypeCurrencyBatchStatusNotification>,
-        ClientError,
-    > {
-        self.client
-            .subscribe(TradesByInstrumentTypeCurrencyBatchStatusChannelSpec {
-                instrument_type: instrument_type.to_owned(),
-                currency: currency.to_owned(),
-                batch_status: batch_status.to_owned(),
-            })
-            .await
-    }
 }
