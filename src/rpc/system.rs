@@ -6,6 +6,13 @@ impl<'a> SystemNamespace<'a> {
     pub fn new(ws_client: &'a WsClient) -> Self {
         Self { ws_client }
     }
+    pub async fn decode_action(
+        &self,
+        params: DecodeActionRequest,
+    ) -> Result<DecodeActionResponse, ClientError> {
+        let params_json = serde_json::to_value(&params)?;
+        self.ws_client.send_rpc("public/decode_action", params_json).await
+    }
     pub async fn get_rate_limits(&self) -> Result<RateLimitResult, ClientError> {
         self.ws_client.send_rpc("public/getRateLimits", serde_json::json!({})).await
     }

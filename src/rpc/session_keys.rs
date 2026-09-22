@@ -20,6 +20,13 @@ impl<'a> SessionKeysNamespace<'a> {
         let params_json = serde_json::to_value(&params)?;
         self.ws_client.send_rpc("private/session_keys", params_json).await
     }
+    pub async fn set_session_key(
+        &self,
+        params: SetSessionKeyRequest,
+    ) -> Result<PrivateSetSessionKeyResponse, ClientError> {
+        let params_json = serde_json::to_value(&params)?;
+        self.ws_client.send_rpc("private/set_session_key", params_json).await
+    }
     pub async fn get_wallets_from_session_key(
         &self,
         params: GetWalletsFromSessionKeyRequest,

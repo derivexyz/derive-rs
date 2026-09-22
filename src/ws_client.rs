@@ -23,7 +23,7 @@ use yawc::{Frame, OpCode};
 
 use crate::{
     models::{
-        Asset, AssetType, GetAllInstrumentsRequest, GetAssetsRequest, Instrument, RiskUniverse,
+        AssetType, GetAllInstrumentsRequest, Instrument, RiskUniverse,
         SetCancelOnDisconnectRequest, SetCancelOnDisconnectResponse, SpotAssetEntry,
     },
     namespaces::{
@@ -69,7 +69,6 @@ pub struct WsClient {
     pub instruments_cache: Arc<DashMap<String, Instrument>>,
     pub erc20_cache: Arc<DashMap<String, SpotAssetEntry>>,
     pub risk_universe_cache: Arc<DashMap<String, RiskUniverse>>,
-    pub assets_cache: Arc<DashMap<String, Asset>>,
     connection_state_rx: watch::Receiver<ExternalEvent>,
     current_connection_state: Arc<Mutex<ExternalEvent>>,
     supervisor_handle: Arc<Mutex<Option<JoinHandle<()>>>>,
@@ -215,13 +214,11 @@ impl WsClient {
             instruments_cache: Arc::new(DashMap::new()),
             erc20_cache: Arc::new(DashMap::new()),
             risk_universe_cache: Arc::new(DashMap::new()),
-            assets_cache: Arc::new(DashMap::new()),
             environment: env,
         };
         client.cache_instruments().await?;
         client.cache_erc20_assets().await?;
         client.cache_risk_universes().await?;
-        client.cache_assets().await?;
         Ok(client)
     }
 
@@ -560,22 +557,6 @@ impl WsClient {
                 debug!("Caching risk universe: {}", name);
                 self.risk_universe_cache.insert(name.clone(), entry.clone());
             }
-        }
-        Ok(())
-    }
-
-    async fn cache_assets(&self) -> Result<(), ClientError> {
-        let assets_params = GetAssetsRequest::builder()
-            .asset_type(AssetType::Erc20)
-            .currency("USDC")
-            .expired(false)
-            .try_into()?;
-        let assets = self.rpc().market_data().get_assets(assets_params).await?;
-        self.assets_cache.clear();
-        for entry in assets.iter() {
-            debug!("Caching asset: {}", entry.asset_name);
-            self.assets_cache
-                .insert(entry.asset_name.clone(), entry.clone());
         }
         Ok(())
     }

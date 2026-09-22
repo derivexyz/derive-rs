@@ -22,13 +22,6 @@ impl<'a> MarketDataNamespace<'a> {
             .send_rpc("public/get_all_live_instruments", serde_json::json!({}))
             .await
     }
-    pub async fn get_assets(
-        &self,
-        params: GetAssetsRequest,
-    ) -> Result<Vec<Asset>, ClientError> {
-        let params_json = serde_json::to_value(&params)?;
-        self.ws_client.send_rpc("public/get_assets", params_json).await
-    }
     pub async fn get_currency(
         &self,
         params: GetCurrencyRequest,

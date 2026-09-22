@@ -98,13 +98,7 @@ impl<'a> FundMovementsNamespace<'a> {
             .expect("ERC20 asset details not found in cache. Please ensure the asset is supported and cached.")
             .clone();
 
-        let asset = self.ws_client
-            .assets_cache
-            .get(&args.asset)
-            .expect("Asset details not found in cache. Please ensure the asset is supported and cached.")
-            .clone();
-
-        let data = SpotTransferData::from_args(args.clone(), erc20_details.clone(), asset.clone())?;
+        let data = SpotTransferData::from_args(args.clone(), erc20_details.clone())?;
         let action = ActionData::new(
             data,
             args.subaccount_id,
@@ -114,7 +108,7 @@ impl<'a> FundMovementsNamespace<'a> {
             ModuleType::SpotTransfer,
         )?;
 
-        let params = action.populate_transfer_spot_params(&signer, args.clone(), env, &asset)?;
+        let params = action.populate_transfer_spot_params(&signer, args.clone(), env)?;
 
         debug!("{}", serde_json::to_string_pretty(&params).unwrap());
 
