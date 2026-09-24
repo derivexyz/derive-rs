@@ -184,7 +184,7 @@ async fn test_vault_withdraw() {
     let ws_client = common::get_test_ws_client().await;
     ws_client.login().await.expect("Failed to login");
 
-    let vault_id = 75766;
+    let vault_id = 86396;
     // we ensure there is at least one vault to deposit into
 
     let vault_info = ws_client
@@ -291,7 +291,7 @@ async fn test_vault_cancel_all() {
     let ws_client = common::get_test_ws_client().await;
     ws_client.login().await.expect("Failed to login");
 
-    let vault_id = 75763;
+    let vault_id = 86396;
 
     let args = CancelAllVaultRequestsArgs::builder()
         .subaccount_id(ws_client.subaccount_id.unwrap())

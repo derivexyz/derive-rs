@@ -3955,6 +3955,7 @@ impl DeleteSubaccountResponse {
 ///    "batch_status",
 ///    "batch_uuid",
 ///    "fee",
+///    "is_fallback",
 ///    "new_subaccount",
 ///    "operation_id",
 ///    "subaccount_id",
@@ -3989,6 +3990,28 @@ impl DeleteSubaccountResponse {
 ///    "batch_uuid": {
 ///      "type": "string"
 ///    },
+///    "fallback_error_code": {
+///      "description": "Error code for the deposit's failure to reach its target subaccount.",
+///      "type": [
+///        "integer",
+///        "null"
+///      ],
+///      "format": "int64"
+///    },
+///    "fallback_error_data": {
+///      "description": "Null for an internal error, whose text stays internal.",
+///      "type": [
+///        "string",
+///        "null"
+///      ]
+///    },
+///    "fallback_error_message": {
+///      "description": "Null for an internal error, whose text stays internal.",
+///      "type": [
+///        "string",
+///        "null"
+///      ]
+///    },
 ///    "fee": {
 ///      "description": "Non-negative decimal string of the human value (e.g. `\"1.5\"`), up to 12 fractional digits; a string or JSON number is accepted",
 ///      "type": "string",
@@ -3998,6 +4021,10 @@ impl DeleteSubaccountResponse {
 ///        "path": "bigdecimal::BigDecimal",
 ///        "version": ">=0.4.0, <0.5.0"
 ///      }
+///    },
+///    "is_fallback": {
+///      "description": "The deposit could not reach its target, so it was credited to the wallet's fallback subaccount instead.",
+///      "type": "boolean"
 ///    },
 ///    "new_subaccount": {
 ///      "type": "boolean"
@@ -4037,8 +4064,19 @@ pub struct DepositEntry {
     pub asset: ::std::string::String,
     pub batch_status: BatchStatus,
     pub batch_uuid: ::std::string::String,
+    ///Error code for the deposit's failure to reach its target subaccount.
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub fallback_error_code: ::std::option::Option<i64>,
+    ///Null for an internal error, whose text stays internal.
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub fallback_error_data: ::std::option::Option<::std::string::String>,
+    ///Null for an internal error, whose text stays internal.
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub fallback_error_message: ::std::option::Option<::std::string::String>,
     ///Non-negative decimal string of the human value (e.g. `"1.5"`), up to 12 fractional digits; a string or JSON number is accepted
     pub fee: ::bigdecimal::BigDecimal,
+    ///The deposit could not reach its target, so it was credited to the wallet's fallback subaccount instead.
+    pub is_fallback: bool,
     pub new_subaccount: bool,
     pub operation_id: ::std::string::String,
     pub subaccount_id: u64,
@@ -4225,33 +4263,41 @@ impl EditSessionKeyRequest {
         Default::default()
     }
 }
-///This method takes no parameters; send an empty object `{}`.
+/**This method takes no parameters; send an empty object `{}`.
+
+Braced rather than a unit struct so schemars emits `{"type": "object"}`: a unit struct emits `null`, which contradicts the line above and forced every generated client to cast around the params type.*/
 ///
 /// <details><summary>JSON schema</summary>
 ///
 /// ```json
 ///{
-///  "description": "This method takes no parameters; send an empty object `{}`.",
-///  "type": "null"
+///  "description": "This method takes no parameters; send an empty object `{}`.\n\nBraced rather than a unit struct so schemars emits `{\"type\": \"object\"}`: a unit struct emits `null`, which contradicts the line above and forced every generated client to cast around the params type.",
+///  "type": "object"
 ///}
 /// ```
 /// </details>
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
 #[serde(transparent)]
-pub struct EmptyRequest(pub ());
+pub struct EmptyRequest(
+    pub ::serde_json::Map<::std::string::String, ::serde_json::Value>,
+);
 impl ::std::ops::Deref for EmptyRequest {
-    type Target = ();
-    fn deref(&self) -> &() {
+    type Target = ::serde_json::Map<::std::string::String, ::serde_json::Value>;
+    fn deref(&self) -> &::serde_json::Map<::std::string::String, ::serde_json::Value> {
         &self.0
     }
 }
-impl ::std::convert::From<EmptyRequest> for () {
+impl ::std::convert::From<EmptyRequest>
+for ::serde_json::Map<::std::string::String, ::serde_json::Value> {
     fn from(value: EmptyRequest) -> Self {
         value.0
     }
 }
-impl ::std::convert::From<()> for EmptyRequest {
-    fn from(value: ()) -> Self {
+impl ::std::convert::From<::serde_json::Map<::std::string::String, ::serde_json::Value>>
+for EmptyRequest {
+    fn from(
+        value: ::serde_json::Map<::std::string::String, ::serde_json::Value>,
+    ) -> Self {
         Self(value)
     }
 }
@@ -8738,6 +8784,109 @@ impl ::std::convert::TryFrom<::std::string::String> for LiquidityRole2 {
         value.parse()
     }
 }
+///One ongoing auction, priced for a maximal bid at `timestamp`. The price decays with wall-clock and moves with the account's mark-to-market, so a quote is only good for the instant it was taken.
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "description": "One ongoing auction, priced for a maximal bid at `timestamp`. The price decays with wall-clock and moves with the account's mark-to-market, so a quote is only good for the instant it was taken.",
+///  "type": "object",
+///  "required": [
+///    "estimated_bid_price",
+///    "estimated_discount_pnl",
+///    "estimated_mtm",
+///    "estimated_percent_bid",
+///    "margin_type",
+///    "min_price_limit",
+///    "subaccount_balances",
+///    "subaccount_id",
+///    "timestamp"
+///  ],
+///  "properties": {
+///    "currency": {
+///      "description": "Only set when the auctioned account is not on standard margin.",
+///      "type": [
+///        "string",
+///        "null"
+///      ]
+///    },
+///    "estimated_bid_price": {
+///      "description": "Discounted mark value of the whole account, not scaled by the bid percent. Negative for an insolvent auction, where the bidder is paid.",
+///      "type": "string"
+///    },
+///    "estimated_discount_pnl": {
+///      "description": "Profit relative to `estimated_mtm` if the bid fills at `estimated_percent_bid` and `estimated_bid_price`.",
+///      "type": "string"
+///    },
+///    "estimated_mtm": {
+///      "description": "Undiscounted mark value of the whole account, net of cash already paid in by earlier bidders.",
+///      "type": "string"
+///    },
+///    "estimated_percent_bid": {
+///      "description": "The largest fraction of the account a bid can take right now.",
+///      "type": "string"
+///    },
+///    "margin_type": {
+///      "description": "Bid from an account on the same margin type to avoid unsupported-currency and max-account-size errors.",
+///      "type": "string"
+///    },
+///    "min_price_limit": {
+///      "description": "Cash required to buy `estimated_percent_bid` of the account — the `price_limit` to pass to `private/liquidate`. Scale it down in proportion if bidding less.",
+///      "type": "string"
+///    },
+///    "subaccount_balances": {
+///      "description": "Balance per asset name. A bid acquires `estimated_percent_bid` of each.",
+///      "type": "object",
+///      "additionalProperties": {
+///        "type": "string"
+///      }
+///    },
+///    "subaccount_id": {
+///      "type": "integer",
+///      "format": "uint64",
+///      "minimum": 0.0
+///    },
+///    "timestamp": {
+///      "description": "Milliseconds since epoch at which this quote was priced.",
+///      "type": "integer",
+///      "format": "int64"
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct LiveAuction {
+    ///Only set when the auctioned account is not on standard margin.
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub currency: ::std::option::Option<::std::string::String>,
+    ///Discounted mark value of the whole account, not scaled by the bid percent. Negative for an insolvent auction, where the bidder is paid.
+    pub estimated_bid_price: ::std::string::String,
+    ///Profit relative to `estimated_mtm` if the bid fills at `estimated_percent_bid` and `estimated_bid_price`.
+    pub estimated_discount_pnl: ::std::string::String,
+    ///Undiscounted mark value of the whole account, net of cash already paid in by earlier bidders.
+    pub estimated_mtm: ::std::string::String,
+    ///The largest fraction of the account a bid can take right now.
+    pub estimated_percent_bid: ::std::string::String,
+    ///Bid from an account on the same margin type to avoid unsupported-currency and max-account-size errors.
+    pub margin_type: ::std::string::String,
+    ///Cash required to buy `estimated_percent_bid` of the account — the `price_limit` to pass to `private/liquidate`. Scale it down in proportion if bidding less.
+    pub min_price_limit: ::std::string::String,
+    ///Balance per asset name. A bid acquires `estimated_percent_bid` of each.
+    pub subaccount_balances: ::std::collections::HashMap<
+        ::std::string::String,
+        ::std::string::String,
+    >,
+    pub subaccount_id: u64,
+    ///Milliseconds since epoch at which this quote was priced.
+    pub timestamp: i64,
+}
+impl LiveAuction {
+    pub fn builder() -> builder::LiveAuction {
+        Default::default()
+    }
+}
 ///Login params. The wallet/timestamp/signature fields are typically supplied via headers (`X-Derive*`) for REST and via the JSON body for websocket; all are optional on the wire and validated server-side.
 ///
 /// <details><summary>JSON schema</summary>
@@ -9582,12 +9731,19 @@ impl Ohlc {
 ///      "type": "string"
 ///    },
 ///    "error_code": {
-///      "description": "Most recent submit rejection; null if the action never failed. Kept on applied/fallback rows as the reason the action struggled. The verbose error text stays internal (ClickHouse only).",
+///      "description": "Most recent submit rejection; null if the action never failed. Kept on applied/fallback rows as the reason the action struggled.",
 ///      "type": [
 ///        "integer",
 ///        "null"
 ///      ],
 ///      "format": "int64"
+///    },
+///    "error_data": {
+///      "description": "The rejection's specifics, e.g. the wallet and cap it hit. Null for an internal error, whose text stays internal as on every other endpoint.",
+///      "type": [
+///        "string",
+///        "null"
+///      ]
 ///    },
 ///    "error_message": {
 ///      "type": [
@@ -9676,9 +9832,12 @@ pub struct OnchainActionHistoryEntry {
     pub block_number: u64,
     ///Raw action calldata, 0x-hex.
     pub data: ::std::string::String,
-    ///Most recent submit rejection; null if the action never failed. Kept on applied/fallback rows as the reason the action struggled. The verbose error text stays internal (ClickHouse only).
+    ///Most recent submit rejection; null if the action never failed. Kept on applied/fallback rows as the reason the action struggled.
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub error_code: ::std::option::Option<i64>,
+    ///The rejection's specifics, e.g. the wallet and cap it hit. Null for an internal error, whose text stays internal as on every other endpoint.
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub error_data: ::std::option::Option<::std::string::String>,
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub error_message: ::std::option::Option<::std::string::String>,
     ///Unix ms the action was escalated with `fallback=true`; null if never escalated.
@@ -13891,6 +14050,36 @@ pub struct PublicFundingFeedDataParams {
 }
 impl PublicFundingFeedDataParams {
     pub fn builder() -> builder::PublicFundingFeedDataParams {
+        Default::default()
+    }
+}
+///`PublicGetLiveAuctionsResponse`
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "type": "object",
+///  "required": [
+///    "auctions"
+///  ],
+///  "properties": {
+///    "auctions": {
+///      "type": "array",
+///      "items": {
+///        "$ref": "#/definitions/LiveAuction"
+///      }
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct PublicGetLiveAuctionsResponse {
+    pub auctions: ::std::vec::Vec<LiveAuction>,
+}
+impl PublicGetLiveAuctionsResponse {
+    pub fn builder() -> builder::PublicGetLiveAuctionsResponse {
         Default::default()
     }
 }
@@ -28769,7 +28958,20 @@ pub mod builder {
         asset: ::std::result::Result<::std::string::String, ::std::string::String>,
         batch_status: ::std::result::Result<super::BatchStatus, ::std::string::String>,
         batch_uuid: ::std::result::Result<::std::string::String, ::std::string::String>,
+        fallback_error_code: ::std::result::Result<
+            ::std::option::Option<i64>,
+            ::std::string::String,
+        >,
+        fallback_error_data: ::std::result::Result<
+            ::std::option::Option<::std::string::String>,
+            ::std::string::String,
+        >,
+        fallback_error_message: ::std::result::Result<
+            ::std::option::Option<::std::string::String>,
+            ::std::string::String,
+        >,
         fee: ::std::result::Result<::bigdecimal::BigDecimal, ::std::string::String>,
+        is_fallback: ::std::result::Result<bool, ::std::string::String>,
         new_subaccount: ::std::result::Result<bool, ::std::string::String>,
         operation_id: ::std::result::Result<
             ::std::string::String,
@@ -28791,7 +28993,11 @@ pub mod builder {
                 asset: Err("no value supplied for asset".to_string()),
                 batch_status: Err("no value supplied for batch_status".to_string()),
                 batch_uuid: Err("no value supplied for batch_uuid".to_string()),
+                fallback_error_code: Ok(Default::default()),
+                fallback_error_data: Ok(Default::default()),
+                fallback_error_message: Ok(Default::default()),
                 fee: Err("no value supplied for fee".to_string()),
+                is_fallback: Err("no value supplied for is_fallback".to_string()),
                 new_subaccount: Err("no value supplied for new_subaccount".to_string()),
                 operation_id: Err("no value supplied for operation_id".to_string()),
                 subaccount_id: Err("no value supplied for subaccount_id".to_string()),
@@ -28858,6 +29064,48 @@ pub mod builder {
                 });
             self
         }
+        pub fn fallback_error_code<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<i64>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.fallback_error_code = value
+                .try_into()
+                .map_err(|e| {
+                    format!(
+                        "error converting supplied value for fallback_error_code: {e}"
+                    )
+                });
+            self
+        }
+        pub fn fallback_error_data<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.fallback_error_data = value
+                .try_into()
+                .map_err(|e| {
+                    format!(
+                        "error converting supplied value for fallback_error_data: {e}"
+                    )
+                });
+            self
+        }
+        pub fn fallback_error_message<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.fallback_error_message = value
+                .try_into()
+                .map_err(|e| {
+                    format!(
+                        "error converting supplied value for fallback_error_message: {e}"
+                    )
+                });
+            self
+        }
         pub fn fee<T>(mut self, value: T) -> Self
         where
             T: ::std::convert::TryInto<::bigdecimal::BigDecimal>,
@@ -28866,6 +29114,18 @@ pub mod builder {
             self.fee = value
                 .try_into()
                 .map_err(|e| format!("error converting supplied value for fee: {e}"));
+            self
+        }
+        pub fn is_fallback<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<bool>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.is_fallback = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for is_fallback: {e}")
+                });
             self
         }
         pub fn new_subaccount<T>(mut self, value: T) -> Self
@@ -28950,7 +29210,11 @@ pub mod builder {
                 asset: value.asset?,
                 batch_status: value.batch_status?,
                 batch_uuid: value.batch_uuid?,
+                fallback_error_code: value.fallback_error_code?,
+                fallback_error_data: value.fallback_error_data?,
+                fallback_error_message: value.fallback_error_message?,
                 fee: value.fee?,
+                is_fallback: value.is_fallback?,
                 new_subaccount: value.new_subaccount?,
                 operation_id: value.operation_id?,
                 subaccount_id: value.subaccount_id?,
@@ -28968,7 +29232,11 @@ pub mod builder {
                 asset: Ok(value.asset),
                 batch_status: Ok(value.batch_status),
                 batch_uuid: Ok(value.batch_uuid),
+                fallback_error_code: Ok(value.fallback_error_code),
+                fallback_error_data: Ok(value.fallback_error_data),
+                fallback_error_message: Ok(value.fallback_error_message),
                 fee: Ok(value.fee),
+                is_fallback: Ok(value.is_fallback),
                 new_subaccount: Ok(value.new_subaccount),
                 operation_id: Ok(value.operation_id),
                 subaccount_id: Ok(value.subaccount_id),
@@ -36412,6 +36680,233 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
+    pub struct LiveAuction {
+        currency: ::std::result::Result<
+            ::std::option::Option<::std::string::String>,
+            ::std::string::String,
+        >,
+        estimated_bid_price: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+        estimated_discount_pnl: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+        estimated_mtm: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+        estimated_percent_bid: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+        margin_type: ::std::result::Result<::std::string::String, ::std::string::String>,
+        min_price_limit: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+        subaccount_balances: ::std::result::Result<
+            ::std::collections::HashMap<::std::string::String, ::std::string::String>,
+            ::std::string::String,
+        >,
+        subaccount_id: ::std::result::Result<u64, ::std::string::String>,
+        timestamp: ::std::result::Result<i64, ::std::string::String>,
+    }
+    impl ::std::default::Default for LiveAuction {
+        fn default() -> Self {
+            Self {
+                currency: Ok(Default::default()),
+                estimated_bid_price: Err(
+                    "no value supplied for estimated_bid_price".to_string(),
+                ),
+                estimated_discount_pnl: Err(
+                    "no value supplied for estimated_discount_pnl".to_string(),
+                ),
+                estimated_mtm: Err("no value supplied for estimated_mtm".to_string()),
+                estimated_percent_bid: Err(
+                    "no value supplied for estimated_percent_bid".to_string(),
+                ),
+                margin_type: Err("no value supplied for margin_type".to_string()),
+                min_price_limit: Err(
+                    "no value supplied for min_price_limit".to_string(),
+                ),
+                subaccount_balances: Err(
+                    "no value supplied for subaccount_balances".to_string(),
+                ),
+                subaccount_id: Err("no value supplied for subaccount_id".to_string()),
+                timestamp: Err("no value supplied for timestamp".to_string()),
+            }
+        }
+    }
+    impl LiveAuction {
+        pub fn currency<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.currency = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for currency: {e}")
+                });
+            self
+        }
+        pub fn estimated_bid_price<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.estimated_bid_price = value
+                .try_into()
+                .map_err(|e| {
+                    format!(
+                        "error converting supplied value for estimated_bid_price: {e}"
+                    )
+                });
+            self
+        }
+        pub fn estimated_discount_pnl<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.estimated_discount_pnl = value
+                .try_into()
+                .map_err(|e| {
+                    format!(
+                        "error converting supplied value for estimated_discount_pnl: {e}"
+                    )
+                });
+            self
+        }
+        pub fn estimated_mtm<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.estimated_mtm = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for estimated_mtm: {e}")
+                });
+            self
+        }
+        pub fn estimated_percent_bid<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.estimated_percent_bid = value
+                .try_into()
+                .map_err(|e| {
+                    format!(
+                        "error converting supplied value for estimated_percent_bid: {e}"
+                    )
+                });
+            self
+        }
+        pub fn margin_type<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.margin_type = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for margin_type: {e}")
+                });
+            self
+        }
+        pub fn min_price_limit<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.min_price_limit = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for min_price_limit: {e}")
+                });
+            self
+        }
+        pub fn subaccount_balances<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<
+                ::std::collections::HashMap<::std::string::String, ::std::string::String>,
+            >,
+            T::Error: ::std::fmt::Display,
+        {
+            self.subaccount_balances = value
+                .try_into()
+                .map_err(|e| {
+                    format!(
+                        "error converting supplied value for subaccount_balances: {e}"
+                    )
+                });
+            self
+        }
+        pub fn subaccount_id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<u64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.subaccount_id = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for subaccount_id: {e}")
+                });
+            self
+        }
+        pub fn timestamp<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<i64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.timestamp = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for timestamp: {e}")
+                });
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<LiveAuction> for super::LiveAuction {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: LiveAuction,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                currency: value.currency?,
+                estimated_bid_price: value.estimated_bid_price?,
+                estimated_discount_pnl: value.estimated_discount_pnl?,
+                estimated_mtm: value.estimated_mtm?,
+                estimated_percent_bid: value.estimated_percent_bid?,
+                margin_type: value.margin_type?,
+                min_price_limit: value.min_price_limit?,
+                subaccount_balances: value.subaccount_balances?,
+                subaccount_id: value.subaccount_id?,
+                timestamp: value.timestamp?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::LiveAuction> for LiveAuction {
+        fn from(value: super::LiveAuction) -> Self {
+            Self {
+                currency: Ok(value.currency),
+                estimated_bid_price: Ok(value.estimated_bid_price),
+                estimated_discount_pnl: Ok(value.estimated_discount_pnl),
+                estimated_mtm: Ok(value.estimated_mtm),
+                estimated_percent_bid: Ok(value.estimated_percent_bid),
+                margin_type: Ok(value.margin_type),
+                min_price_limit: Ok(value.min_price_limit),
+                subaccount_balances: Ok(value.subaccount_balances),
+                subaccount_id: Ok(value.subaccount_id),
+                timestamp: Ok(value.timestamp),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
     pub struct LoginRequest {
         signature: ::std::result::Result<
             ::std::option::Option<::std::string::String>,
@@ -37435,6 +37930,10 @@ pub mod builder {
             ::std::option::Option<i64>,
             ::std::string::String,
         >,
+        error_data: ::std::result::Result<
+            ::std::option::Option<::std::string::String>,
+            ::std::string::String,
+        >,
         error_message: ::std::result::Result<
             ::std::option::Option<::std::string::String>,
             ::std::string::String,
@@ -37484,6 +37983,7 @@ pub mod builder {
                 block_number: Err("no value supplied for block_number".to_string()),
                 data: Err("no value supplied for data".to_string()),
                 error_code: Ok(Default::default()),
+                error_data: Ok(Default::default()),
                 error_message: Ok(Default::default()),
                 fallback_at: Ok(Default::default()),
                 first_failed_at: Ok(Default::default()),
@@ -37577,6 +38077,18 @@ pub mod builder {
                 .try_into()
                 .map_err(|e| {
                     format!("error converting supplied value for error_code: {e}")
+                });
+            self
+        }
+        pub fn error_data<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.error_data = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for error_data: {e}")
                 });
             self
         }
@@ -37735,6 +38247,7 @@ pub mod builder {
                 block_number: value.block_number?,
                 data: value.data?,
                 error_code: value.error_code?,
+                error_data: value.error_data?,
                 error_message: value.error_message?,
                 fallback_at: value.fallback_at?,
                 first_failed_at: value.first_failed_at?,
@@ -37761,6 +38274,7 @@ pub mod builder {
                 block_number: Ok(value.block_number),
                 data: Ok(value.data),
                 error_code: Ok(value.error_code),
+                error_data: Ok(value.error_data),
                 error_message: Ok(value.error_message),
                 fallback_at: Ok(value.fallback_at),
                 first_failed_at: Ok(value.first_failed_at),
@@ -45481,6 +45995,51 @@ pub mod builder {
                 funding_rate: Ok(value.funding_rate),
                 signatures: Ok(value.signatures),
                 timestamp: Ok(value.timestamp),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct PublicGetLiveAuctionsResponse {
+        auctions: ::std::result::Result<
+            ::std::vec::Vec<super::LiveAuction>,
+            ::std::string::String,
+        >,
+    }
+    impl ::std::default::Default for PublicGetLiveAuctionsResponse {
+        fn default() -> Self {
+            Self {
+                auctions: Err("no value supplied for auctions".to_string()),
+            }
+        }
+    }
+    impl PublicGetLiveAuctionsResponse {
+        pub fn auctions<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::vec::Vec<super::LiveAuction>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.auctions = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for auctions: {e}")
+                });
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<PublicGetLiveAuctionsResponse>
+    for super::PublicGetLiveAuctionsResponse {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: PublicGetLiveAuctionsResponse,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self { auctions: value.auctions? })
+        }
+    }
+    impl ::std::convert::From<super::PublicGetLiveAuctionsResponse>
+    for PublicGetLiveAuctionsResponse {
+        fn from(value: super::PublicGetLiveAuctionsResponse) -> Self {
+            Self {
+                auctions: Ok(value.auctions),
             }
         }
     }
