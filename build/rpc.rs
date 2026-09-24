@@ -74,6 +74,7 @@ fn extract_endpoints_from_api_spec(api_spec: &Value) -> Vec<RpcEndpoint> {
     let mut public_methods_to_rename = HashMap::<&str, &str>::new();
 
     public_methods_to_rename.insert("order_quote", "public_order_quote");
+    public_methods_to_rename.insert("get_margin", "public_get_margin");
 
     let paths_to_skip = ["/public/withdraw_debug"];
 

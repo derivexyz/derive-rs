@@ -62,11 +62,11 @@ impl<'a> SubaccountsNamespace<'a> {
         let params_json = serde_json::to_value(&params)?;
         self.ws_client.send_rpc("private/get_subaccounts", params_json).await
     }
-    pub async fn margin_watch(
+    pub async fn public_get_margin(
         &self,
-        params: MarginWatchRequest,
-    ) -> Result<PublicMarginWatchResponse, ClientError> {
+        params: PublicGetMarginRequest,
+    ) -> Result<GetMarginResponse, ClientError> {
         let params_json = serde_json::to_value(&params)?;
-        self.ws_client.send_rpc("public/margin_watch", params_json).await
+        self.ws_client.send_rpc("public/get_margin", params_json).await
     }
 }

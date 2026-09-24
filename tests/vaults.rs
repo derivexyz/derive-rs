@@ -86,7 +86,7 @@ async fn test_vault_create() {
 
 #[tokio::test]
 async fn test_vault_deposit() {
-    let curator_ws_client = common::get_test_ws_client_3().await;
+    let (curator_ws_client, vault_id) = common::get_test_vault_and_client().await;
     curator_ws_client.login().await.expect("Failed to login");
 
     let ws_client = common::get_test_ws_client().await;
@@ -106,7 +106,7 @@ async fn test_vault_deposit() {
         !vaults.subaccount_ids.is_empty(),
         "Expected at least one vault to deposit into, but found none."
     );
-    let first_vault_id = &vaults.subaccount_ids[0];
+    let first_vault_id = &vault_id;
 
     let vault_info = ws_client
         .rpc()
@@ -178,14 +178,11 @@ async fn test_vault_deposit() {
 
 #[tokio::test]
 async fn test_vault_withdraw() {
-    let curator_ws_client = common::get_test_ws_client_3().await;
+    let (curator_ws_client, vault_id) = common::get_test_vault_and_client().await;
     curator_ws_client.login().await.expect("Failed to login");
 
     let ws_client = common::get_test_ws_client().await;
     ws_client.login().await.expect("Failed to login");
-
-    let vault_id = 75766;
-    // we ensure there is at least one vault to deposit into
 
     let vault_info = ws_client
         .rpc()
@@ -291,7 +288,7 @@ async fn test_vault_cancel_all() {
     let ws_client = common::get_test_ws_client().await;
     ws_client.login().await.expect("Failed to login");
 
-    let vault_id = 75763;
+    let vault_id = 86396;
 
     let args = CancelAllVaultRequestsArgs::builder()
         .subaccount_id(ws_client.subaccount_id.unwrap())
