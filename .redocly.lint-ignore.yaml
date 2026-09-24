@@ -120,6 +120,7 @@ schemas/openapi.json:
     - '#/paths/~1public~1get_all_referral_codes/post/responses'
     - '#/paths/~1public~1get_referral_performance/post/responses'
     - '#/paths/~1private~1get_subaccount_value_history/post/responses'
+    - '#/paths/~1public~1get_perp_impact_twap/post/responses'
     - '#/paths/~1public~1set_socialization_feed_data/post/responses'
   security-defined:
     - '#/paths/~1private~1change_subaccount_label/post'
@@ -238,4 +239,5 @@ schemas/openapi.json:
     - '#/paths/~1public~1get_all_referral_codes/post'
     - '#/paths/~1public~1get_referral_performance/post'
     - '#/paths/~1private~1get_subaccount_value_history/post'
+    - '#/paths/~1public~1get_perp_impact_twap/post'
     - '#/paths/~1public~1set_socialization_feed_data/post'

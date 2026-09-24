@@ -4289,6 +4289,41 @@
         }
       }
     },
+    "/public/get_perp_impact_twap": {
+      "post": {
+        "tags": [
+          "Other"
+        ],
+        "summary": "public/get_perp_impact_twap",
+        "operationId": "public_get_perp_impact_twap",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PerpImpactTwapResult"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "JSON-RPC error (see Error Codes)"
+          }
+        },
+        "x-rate-limit-class": "non_matching",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GetPerpImpactTwapRequest"
+              }
+            }
+          }
+        }
+      }
+    },
     "/public/set_socialization_feed_data": {
       "post": {
         "tags": [
@@ -4562,6 +4597,7 @@
         "type": "object",
         "required": [
           "amounts_liquidated",
+          "bidder_id",
           "cash_received",
           "discount_pnl",
           "percent_liquidated",
@@ -4569,8 +4605,10 @@
           "positions_realized_pnl_excl_fees",
           "realized_pnl",
           "realized_pnl_excl_fees",
+          "risk_universe_id",
           "timestamp",
-          "tx_hash"
+          "tx_hash",
+          "unit_price"
         ],
         "properties": {
           "amounts_liquidated": {
@@ -4579,6 +4617,12 @@
             "additionalProperties": {
               "type": "string"
             }
+          },
+          "bidder_id": {
+            "description": "The subaccount that won this slice.",
+            "type": "integer",
+            "format": "uint64",
+            "minimum": 0.0
           },
           "cash_received": {
             "description": "Cash the liquidated account received for the slice: what the bidder paid in the solvent phase, and negative in the insolvent phase, where the security module pays the bidder instead.",
@@ -4614,6 +4658,12 @@
             "description": "Always \"0\" — see the module TODO.",
             "type": "string"
           },
+          "risk_universe_id": {
+            "description": "Risk universe of both parties; a bid must come from the liquidatee's.",
+            "type": "integer",
+            "format": "uint32",
+            "minimum": 0.0
+          },
           "timestamp": {
             "description": "When the sequencer applied the bid, unix ms.",
             "type": "integer",
@@ -4622,6 +4672,10 @@
           },
           "tx_hash": {
             "description": "Settling L1 transaction; empty until the bid's batch settles.",
+            "type": "string"
+          },
+          "unit_price": {
+            "description": "Price the bid filled at for the whole account; `cash_received` is this times `percent_liquidated`. Negative in the insolvent phase.",
             "type": "string"
           }
         }
@@ -4634,6 +4688,7 @@
           "auction_type",
           "bids",
           "fee",
+          "risk_universe_id",
           "start_timestamp",
           "subaccount_id",
           "tx_hash"
@@ -4664,6 +4719,12 @@
           "fee": {
             "description": "Liquidation fee charged at auction start; \"0\" for a phase opened by conversion to insolvent.",
             "type": "string"
+          },
+          "risk_universe_id": {
+            "description": "Risk universe of the liquidated subaccount.",
+            "type": "integer",
+            "format": "uint32",
+            "minimum": 0.0
           },
           "start_timestamp": {
             "description": "Auction/phase clock start, unix ms.",
@@ -7274,6 +7335,28 @@
           }
         }
       },
+      "GetPerpImpactTwapRequest": {
+        "description": "Parameters for `public/get_perp_impact_twap`. Timestamps accept either a JSON number or a string-encoded integer.",
+        "type": "object",
+        "required": [
+          "currency",
+          "end_time",
+          "start_time"
+        ],
+        "properties": {
+          "currency": {
+            "type": "string"
+          },
+          "end_time": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "start_time": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
       "GetPositionsRequest": {
         "type": "object",
         "required": [
@@ -8430,6 +8513,7 @@
           "estimated_percent_bid",
           "margin_type",
           "min_price_limit",
+          "risk_universe_id",
           "subaccount_balances",
           "subaccount_id",
           "timestamp"
@@ -8465,6 +8549,12 @@
           "min_price_limit": {
             "description": "Cash required to buy `estimated_percent_bid` of the account — the `price_limit` to pass to `private/liquidate`. Scale it down in proportion if bidding less.",
             "type": "string"
+          },
+          "risk_universe_id": {
+            "description": "Risk universe of the auctioned account. A bid from a subaccount in any other universe is rejected.",
+            "type": "integer",
+            "format": "uint32",
+            "minimum": 0.0
           },
           "subaccount_balances": {
             "description": "Balance per asset name. A bid acquires `estimated_percent_bid` of each.",
@@ -9998,6 +10088,30 @@
             "minimum": 0.0
           },
           "type": {
+            "type": "string"
+          }
+        }
+      },
+      "PerpImpactTwapResult": {
+        "description": "TWAPs of the perp mid, ask impact and bid impact prices minus spot.",
+        "type": "object",
+        "required": [
+          "ask_impact_diff_twap",
+          "bid_impact_diff_twap",
+          "currency",
+          "mid_price_diff_twap"
+        ],
+        "properties": {
+          "ask_impact_diff_twap": {
+            "type": "string"
+          },
+          "bid_impact_diff_twap": {
+            "type": "string"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "mid_price_diff_twap": {
             "type": "string"
           }
         }

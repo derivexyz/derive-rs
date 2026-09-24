@@ -39,20 +39,21 @@ pub async fn get_test_ws_client_2() -> WsClient {
 }
 
 #[allow(dead_code)]
-pub async fn get_test_ws_client_3() -> WsClient {
+pub async fn get_test_vault_and_client() -> (WsClient, u64) {
     let _ = tracing_subscriber::fmt()
         .with_max_level(tracing::Level::DEBUG)
         .try_init();
     let private_key = "19d7655dfe7de62e83f6c9424650986a4734029458add7eb2f74a7e249caa81c";
     let derive_wallet = "0x0e94ecA48AC699d2237F3732210f8216A497ab16";
-    let subaccount_id = 86292;
+    let subaccount_id = 86396;
     let env = Environment::Testnet;
-    WsClient::new(
+    let client = WsClient::new(
         env,
         Some(private_key.to_string()),
         Some(derive_wallet.to_string()),
         Some(subaccount_id),
     )
     .await
-    .expect("Failed to create WS client")
+    .expect("Failed to create WS client");
+    (client, subaccount_id)
 }

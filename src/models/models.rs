@@ -627,6 +627,7 @@ impl AssetUniverse {
 ///  "type": "object",
 ///  "required": [
 ///    "amounts_liquidated",
+///    "bidder_id",
 ///    "cash_received",
 ///    "discount_pnl",
 ///    "percent_liquidated",
@@ -634,8 +635,10 @@ impl AssetUniverse {
 ///    "positions_realized_pnl_excl_fees",
 ///    "realized_pnl",
 ///    "realized_pnl_excl_fees",
+///    "risk_universe_id",
 ///    "timestamp",
-///    "tx_hash"
+///    "tx_hash",
+///    "unit_price"
 ///  ],
 ///  "properties": {
 ///    "amounts_liquidated": {
@@ -644,6 +647,12 @@ impl AssetUniverse {
 ///      "additionalProperties": {
 ///        "type": "string"
 ///      }
+///    },
+///    "bidder_id": {
+///      "description": "The subaccount that won this slice.",
+///      "type": "integer",
+///      "format": "uint64",
+///      "minimum": 0.0
 ///    },
 ///    "cash_received": {
 ///      "description": "Cash the liquidated account received for the slice: what the bidder paid in the solvent phase, and negative in the insolvent phase, where the security module pays the bidder instead.",
@@ -679,6 +688,12 @@ impl AssetUniverse {
 ///      "description": "Always \"0\" — see the module TODO.",
 ///      "type": "string"
 ///    },
+///    "risk_universe_id": {
+///      "description": "Risk universe of both parties; a bid must come from the liquidatee's.",
+///      "type": "integer",
+///      "format": "uint32",
+///      "minimum": 0.0
+///    },
 ///    "timestamp": {
 ///      "description": "When the sequencer applied the bid, unix ms.",
 ///      "type": "integer",
@@ -687,6 +702,10 @@ impl AssetUniverse {
 ///    },
 ///    "tx_hash": {
 ///      "description": "Settling L1 transaction; empty until the bid's batch settles.",
+///      "type": "string"
+///    },
+///    "unit_price": {
+///      "description": "Price the bid filled at for the whole account; `cash_received` is this times `percent_liquidated`. Negative in the insolvent phase.",
 ///      "type": "string"
 ///    }
 ///  }
@@ -700,6 +719,8 @@ pub struct AuctionBidEvent {
         ::std::string::String,
         ::std::string::String,
     >,
+    ///The subaccount that won this slice.
+    pub bidder_id: u64,
     ///Cash the liquidated account received for the slice: what the bidder paid in the solvent phase, and negative in the insolvent phase, where the security module pays the bidder instead.
     pub cash_received: ::std::string::String,
     ///Always "0" — see the module TODO.
@@ -720,10 +741,14 @@ pub struct AuctionBidEvent {
     pub realized_pnl: ::std::string::String,
     ///Always "0" — see the module TODO.
     pub realized_pnl_excl_fees: ::std::string::String,
+    ///Risk universe of both parties; a bid must come from the liquidatee's.
+    pub risk_universe_id: u32,
     ///When the sequencer applied the bid, unix ms.
     pub timestamp: u64,
     ///Settling L1 transaction; empty until the bid's batch settles.
     pub tx_hash: ::std::string::String,
+    ///Price the bid filled at for the whole account; `cash_received` is this times `percent_liquidated`. Negative in the insolvent phase.
+    pub unit_price: ::std::string::String,
 }
 impl AuctionBidEvent {
     pub fn builder() -> builder::AuctionBidEvent {
@@ -744,6 +769,7 @@ impl AuctionBidEvent {
 ///    "estimated_percent_bid",
 ///    "margin_type",
 ///    "min_price_limit",
+///    "risk_universe_id",
 ///    "subaccount_balances"
 ///  ],
 ///  "properties": {
@@ -771,6 +797,12 @@ impl AuctionBidEvent {
 ///    "min_price_limit": {
 ///      "type": "string"
 ///    },
+///    "risk_universe_id": {
+///      "description": "Risk universe of the auctioned account. A bid from a subaccount in any other universe is rejected.",
+///      "type": "integer",
+///      "format": "uint32",
+///      "minimum": 0.0
+///    },
 ///    "subaccount_balances": {
 ///      "description": "Balance per asset name, as a decimal string.",
 ///      "type": "object",
@@ -797,6 +829,8 @@ pub struct AuctionDetails {
     pub estimated_percent_bid: ::std::string::String,
     pub margin_type: ::std::string::String,
     pub min_price_limit: ::std::string::String,
+    ///Risk universe of the auctioned account. A bid from a subaccount in any other universe is rejected.
+    pub risk_universe_id: u32,
     pub subaccount_balances: AuctionDetailsSubaccountBalances,
 }
 impl AuctionDetails {
@@ -852,6 +886,7 @@ impl AuctionDetailsSubaccountBalances {
 ///    "auction_type",
 ///    "bids",
 ///    "fee",
+///    "risk_universe_id",
 ///    "start_timestamp",
 ///    "subaccount_id",
 ///    "tx_hash"
@@ -882,6 +917,12 @@ impl AuctionDetailsSubaccountBalances {
 ///    "fee": {
 ///      "description": "Liquidation fee charged at auction start; \"0\" for a phase opened by conversion to insolvent.",
 ///      "type": "string"
+///    },
+///    "risk_universe_id": {
+///      "description": "Risk universe of the liquidated subaccount.",
+///      "type": "integer",
+///      "format": "uint32",
+///      "minimum": 0.0
 ///    },
 ///    "start_timestamp": {
 ///      "description": "Auction/phase clock start, unix ms.",
@@ -914,6 +955,8 @@ pub struct AuctionHistory {
     pub end_timestamp: ::std::option::Option<u64>,
     ///Liquidation fee charged at auction start; "0" for a phase opened by conversion to insolvent.
     pub fee: ::std::string::String,
+    ///Risk universe of the liquidated subaccount.
+    pub risk_universe_id: u32,
     ///Auction/phase clock start, unix ms.
     pub start_timestamp: u64,
     ///The liquidated (auctioned) subaccount.
@@ -6612,6 +6655,46 @@ impl GetPendingDepositsResult {
         Default::default()
     }
 }
+///Parameters for `public/get_perp_impact_twap`. Timestamps accept either a JSON number or a string-encoded integer.
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "description": "Parameters for `public/get_perp_impact_twap`. Timestamps accept either a JSON number or a string-encoded integer.",
+///  "type": "object",
+///  "required": [
+///    "currency",
+///    "end_time",
+///    "start_time"
+///  ],
+///  "properties": {
+///    "currency": {
+///      "type": "string"
+///    },
+///    "end_time": {
+///      "type": "integer",
+///      "format": "int64"
+///    },
+///    "start_time": {
+///      "type": "integer",
+///      "format": "int64"
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct GetPerpImpactTwapRequest {
+    pub currency: ::std::string::String,
+    pub end_time: i64,
+    pub start_time: i64,
+}
+impl GetPerpImpactTwapRequest {
+    pub fn builder() -> builder::GetPerpImpactTwapRequest {
+        Default::default()
+    }
+}
 ///`GetPositionsRequest`
 ///
 /// <details><summary>JSON schema</summary>
@@ -8799,6 +8882,7 @@ impl ::std::convert::TryFrom<::std::string::String> for LiquidityRole2 {
 ///    "estimated_percent_bid",
 ///    "margin_type",
 ///    "min_price_limit",
+///    "risk_universe_id",
 ///    "subaccount_balances",
 ///    "subaccount_id",
 ///    "timestamp"
@@ -8834,6 +8918,12 @@ impl ::std::convert::TryFrom<::std::string::String> for LiquidityRole2 {
 ///    "min_price_limit": {
 ///      "description": "Cash required to buy `estimated_percent_bid` of the account — the `price_limit` to pass to `private/liquidate`. Scale it down in proportion if bidding less.",
 ///      "type": "string"
+///    },
+///    "risk_universe_id": {
+///      "description": "Risk universe of the auctioned account. A bid from a subaccount in any other universe is rejected.",
+///      "type": "integer",
+///      "format": "uint32",
+///      "minimum": 0.0
 ///    },
 ///    "subaccount_balances": {
 ///      "description": "Balance per asset name. A bid acquires `estimated_percent_bid` of each.",
@@ -8873,6 +8963,8 @@ pub struct LiveAuction {
     pub margin_type: ::std::string::String,
     ///Cash required to buy `estimated_percent_bid` of the account — the `price_limit` to pass to `private/liquidate`. Scale it down in proportion if bidding less.
     pub min_price_limit: ::std::string::String,
+    ///Risk universe of the auctioned account. A bid from a subaccount in any other universe is rejected.
+    pub risk_universe_id: u32,
     ///Balance per asset name. A bid acquires `estimated_percent_bid` of each.
     pub subaccount_balances: ::std::collections::HashMap<
         ::std::string::String,
@@ -12098,6 +12190,49 @@ pub struct PerpFeedDataResponse {
 }
 impl PerpFeedDataResponse {
     pub fn builder() -> builder::PerpFeedDataResponse {
+        Default::default()
+    }
+}
+///TWAPs of the perp mid, ask impact and bid impact prices minus spot.
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "description": "TWAPs of the perp mid, ask impact and bid impact prices minus spot.",
+///  "type": "object",
+///  "required": [
+///    "ask_impact_diff_twap",
+///    "bid_impact_diff_twap",
+///    "currency",
+///    "mid_price_diff_twap"
+///  ],
+///  "properties": {
+///    "ask_impact_diff_twap": {
+///      "type": "string"
+///    },
+///    "bid_impact_diff_twap": {
+///      "type": "string"
+///    },
+///    "currency": {
+///      "type": "string"
+///    },
+///    "mid_price_diff_twap": {
+///      "type": "string"
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct PerpImpactTwapResult {
+    pub ask_impact_diff_twap: ::std::string::String,
+    pub bid_impact_diff_twap: ::std::string::String,
+    pub currency: ::std::string::String,
+    pub mid_price_diff_twap: ::std::string::String,
+}
+impl PerpImpactTwapResult {
+    pub fn builder() -> builder::PerpImpactTwapResult {
         Default::default()
     }
 }
@@ -24673,6 +24808,7 @@ pub mod builder {
             ::std::collections::HashMap<::std::string::String, ::std::string::String>,
             ::std::string::String,
         >,
+        bidder_id: ::std::result::Result<u64, ::std::string::String>,
         cash_received: ::std::result::Result<
             ::std::string::String,
             ::std::string::String,
@@ -24701,8 +24837,10 @@ pub mod builder {
             ::std::string::String,
             ::std::string::String,
         >,
+        risk_universe_id: ::std::result::Result<u32, ::std::string::String>,
         timestamp: ::std::result::Result<u64, ::std::string::String>,
         tx_hash: ::std::result::Result<::std::string::String, ::std::string::String>,
+        unit_price: ::std::result::Result<::std::string::String, ::std::string::String>,
     }
     impl ::std::default::Default for AuctionBidEvent {
         fn default() -> Self {
@@ -24710,6 +24848,7 @@ pub mod builder {
                 amounts_liquidated: Err(
                     "no value supplied for amounts_liquidated".to_string(),
                 ),
+                bidder_id: Err("no value supplied for bidder_id".to_string()),
                 cash_received: Err("no value supplied for cash_received".to_string()),
                 discount_pnl: Err("no value supplied for discount_pnl".to_string()),
                 percent_liquidated: Err(
@@ -24725,8 +24864,12 @@ pub mod builder {
                 realized_pnl_excl_fees: Err(
                     "no value supplied for realized_pnl_excl_fees".to_string(),
                 ),
+                risk_universe_id: Err(
+                    "no value supplied for risk_universe_id".to_string(),
+                ),
                 timestamp: Err("no value supplied for timestamp".to_string()),
                 tx_hash: Err("no value supplied for tx_hash".to_string()),
+                unit_price: Err("no value supplied for unit_price".to_string()),
             }
         }
     }
@@ -24744,6 +24887,18 @@ pub mod builder {
                     format!(
                         "error converting supplied value for amounts_liquidated: {e}"
                     )
+                });
+            self
+        }
+        pub fn bidder_id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<u64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.bidder_id = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for bidder_id: {e}")
                 });
             self
         }
@@ -24843,6 +24998,18 @@ pub mod builder {
                 });
             self
         }
+        pub fn risk_universe_id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<u32>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.risk_universe_id = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for risk_universe_id: {e}")
+                });
+            self
+        }
         pub fn timestamp<T>(mut self, value: T) -> Self
         where
             T: ::std::convert::TryInto<u64>,
@@ -24867,6 +25034,18 @@ pub mod builder {
                 });
             self
         }
+        pub fn unit_price<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.unit_price = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for unit_price: {e}")
+                });
+            self
+        }
     }
     impl ::std::convert::TryFrom<AuctionBidEvent> for super::AuctionBidEvent {
         type Error = super::error::ConversionError;
@@ -24875,6 +25054,7 @@ pub mod builder {
         ) -> ::std::result::Result<Self, super::error::ConversionError> {
             Ok(Self {
                 amounts_liquidated: value.amounts_liquidated?,
+                bidder_id: value.bidder_id?,
                 cash_received: value.cash_received?,
                 discount_pnl: value.discount_pnl?,
                 percent_liquidated: value.percent_liquidated?,
@@ -24883,8 +25063,10 @@ pub mod builder {
                     .positions_realized_pnl_excl_fees?,
                 realized_pnl: value.realized_pnl?,
                 realized_pnl_excl_fees: value.realized_pnl_excl_fees?,
+                risk_universe_id: value.risk_universe_id?,
                 timestamp: value.timestamp?,
                 tx_hash: value.tx_hash?,
+                unit_price: value.unit_price?,
             })
         }
     }
@@ -24892,6 +25074,7 @@ pub mod builder {
         fn from(value: super::AuctionBidEvent) -> Self {
             Self {
                 amounts_liquidated: Ok(value.amounts_liquidated),
+                bidder_id: Ok(value.bidder_id),
                 cash_received: Ok(value.cash_received),
                 discount_pnl: Ok(value.discount_pnl),
                 percent_liquidated: Ok(value.percent_liquidated),
@@ -24901,8 +25084,10 @@ pub mod builder {
                 ),
                 realized_pnl: Ok(value.realized_pnl),
                 realized_pnl_excl_fees: Ok(value.realized_pnl_excl_fees),
+                risk_universe_id: Ok(value.risk_universe_id),
                 timestamp: Ok(value.timestamp),
                 tx_hash: Ok(value.tx_hash),
+                unit_price: Ok(value.unit_price),
             }
         }
     }
@@ -24933,6 +25118,7 @@ pub mod builder {
             ::std::string::String,
             ::std::string::String,
         >,
+        risk_universe_id: ::std::result::Result<u32, ::std::string::String>,
         subaccount_balances: ::std::result::Result<
             super::AuctionDetailsSubaccountBalances,
             ::std::string::String,
@@ -24955,6 +25141,9 @@ pub mod builder {
                 margin_type: Err("no value supplied for margin_type".to_string()),
                 min_price_limit: Err(
                     "no value supplied for min_price_limit".to_string(),
+                ),
+                risk_universe_id: Err(
+                    "no value supplied for risk_universe_id".to_string(),
                 ),
                 subaccount_balances: Err(
                     "no value supplied for subaccount_balances".to_string(),
@@ -25053,6 +25242,18 @@ pub mod builder {
                 });
             self
         }
+        pub fn risk_universe_id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<u32>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.risk_universe_id = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for risk_universe_id: {e}")
+                });
+            self
+        }
         pub fn subaccount_balances<T>(mut self, value: T) -> Self
         where
             T: ::std::convert::TryInto<super::AuctionDetailsSubaccountBalances>,
@@ -25081,6 +25282,7 @@ pub mod builder {
                 estimated_percent_bid: value.estimated_percent_bid?,
                 margin_type: value.margin_type?,
                 min_price_limit: value.min_price_limit?,
+                risk_universe_id: value.risk_universe_id?,
                 subaccount_balances: value.subaccount_balances?,
             })
         }
@@ -25095,6 +25297,7 @@ pub mod builder {
                 estimated_percent_bid: Ok(value.estimated_percent_bid),
                 margin_type: Ok(value.margin_type),
                 min_price_limit: Ok(value.min_price_limit),
+                risk_universe_id: Ok(value.risk_universe_id),
                 subaccount_balances: Ok(value.subaccount_balances),
             }
         }
@@ -25176,6 +25379,7 @@ pub mod builder {
             ::std::string::String,
         >,
         fee: ::std::result::Result<::std::string::String, ::std::string::String>,
+        risk_universe_id: ::std::result::Result<u32, ::std::string::String>,
         start_timestamp: ::std::result::Result<u64, ::std::string::String>,
         subaccount_id: ::std::result::Result<u64, ::std::string::String>,
         tx_hash: ::std::result::Result<::std::string::String, ::std::string::String>,
@@ -25188,6 +25392,9 @@ pub mod builder {
                 bids: Err("no value supplied for bids".to_string()),
                 end_timestamp: Ok(Default::default()),
                 fee: Err("no value supplied for fee".to_string()),
+                risk_universe_id: Err(
+                    "no value supplied for risk_universe_id".to_string(),
+                ),
                 start_timestamp: Err(
                     "no value supplied for start_timestamp".to_string(),
                 ),
@@ -25253,6 +25460,18 @@ pub mod builder {
                 .map_err(|e| format!("error converting supplied value for fee: {e}"));
             self
         }
+        pub fn risk_universe_id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<u32>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.risk_universe_id = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for risk_universe_id: {e}")
+                });
+            self
+        }
         pub fn start_timestamp<T>(mut self, value: T) -> Self
         where
             T: ::std::convert::TryInto<u64>,
@@ -25301,6 +25520,7 @@ pub mod builder {
                 bids: value.bids?,
                 end_timestamp: value.end_timestamp?,
                 fee: value.fee?,
+                risk_universe_id: value.risk_universe_id?,
                 start_timestamp: value.start_timestamp?,
                 subaccount_id: value.subaccount_id?,
                 tx_hash: value.tx_hash?,
@@ -25315,6 +25535,7 @@ pub mod builder {
                 bids: Ok(value.bids),
                 end_timestamp: Ok(value.end_timestamp),
                 fee: Ok(value.fee),
+                risk_universe_id: Ok(value.risk_universe_id),
                 start_timestamp: Ok(value.start_timestamp),
                 subaccount_id: Ok(value.subaccount_id),
                 tx_hash: Ok(value.tx_hash),
@@ -33186,6 +33407,82 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
+    pub struct GetPerpImpactTwapRequest {
+        currency: ::std::result::Result<::std::string::String, ::std::string::String>,
+        end_time: ::std::result::Result<i64, ::std::string::String>,
+        start_time: ::std::result::Result<i64, ::std::string::String>,
+    }
+    impl ::std::default::Default for GetPerpImpactTwapRequest {
+        fn default() -> Self {
+            Self {
+                currency: Err("no value supplied for currency".to_string()),
+                end_time: Err("no value supplied for end_time".to_string()),
+                start_time: Err("no value supplied for start_time".to_string()),
+            }
+        }
+    }
+    impl GetPerpImpactTwapRequest {
+        pub fn currency<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.currency = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for currency: {e}")
+                });
+            self
+        }
+        pub fn end_time<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<i64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.end_time = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for end_time: {e}")
+                });
+            self
+        }
+        pub fn start_time<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<i64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.start_time = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for start_time: {e}")
+                });
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<GetPerpImpactTwapRequest>
+    for super::GetPerpImpactTwapRequest {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: GetPerpImpactTwapRequest,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                currency: value.currency?,
+                end_time: value.end_time?,
+                start_time: value.start_time?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::GetPerpImpactTwapRequest>
+    for GetPerpImpactTwapRequest {
+        fn from(value: super::GetPerpImpactTwapRequest) -> Self {
+            Self {
+                currency: Ok(value.currency),
+                end_time: Ok(value.end_time),
+                start_time: Ok(value.start_time),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
     pub struct GetPositionsRequest {
         subaccount_id: ::std::result::Result<u64, ::std::string::String>,
     }
@@ -36706,6 +37003,7 @@ pub mod builder {
             ::std::string::String,
             ::std::string::String,
         >,
+        risk_universe_id: ::std::result::Result<u32, ::std::string::String>,
         subaccount_balances: ::std::result::Result<
             ::std::collections::HashMap<::std::string::String, ::std::string::String>,
             ::std::string::String,
@@ -36730,6 +37028,9 @@ pub mod builder {
                 margin_type: Err("no value supplied for margin_type".to_string()),
                 min_price_limit: Err(
                     "no value supplied for min_price_limit".to_string(),
+                ),
+                risk_universe_id: Err(
+                    "no value supplied for risk_universe_id".to_string(),
                 ),
                 subaccount_balances: Err(
                     "no value supplied for subaccount_balances".to_string(),
@@ -36830,6 +37131,18 @@ pub mod builder {
                 });
             self
         }
+        pub fn risk_universe_id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<u32>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.risk_universe_id = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for risk_universe_id: {e}")
+                });
+            self
+        }
         pub fn subaccount_balances<T>(mut self, value: T) -> Self
         where
             T: ::std::convert::TryInto<
@@ -36884,6 +37197,7 @@ pub mod builder {
                 estimated_percent_bid: value.estimated_percent_bid?,
                 margin_type: value.margin_type?,
                 min_price_limit: value.min_price_limit?,
+                risk_universe_id: value.risk_universe_id?,
                 subaccount_balances: value.subaccount_balances?,
                 subaccount_id: value.subaccount_id?,
                 timestamp: value.timestamp?,
@@ -36900,6 +37214,7 @@ pub mod builder {
                 estimated_percent_bid: Ok(value.estimated_percent_bid),
                 margin_type: Ok(value.margin_type),
                 min_price_limit: Ok(value.min_price_limit),
+                risk_universe_id: Ok(value.risk_universe_id),
                 subaccount_balances: Ok(value.subaccount_balances),
                 subaccount_id: Ok(value.subaccount_id),
                 timestamp: Ok(value.timestamp),
@@ -42030,6 +42345,117 @@ pub mod builder {
                 spot_diff_value: Ok(value.spot_diff_value),
                 timestamp: Ok(value.timestamp),
                 type_: Ok(value.type_),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct PerpImpactTwapResult {
+        ask_impact_diff_twap: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+        bid_impact_diff_twap: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+        currency: ::std::result::Result<::std::string::String, ::std::string::String>,
+        mid_price_diff_twap: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+    }
+    impl ::std::default::Default for PerpImpactTwapResult {
+        fn default() -> Self {
+            Self {
+                ask_impact_diff_twap: Err(
+                    "no value supplied for ask_impact_diff_twap".to_string(),
+                ),
+                bid_impact_diff_twap: Err(
+                    "no value supplied for bid_impact_diff_twap".to_string(),
+                ),
+                currency: Err("no value supplied for currency".to_string()),
+                mid_price_diff_twap: Err(
+                    "no value supplied for mid_price_diff_twap".to_string(),
+                ),
+            }
+        }
+    }
+    impl PerpImpactTwapResult {
+        pub fn ask_impact_diff_twap<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.ask_impact_diff_twap = value
+                .try_into()
+                .map_err(|e| {
+                    format!(
+                        "error converting supplied value for ask_impact_diff_twap: {e}"
+                    )
+                });
+            self
+        }
+        pub fn bid_impact_diff_twap<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.bid_impact_diff_twap = value
+                .try_into()
+                .map_err(|e| {
+                    format!(
+                        "error converting supplied value for bid_impact_diff_twap: {e}"
+                    )
+                });
+            self
+        }
+        pub fn currency<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.currency = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for currency: {e}")
+                });
+            self
+        }
+        pub fn mid_price_diff_twap<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.mid_price_diff_twap = value
+                .try_into()
+                .map_err(|e| {
+                    format!(
+                        "error converting supplied value for mid_price_diff_twap: {e}"
+                    )
+                });
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<PerpImpactTwapResult> for super::PerpImpactTwapResult {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: PerpImpactTwapResult,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                ask_impact_diff_twap: value.ask_impact_diff_twap?,
+                bid_impact_diff_twap: value.bid_impact_diff_twap?,
+                currency: value.currency?,
+                mid_price_diff_twap: value.mid_price_diff_twap?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::PerpImpactTwapResult> for PerpImpactTwapResult {
+        fn from(value: super::PerpImpactTwapResult) -> Self {
+            Self {
+                ask_impact_diff_twap: Ok(value.ask_impact_diff_twap),
+                bid_impact_diff_twap: Ok(value.bid_impact_diff_twap),
+                currency: Ok(value.currency),
+                mid_price_diff_twap: Ok(value.mid_price_diff_twap),
             }
         }
     }
