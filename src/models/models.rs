@@ -630,6 +630,7 @@ impl AssetUniverse {
 ///    "bidder_id",
 ///    "cash_received",
 ///    "discount_pnl",
+///    "operation_id",
 ///    "percent_liquidated",
 ///    "positions_realized_pnl",
 ///    "positions_realized_pnl_excl_fees",
@@ -642,7 +643,7 @@ impl AssetUniverse {
 ///  ],
 ///  "properties": {
 ///    "amounts_liquidated": {
-///      "description": "Amounts of each asset that were closed. Always empty — see the module TODO; the protocol event does not carry the per-asset breakdown.",
+///      "description": "Change in each of the liquidated account's balances from this bid, keyed by instrument name: a long position taken reads negative, a short one positive. Includes the slice of the account's cash; the bid's own price is `cash_received`, not an entry here. The bidder received the negation.",
 ///      "type": "object",
 ///      "additionalProperties": {
 ///        "type": "string"
@@ -660,6 +661,10 @@ impl AssetUniverse {
 ///    },
 ///    "discount_pnl": {
 ///      "description": "Always \"0\" — see the module TODO.",
+///      "type": "string"
+///    },
+///    "operation_id": {
+///      "description": "Stable uuid of the bid operation: the `op_uuid` `private/liquidate` returned to the bidder.",
 ///      "type": "string"
 ///    },
 ///    "percent_liquidated": {
@@ -714,7 +719,7 @@ impl AssetUniverse {
 /// </details>
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
 pub struct AuctionBidEvent {
-    ///Amounts of each asset that were closed. Always empty — see the module TODO; the protocol event does not carry the per-asset breakdown.
+    ///Change in each of the liquidated account's balances from this bid, keyed by instrument name: a long position taken reads negative, a short one positive. Includes the slice of the account's cash; the bid's own price is `cash_received`, not an entry here. The bidder received the negation.
     pub amounts_liquidated: ::std::collections::HashMap<
         ::std::string::String,
         ::std::string::String,
@@ -725,6 +730,8 @@ pub struct AuctionBidEvent {
     pub cash_received: ::std::string::String,
     ///Always "0" — see the module TODO.
     pub discount_pnl: ::std::string::String,
+    ///Stable uuid of the bid operation: the `op_uuid` `private/liquidate` returned to the bidder.
+    pub operation_id: ::std::string::String,
     ///Fraction of the account this bid took; "1" is the whole account.
     pub percent_liquidated: ::std::string::String,
     ///Always empty — see the module TODO.
@@ -1587,9 +1594,7 @@ impl BestQuoteChannelResult {
 ///  ],
 ///  "properties": {
 ///    "nonce": {
-///      "type": "integer",
-///      "format": "uint64",
-///      "minimum": 0.0
+///      "type": "string"
 ///    },
 ///    "request_id": {
 ///      "$ref": "#/definitions/VaultRequestId"
@@ -1632,7 +1637,7 @@ impl BestQuoteChannelResult {
 /// </details>
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
 pub struct BurnSharesRequest {
-    pub nonce: u64,
+    pub nonce: ::std::string::String,
     pub request_id: VaultRequestId,
     ///Quoted share price in USD per share, as a decimal string (e.g. `"1"`).
     pub share_price: ::bigdecimal::BigDecimal,
@@ -2025,10 +2030,9 @@ impl ::std::convert::TryFrom<::std::string::String> for CancelAllTriggerOrdersRe
 ///    "nonce": {
 ///      "default": null,
 ///      "type": [
-///        "integer",
+///        "string",
 ///        "null"
-///      ],
-///      "format": "int64"
+///      ]
 ///    },
 ///    "quote_id": {
 ///      "description": "Optional UUID v4 string",
@@ -2062,7 +2066,7 @@ pub struct CancelBatchQuotesRequest {
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub label: ::std::option::Option<::std::string::String>,
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
-    pub nonce: ::std::option::Option<i64>,
+    pub nonce: ::std::option::Option<::std::string::String>,
     ///Optional UUID v4 string
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub quote_id: ::std::option::Option<::uuid::Uuid>,
@@ -2128,10 +2132,9 @@ impl CancelBatchResult {
 ///    "nonce": {
 ///      "default": null,
 ///      "type": [
-///        "integer",
+///        "string",
 ///        "null"
-///      ],
-///      "format": "int64"
+///      ]
 ///    },
 ///    "rfq_id": {
 ///      "description": "Optional UUID v4 string",
@@ -2156,7 +2159,7 @@ pub struct CancelBatchRfqsRequest {
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub label: ::std::option::Option<::std::string::String>,
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
-    pub nonce: ::std::option::Option<i64>,
+    pub nonce: ::std::option::Option<::std::string::String>,
     ///Optional UUID v4 string
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub rfq_id: ::std::option::Option<::uuid::Uuid>,
@@ -2346,8 +2349,7 @@ impl CancelByLabelResponse {
 ///      "type": "string"
 ///    },
 ///    "nonce": {
-///      "type": "integer",
-///      "format": "int64"
+///      "type": "string"
 ///    },
 ///    "subaccount_id": {
 ///      "type": "integer",
@@ -2360,7 +2362,7 @@ impl CancelByLabelResponse {
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
 pub struct CancelByNonceRequest {
     pub instrument_name: ::std::string::String,
-    pub nonce: i64,
+    pub nonce: ::std::string::String,
     pub subaccount_id: i64,
 }
 impl CancelByNonceRequest {
@@ -2459,10 +2461,9 @@ impl CancelOrderRequest {
 ///    "nonce": {
 ///      "default": null,
 ///      "type": [
-///        "integer",
+///        "string",
 ///        "null"
-///      ],
-///      "format": "int64"
+///      ]
 ///    },
 ///    "quote_id": {
 ///      "description": "UUID v4 string",
@@ -2492,7 +2493,7 @@ pub struct CancelQuoteRequest {
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub label: ::std::option::Option<::std::string::String>,
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
-    pub nonce: ::std::option::Option<i64>,
+    pub nonce: ::std::option::Option<::std::string::String>,
     ///UUID v4 string
     pub quote_id: ::uuid::Uuid,
     ///Optional UUID v4 string
@@ -2799,9 +2800,7 @@ impl CancelTriggerOrderRequest {
 ///  ],
 ///  "properties": {
 ///    "nonce": {
-///      "type": "integer",
-///      "format": "uint64",
-///      "minimum": 0.0
+///      "type": "string"
 ///    },
 ///    "signature": {
 ///      "description": "0x-prefixed hex of the 65-byte EOA signature.",
@@ -2832,7 +2831,7 @@ impl CancelTriggerOrderRequest {
 /// </details>
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
 pub struct CancelVaultRequestRequest {
-    pub nonce: u64,
+    pub nonce: ::std::string::String,
     ///0x-prefixed hex of the 65-byte EOA signature.
     pub signature: ::std::string::String,
     pub signature_expiry_sec: u64,
@@ -3139,6 +3138,7 @@ impl Collateral {
 ///      }
 ///    },
 ///    "mmp": {
+///      "description": "Tags the order for market maker protection. Only tagged orders are cancelled by cancel on disconnect.",
 ///      "default": null,
 ///      "type": [
 ///        "boolean",
@@ -3270,6 +3270,7 @@ pub struct CreateOrderRequest {
     pub limit_price: ::bigdecimal::BigDecimal,
     ///Max fee per unit of volume in quote currency, as a decimal string or a JSON number.
     pub max_fee: ::bigdecimal::BigDecimal,
+    ///Tags the order for market maker protection. Only tagged orders are cancelled by cancel on disconnect.
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub mmp: ::std::option::Option<bool>,
     pub nonce: ::std::string::String,
@@ -3393,9 +3394,7 @@ impl CreateOrderRequest {
 ///      "minimum": 0.0
 ///    },
 ///    "nonce": {
-///      "type": "integer",
-///      "format": "uint64",
-///      "minimum": 0.0
+///      "type": "string"
 ///    },
 ///    "performance_fee_bps": {
 ///      "type": "integer",
@@ -3440,7 +3439,7 @@ pub struct CreateVaultRequest {
     ///Maximum sequencer fee the signer authorises, in USD, as a decimal string (e.g. `"1.5"`).
     pub max_fee_usd: ::bigdecimal::BigDecimal,
     pub max_slippage_bps: u64,
-    pub nonce: u64,
+    pub nonce: ::std::string::String,
     pub performance_fee_bps: u64,
     ///0x-prefixed hex of the 65-byte EOA signature.
     pub signature: ::std::string::String,
@@ -3913,9 +3912,7 @@ impl DecodeActionResponse {
 ///  ],
 ///  "properties": {
 ///    "nonce": {
-///      "type": "integer",
-///      "format": "uint64",
-///      "minimum": 0.0
+///      "type": "string"
 ///    },
 ///    "signature": {
 ///      "type": "string"
@@ -3939,7 +3936,7 @@ impl DecodeActionResponse {
 /// </details>
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
 pub struct DeleteSubaccountRequest {
-    pub nonce: u64,
+    pub nonce: ::std::string::String,
     pub signature: ::std::string::String,
     pub signature_expiry_sec: u64,
     pub signer: ::std::string::String,
@@ -3981,6 +3978,62 @@ pub struct DeleteSubaccountResponse {
 }
 impl DeleteSubaccountResponse {
     pub fn builder() -> builder::DeleteSubaccountResponse {
+        Default::default()
+    }
+}
+///Where a credited deposit came from. Named apart from `PendingDepositBridgeOrigin` because schemars shares one namespace and would emit an order-dependent name.
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "description": "Where a credited deposit came from. Named apart from `PendingDepositBridgeOrigin` because schemars shares one namespace and would emit an order-dependent name.",
+///  "type": "object",
+///  "required": [
+///    "rail",
+///    "source_chain_id",
+///    "source_tx_hash"
+///  ],
+///  "properties": {
+///    "rail": {
+///      "description": "Bridge protocol: `lifi` or `layerzero`.",
+///      "type": "string"
+///    },
+///    "source_address": {
+///      "description": "Their wallet on that chain, lower-cased; absent when the rail gave none.",
+///      "type": [
+///        "string",
+///        "null"
+///      ]
+///    },
+///    "source_chain_id": {
+///      "description": "Chain the user sent from.",
+///      "type": "integer",
+///      "format": "uint64",
+///      "minimum": 0.0
+///    },
+///    "source_tx_hash": {
+///      "description": "Their transaction on that chain.",
+///      "type": "string"
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct DepositBridgeOrigin {
+    ///Bridge protocol: `lifi` or `layerzero`.
+    pub rail: ::std::string::String,
+    ///Their wallet on that chain, lower-cased; absent when the rail gave none.
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub source_address: ::std::option::Option<::std::string::String>,
+    ///Chain the user sent from.
+    pub source_chain_id: u64,
+    ///Their transaction on that chain.
+    pub source_tx_hash: ::std::string::String,
+}
+impl DepositBridgeOrigin {
+    pub fn builder() -> builder::DepositBridgeOrigin {
         Default::default()
     }
 }
@@ -4033,6 +4086,17 @@ impl DeleteSubaccountResponse {
 ///    "batch_uuid": {
 ///      "type": "string"
 ///    },
+///    "bridge_origin": {
+///      "description": "Absent for a plain L1 deposit, a bridge sent outside Derive's own quotes, or a sweep that credited several bridges at once.",
+///      "anyOf": [
+///        {
+///          "$ref": "#/definitions/DepositBridgeOrigin"
+///        },
+///        {
+///          "type": "null"
+///        }
+///      ]
+///    },
 ///    "fallback_error_code": {
 ///      "description": "Error code for the deposit's failure to reach its target subaccount.",
 ///      "type": [
@@ -4069,6 +4133,20 @@ impl DeleteSubaccountResponse {
 ///      "description": "The deposit could not reach its target, so it was credited to the wallet's fallback subaccount instead.",
 ///      "type": "boolean"
 ///    },
+///    "l1_sender": {
+///      "description": "Who sent those funds on L1: the depositor's wallet, an exchange, or a bridge's relayer. Absent exactly when `l1_tx_hash` is.",
+///      "type": [
+///        "string",
+///        "null"
+///      ]
+///    },
+///    "l1_tx_hash": {
+///      "description": "The L1 transaction that moved the funds into the escrow. Absent when no tracked L1 row backs the deposit, or when one action credited several transfers at once.",
+///      "type": [
+///        "string",
+///        "null"
+///      ]
+///    },
 ///    "new_subaccount": {
 ///      "type": "boolean"
 ///    },
@@ -4081,11 +4159,13 @@ impl DeleteSubaccountResponse {
 ///      "minimum": 0.0
 ///    },
 ///    "timestamp": {
+///      "description": "Unix milliseconds.",
 ///      "type": "integer",
 ///      "format": "uint64",
 ///      "minimum": 0.0
 ///    },
 ///    "tx_hash": {
+///      "description": "The settlement batch's commit, `null` until the batch settles. Not the deposit's own L1 transaction: that is `l1_tx_hash`.",
 ///      "type": [
 ///        "string",
 ///        "null"
@@ -4107,6 +4187,9 @@ pub struct DepositEntry {
     pub asset: ::std::string::String,
     pub batch_status: BatchStatus,
     pub batch_uuid: ::std::string::String,
+    ///Absent for a plain L1 deposit, a bridge sent outside Derive's own quotes, or a sweep that credited several bridges at once.
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub bridge_origin: ::std::option::Option<DepositBridgeOrigin>,
     ///Error code for the deposit's failure to reach its target subaccount.
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub fallback_error_code: ::std::option::Option<i64>,
@@ -4120,10 +4203,18 @@ pub struct DepositEntry {
     pub fee: ::bigdecimal::BigDecimal,
     ///The deposit could not reach its target, so it was credited to the wallet's fallback subaccount instead.
     pub is_fallback: bool,
+    ///Who sent those funds on L1: the depositor's wallet, an exchange, or a bridge's relayer. Absent exactly when `l1_tx_hash` is.
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub l1_sender: ::std::option::Option<::std::string::String>,
+    ///The L1 transaction that moved the funds into the escrow. Absent when no tracked L1 row backs the deposit, or when one action credited several transfers at once.
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub l1_tx_hash: ::std::option::Option<::std::string::String>,
     pub new_subaccount: bool,
     pub operation_id: ::std::string::String,
     pub subaccount_id: u64,
+    ///Unix milliseconds.
     pub timestamp: u64,
+    ///The settlement batch's commit, `null` until the batch settles. Not the deposit's own L1 transaction: that is `l1_tx_hash`.
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub tx_hash: ::std::option::Option<::std::string::String>,
     pub wallet: ::std::string::String,
@@ -4435,8 +4526,7 @@ impl Erc20Details {
 ///      }
 ///    },
 ///    "nonce": {
-///      "type": "integer",
-///      "format": "int64"
+///      "type": "string"
 ///    },
 ///    "quote_id": {
 ///      "description": "UUID v4 string",
@@ -4483,7 +4573,7 @@ pub struct ExecuteQuoteRequest {
     pub legs: ::std::vec::Vec<PricedLegParamsAndResponse>,
     ///Non-negative decimal string of the human value (e.g. `"1.5"`), up to 12 fractional digits; a string or JSON number is accepted
     pub max_fee: ::bigdecimal::BigDecimal,
-    pub nonce: i64,
+    pub nonce: ::std::string::String,
     ///UUID v4 string
     pub quote_id: ::uuid::Uuid,
     #[serde(default)]
@@ -4549,6 +4639,83 @@ impl ExpirySettlementPrice {
         Default::default()
     }
 }
+///`ExternalTransferActionDataResponse`
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "type": "object",
+///  "required": [
+///    "amount",
+///    "asset",
+///    "max_fee_usd",
+///    "new_subaccount_manager",
+///    "recipient_address",
+///    "sub_id",
+///    "to_subaccount_id"
+///  ],
+///  "properties": {
+///    "amount": {
+///      "description": "Non-negative decimal string of the human value (e.g. `\"1.5\"`), up to 12 fractional digits; a string or JSON number is accepted",
+///      "type": "string",
+///      "format": "decimal",
+///      "x-rust-type": {
+///        "crate": "bigdecimal",
+///        "path": "bigdecimal::BigDecimal",
+///        "version": ">=0.4.0, <0.5.0"
+///      }
+///    },
+///    "asset": {
+///      "type": "string"
+///    },
+///    "max_fee_usd": {
+///      "description": "Non-negative decimal string of the human value (e.g. `\"1.5\"`), up to 12 fractional digits; a string or JSON number is accepted",
+///      "type": "string",
+///      "format": "decimal",
+///      "x-rust-type": {
+///        "crate": "bigdecimal",
+///        "path": "bigdecimal::BigDecimal",
+///        "version": ">=0.4.0, <0.5.0"
+///      }
+///    },
+///    "new_subaccount_manager": {
+///      "type": "integer",
+///      "format": "uint32",
+///      "minimum": 0.0
+///    },
+///    "recipient_address": {
+///      "type": "string"
+///    },
+///    "sub_id": {
+///      "type": "string"
+///    },
+///    "to_subaccount_id": {
+///      "type": "integer",
+///      "format": "uint64",
+///      "minimum": 0.0
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct ExternalTransferActionDataResponse {
+    ///Non-negative decimal string of the human value (e.g. `"1.5"`), up to 12 fractional digits; a string or JSON number is accepted
+    pub amount: ::bigdecimal::BigDecimal,
+    pub asset: ::std::string::String,
+    ///Non-negative decimal string of the human value (e.g. `"1.5"`), up to 12 fractional digits; a string or JSON number is accepted
+    pub max_fee_usd: ::bigdecimal::BigDecimal,
+    pub new_subaccount_manager: u32,
+    pub recipient_address: ::std::string::String,
+    pub sub_id: ::std::string::String,
+    pub to_subaccount_id: u64,
+}
+impl ExternalTransferActionDataResponse {
+    pub fn builder() -> builder::ExternalTransferActionDataResponse {
+        Default::default()
+    }
+}
 ///Fields common to every signed vault action. They appear alongside each endpoint's action-specific parameters in the same request object.
 ///
 /// <details><summary>JSON schema</summary>
@@ -4571,9 +4738,7 @@ impl ExpirySettlementPrice {
 ///      "$ref": "#/definitions/Address"
 ///    },
 ///    "nonce": {
-///      "type": "integer",
-///      "format": "uint64",
-///      "minimum": 0.0
+///      "type": "string"
 ///    },
 ///    "signature": {
 ///      "description": "0x-prefixed hex of the 65-byte EOA signature.",
@@ -4601,7 +4766,7 @@ impl ExpirySettlementPrice {
 pub struct ForceBurnRequest {
     ///The shareholder being exited.
     pub holder: Address,
-    pub nonce: u64,
+    pub nonce: ::std::string::String,
     ///0x-prefixed hex of the 65-byte EOA signature.
     pub signature: ::std::string::String,
     pub signature_expiry_sec: u64,
@@ -5987,6 +6152,73 @@ impl GetLiveBurnRequestsRequest {
         Default::default()
     }
 }
+///`GetLiveIncidentsParams`
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "type": "object"
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+#[serde(transparent)]
+pub struct GetLiveIncidentsParams(
+    pub ::serde_json::Map<::std::string::String, ::serde_json::Value>,
+);
+impl ::std::ops::Deref for GetLiveIncidentsParams {
+    type Target = ::serde_json::Map<::std::string::String, ::serde_json::Value>;
+    fn deref(&self) -> &::serde_json::Map<::std::string::String, ::serde_json::Value> {
+        &self.0
+    }
+}
+impl ::std::convert::From<GetLiveIncidentsParams>
+for ::serde_json::Map<::std::string::String, ::serde_json::Value> {
+    fn from(value: GetLiveIncidentsParams) -> Self {
+        value.0
+    }
+}
+impl ::std::convert::From<::serde_json::Map<::std::string::String, ::serde_json::Value>>
+for GetLiveIncidentsParams {
+    fn from(
+        value: ::serde_json::Map<::std::string::String, ::serde_json::Value>,
+    ) -> Self {
+        Self(value)
+    }
+}
+///`GetLiveIncidentsResponse`
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "type": "object",
+///  "required": [
+///    "incidents"
+///  ],
+///  "properties": {
+///    "incidents": {
+///      "description": "List of ongoing incidents",
+///      "type": "array",
+///      "items": {
+///        "$ref": "#/definitions/IncidentResponse"
+///      }
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct GetLiveIncidentsResponse {
+    ///List of ongoing incidents
+    pub incidents: ::std::vec::Vec<IncidentResponse>,
+}
+impl GetLiveIncidentsResponse {
+    pub fn builder() -> builder::GetLiveIncidentsResponse {
+        Default::default()
+    }
+}
 ///`GetLiveMintRequestsRequest`
 ///
 /// <details><summary>JSON schema</summary>
@@ -6633,6 +6865,7 @@ impl GetPendingDepositsParams {
 ///  ],
 ///  "properties": {
 ///    "pending_deposits": {
+///      "description": "L1 deposits, plus every bridge in flight or settled inside [`BRIDGE_HISTORY_WINDOW_MS`], each exactly once.",
 ///      "type": "array",
 ///      "items": {
 ///        "$ref": "#/definitions/PendingDepositEntry"
@@ -6647,6 +6880,7 @@ impl GetPendingDepositsParams {
 /// </details>
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
 pub struct GetPendingDepositsResult {
+    ///L1 deposits, plus every bridge in flight or settled inside [`BRIDGE_HISTORY_WINDOW_MS`], each exactly once.
     pub pending_deposits: ::std::vec::Vec<PendingDepositEntry>,
     pub wallet: ::std::string::String,
 }
@@ -6655,13 +6889,13 @@ impl GetPendingDepositsResult {
         Default::default()
     }
 }
-///Parameters for `public/get_perp_impact_twap`. Timestamps accept either a JSON number or a string-encoded integer.
+///Parameters for `public/get_perp_impact_twap`. Timestamps are unix seconds, as either a JSON number or a string-encoded integer.
 ///
 /// <details><summary>JSON schema</summary>
 ///
 /// ```json
 ///{
-///  "description": "Parameters for `public/get_perp_impact_twap`. Timestamps accept either a JSON number or a string-encoded integer.",
+///  "description": "Parameters for `public/get_perp_impact_twap`. Timestamps are unix seconds, as either a JSON number or a string-encoded integer.",
 ///  "type": "object",
 ///  "required": [
 ///    "currency",
@@ -8155,6 +8389,64 @@ impl GetWithdrawalHistoryRequest {
         Default::default()
     }
 }
+///`IncidentResponse`
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "type": "object",
+///  "required": [
+///    "creation_timestamp_sec",
+///    "label",
+///    "message",
+///    "monitor_type",
+///    "severity"
+///  ],
+///  "properties": {
+///    "creation_timestamp_sec": {
+///      "description": "Timestamp of incident in UTC sec",
+///      "type": "integer",
+///      "format": "int64"
+///    },
+///    "label": {
+///      "description": "Incident label",
+///      "type": "string"
+///    },
+///    "message": {
+///      "description": "Incident message",
+///      "type": "string"
+///    },
+///    "monitor_type": {
+///      "description": "Incident trigger type",
+///      "$ref": "#/definitions/MonitorType"
+///    },
+///    "severity": {
+///      "description": "Incident severity",
+///      "$ref": "#/definitions/Severity"
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct IncidentResponse {
+    ///Timestamp of incident in UTC sec
+    pub creation_timestamp_sec: i64,
+    ///Incident label
+    pub label: ::std::string::String,
+    ///Incident message
+    pub message: ::std::string::String,
+    ///Incident trigger type
+    pub monitor_type: MonitorType,
+    ///Incident severity
+    pub severity: Severity,
+}
+impl IncidentResponse {
+    pub fn builder() -> builder::IncidentResponse {
+        Default::default()
+    }
+}
 ///Single spot OHLC candle in `public/get_index_chart_data`. `price` mirrors the close; `timestamp` and `timestamp_bucket` are the bucket start in UTC seconds.
 ///
 /// <details><summary>JSON schema</summary>
@@ -9429,9 +9721,7 @@ impl ::std::convert::TryFrom<::std::string::String> for MarketType {
 ///      "type": "string"
 ///    },
 ///    "nonce": {
-///      "type": "integer",
-///      "format": "uint64",
-///      "minimum": 0.0
+///      "type": "string"
 ///    },
 ///    "request_id": {
 ///      "$ref": "#/definitions/VaultRequestId"
@@ -9472,7 +9762,7 @@ impl ::std::convert::TryFrom<::std::string::String> for MarketType {
 pub struct MintSharesRequest {
     ///0x-prefixed hex of the 32-byte user deposit-action hash.
     pub deposit_hash: ::std::string::String,
-    pub nonce: u64,
+    pub nonce: ::std::string::String,
     pub request_id: VaultRequestId,
     ///Quoted share price in USD per share, as a decimal string (e.g. `"1.02"`).
     pub share_price: ::bigdecimal::BigDecimal,
@@ -9593,6 +9883,82 @@ pub struct MmpScopeRequest {
 impl MmpScopeRequest {
     pub fn builder() -> builder::MmpScopeRequest {
         Default::default()
+    }
+}
+///`MonitorType`
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "type": "string",
+///  "enum": [
+///    "manual",
+///    "auto"
+///  ]
+///}
+/// ```
+/// </details>
+#[derive(
+    ::serde::Deserialize,
+    ::serde::Serialize,
+    Clone,
+    Copy,
+    Debug,
+    Eq,
+    Hash,
+    Ord,
+    PartialEq,
+    PartialOrd
+)]
+pub enum MonitorType {
+    #[serde(rename = "manual")]
+    Manual,
+    #[serde(rename = "auto")]
+    Auto,
+}
+impl ::std::fmt::Display for MonitorType {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        match *self {
+            Self::Manual => f.write_str("manual"),
+            Self::Auto => f.write_str("auto"),
+        }
+    }
+}
+impl ::std::str::FromStr for MonitorType {
+    type Err = self::error::ConversionError;
+    fn from_str(
+        value: &str,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        match value {
+            "manual" => Ok(Self::Manual),
+            "auto" => Ok(Self::Auto),
+            _ => Err("invalid value".into()),
+        }
+    }
+}
+impl ::std::convert::TryFrom<&str> for MonitorType {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: &str,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<&::std::string::String> for MonitorType {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: &::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for MonitorType {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
     }
 }
 ///Returned by `get_live_mint_requests` / `get_live_burn_requests`: a FIFO page plus the queue's total live length (so the caller can paginate).
@@ -10874,9 +11240,7 @@ impl OrderActionDataResponse {
 ///      "type": "string"
 ///    },
 ///    "nonce": {
-///      "type": "integer",
-///      "format": "uint64",
-///      "minimum": 0.0
+///      "type": "string"
 ///    },
 ///    "owner": {
 ///      "type": "string"
@@ -10898,7 +11262,7 @@ pub struct OrderActionInputData {
     pub data: OrderActionDataResponse,
     pub expiry: u64,
     pub module: ::std::string::String,
-    pub nonce: u64,
+    pub nonce: ::std::string::String,
     pub owner: ::std::string::String,
     pub signer: ::std::string::String,
     pub subaccount_id: u64,
@@ -11861,6 +12225,159 @@ impl Pagination {
         Default::default()
     }
 }
+///Where a deposit came from. Named apart from `DepositBridgeOrigin` because schemars shares one namespace and would emit an order-dependent `BridgeOrigin2`.
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "description": "Where a deposit came from. Named apart from `DepositBridgeOrigin` because schemars shares one namespace and would emit an order-dependent `BridgeOrigin2`.",
+///  "type": "object",
+///  "required": [
+///    "bridge_id",
+///    "bridge_status",
+///    "deposit_address",
+///    "expected_amount",
+///    "expires_at_ms",
+///    "rail",
+///    "source_chain_id",
+///    "source_tx_hash",
+///    "substatus",
+///    "token"
+///  ],
+///  "properties": {
+///    "bridge_id": {
+///      "description": "Unique with `rail`; changes if a registered source tx is replaced, so key on `provider_transfer_id` when present.",
+///      "type": "string"
+///    },
+///    "bridge_status": {
+///      "description": "`registered` (reported by the client, not yet confirmed by Li.Fi) `submitted` (in flight) `delivered` (landed on the destination chain) `matched` (joined to the L1 deposit) `failed` (the bridge refunded or could not fill — nothing reached the escrow) `expired` (unresolved past `expires_at_ms`; check the source chain) `unmatched` (delivered, but not credited within 24h; contact support)",
+///      "type": "string"
+///    },
+///    "delivered_at_ms": {
+///      "type": [
+///        "integer",
+///        "null"
+///      ],
+///      "format": "int64"
+///    },
+///    "deposit_address": {
+///      "description": "The escrow the bridge delivers to.",
+///      "type": "string"
+///    },
+///    "expected_amount": {
+///      "description": "Quoted amount expected to land, in `token` units (estimated until quoted); `receiving_amount` once delivered.",
+///      "type": "string"
+///    },
+///    "expires_at_ms": {
+///      "description": "When a still-`registered` or `submitted` bridge will be marked `expired`.",
+///      "type": "integer",
+///      "format": "int64"
+///    },
+///    "provider_transfer_id": {
+///      "description": "The provider's own id for the bridge (Li.Fi: the quote's `transactionId`), stable through its lifecycle.",
+///      "type": [
+///        "string",
+///        "null"
+///      ]
+///    },
+///    "rail": {
+///      "description": "Bridge protocol: `lifi` or `layerzero`.",
+///      "type": "string"
+///    },
+///    "receiving_amount": {
+///      "description": "What actually arrived, native units, as a decimal string.",
+///      "type": [
+///        "string",
+///        "null"
+///      ]
+///    },
+///    "receiving_token": {
+///      "type": [
+///        "string",
+///        "null"
+///      ]
+///    },
+///    "receiving_tx_hash": {
+///      "description": "The bridge's delivery transaction on the destination chain.",
+///      "type": [
+///        "string",
+///        "null"
+///      ]
+///    },
+///    "source_address": {
+///      "description": "Their wallet on that chain, lower-cased; absent when the rail gave none.",
+///      "type": [
+///        "string",
+///        "null"
+///      ]
+///    },
+///    "source_chain_id": {
+///      "description": "Chain the user sent from.",
+///      "type": "integer",
+///      "format": "uint64",
+///      "minimum": 0.0
+///    },
+///    "source_tx_hash": {
+///      "description": "Their transaction on that chain.",
+///      "type": "string"
+///    },
+///    "substatus": {
+///      "description": "The rail's detail, or `TOKEN_MISMATCH` when the escrow cannot credit the token.",
+///      "type": "string"
+///    },
+///    "token": {
+///      "description": "The ERC20 expected to land in the escrow.",
+///      "type": "string"
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct PendingDepositBridgeOrigin {
+    ///Unique with `rail`; changes if a registered source tx is replaced, so key on `provider_transfer_id` when present.
+    pub bridge_id: ::std::string::String,
+    ///`registered` (reported by the client, not yet confirmed by Li.Fi) `submitted` (in flight) `delivered` (landed on the destination chain) `matched` (joined to the L1 deposit) `failed` (the bridge refunded or could not fill — nothing reached the escrow) `expired` (unresolved past `expires_at_ms`; check the source chain) `unmatched` (delivered, but not credited within 24h; contact support)
+    pub bridge_status: ::std::string::String,
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub delivered_at_ms: ::std::option::Option<i64>,
+    ///The escrow the bridge delivers to.
+    pub deposit_address: ::std::string::String,
+    ///Quoted amount expected to land, in `token` units (estimated until quoted); `receiving_amount` once delivered.
+    pub expected_amount: ::std::string::String,
+    ///When a still-`registered` or `submitted` bridge will be marked `expired`.
+    pub expires_at_ms: i64,
+    ///The provider's own id for the bridge (Li.Fi: the quote's `transactionId`), stable through its lifecycle.
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub provider_transfer_id: ::std::option::Option<::std::string::String>,
+    ///Bridge protocol: `lifi` or `layerzero`.
+    pub rail: ::std::string::String,
+    ///What actually arrived, native units, as a decimal string.
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub receiving_amount: ::std::option::Option<::std::string::String>,
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub receiving_token: ::std::option::Option<::std::string::String>,
+    ///The bridge's delivery transaction on the destination chain.
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub receiving_tx_hash: ::std::option::Option<::std::string::String>,
+    ///Their wallet on that chain, lower-cased; absent when the rail gave none.
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub source_address: ::std::option::Option<::std::string::String>,
+    ///Chain the user sent from.
+    pub source_chain_id: u64,
+    ///Their transaction on that chain.
+    pub source_tx_hash: ::std::string::String,
+    ///The rail's detail, or `TOKEN_MISMATCH` when the escrow cannot credit the token.
+    pub substatus: ::std::string::String,
+    ///The ERC20 expected to land in the escrow.
+    pub token: ::std::string::String,
+}
+impl PendingDepositBridgeOrigin {
+    pub fn builder() -> builder::PendingDepositBridgeOrigin {
+        Default::default()
+    }
+}
 ///`PendingDepositEntry`
 ///
 /// <details><summary>JSON schema</summary>
@@ -11869,24 +12386,22 @@ impl Pagination {
 ///{
 ///  "type": "object",
 ///  "required": [
-///    "action_id",
 ///    "action_type",
-///    "amount",
 ///    "asset",
-///    "block_number",
 ///    "deposit_type",
-///    "log_index",
 ///    "manager_id",
 ///    "status",
 ///    "subaccount_id",
 ///    "timestamp",
-///    "tx_hash",
 ///    "updated_at_ms"
 ///  ],
 ///  "properties": {
 ///    "action_id": {
-///      "description": "Per-queue id assigned by the `OnchainActionManager`.",
-///      "type": "integer",
+///      "description": "Per-queue id assigned by the `OnchainActionManager`. Absent while `bridging`.",
+///      "type": [
+///        "integer",
+///        "null"
+///      ],
 ///      "format": "uint64",
 ///      "minimum": 0.0
 ///    },
@@ -11895,29 +12410,43 @@ impl Pagination {
 ///      "type": "string"
 ///    },
 ///    "amount": {
-///      "description": "Amount in the asset's native ERC-20 units, as a decimal string.",
-///      "type": "string"
-///    },
-///    "asset": {
-///      "type": "string"
-///    },
-///    "block_number": {
-///      "type": "integer",
-///      "format": "uint64",
-///      "minimum": 0.0
-///    },
-///    "credit_nonce": {
-///      "description": "Deprecated",
+///      "description": "Amount in the asset's native ERC-20 units, as a decimal string. While `bridging`, the estimated `bridge_to_l1.expected_amount` until the bridge delivers, then what it delivered.",
 ///      "type": [
 ///        "string",
 ///        "null"
 ///      ]
 ///    },
+///    "asset": {
+///      "type": "string"
+///    },
+///    "block_number": {
+///      "type": [
+///        "integer",
+///        "null"
+///      ],
+///      "format": "uint64",
+///      "minimum": 0.0
+///    },
+///    "bridge_to_l1": {
+///      "description": "Where a bridged deposit came from; absent for a plain L1 deposit or a bridge sent without Derive's integrator code.",
+///      "anyOf": [
+///        {
+///          "$ref": "#/definitions/PendingDepositBridgeOrigin"
+///        },
+///        {
+///          "type": "null"
+///        }
+///      ]
+///    },
 ///    "deposit_type": {
+///      "description": "`standard` or `direct`.",
 ///      "type": "string"
 ///    },
 ///    "log_index": {
-///      "type": "integer",
+///      "type": [
+///        "integer",
+///        "null"
+///      ],
 ///      "format": "uint64",
 ///      "minimum": 0.0
 ///    },
@@ -11928,7 +12457,7 @@ impl Pagination {
 ///      "minimum": 0.0
 ///    },
 ///    "status": {
-///      "description": "`detected` (transfer seen at the tip, pre-confirmation) `pending` (escrow swept, awaiting confirmation) `confirmed` (sweep tx past the confirmation range) `reverted` (the sweep reorged out — or uncreditable: no valid destination exists)",
+///      "description": "`bridging` (a bridge not yet recorded on L1; its detail is `bridge_to_l1.bridge_status`) `detected` (transfer seen at the tip, pre-confirmation) `pending` (escrow swept, awaiting confirmation) `confirmed` (sweep tx past the confirmation range) `reverted` (the sweep reorged out — or uncreditable: no valid destination exists)",
 ///      "type": "string"
 ///    },
 ///    "subaccount_id": {
@@ -11937,12 +12466,16 @@ impl Pagination {
 ///      "format": "int64"
 ///    },
 ///    "timestamp": {
-///      "description": "Milliseconds when the tracker first picked up the deposit - approximates the block timestamp of `block_number`. Shared by all of a deposit's entries.",
+///      "description": "Milliseconds when the tracker first picked up the deposit - approximates the block timestamp of `block_number`. Shared by all of a deposit's entries. While `bridging`, the bridge's source transaction time.",
 ///      "type": "integer",
 ///      "format": "int64"
 ///    },
 ///    "tx_hash": {
-///      "type": "string"
+///      "description": "The L1 deposit. Absent while `bridging`: key a bridging entry on `bridge_to_l1` (see `bridge_id`), since it gains `tx_hash`/`log_index` once the sweeper records the deposit.",
+///      "type": [
+///        "string",
+///        "null"
+///      ]
 ///    },
 ///    "updated_at_ms": {
 ///      "type": "integer",
@@ -11954,28 +12487,35 @@ impl Pagination {
 /// </details>
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
 pub struct PendingDepositEntry {
-    ///Per-queue id assigned by the `OnchainActionManager`.
-    pub action_id: u64,
+    ///Per-queue id assigned by the `OnchainActionManager`. Absent while `bridging`.
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub action_id: ::std::option::Option<u64>,
     ///`Deposit` (existing subaccount) or `DepositToNewSubaccount`
     pub action_type: ::std::string::String,
-    ///Amount in the asset's native ERC-20 units, as a decimal string.
-    pub amount: ::std::string::String,
-    pub asset: ::std::string::String,
-    pub block_number: u64,
-    ///Deprecated
+    ///Amount in the asset's native ERC-20 units, as a decimal string. While `bridging`, the estimated `bridge_to_l1.expected_amount` until the bridge delivers, then what it delivered.
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
-    pub credit_nonce: ::std::option::Option<::std::string::String>,
+    pub amount: ::std::option::Option<::std::string::String>,
+    pub asset: ::std::string::String,
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub block_number: ::std::option::Option<u64>,
+    ///Where a bridged deposit came from; absent for a plain L1 deposit or a bridge sent without Derive's integrator code.
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub bridge_to_l1: ::std::option::Option<PendingDepositBridgeOrigin>,
+    ///`standard` or `direct`.
     pub deposit_type: ::std::string::String,
-    pub log_index: u64,
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub log_index: ::std::option::Option<u64>,
     ///Manager of the new subaccount; `0` for existing-subaccount deposits.
     pub manager_id: u32,
-    ///`detected` (transfer seen at the tip, pre-confirmation) `pending` (escrow swept, awaiting confirmation) `confirmed` (sweep tx past the confirmation range) `reverted` (the sweep reorged out — or uncreditable: no valid destination exists)
+    ///`bridging` (a bridge not yet recorded on L1; its detail is `bridge_to_l1.bridge_status`) `detected` (transfer seen at the tip, pre-confirmation) `pending` (escrow swept, awaiting confirmation) `confirmed` (sweep tx past the confirmation range) `reverted` (the sweep reorged out — or uncreditable: no valid destination exists)
     pub status: ::std::string::String,
     ///Credited subaccount; `0` for new-subaccount deposits.
     pub subaccount_id: i64,
-    ///Milliseconds when the tracker first picked up the deposit - approximates the block timestamp of `block_number`. Shared by all of a deposit's entries.
+    ///Milliseconds when the tracker first picked up the deposit - approximates the block timestamp of `block_number`. Shared by all of a deposit's entries. While `bridging`, the bridge's source transaction time.
     pub timestamp: i64,
-    pub tx_hash: ::std::string::String,
+    ///The L1 deposit. Absent while `bridging`: key a bridging entry on `bridge_to_l1` (see `bridge_id`), since it gains `tx_hash`/`log_index` once the sweeper records the deposit.
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub tx_hash: ::std::option::Option<::std::string::String>,
     pub updated_at_ms: i64,
 }
 impl PendingDepositEntry {
@@ -13092,8 +13632,7 @@ impl PrivateGetSubaccountsResponse {
 ///      "minimum": 0.0
 ///    },
 ///    "nonce": {
-///      "type": "integer",
-///      "format": "int64"
+///      "type": "string"
 ///    },
 ///    "percent_of_acc": {
 ///      "description": "Fraction of the account to liquidate (`\"1.0\"` = 100%), decimal string or JSON number. Must be a whole percent, i.e. a multiple of `\"0.01\"`.",
@@ -13106,7 +13645,7 @@ impl PrivateGetSubaccountsResponse {
 ///      }
 ///    },
 ///    "price_limit": {
-///      "description": "Signed limit price (`\"0\"` opts out), decimal string or JSON number.",
+///      "description": "Max total cash paid for the filled portion; negative is a minimum payout in insolvent auctions. `\"0\"` opts out. Decimal string or JSON number.",
 ///      "type": "string",
 ///      "format": "decimal",
 ///      "x-rust-type": {
@@ -13140,10 +13679,10 @@ impl PrivateGetSubaccountsResponse {
 pub struct PrivateLiquidateRequest {
     ///Subaccount being liquidated.
     pub liquidate_subaccount_id: u64,
-    pub nonce: i64,
+    pub nonce: ::std::string::String,
     ///Fraction of the account to liquidate (`"1.0"` = 100%), decimal string or JSON number. Must be a whole percent, i.e. a multiple of `"0.01"`.
     pub percent_of_acc: ::bigdecimal::BigDecimal,
-    ///Signed limit price (`"0"` opts out), decimal string or JSON number.
+    ///Max total cash paid for the filled portion; negative is a minimum payout in insolvent auctions. `"0"` opts out. Decimal string or JSON number.
     pub price_limit: ::bigdecimal::BigDecimal,
     pub signature: ::std::string::String,
     pub signature_expiry_sec: u64,
@@ -13451,8 +13990,7 @@ impl PrivateSetSessionKeyResponse {
 ///      "minimum": 0.0
 ///    },
 ///    "nonce": {
-///      "type": "integer",
-///      "format": "int64"
+///      "type": "string"
 ///    },
 ///    "recipient_address": {
 ///      "description": "Owner of the destination account/subaccount.",
@@ -13498,7 +14036,7 @@ pub struct PrivateTransferSpotExternalRequest {
     pub max_fee_usd: ::bigdecimal::BigDecimal,
     ///Manager id for the new subaccount when `to_subaccount_id == 0`.
     pub new_subaccount_manager: u32,
-    pub nonce: i64,
+    pub nonce: ::std::string::String,
     ///Owner of the destination account/subaccount.
     pub recipient_address: ::std::string::String,
     pub signature: ::std::string::String,
@@ -13599,8 +14137,7 @@ impl PrivateTransferSpotExternalResponse {
 ///      "minimum": 0.0
 ///    },
 ///    "nonce": {
-///      "type": "integer",
-///      "format": "int64"
+///      "type": "string"
 ///    },
 ///    "signature": {
 ///      "type": "string"
@@ -13642,7 +14179,7 @@ pub struct PrivateTransferSpotRequest {
     pub max_fee_usd: ::bigdecimal::BigDecimal,
     ///Non-zero → create a new sender-owned subaccount under this manager id.
     pub new_subaccount_manager: u32,
-    pub nonce: i64,
+    pub nonce: ::std::string::String,
     pub signature: ::std::string::String,
     pub signature_expiry_sec: u64,
     pub signer: ::std::string::String,
@@ -13729,8 +14266,7 @@ impl PrivateTransferSpotResponse {
 ///      }
 ///    },
 ///    "nonce": {
-///      "type": "integer",
-///      "format": "int64"
+///      "type": "string"
 ///    },
 ///    "recipient": {
 ///      "description": "L1 address the funds are paid out to. Defaults to the subaccount's owner wallet when omitted.\n\nA non-owner signer (session key) may only pay out to an address on the owner's `whitelisted_recipients`, unless the key holds `Admin`.",
@@ -13767,7 +14303,7 @@ pub struct PrivateWithdrawRequest {
     pub force_batch: bool,
     ///Maximum sequencer fee the signer authorises, in USD, as a decimal string (e.g. `"1.5"`) or a JSON number.
     pub max_fee_usd: ::bigdecimal::BigDecimal,
-    pub nonce: i64,
+    pub nonce: ::std::string::String,
     /**L1 address the funds are paid out to. Defaults to the subaccount's owner wallet when omitted.
 
 A non-owner signer (session key) may only pay out to an address on the owner's `whitelisted_recipients`, unless the key holds `Admin`.*/
@@ -14007,8 +14543,7 @@ impl ProtocolVault {
 ///      }
 ///    },
 ///    "nonce": {
-///      "type": "integer",
-///      "format": "int64"
+///      "type": "string"
 ///    },
 ///    "quote_id": {
 ///      "description": "UUID v4 string",
@@ -14045,7 +14580,7 @@ pub struct PublicExecuteQuoteDebugRequest {
     pub legs: ::std::vec::Vec<PricedLegParamsAndResponse>,
     ///Non-negative decimal string of the human value (e.g. `"1.5"`), up to 12 fractional digits; a string or JSON number is accepted
     pub max_fee: ::bigdecimal::BigDecimal,
-    pub nonce: i64,
+    pub nonce: ::std::string::String,
     ///UUID v4 string
     pub quote_id: ::uuid::Uuid,
     ///UUID v4 string
@@ -15036,8 +15571,7 @@ impl PublicRfq {
 ///      }
 ///    },
 ///    "nonce": {
-///      "type": "integer",
-///      "format": "int64"
+///      "type": "string"
 ///    },
 ///    "rfq_id": {
 ///      "description": "UUID v4 string",
@@ -15069,7 +15603,7 @@ pub struct PublicSendQuoteDebugRequest {
     pub legs: ::std::vec::Vec<PricedLegParamsAndResponse>,
     ///Non-negative decimal string of the human value (e.g. `"1.5"`), up to 12 fractional digits; a string or JSON number is accepted
     pub max_fee: ::bigdecimal::BigDecimal,
-    pub nonce: i64,
+    pub nonce: ::std::string::String,
     ///UUID v4 string
     pub rfq_id: ::uuid::Uuid,
     pub signature: ::std::string::String,
@@ -15833,8 +16367,7 @@ impl PublicVolSviParamDataParams {
 ///      }
 ///    },
 ///    "nonce": {
-///      "type": "integer",
-///      "format": "int64"
+///      "type": "string"
 ///    },
 ///    "recipient": {
 ///      "description": "L1 address the funds are paid out to. Defaults to the subaccount's owner wallet when omitted — matching what `private/withdraw` reconstructs.",
@@ -15868,7 +16401,7 @@ pub struct PublicWithdrawDebugRequest {
     pub force_batch: bool,
     ///Maximum sequencer fee the signer authorises, in USD, as a decimal string (e.g. `"1.5"`) or a JSON number.
     pub max_fee_usd: ::bigdecimal::BigDecimal,
-    pub nonce: i64,
+    pub nonce: ::std::string::String,
     ///L1 address the funds are paid out to. Defaults to the subaccount's owner wallet when omitted — matching what `private/withdraw` reconstructs.
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub recipient: ::std::option::Option<::std::string::String>,
@@ -16939,6 +17472,118 @@ impl Referrer {
         Default::default()
     }
 }
+///What the client sent and was quoted.
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "description": "What the client sent and was quoted.",
+///  "type": "object",
+///  "required": [
+///    "bridge_token",
+///    "bridge_token_decimals",
+///    "deposit_address",
+///    "expected_amount",
+///    "rail",
+///    "source_chain_id",
+///    "source_token",
+///    "source_tx_hash",
+///    "wallet"
+///  ],
+///  "properties": {
+///    "bridge_token": {
+///      "description": "The ERC20 the bridge delivers on the destination chain.",
+///      "type": "string"
+///    },
+///    "bridge_token_decimals": {
+///      "description": "`bridge_token`'s decimals.",
+///      "type": "integer",
+///      "format": "uint8",
+///      "minimum": 0.0
+///    },
+///    "deposit_address": {
+///      "description": "One of the wallet's escrows, from `public/register_deposit_address`.",
+///      "type": "string"
+///    },
+///    "expected_amount": {
+///      "description": "What the quote says will arrive, in `bridge_token`'s native units, as a decimal string (Li.Fi: `estimate.toAmount`).",
+///      "type": "string"
+///    },
+///    "provider_transfer_id": {
+///      "description": "The provider's own id for the transfer, kept if the source transaction is sped up or replaced: Li.Fi's quote `transactionId`.",
+///      "default": null,
+///      "type": [
+///        "string",
+///        "null"
+///      ]
+///    },
+///    "rail": {
+///      "description": "Bridge protocol: `lifi`. (`layerzero` is not registrable yet.)",
+///      "type": "string"
+///    },
+///    "source_chain_id": {
+///      "description": "Chain the bridge was sent from.",
+///      "type": "integer",
+///      "format": "uint64",
+///      "minimum": 0.0
+///    },
+///    "source_token": {
+///      "description": "The ERC20 sent on the source chain.",
+///      "type": "string"
+///    },
+///    "source_tx_hash": {
+///      "description": "The bridge transaction on that chain.",
+///      "type": "string"
+///    },
+///    "tool": {
+///      "description": "The route the provider chose (Li.Fi: the quote's `tool`). Internal only.",
+///      "default": null,
+///      "type": [
+///        "string",
+///        "null"
+///      ]
+///    },
+///    "wallet": {
+///      "description": "The session's wallet.",
+///      "type": "string"
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct RegisterBridgeDepositParams {
+    ///The ERC20 the bridge delivers on the destination chain.
+    pub bridge_token: ::std::string::String,
+    ///`bridge_token`'s decimals.
+    pub bridge_token_decimals: u8,
+    ///One of the wallet's escrows, from `public/register_deposit_address`.
+    pub deposit_address: ::std::string::String,
+    ///What the quote says will arrive, in `bridge_token`'s native units, as a decimal string (Li.Fi: `estimate.toAmount`).
+    pub expected_amount: ::std::string::String,
+    ///The provider's own id for the transfer, kept if the source transaction is sped up or replaced: Li.Fi's quote `transactionId`.
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub provider_transfer_id: ::std::option::Option<::std::string::String>,
+    ///Bridge protocol: `lifi`. (`layerzero` is not registrable yet.)
+    pub rail: ::std::string::String,
+    ///Chain the bridge was sent from.
+    pub source_chain_id: u64,
+    ///The ERC20 sent on the source chain.
+    pub source_token: ::std::string::String,
+    ///The bridge transaction on that chain.
+    pub source_tx_hash: ::std::string::String,
+    ///The route the provider chose (Li.Fi: the quote's `tool`). Internal only.
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub tool: ::std::option::Option<::std::string::String>,
+    ///The session's wallet.
+    pub wallet: ::std::string::String,
+}
+impl RegisterBridgeDepositParams {
+    pub fn builder() -> builder::RegisterBridgeDepositParams {
+        Default::default()
+    }
+}
 ///`RegisterDepositAddressParams`
 ///
 /// <details><summary>JSON schema</summary>
@@ -17232,6 +17877,7 @@ impl RejectDepositRequestRequest {
 ///      }
 ///    },
 ///    "mmp": {
+///      "description": "Tags the order for market maker protection. Only tagged orders are cancelled by cancel on disconnect.",
 ///      "default": null,
 ///      "type": [
 ///        "boolean",
@@ -17244,10 +17890,9 @@ impl RejectDepositRequestRequest {
 ///    "nonce_to_cancel": {
 ///      "default": null,
 ///      "type": [
-///        "integer",
+///        "string",
 ///        "null"
-///      ],
-///      "format": "int64"
+///      ]
 ///    },
 ///    "order_id_to_cancel": {
 ///      "description": "Optional UUID v4 string",
@@ -17383,11 +18028,12 @@ pub struct ReplaceOrderRequest {
     pub limit_price: ::bigdecimal::BigDecimal,
     ///Max fee per unit of volume in quote currency, as a decimal string or a JSON number.
     pub max_fee: ::bigdecimal::BigDecimal,
+    ///Tags the order for market maker protection. Only tagged orders are cancelled by cancel on disconnect.
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub mmp: ::std::option::Option<bool>,
     pub nonce: ::std::string::String,
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
-    pub nonce_to_cancel: ::std::option::Option<i64>,
+    pub nonce_to_cancel: ::std::option::Option<::std::string::String>,
     ///Optional UUID v4 string
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub order_id_to_cancel: ::std::option::Option<::uuid::Uuid>,
@@ -17547,16 +18193,14 @@ impl ReplaceOrderResponse {
 ///      "type": "boolean"
 ///    },
 ///    "nonce": {
-///      "type": "integer",
-///      "format": "int64"
+///      "type": "string"
 ///    },
 ///    "nonce_to_cancel": {
 ///      "default": null,
 ///      "type": [
-///        "integer",
+///        "string",
 ///        "null"
-///      ],
-///      "format": "int64"
+///      ]
 ///    },
 ///    "quote_id_to_cancel": {
 ///      "description": "Optional UUID v4 string",
@@ -17610,9 +18254,9 @@ pub struct ReplaceQuoteRequest {
     pub max_fee: ::bigdecimal::BigDecimal,
     #[serde(default)]
     pub mmp: bool,
-    pub nonce: i64,
+    pub nonce: ::std::string::String,
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
-    pub nonce_to_cancel: ::std::option::Option<i64>,
+    pub nonce_to_cancel: ::std::option::Option<::std::string::String>,
     ///Optional UUID v4 string
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub quote_id_to_cancel: ::std::option::Option<::uuid::Uuid>,
@@ -17663,9 +18307,7 @@ impl ReplaceQuoteRequest {
 ///      "$ref": "#/definitions/Address"
 ///    },
 ///    "nonce": {
-///      "type": "integer",
-///      "format": "uint64",
-///      "minimum": 0.0
+///      "type": "string"
 ///    },
 ///    "signature": {
 ///      "description": "0x-prefixed hex of the 65-byte EOA signature.",
@@ -17699,7 +18341,7 @@ pub struct RequestVaultDepositRequest {
     ///Deposit amount in the vault's deposit asset, as a decimal string (e.g. `"1"`).
     pub amount: ::bigdecimal::BigDecimal,
     pub deposit_spot_asset: Address,
-    pub nonce: u64,
+    pub nonce: ::std::string::String,
     ///0x-prefixed hex of the 65-byte EOA signature.
     pub signature: ::std::string::String,
     pub signature_expiry_sec: u64,
@@ -17732,9 +18374,7 @@ impl RequestVaultDepositRequest {
 ///  ],
 ///  "properties": {
 ///    "nonce": {
-///      "type": "integer",
-///      "format": "uint64",
-///      "minimum": 0.0
+///      "type": "string"
 ///    },
 ///    "shares_to_burn": {
 ///      "description": "Number of vault shares to burn, as a decimal string.",
@@ -17775,7 +18415,7 @@ impl RequestVaultDepositRequest {
 /// </details>
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
 pub struct RequestVaultWithdrawRequest {
-    pub nonce: u64,
+    pub nonce: ::std::string::String,
     ///Number of vault shares to burn, as a decimal string.
     pub shares_to_burn: ::bigdecimal::BigDecimal,
     ///0x-prefixed hex of the 65-byte EOA signature.
@@ -18593,6 +19233,107 @@ impl RfqGetResponse {
         Default::default()
     }
 }
+///`RfqLegResponse`
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "type": "object",
+///  "required": [
+///    "amount",
+///    "asset_address",
+///    "asset_sub_id",
+///    "price"
+///  ],
+///  "properties": {
+///    "amount": {
+///      "description": "Decimal string of the human value (e.g. `\"1.5\"`), up to 12 fractional digits; a string or JSON number is accepted",
+///      "type": "string",
+///      "format": "decimal",
+///      "x-rust-type": {
+///        "crate": "bigdecimal",
+///        "path": "bigdecimal::BigDecimal",
+///        "version": ">=0.4.0, <0.5.0"
+///      }
+///    },
+///    "asset_address": {
+///      "type": "string"
+///    },
+///    "asset_sub_id": {
+///      "type": "string"
+///    },
+///    "price": {
+///      "description": "Non-negative decimal string of the human value (e.g. `\"1.5\"`), up to 12 fractional digits; a string or JSON number is accepted",
+///      "type": "string",
+///      "format": "decimal",
+///      "x-rust-type": {
+///        "crate": "bigdecimal",
+///        "path": "bigdecimal::BigDecimal",
+///        "version": ">=0.4.0, <0.5.0"
+///      }
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct RfqLegResponse {
+    ///Decimal string of the human value (e.g. `"1.5"`), up to 12 fractional digits; a string or JSON number is accepted
+    pub amount: ::bigdecimal::BigDecimal,
+    pub asset_address: ::std::string::String,
+    pub asset_sub_id: ::std::string::String,
+    ///Non-negative decimal string of the human value (e.g. `"1.5"`), up to 12 fractional digits; a string or JSON number is accepted
+    pub price: ::bigdecimal::BigDecimal,
+}
+impl RfqLegResponse {
+    pub fn builder() -> builder::RfqLegResponse {
+        Default::default()
+    }
+}
+///`RfqMakerActionDataResponse`
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "type": "object",
+///  "required": [
+///    "max_fee",
+///    "trades"
+///  ],
+///  "properties": {
+///    "max_fee": {
+///      "description": "Non-negative decimal string of the human value (e.g. `\"1.5\"`), up to 12 fractional digits; a string or JSON number is accepted",
+///      "type": "string",
+///      "format": "decimal",
+///      "x-rust-type": {
+///        "crate": "bigdecimal",
+///        "path": "bigdecimal::BigDecimal",
+///        "version": ">=0.4.0, <0.5.0"
+///      }
+///    },
+///    "trades": {
+///      "type": "array",
+///      "items": {
+///        "$ref": "#/definitions/RfqLegResponse"
+///      }
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct RfqMakerActionDataResponse {
+    ///Non-negative decimal string of the human value (e.g. `"1.5"`), up to 12 fractional digits; a string or JSON number is accepted
+    pub max_fee: ::bigdecimal::BigDecimal,
+    pub trades: ::std::vec::Vec<RfqLegResponse>,
+}
+impl RfqMakerActionDataResponse {
+    pub fn builder() -> builder::RfqMakerActionDataResponse {
+        Default::default()
+    }
+}
 ///`RfqPollResponse`
 ///
 /// <details><summary>JSON schema</summary>
@@ -18712,6 +19453,48 @@ impl ::std::convert::TryFrom<::std::string::String> for RfqStatus {
         value: ::std::string::String,
     ) -> ::std::result::Result<Self, self::error::ConversionError> {
         value.parse()
+    }
+}
+///`RfqTakerActionDataResponse`
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "type": "object",
+///  "required": [
+///    "max_fee",
+///    "order_hash"
+///  ],
+///  "properties": {
+///    "max_fee": {
+///      "description": "Non-negative decimal string of the human value (e.g. `\"1.5\"`), up to 12 fractional digits; a string or JSON number is accepted",
+///      "type": "string",
+///      "format": "decimal",
+///      "x-rust-type": {
+///        "crate": "bigdecimal",
+///        "path": "bigdecimal::BigDecimal",
+///        "version": ">=0.4.0, <0.5.0"
+///      }
+///    },
+///    "order_hash": {
+///      "description": "`keccak(abi.encode(maker_trades))` — the maker bundle hash the taker commits to.",
+///      "type": "string"
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct RfqTakerActionDataResponse {
+    ///Non-negative decimal string of the human value (e.g. `"1.5"`), up to 12 fractional digits; a string or JSON number is accepted
+    pub max_fee: ::bigdecimal::BigDecimal,
+    ///`keccak(abi.encode(maker_trades))` — the maker bundle hash the taker commits to.
+    pub order_hash: ::std::string::String,
+}
+impl RfqTakerActionDataResponse {
+    pub fn builder() -> builder::RfqTakerActionDataResponse {
+        Default::default()
     }
 }
 ///One risk universe: its display metadata, managers (each with what it lets you trade and deposit), and the Security Module absorbing the universe's losses. The universe-first mirror of `public/get_all_currencies` — pick a universe, pick a manager in it, and the `manager_id` is what you pass when depositing to a new subaccount.
@@ -19040,8 +19823,7 @@ impl SecurityModuleDetails {
 ///      "type": "boolean"
 ///    },
 ///    "nonce": {
-///      "type": "integer",
-///      "format": "int64"
+///      "type": "string"
 ///    },
 ///    "referral_code": {
 ///      "default": "",
@@ -19086,7 +19868,7 @@ pub struct SendQuoteRequest {
     pub max_fee: ::bigdecimal::BigDecimal,
     #[serde(default)]
     pub mmp: bool,
-    pub nonce: i64,
+    pub nonce: ::std::string::String,
     #[serde(default)]
     pub referral_code: ::std::string::String,
     ///UUID v4 string
@@ -19478,13 +20260,13 @@ impl ::std::convert::TryFrom<::std::string::String> for SetCancelOnDisconnectRes
         value.parse()
     }
 }
-///`mmp_interval` and `mmp_frozen_time` are specified in milliseconds (rounded down to the nearest whole second).
+///`mmp_interval` and `mmp_frozen_time` are specified in milliseconds (rounded up to the nearest whole second).
 ///
 /// <details><summary>JSON schema</summary>
 ///
 /// ```json
 ///{
-///  "description": "`mmp_interval` and `mmp_frozen_time` are specified in milliseconds (rounded down to the nearest whole second).",
+///  "description": "`mmp_interval` and `mmp_frozen_time` are specified in milliseconds (rounded up to the nearest whole second).",
 ///  "type": "object",
 ///  "required": [
 ///    "currency",
@@ -19555,13 +20337,13 @@ impl SetMmpConfigRequest {
         Default::default()
     }
 }
-///Echoes the inbound params back: decimal-string limits, ms intervals.
+///Echoes the stored config: decimal-string limits, ms intervals.
 ///
 /// <details><summary>JSON schema</summary>
 ///
 /// ```json
 ///{
-///  "description": "Echoes the inbound params back: decimal-string limits, ms intervals.",
+///  "description": "Echoes the stored config: decimal-string limits, ms intervals.",
 ///  "type": "object",
 ///  "required": [
 ///    "currency",
@@ -19611,6 +20393,225 @@ pub struct SetMmpConfigResponse {
 }
 impl SetMmpConfigResponse {
     pub fn builder() -> builder::SetMmpConfigResponse {
+        Default::default()
+    }
+}
+///`SetSessionKeyActionDataResponse`
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "type": "object",
+///  "required": [
+///    "expiry_sec",
+///    "scopes",
+///    "session_key",
+///    "subaccounts"
+///  ],
+///  "properties": {
+///    "expiry_sec": {
+///      "type": "integer",
+///      "format": "uint64",
+///      "minimum": 0.0
+///    },
+///    "scopes": {
+///      "description": "Protocol scope wire strings (e.g. `\"trade:orderbook:all\"`).",
+///      "type": "array",
+///      "items": {
+///        "type": "string"
+///      }
+///    },
+///    "session_key": {
+///      "type": "string"
+///    },
+///    "subaccounts": {
+///      "type": "array",
+///      "items": {
+///        "type": "integer",
+///        "format": "uint64",
+///        "minimum": 0.0
+///      }
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct SetSessionKeyActionDataResponse {
+    pub expiry_sec: u64,
+    ///Protocol scope wire strings (e.g. `"trade:orderbook:all"`).
+    pub scopes: ::std::vec::Vec<::std::string::String>,
+    pub session_key: ::std::string::String,
+    pub subaccounts: ::std::vec::Vec<u64>,
+}
+impl SetSessionKeyActionDataResponse {
+    pub fn builder() -> builder::SetSessionKeyActionDataResponse {
+        Default::default()
+    }
+}
+///The `Action` envelope a debug route rebuilt from the request inputs, plus its decoded action data — i.e. what the signature commits to.
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "description": "The `Action` envelope a debug route rebuilt from the request inputs, plus its decoded action data — i.e. what the signature commits to.",
+///  "type": "object",
+///  "required": [
+///    "data",
+///    "expiry",
+///    "module",
+///    "nonce",
+///    "owner",
+///    "signer",
+///    "subaccount_id"
+///  ],
+///  "properties": {
+///    "data": {
+///      "$ref": "#/definitions/SetSessionKeyActionDataResponse"
+///    },
+///    "expiry": {
+///      "type": "integer",
+///      "format": "uint64",
+///      "minimum": 0.0
+///    },
+///    "module": {
+///      "type": "string"
+///    },
+///    "nonce": {
+///      "type": "string"
+///    },
+///    "owner": {
+///      "type": "string"
+///    },
+///    "signer": {
+///      "type": "string"
+///    },
+///    "subaccount_id": {
+///      "type": "integer",
+///      "format": "uint64",
+///      "minimum": 0.0
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct SetSessionKeyActionInputData {
+    pub data: SetSessionKeyActionDataResponse,
+    pub expiry: u64,
+    pub module: ::std::string::String,
+    pub nonce: ::std::string::String,
+    pub owner: ::std::string::String,
+    pub signer: ::std::string::String,
+    pub subaccount_id: u64,
+}
+impl SetSessionKeyActionInputData {
+    pub fn builder() -> builder::SetSessionKeyActionInputData {
+        Default::default()
+    }
+}
+///Debug-route payload for one rebuilt action: the EIP-712 hashes plus the action input fields.
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "description": "Debug-route payload for one rebuilt action: the EIP-712 hashes plus the action input fields.",
+///  "type": "object",
+///  "required": [
+///    "action_hash",
+///    "action_typehash",
+///    "domain_separator",
+///    "encoded_data",
+///    "encoded_data_hashed",
+///    "expected_signer",
+///    "input_data",
+///    "module",
+///    "owner",
+///    "typed_data_hash"
+///  ],
+///  "properties": {
+///    "action_hash": {
+///      "description": "EIP-712 struct hash of the `Action`: `keccak256(abi.encode(action_typehash, …, encoded_data_hashed, …))`.",
+///      "type": "string"
+///    },
+///    "action_typehash": {
+///      "description": "`ACTION_TYPEHASH` — keccak of the `Action` struct type string; invariant across deployments.",
+///      "type": "string"
+///    },
+///    "domain_separator": {
+///      "description": "EIP-712 domain separator of the Matching contract for this deployment.",
+///      "type": "string"
+///    },
+///    "encoded_data": {
+///      "description": "ABI-encoded, module-specific action payload (the `data` bytes), 0x-hex.",
+///      "type": "string"
+///    },
+///    "encoded_data_hashed": {
+///      "description": "`keccak256(encoded_data)` — the value packed into the struct hash.",
+///      "type": "string"
+///    },
+///    "expected_signer": {
+///      "description": "The signer the signature is checked against.",
+///      "type": "string"
+///    },
+///    "input_data": {
+///      "description": "The rebuilt `Action` envelope and its decoded module-specific `data`.",
+///      "$ref": "#/definitions/SetSessionKeyActionInputData"
+///    },
+///    "module": {
+///      "description": "Per-action module contract address bound into the signed struct.",
+///      "type": "string"
+///    },
+///    "owner": {
+///      "description": "Wallet that owns the subaccount the action applies to.",
+///      "type": "string"
+///    },
+///    "recovered_signer": {
+///      "description": "null on the debug routes (no signature is checked there); on a signature-mismatch error this is the address actually recovered.",
+///      "type": [
+///        "string",
+///        "null"
+///      ]
+///    },
+///    "typed_data_hash": {
+///      "description": "Final EIP-712 digest the client signs: `keccak256(0x1901 || domain_separator || action_hash)`.",
+///      "type": "string"
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct SetSessionKeyDebugResponse {
+    ///EIP-712 struct hash of the `Action`: `keccak256(abi.encode(action_typehash, …, encoded_data_hashed, …))`.
+    pub action_hash: ::std::string::String,
+    ///`ACTION_TYPEHASH` — keccak of the `Action` struct type string; invariant across deployments.
+    pub action_typehash: ::std::string::String,
+    ///EIP-712 domain separator of the Matching contract for this deployment.
+    pub domain_separator: ::std::string::String,
+    ///ABI-encoded, module-specific action payload (the `data` bytes), 0x-hex.
+    pub encoded_data: ::std::string::String,
+    ///`keccak256(encoded_data)` — the value packed into the struct hash.
+    pub encoded_data_hashed: ::std::string::String,
+    ///The signer the signature is checked against.
+    pub expected_signer: ::std::string::String,
+    ///The rebuilt `Action` envelope and its decoded module-specific `data`.
+    pub input_data: SetSessionKeyActionInputData,
+    ///Per-action module contract address bound into the signed struct.
+    pub module: ::std::string::String,
+    ///Wallet that owns the subaccount the action applies to.
+    pub owner: ::std::string::String,
+    ///null on the debug routes (no signature is checked there); on a signature-mismatch error this is the address actually recovered.
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub recovered_signer: ::std::option::Option<::std::string::String>,
+    ///Final EIP-712 digest the client signs: `keccak256(0x1901 || domain_separator || action_hash)`.
+    pub typed_data_hash: ::std::string::String,
+}
+impl SetSessionKeyDebugResponse {
+    pub fn builder() -> builder::SetSessionKeyDebugResponse {
         Default::default()
     }
 }
@@ -19948,6 +20949,87 @@ pub struct SettledTrade {
 impl SettledTrade {
     pub fn builder() -> builder::SettledTrade {
         Default::default()
+    }
+}
+///`Severity`
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "type": "string",
+///  "enum": [
+///    "low",
+///    "medium",
+///    "high"
+///  ]
+///}
+/// ```
+/// </details>
+#[derive(
+    ::serde::Deserialize,
+    ::serde::Serialize,
+    Clone,
+    Copy,
+    Debug,
+    Eq,
+    Hash,
+    Ord,
+    PartialEq,
+    PartialOrd
+)]
+pub enum Severity {
+    #[serde(rename = "low")]
+    Low,
+    #[serde(rename = "medium")]
+    Medium,
+    #[serde(rename = "high")]
+    High,
+}
+impl ::std::fmt::Display for Severity {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        match *self {
+            Self::Low => f.write_str("low"),
+            Self::Medium => f.write_str("medium"),
+            Self::High => f.write_str("high"),
+        }
+    }
+}
+impl ::std::str::FromStr for Severity {
+    type Err = self::error::ConversionError;
+    fn from_str(
+        value: &str,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        match value {
+            "low" => Ok(Self::Low),
+            "medium" => Ok(Self::Medium),
+            "high" => Ok(Self::High),
+            _ => Err("invalid value".into()),
+        }
+    }
+}
+impl ::std::convert::TryFrom<&str> for Severity {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: &str,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<&::std::string::String> for Severity {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: &::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for Severity {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
     }
 }
 ///An Action bundled with its ECDSA signature (65 bytes: r||s||v).
@@ -21967,6 +23049,78 @@ impl TradingviewCandle {
         Default::default()
     }
 }
+///`TransferActionDataResponse`
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "type": "object",
+///  "required": [
+///    "amount",
+///    "asset",
+///    "max_fee_usd",
+///    "new_subaccount_manager",
+///    "sub_id",
+///    "to_subaccount_id"
+///  ],
+///  "properties": {
+///    "amount": {
+///      "description": "Non-negative decimal string of the human value (e.g. `\"1.5\"`), up to 12 fractional digits; a string or JSON number is accepted",
+///      "type": "string",
+///      "format": "decimal",
+///      "x-rust-type": {
+///        "crate": "bigdecimal",
+///        "path": "bigdecimal::BigDecimal",
+///        "version": ">=0.4.0, <0.5.0"
+///      }
+///    },
+///    "asset": {
+///      "type": "string"
+///    },
+///    "max_fee_usd": {
+///      "description": "Non-negative decimal string of the human value (e.g. `\"1.5\"`), up to 12 fractional digits; a string or JSON number is accepted",
+///      "type": "string",
+///      "format": "decimal",
+///      "x-rust-type": {
+///        "crate": "bigdecimal",
+///        "path": "bigdecimal::BigDecimal",
+///        "version": ">=0.4.0, <0.5.0"
+///      }
+///    },
+///    "new_subaccount_manager": {
+///      "type": "integer",
+///      "format": "uint32",
+///      "minimum": 0.0
+///    },
+///    "sub_id": {
+///      "type": "string"
+///    },
+///    "to_subaccount_id": {
+///      "type": "integer",
+///      "format": "uint64",
+///      "minimum": 0.0
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct TransferActionDataResponse {
+    ///Non-negative decimal string of the human value (e.g. `"1.5"`), up to 12 fractional digits; a string or JSON number is accepted
+    pub amount: ::bigdecimal::BigDecimal,
+    pub asset: ::std::string::String,
+    ///Non-negative decimal string of the human value (e.g. `"1.5"`), up to 12 fractional digits; a string or JSON number is accepted
+    pub max_fee_usd: ::bigdecimal::BigDecimal,
+    pub new_subaccount_manager: u32,
+    pub sub_id: ::std::string::String,
+    pub to_subaccount_id: u64,
+}
+impl TransferActionDataResponse {
+    pub fn builder() -> builder::TransferActionDataResponse {
+        Default::default()
+    }
+}
 ///`amount` and `fee` are decimal strings (e.g. `"1.1"`). `is_outgoing` marks the caller's side; on the sender's row `amount` is the gross debited and `fee` the in-kind fee, on the receiver's row `amount` is the net credited and `fee` is 0. `operation_id`/`batch_uuid` are stable uuids.
 ///
 /// <details><summary>JSON schema</summary>
@@ -22034,6 +23188,7 @@ impl TradingviewCandle {
 ///      "type": "string"
 ///    },
 ///    "timestamp": {
+///      "description": "Unix milliseconds.",
 ///      "type": "integer",
 ///      "format": "uint64",
 ///      "minimum": 0.0
@@ -22069,6 +23224,7 @@ pub struct TransferEntry {
     pub from_wallet: ::std::string::String,
     pub is_outgoing: bool,
     pub operation_id: ::std::string::String,
+    ///Unix milliseconds.
     pub timestamp: u64,
     pub to_subaccount_id: u64,
     pub to_wallet: ::std::string::String,
@@ -22107,6 +23263,204 @@ pub struct TransferHistoryResult {
 }
 impl TransferHistoryResult {
     pub fn builder() -> builder::TransferHistoryResult {
+        Default::default()
+    }
+}
+///`private/transfer_positions_debug` result: the maker and taker actions the route rebuilds, exactly as `private/transfer_positions` verifies them.
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "description": "`private/transfer_positions_debug` result: the maker and taker actions the route rebuilds, exactly as `private/transfer_positions` verifies them.",
+///  "type": "object",
+///  "required": [
+///    "maker_result",
+///    "taker_result"
+///  ],
+///  "properties": {
+///    "maker_result": {
+///      "$ref": "#/definitions/TransferPositionsMakerDebugResponse"
+///    },
+///    "taker_result": {
+///      "$ref": "#/definitions/TransferPositionsTakerDebugResponse"
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct TransferPositionsDebugResponse {
+    pub maker_result: TransferPositionsMakerDebugResponse,
+    pub taker_result: TransferPositionsTakerDebugResponse,
+}
+impl TransferPositionsDebugResponse {
+    pub fn builder() -> builder::TransferPositionsDebugResponse {
+        Default::default()
+    }
+}
+///The `Action` envelope a debug route rebuilt from the request inputs, plus its decoded action data — i.e. what the signature commits to.
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "description": "The `Action` envelope a debug route rebuilt from the request inputs, plus its decoded action data — i.e. what the signature commits to.",
+///  "type": "object",
+///  "required": [
+///    "data",
+///    "expiry",
+///    "module",
+///    "nonce",
+///    "owner",
+///    "signer",
+///    "subaccount_id"
+///  ],
+///  "properties": {
+///    "data": {
+///      "$ref": "#/definitions/RfqMakerActionDataResponse"
+///    },
+///    "expiry": {
+///      "type": "integer",
+///      "format": "uint64",
+///      "minimum": 0.0
+///    },
+///    "module": {
+///      "type": "string"
+///    },
+///    "nonce": {
+///      "type": "string"
+///    },
+///    "owner": {
+///      "type": "string"
+///    },
+///    "signer": {
+///      "type": "string"
+///    },
+///    "subaccount_id": {
+///      "type": "integer",
+///      "format": "uint64",
+///      "minimum": 0.0
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct TransferPositionsMakerActionInputData {
+    pub data: RfqMakerActionDataResponse,
+    pub expiry: u64,
+    pub module: ::std::string::String,
+    pub nonce: ::std::string::String,
+    pub owner: ::std::string::String,
+    pub signer: ::std::string::String,
+    pub subaccount_id: u64,
+}
+impl TransferPositionsMakerActionInputData {
+    pub fn builder() -> builder::TransferPositionsMakerActionInputData {
+        Default::default()
+    }
+}
+///Debug-route payload for one rebuilt action: the EIP-712 hashes plus the action input fields.
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "description": "Debug-route payload for one rebuilt action: the EIP-712 hashes plus the action input fields.",
+///  "type": "object",
+///  "required": [
+///    "action_hash",
+///    "action_typehash",
+///    "domain_separator",
+///    "encoded_data",
+///    "encoded_data_hashed",
+///    "expected_signer",
+///    "input_data",
+///    "module",
+///    "owner",
+///    "typed_data_hash"
+///  ],
+///  "properties": {
+///    "action_hash": {
+///      "description": "EIP-712 struct hash of the `Action`: `keccak256(abi.encode(action_typehash, …, encoded_data_hashed, …))`.",
+///      "type": "string"
+///    },
+///    "action_typehash": {
+///      "description": "`ACTION_TYPEHASH` — keccak of the `Action` struct type string; invariant across deployments.",
+///      "type": "string"
+///    },
+///    "domain_separator": {
+///      "description": "EIP-712 domain separator of the Matching contract for this deployment.",
+///      "type": "string"
+///    },
+///    "encoded_data": {
+///      "description": "ABI-encoded, module-specific action payload (the `data` bytes), 0x-hex.",
+///      "type": "string"
+///    },
+///    "encoded_data_hashed": {
+///      "description": "`keccak256(encoded_data)` — the value packed into the struct hash.",
+///      "type": "string"
+///    },
+///    "expected_signer": {
+///      "description": "The signer the signature is checked against.",
+///      "type": "string"
+///    },
+///    "input_data": {
+///      "description": "The rebuilt `Action` envelope and its decoded module-specific `data`.",
+///      "$ref": "#/definitions/TransferPositionsMakerActionInputData"
+///    },
+///    "module": {
+///      "description": "Per-action module contract address bound into the signed struct.",
+///      "type": "string"
+///    },
+///    "owner": {
+///      "description": "Wallet that owns the subaccount the action applies to.",
+///      "type": "string"
+///    },
+///    "recovered_signer": {
+///      "description": "null on the debug routes (no signature is checked there); on a signature-mismatch error this is the address actually recovered.",
+///      "type": [
+///        "string",
+///        "null"
+///      ]
+///    },
+///    "typed_data_hash": {
+///      "description": "Final EIP-712 digest the client signs: `keccak256(0x1901 || domain_separator || action_hash)`.",
+///      "type": "string"
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct TransferPositionsMakerDebugResponse {
+    ///EIP-712 struct hash of the `Action`: `keccak256(abi.encode(action_typehash, …, encoded_data_hashed, …))`.
+    pub action_hash: ::std::string::String,
+    ///`ACTION_TYPEHASH` — keccak of the `Action` struct type string; invariant across deployments.
+    pub action_typehash: ::std::string::String,
+    ///EIP-712 domain separator of the Matching contract for this deployment.
+    pub domain_separator: ::std::string::String,
+    ///ABI-encoded, module-specific action payload (the `data` bytes), 0x-hex.
+    pub encoded_data: ::std::string::String,
+    ///`keccak256(encoded_data)` — the value packed into the struct hash.
+    pub encoded_data_hashed: ::std::string::String,
+    ///The signer the signature is checked against.
+    pub expected_signer: ::std::string::String,
+    ///The rebuilt `Action` envelope and its decoded module-specific `data`.
+    pub input_data: TransferPositionsMakerActionInputData,
+    ///Per-action module contract address bound into the signed struct.
+    pub module: ::std::string::String,
+    ///Wallet that owns the subaccount the action applies to.
+    pub owner: ::std::string::String,
+    ///null on the debug routes (no signature is checked there); on a signature-mismatch error this is the address actually recovered.
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub recovered_signer: ::std::option::Option<::std::string::String>,
+    ///Final EIP-712 digest the client signs: `keccak256(0x1901 || domain_separator || action_hash)`.
+    pub typed_data_hash: ::std::string::String,
+}
+impl TransferPositionsMakerDebugResponse {
+    pub fn builder() -> builder::TransferPositionsMakerDebugResponse {
         Default::default()
     }
 }
@@ -22178,6 +23532,501 @@ pub struct TransferPositionsResponse {
 }
 impl TransferPositionsResponse {
     pub fn builder() -> builder::TransferPositionsResponse {
+        Default::default()
+    }
+}
+///The `Action` envelope a debug route rebuilt from the request inputs, plus its decoded action data — i.e. what the signature commits to.
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "description": "The `Action` envelope a debug route rebuilt from the request inputs, plus its decoded action data — i.e. what the signature commits to.",
+///  "type": "object",
+///  "required": [
+///    "data",
+///    "expiry",
+///    "module",
+///    "nonce",
+///    "owner",
+///    "signer",
+///    "subaccount_id"
+///  ],
+///  "properties": {
+///    "data": {
+///      "$ref": "#/definitions/RfqTakerActionDataResponse"
+///    },
+///    "expiry": {
+///      "type": "integer",
+///      "format": "uint64",
+///      "minimum": 0.0
+///    },
+///    "module": {
+///      "type": "string"
+///    },
+///    "nonce": {
+///      "type": "string"
+///    },
+///    "owner": {
+///      "type": "string"
+///    },
+///    "signer": {
+///      "type": "string"
+///    },
+///    "subaccount_id": {
+///      "type": "integer",
+///      "format": "uint64",
+///      "minimum": 0.0
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct TransferPositionsTakerActionInputData {
+    pub data: RfqTakerActionDataResponse,
+    pub expiry: u64,
+    pub module: ::std::string::String,
+    pub nonce: ::std::string::String,
+    pub owner: ::std::string::String,
+    pub signer: ::std::string::String,
+    pub subaccount_id: u64,
+}
+impl TransferPositionsTakerActionInputData {
+    pub fn builder() -> builder::TransferPositionsTakerActionInputData {
+        Default::default()
+    }
+}
+///Debug-route payload for one rebuilt action: the EIP-712 hashes plus the action input fields.
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "description": "Debug-route payload for one rebuilt action: the EIP-712 hashes plus the action input fields.",
+///  "type": "object",
+///  "required": [
+///    "action_hash",
+///    "action_typehash",
+///    "domain_separator",
+///    "encoded_data",
+///    "encoded_data_hashed",
+///    "expected_signer",
+///    "input_data",
+///    "module",
+///    "owner",
+///    "typed_data_hash"
+///  ],
+///  "properties": {
+///    "action_hash": {
+///      "description": "EIP-712 struct hash of the `Action`: `keccak256(abi.encode(action_typehash, …, encoded_data_hashed, …))`.",
+///      "type": "string"
+///    },
+///    "action_typehash": {
+///      "description": "`ACTION_TYPEHASH` — keccak of the `Action` struct type string; invariant across deployments.",
+///      "type": "string"
+///    },
+///    "domain_separator": {
+///      "description": "EIP-712 domain separator of the Matching contract for this deployment.",
+///      "type": "string"
+///    },
+///    "encoded_data": {
+///      "description": "ABI-encoded, module-specific action payload (the `data` bytes), 0x-hex.",
+///      "type": "string"
+///    },
+///    "encoded_data_hashed": {
+///      "description": "`keccak256(encoded_data)` — the value packed into the struct hash.",
+///      "type": "string"
+///    },
+///    "expected_signer": {
+///      "description": "The signer the signature is checked against.",
+///      "type": "string"
+///    },
+///    "input_data": {
+///      "description": "The rebuilt `Action` envelope and its decoded module-specific `data`.",
+///      "$ref": "#/definitions/TransferPositionsTakerActionInputData"
+///    },
+///    "module": {
+///      "description": "Per-action module contract address bound into the signed struct.",
+///      "type": "string"
+///    },
+///    "owner": {
+///      "description": "Wallet that owns the subaccount the action applies to.",
+///      "type": "string"
+///    },
+///    "recovered_signer": {
+///      "description": "null on the debug routes (no signature is checked there); on a signature-mismatch error this is the address actually recovered.",
+///      "type": [
+///        "string",
+///        "null"
+///      ]
+///    },
+///    "typed_data_hash": {
+///      "description": "Final EIP-712 digest the client signs: `keccak256(0x1901 || domain_separator || action_hash)`.",
+///      "type": "string"
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct TransferPositionsTakerDebugResponse {
+    ///EIP-712 struct hash of the `Action`: `keccak256(abi.encode(action_typehash, …, encoded_data_hashed, …))`.
+    pub action_hash: ::std::string::String,
+    ///`ACTION_TYPEHASH` — keccak of the `Action` struct type string; invariant across deployments.
+    pub action_typehash: ::std::string::String,
+    ///EIP-712 domain separator of the Matching contract for this deployment.
+    pub domain_separator: ::std::string::String,
+    ///ABI-encoded, module-specific action payload (the `data` bytes), 0x-hex.
+    pub encoded_data: ::std::string::String,
+    ///`keccak256(encoded_data)` — the value packed into the struct hash.
+    pub encoded_data_hashed: ::std::string::String,
+    ///The signer the signature is checked against.
+    pub expected_signer: ::std::string::String,
+    ///The rebuilt `Action` envelope and its decoded module-specific `data`.
+    pub input_data: TransferPositionsTakerActionInputData,
+    ///Per-action module contract address bound into the signed struct.
+    pub module: ::std::string::String,
+    ///Wallet that owns the subaccount the action applies to.
+    pub owner: ::std::string::String,
+    ///null on the debug routes (no signature is checked there); on a signature-mismatch error this is the address actually recovered.
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub recovered_signer: ::std::option::Option<::std::string::String>,
+    ///Final EIP-712 digest the client signs: `keccak256(0x1901 || domain_separator || action_hash)`.
+    pub typed_data_hash: ::std::string::String,
+}
+impl TransferPositionsTakerDebugResponse {
+    pub fn builder() -> builder::TransferPositionsTakerDebugResponse {
+        Default::default()
+    }
+}
+///The `Action` envelope a debug route rebuilt from the request inputs, plus its decoded action data — i.e. what the signature commits to.
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "description": "The `Action` envelope a debug route rebuilt from the request inputs, plus its decoded action data — i.e. what the signature commits to.",
+///  "type": "object",
+///  "required": [
+///    "data",
+///    "expiry",
+///    "module",
+///    "nonce",
+///    "owner",
+///    "signer",
+///    "subaccount_id"
+///  ],
+///  "properties": {
+///    "data": {
+///      "$ref": "#/definitions/TransferActionDataResponse"
+///    },
+///    "expiry": {
+///      "type": "integer",
+///      "format": "uint64",
+///      "minimum": 0.0
+///    },
+///    "module": {
+///      "type": "string"
+///    },
+///    "nonce": {
+///      "type": "string"
+///    },
+///    "owner": {
+///      "type": "string"
+///    },
+///    "signer": {
+///      "type": "string"
+///    },
+///    "subaccount_id": {
+///      "type": "integer",
+///      "format": "uint64",
+///      "minimum": 0.0
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct TransferSpotActionInputData {
+    pub data: TransferActionDataResponse,
+    pub expiry: u64,
+    pub module: ::std::string::String,
+    pub nonce: ::std::string::String,
+    pub owner: ::std::string::String,
+    pub signer: ::std::string::String,
+    pub subaccount_id: u64,
+}
+impl TransferSpotActionInputData {
+    pub fn builder() -> builder::TransferSpotActionInputData {
+        Default::default()
+    }
+}
+///Debug-route payload for one rebuilt action: the EIP-712 hashes plus the action input fields.
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "description": "Debug-route payload for one rebuilt action: the EIP-712 hashes plus the action input fields.",
+///  "type": "object",
+///  "required": [
+///    "action_hash",
+///    "action_typehash",
+///    "domain_separator",
+///    "encoded_data",
+///    "encoded_data_hashed",
+///    "expected_signer",
+///    "input_data",
+///    "module",
+///    "owner",
+///    "typed_data_hash"
+///  ],
+///  "properties": {
+///    "action_hash": {
+///      "description": "EIP-712 struct hash of the `Action`: `keccak256(abi.encode(action_typehash, …, encoded_data_hashed, …))`.",
+///      "type": "string"
+///    },
+///    "action_typehash": {
+///      "description": "`ACTION_TYPEHASH` — keccak of the `Action` struct type string; invariant across deployments.",
+///      "type": "string"
+///    },
+///    "domain_separator": {
+///      "description": "EIP-712 domain separator of the Matching contract for this deployment.",
+///      "type": "string"
+///    },
+///    "encoded_data": {
+///      "description": "ABI-encoded, module-specific action payload (the `data` bytes), 0x-hex.",
+///      "type": "string"
+///    },
+///    "encoded_data_hashed": {
+///      "description": "`keccak256(encoded_data)` — the value packed into the struct hash.",
+///      "type": "string"
+///    },
+///    "expected_signer": {
+///      "description": "The signer the signature is checked against.",
+///      "type": "string"
+///    },
+///    "input_data": {
+///      "description": "The rebuilt `Action` envelope and its decoded module-specific `data`.",
+///      "$ref": "#/definitions/TransferSpotActionInputData"
+///    },
+///    "module": {
+///      "description": "Per-action module contract address bound into the signed struct.",
+///      "type": "string"
+///    },
+///    "owner": {
+///      "description": "Wallet that owns the subaccount the action applies to.",
+///      "type": "string"
+///    },
+///    "recovered_signer": {
+///      "description": "null on the debug routes (no signature is checked there); on a signature-mismatch error this is the address actually recovered.",
+///      "type": [
+///        "string",
+///        "null"
+///      ]
+///    },
+///    "typed_data_hash": {
+///      "description": "Final EIP-712 digest the client signs: `keccak256(0x1901 || domain_separator || action_hash)`.",
+///      "type": "string"
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct TransferSpotDebugResponse {
+    ///EIP-712 struct hash of the `Action`: `keccak256(abi.encode(action_typehash, …, encoded_data_hashed, …))`.
+    pub action_hash: ::std::string::String,
+    ///`ACTION_TYPEHASH` — keccak of the `Action` struct type string; invariant across deployments.
+    pub action_typehash: ::std::string::String,
+    ///EIP-712 domain separator of the Matching contract for this deployment.
+    pub domain_separator: ::std::string::String,
+    ///ABI-encoded, module-specific action payload (the `data` bytes), 0x-hex.
+    pub encoded_data: ::std::string::String,
+    ///`keccak256(encoded_data)` — the value packed into the struct hash.
+    pub encoded_data_hashed: ::std::string::String,
+    ///The signer the signature is checked against.
+    pub expected_signer: ::std::string::String,
+    ///The rebuilt `Action` envelope and its decoded module-specific `data`.
+    pub input_data: TransferSpotActionInputData,
+    ///Per-action module contract address bound into the signed struct.
+    pub module: ::std::string::String,
+    ///Wallet that owns the subaccount the action applies to.
+    pub owner: ::std::string::String,
+    ///null on the debug routes (no signature is checked there); on a signature-mismatch error this is the address actually recovered.
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub recovered_signer: ::std::option::Option<::std::string::String>,
+    ///Final EIP-712 digest the client signs: `keccak256(0x1901 || domain_separator || action_hash)`.
+    pub typed_data_hash: ::std::string::String,
+}
+impl TransferSpotDebugResponse {
+    pub fn builder() -> builder::TransferSpotDebugResponse {
+        Default::default()
+    }
+}
+///The `Action` envelope a debug route rebuilt from the request inputs, plus its decoded action data — i.e. what the signature commits to.
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "description": "The `Action` envelope a debug route rebuilt from the request inputs, plus its decoded action data — i.e. what the signature commits to.",
+///  "type": "object",
+///  "required": [
+///    "data",
+///    "expiry",
+///    "module",
+///    "nonce",
+///    "owner",
+///    "signer",
+///    "subaccount_id"
+///  ],
+///  "properties": {
+///    "data": {
+///      "$ref": "#/definitions/ExternalTransferActionDataResponse"
+///    },
+///    "expiry": {
+///      "type": "integer",
+///      "format": "uint64",
+///      "minimum": 0.0
+///    },
+///    "module": {
+///      "type": "string"
+///    },
+///    "nonce": {
+///      "type": "string"
+///    },
+///    "owner": {
+///      "type": "string"
+///    },
+///    "signer": {
+///      "type": "string"
+///    },
+///    "subaccount_id": {
+///      "type": "integer",
+///      "format": "uint64",
+///      "minimum": 0.0
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct TransferSpotExternalActionInputData {
+    pub data: ExternalTransferActionDataResponse,
+    pub expiry: u64,
+    pub module: ::std::string::String,
+    pub nonce: ::std::string::String,
+    pub owner: ::std::string::String,
+    pub signer: ::std::string::String,
+    pub subaccount_id: u64,
+}
+impl TransferSpotExternalActionInputData {
+    pub fn builder() -> builder::TransferSpotExternalActionInputData {
+        Default::default()
+    }
+}
+///Debug-route payload for one rebuilt action: the EIP-712 hashes plus the action input fields.
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "description": "Debug-route payload for one rebuilt action: the EIP-712 hashes plus the action input fields.",
+///  "type": "object",
+///  "required": [
+///    "action_hash",
+///    "action_typehash",
+///    "domain_separator",
+///    "encoded_data",
+///    "encoded_data_hashed",
+///    "expected_signer",
+///    "input_data",
+///    "module",
+///    "owner",
+///    "typed_data_hash"
+///  ],
+///  "properties": {
+///    "action_hash": {
+///      "description": "EIP-712 struct hash of the `Action`: `keccak256(abi.encode(action_typehash, …, encoded_data_hashed, …))`.",
+///      "type": "string"
+///    },
+///    "action_typehash": {
+///      "description": "`ACTION_TYPEHASH` — keccak of the `Action` struct type string; invariant across deployments.",
+///      "type": "string"
+///    },
+///    "domain_separator": {
+///      "description": "EIP-712 domain separator of the Matching contract for this deployment.",
+///      "type": "string"
+///    },
+///    "encoded_data": {
+///      "description": "ABI-encoded, module-specific action payload (the `data` bytes), 0x-hex.",
+///      "type": "string"
+///    },
+///    "encoded_data_hashed": {
+///      "description": "`keccak256(encoded_data)` — the value packed into the struct hash.",
+///      "type": "string"
+///    },
+///    "expected_signer": {
+///      "description": "The signer the signature is checked against.",
+///      "type": "string"
+///    },
+///    "input_data": {
+///      "description": "The rebuilt `Action` envelope and its decoded module-specific `data`.",
+///      "$ref": "#/definitions/TransferSpotExternalActionInputData"
+///    },
+///    "module": {
+///      "description": "Per-action module contract address bound into the signed struct.",
+///      "type": "string"
+///    },
+///    "owner": {
+///      "description": "Wallet that owns the subaccount the action applies to.",
+///      "type": "string"
+///    },
+///    "recovered_signer": {
+///      "description": "null on the debug routes (no signature is checked there); on a signature-mismatch error this is the address actually recovered.",
+///      "type": [
+///        "string",
+///        "null"
+///      ]
+///    },
+///    "typed_data_hash": {
+///      "description": "Final EIP-712 digest the client signs: `keccak256(0x1901 || domain_separator || action_hash)`.",
+///      "type": "string"
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct TransferSpotExternalDebugResponse {
+    ///EIP-712 struct hash of the `Action`: `keccak256(abi.encode(action_typehash, …, encoded_data_hashed, …))`.
+    pub action_hash: ::std::string::String,
+    ///`ACTION_TYPEHASH` — keccak of the `Action` struct type string; invariant across deployments.
+    pub action_typehash: ::std::string::String,
+    ///EIP-712 domain separator of the Matching contract for this deployment.
+    pub domain_separator: ::std::string::String,
+    ///ABI-encoded, module-specific action payload (the `data` bytes), 0x-hex.
+    pub encoded_data: ::std::string::String,
+    ///`keccak256(encoded_data)` — the value packed into the struct hash.
+    pub encoded_data_hashed: ::std::string::String,
+    ///The signer the signature is checked against.
+    pub expected_signer: ::std::string::String,
+    ///The rebuilt `Action` envelope and its decoded module-specific `data`.
+    pub input_data: TransferSpotExternalActionInputData,
+    ///Per-action module contract address bound into the signed struct.
+    pub module: ::std::string::String,
+    ///Wallet that owns the subaccount the action applies to.
+    pub owner: ::std::string::String,
+    ///null on the debug routes (no signature is checked there); on a signature-mismatch error this is the address actually recovered.
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub recovered_signer: ::std::option::Option<::std::string::String>,
+    ///Final EIP-712 digest the client signs: `keccak256(0x1901 || domain_separator || action_hash)`.
+    pub typed_data_hash: ::std::string::String,
+}
+impl TransferSpotExternalDebugResponse {
+    pub fn builder() -> builder::TransferSpotExternalDebugResponse {
         Default::default()
     }
 }
@@ -22659,6 +24508,209 @@ impl UpdateVaultInfoRequest {
         Default::default()
     }
 }
+///`UpdateWhitelistedRecipientsActionDataResponse`
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "type": "object",
+///  "required": [
+///    "add",
+///    "remove"
+///  ],
+///  "properties": {
+///    "add": {
+///      "type": "array",
+///      "items": {
+///        "type": "string"
+///      }
+///    },
+///    "remove": {
+///      "type": "array",
+///      "items": {
+///        "type": "string"
+///      }
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct UpdateWhitelistedRecipientsActionDataResponse {
+    pub add: ::std::vec::Vec<::std::string::String>,
+    pub remove: ::std::vec::Vec<::std::string::String>,
+}
+impl UpdateWhitelistedRecipientsActionDataResponse {
+    pub fn builder() -> builder::UpdateWhitelistedRecipientsActionDataResponse {
+        Default::default()
+    }
+}
+///The `Action` envelope a debug route rebuilt from the request inputs, plus its decoded action data — i.e. what the signature commits to.
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "description": "The `Action` envelope a debug route rebuilt from the request inputs, plus its decoded action data — i.e. what the signature commits to.",
+///  "type": "object",
+///  "required": [
+///    "data",
+///    "expiry",
+///    "module",
+///    "nonce",
+///    "owner",
+///    "signer",
+///    "subaccount_id"
+///  ],
+///  "properties": {
+///    "data": {
+///      "$ref": "#/definitions/UpdateWhitelistedRecipientsActionDataResponse"
+///    },
+///    "expiry": {
+///      "type": "integer",
+///      "format": "uint64",
+///      "minimum": 0.0
+///    },
+///    "module": {
+///      "type": "string"
+///    },
+///    "nonce": {
+///      "type": "string"
+///    },
+///    "owner": {
+///      "type": "string"
+///    },
+///    "signer": {
+///      "type": "string"
+///    },
+///    "subaccount_id": {
+///      "type": "integer",
+///      "format": "uint64",
+///      "minimum": 0.0
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct UpdateWhitelistedRecipientsActionInputData {
+    pub data: UpdateWhitelistedRecipientsActionDataResponse,
+    pub expiry: u64,
+    pub module: ::std::string::String,
+    pub nonce: ::std::string::String,
+    pub owner: ::std::string::String,
+    pub signer: ::std::string::String,
+    pub subaccount_id: u64,
+}
+impl UpdateWhitelistedRecipientsActionInputData {
+    pub fn builder() -> builder::UpdateWhitelistedRecipientsActionInputData {
+        Default::default()
+    }
+}
+///Debug-route payload for one rebuilt action: the EIP-712 hashes plus the action input fields.
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "description": "Debug-route payload for one rebuilt action: the EIP-712 hashes plus the action input fields.",
+///  "type": "object",
+///  "required": [
+///    "action_hash",
+///    "action_typehash",
+///    "domain_separator",
+///    "encoded_data",
+///    "encoded_data_hashed",
+///    "expected_signer",
+///    "input_data",
+///    "module",
+///    "owner",
+///    "typed_data_hash"
+///  ],
+///  "properties": {
+///    "action_hash": {
+///      "description": "EIP-712 struct hash of the `Action`: `keccak256(abi.encode(action_typehash, …, encoded_data_hashed, …))`.",
+///      "type": "string"
+///    },
+///    "action_typehash": {
+///      "description": "`ACTION_TYPEHASH` — keccak of the `Action` struct type string; invariant across deployments.",
+///      "type": "string"
+///    },
+///    "domain_separator": {
+///      "description": "EIP-712 domain separator of the Matching contract for this deployment.",
+///      "type": "string"
+///    },
+///    "encoded_data": {
+///      "description": "ABI-encoded, module-specific action payload (the `data` bytes), 0x-hex.",
+///      "type": "string"
+///    },
+///    "encoded_data_hashed": {
+///      "description": "`keccak256(encoded_data)` — the value packed into the struct hash.",
+///      "type": "string"
+///    },
+///    "expected_signer": {
+///      "description": "The signer the signature is checked against.",
+///      "type": "string"
+///    },
+///    "input_data": {
+///      "description": "The rebuilt `Action` envelope and its decoded module-specific `data`.",
+///      "$ref": "#/definitions/UpdateWhitelistedRecipientsActionInputData"
+///    },
+///    "module": {
+///      "description": "Per-action module contract address bound into the signed struct.",
+///      "type": "string"
+///    },
+///    "owner": {
+///      "description": "Wallet that owns the subaccount the action applies to.",
+///      "type": "string"
+///    },
+///    "recovered_signer": {
+///      "description": "null on the debug routes (no signature is checked there); on a signature-mismatch error this is the address actually recovered.",
+///      "type": [
+///        "string",
+///        "null"
+///      ]
+///    },
+///    "typed_data_hash": {
+///      "description": "Final EIP-712 digest the client signs: `keccak256(0x1901 || domain_separator || action_hash)`.",
+///      "type": "string"
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct UpdateWhitelistedRecipientsDebugResponse {
+    ///EIP-712 struct hash of the `Action`: `keccak256(abi.encode(action_typehash, …, encoded_data_hashed, …))`.
+    pub action_hash: ::std::string::String,
+    ///`ACTION_TYPEHASH` — keccak of the `Action` struct type string; invariant across deployments.
+    pub action_typehash: ::std::string::String,
+    ///EIP-712 domain separator of the Matching contract for this deployment.
+    pub domain_separator: ::std::string::String,
+    ///ABI-encoded, module-specific action payload (the `data` bytes), 0x-hex.
+    pub encoded_data: ::std::string::String,
+    ///`keccak256(encoded_data)` — the value packed into the struct hash.
+    pub encoded_data_hashed: ::std::string::String,
+    ///The signer the signature is checked against.
+    pub expected_signer: ::std::string::String,
+    ///The rebuilt `Action` envelope and its decoded module-specific `data`.
+    pub input_data: UpdateWhitelistedRecipientsActionInputData,
+    ///Per-action module contract address bound into the signed struct.
+    pub module: ::std::string::String,
+    ///Wallet that owns the subaccount the action applies to.
+    pub owner: ::std::string::String,
+    ///null on the debug routes (no signature is checked there); on a signature-mismatch error this is the address actually recovered.
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub recovered_signer: ::std::option::Option<::std::string::String>,
+    ///Final EIP-712 digest the client signs: `keccak256(0x1901 || domain_separator || action_hash)`.
+    pub typed_data_hash: ::std::string::String,
+}
+impl UpdateWhitelistedRecipientsDebugResponse {
+    pub fn builder() -> builder::UpdateWhitelistedRecipientsDebugResponse {
+        Default::default()
+    }
+}
 ///`UpdateWhitelistedRecipientsRequest`
 ///
 /// <details><summary>JSON schema</summary>
@@ -22684,9 +24736,7 @@ impl UpdateVaultInfoRequest {
 ///      }
 ///    },
 ///    "nonce": {
-///      "type": "integer",
-///      "format": "uint64",
-///      "minimum": 0.0
+///      "type": "string"
 ///    },
 ///    "remove": {
 ///      "description": "Recipient wallet addresses to remove from the whitelist.",
@@ -22718,7 +24768,7 @@ impl UpdateVaultInfoRequest {
 pub struct UpdateWhitelistedRecipientsRequest {
     ///Recipient wallet addresses to add to the whitelist.
     pub add: ::std::vec::Vec<::std::string::String>,
-    pub nonce: u64,
+    pub nonce: ::std::string::String,
     ///Recipient wallet addresses to remove from the whitelist.
     pub remove: ::std::vec::Vec<::std::string::String>,
     pub signature: ::std::string::String,
@@ -24033,13 +26083,13 @@ impl ::std::convert::From<PublicRfq> for WalletRfqsNotification {
         Self(value)
     }
 }
-///`amount` and `fee` are decimal strings (e.g. `"1.1"`); the net sent to the recipient is `amount - fee`. `wallet` is the account owner; `recipient` is the L1 destination. `asset` is the protocol asset (the native-ETH sentinel for ETH); `erc20_address` is the on-chain ERC20 the funds settle against (WETH for native ETH). `operation_id`/`batch_uuid` are the stable uuids.
+///`amount` and `fee` are decimal strings (e.g. `"1.1"`); the net sent to the recipient is `amount - fee`. `wallet` is the account owner; `recipient` is the L1 destination. `asset` is the currency name (e.g. `"USDC"`); `erc20_address` is the on-chain ERC20 the funds settle against (WETH for native ETH). `operation_id`/`batch_uuid` are the stable uuids.
 ///
 /// <details><summary>JSON schema</summary>
 ///
 /// ```json
 ///{
-///  "description": "`amount` and `fee` are decimal strings (e.g. `\"1.1\"`); the net sent to the recipient is `amount - fee`. `wallet` is the account owner; `recipient` is the L1 destination. `asset` is the protocol asset (the native-ETH sentinel for ETH); `erc20_address` is the on-chain ERC20 the funds settle against (WETH for native ETH). `operation_id`/`batch_uuid` are the stable uuids.",
+///  "description": "`amount` and `fee` are decimal strings (e.g. `\"1.1\"`); the net sent to the recipient is `amount - fee`. `wallet` is the account owner; `recipient` is the L1 destination. `asset` is the currency name (e.g. `\"USDC\"`); `erc20_address` is the on-chain ERC20 the funds settle against (WETH for native ETH). `operation_id`/`batch_uuid` are the stable uuids.",
 ///  "type": "object",
 ///  "required": [
 ///    "amount",
@@ -24099,6 +26149,7 @@ impl ::std::convert::From<PublicRfq> for WalletRfqsNotification {
 ///      "minimum": 0.0
 ///    },
 ///    "timestamp": {
+///      "description": "Unix milliseconds.",
 ///      "type": "integer",
 ///      "format": "uint64",
 ///      "minimum": 0.0
@@ -24129,6 +26180,7 @@ pub struct WithdrawalEntry {
     pub operation_id: ::std::string::String,
     pub recipient: ::std::string::String,
     pub subaccount_id: u64,
+    ///Unix milliseconds.
     pub timestamp: u64,
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub tx_hash: ::std::option::Option<::std::string::String>,
@@ -24817,6 +26869,10 @@ pub mod builder {
             ::std::string::String,
             ::std::string::String,
         >,
+        operation_id: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
         percent_liquidated: ::std::result::Result<
             ::std::string::String,
             ::std::string::String,
@@ -24851,6 +26907,7 @@ pub mod builder {
                 bidder_id: Err("no value supplied for bidder_id".to_string()),
                 cash_received: Err("no value supplied for cash_received".to_string()),
                 discount_pnl: Err("no value supplied for discount_pnl".to_string()),
+                operation_id: Err("no value supplied for operation_id".to_string()),
                 percent_liquidated: Err(
                     "no value supplied for percent_liquidated".to_string(),
                 ),
@@ -24923,6 +26980,18 @@ pub mod builder {
                 .try_into()
                 .map_err(|e| {
                     format!("error converting supplied value for discount_pnl: {e}")
+                });
+            self
+        }
+        pub fn operation_id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.operation_id = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for operation_id: {e}")
                 });
             self
         }
@@ -25057,6 +27126,7 @@ pub mod builder {
                 bidder_id: value.bidder_id?,
                 cash_received: value.cash_received?,
                 discount_pnl: value.discount_pnl?,
+                operation_id: value.operation_id?,
                 percent_liquidated: value.percent_liquidated?,
                 positions_realized_pnl: value.positions_realized_pnl?,
                 positions_realized_pnl_excl_fees: value
@@ -25077,6 +27147,7 @@ pub mod builder {
                 bidder_id: Ok(value.bidder_id),
                 cash_received: Ok(value.cash_received),
                 discount_pnl: Ok(value.discount_pnl),
+                operation_id: Ok(value.operation_id),
                 percent_liquidated: Ok(value.percent_liquidated),
                 positions_realized_pnl: Ok(value.positions_realized_pnl),
                 positions_realized_pnl_excl_fees: Ok(
@@ -25811,7 +27882,7 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct BurnSharesRequest {
-        nonce: ::std::result::Result<u64, ::std::string::String>,
+        nonce: ::std::result::Result<::std::string::String, ::std::string::String>,
         request_id: ::std::result::Result<super::VaultRequestId, ::std::string::String>,
         share_price: ::std::result::Result<
             ::bigdecimal::BigDecimal,
@@ -25845,7 +27916,7 @@ pub mod builder {
     impl BurnSharesRequest {
         pub fn nonce<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<u64>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.nonce = value
@@ -26206,7 +28277,10 @@ pub mod builder {
             ::std::option::Option<::std::string::String>,
             ::std::string::String,
         >,
-        nonce: ::std::result::Result<::std::option::Option<i64>, ::std::string::String>,
+        nonce: ::std::result::Result<
+            ::std::option::Option<::std::string::String>,
+            ::std::string::String,
+        >,
         quote_id: ::std::result::Result<
             ::std::option::Option<::uuid::Uuid>,
             ::std::string::String,
@@ -26241,7 +28315,7 @@ pub mod builder {
         }
         pub fn nonce<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::std::option::Option<i64>>,
+            T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
             T::Error: ::std::fmt::Display,
         {
             self.nonce = value
@@ -26362,7 +28436,10 @@ pub mod builder {
             ::std::option::Option<::std::string::String>,
             ::std::string::String,
         >,
-        nonce: ::std::result::Result<::std::option::Option<i64>, ::std::string::String>,
+        nonce: ::std::result::Result<
+            ::std::option::Option<::std::string::String>,
+            ::std::string::String,
+        >,
         rfq_id: ::std::result::Result<
             ::std::option::Option<::uuid::Uuid>,
             ::std::string::String,
@@ -26392,7 +28469,7 @@ pub mod builder {
         }
         pub fn nonce<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::std::option::Option<i64>>,
+            T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
             T::Error: ::std::fmt::Display,
         {
             self.nonce = value
@@ -26731,7 +28808,7 @@ pub mod builder {
             ::std::string::String,
             ::std::string::String,
         >,
-        nonce: ::std::result::Result<i64, ::std::string::String>,
+        nonce: ::std::result::Result<::std::string::String, ::std::string::String>,
         subaccount_id: ::std::result::Result<i64, ::std::string::String>,
     }
     impl ::std::default::Default for CancelByNonceRequest {
@@ -26760,7 +28837,7 @@ pub mod builder {
         }
         pub fn nonce<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<i64>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.nonce = value
@@ -26932,7 +29009,10 @@ pub mod builder {
             ::std::option::Option<::std::string::String>,
             ::std::string::String,
         >,
-        nonce: ::std::result::Result<::std::option::Option<i64>, ::std::string::String>,
+        nonce: ::std::result::Result<
+            ::std::option::Option<::std::string::String>,
+            ::std::string::String,
+        >,
         quote_id: ::std::result::Result<::uuid::Uuid, ::std::string::String>,
         rfq_id: ::std::result::Result<
             ::std::option::Option<::uuid::Uuid>,
@@ -26964,7 +29044,7 @@ pub mod builder {
         }
         pub fn nonce<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::std::option::Option<i64>>,
+            T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
             T::Error: ::std::fmt::Display,
         {
             self.nonce = value
@@ -27150,7 +29230,7 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct CancelVaultRequestRequest {
-        nonce: ::std::result::Result<u64, ::std::string::String>,
+        nonce: ::std::result::Result<::std::string::String, ::std::string::String>,
         signature: ::std::result::Result<::std::string::String, ::std::string::String>,
         signature_expiry_sec: ::std::result::Result<u64, ::std::string::String>,
         signer: ::std::result::Result<super::Address, ::std::string::String>,
@@ -27176,7 +29256,7 @@ pub mod builder {
     impl CancelVaultRequestRequest {
         pub fn nonce<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<u64>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.nonce = value
@@ -28299,7 +30379,7 @@ pub mod builder {
             ::std::string::String,
         >,
         max_slippage_bps: ::std::result::Result<u64, ::std::string::String>,
-        nonce: ::std::result::Result<u64, ::std::string::String>,
+        nonce: ::std::result::Result<::std::string::String, ::std::string::String>,
         performance_fee_bps: ::std::result::Result<u64, ::std::string::String>,
         signature: ::std::result::Result<::std::string::String, ::std::string::String>,
         signature_expiry_sec: ::std::result::Result<u64, ::std::string::String>,
@@ -28458,7 +30538,7 @@ pub mod builder {
         }
         pub fn nonce<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<u64>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.nonce = value
@@ -29003,7 +31083,7 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct DeleteSubaccountRequest {
-        nonce: ::std::result::Result<u64, ::std::string::String>,
+        nonce: ::std::result::Result<::std::string::String, ::std::string::String>,
         signature: ::std::result::Result<::std::string::String, ::std::string::String>,
         signature_expiry_sec: ::std::result::Result<u64, ::std::string::String>,
         signer: ::std::result::Result<::std::string::String, ::std::string::String>,
@@ -29025,7 +31105,7 @@ pub mod builder {
     impl DeleteSubaccountRequest {
         pub fn nonce<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<u64>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.nonce = value
@@ -29170,6 +31250,102 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
+    pub struct DepositBridgeOrigin {
+        rail: ::std::result::Result<::std::string::String, ::std::string::String>,
+        source_address: ::std::result::Result<
+            ::std::option::Option<::std::string::String>,
+            ::std::string::String,
+        >,
+        source_chain_id: ::std::result::Result<u64, ::std::string::String>,
+        source_tx_hash: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+    }
+    impl ::std::default::Default for DepositBridgeOrigin {
+        fn default() -> Self {
+            Self {
+                rail: Err("no value supplied for rail".to_string()),
+                source_address: Ok(Default::default()),
+                source_chain_id: Err(
+                    "no value supplied for source_chain_id".to_string(),
+                ),
+                source_tx_hash: Err("no value supplied for source_tx_hash".to_string()),
+            }
+        }
+    }
+    impl DepositBridgeOrigin {
+        pub fn rail<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.rail = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for rail: {e}"));
+            self
+        }
+        pub fn source_address<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.source_address = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for source_address: {e}")
+                });
+            self
+        }
+        pub fn source_chain_id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<u64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.source_chain_id = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for source_chain_id: {e}")
+                });
+            self
+        }
+        pub fn source_tx_hash<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.source_tx_hash = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for source_tx_hash: {e}")
+                });
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<DepositBridgeOrigin> for super::DepositBridgeOrigin {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: DepositBridgeOrigin,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                rail: value.rail?,
+                source_address: value.source_address?,
+                source_chain_id: value.source_chain_id?,
+                source_tx_hash: value.source_tx_hash?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::DepositBridgeOrigin> for DepositBridgeOrigin {
+        fn from(value: super::DepositBridgeOrigin) -> Self {
+            Self {
+                rail: Ok(value.rail),
+                source_address: Ok(value.source_address),
+                source_chain_id: Ok(value.source_chain_id),
+                source_tx_hash: Ok(value.source_tx_hash),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
     pub struct DepositEntry {
         action_id: ::std::result::Result<
             ::std::option::Option<u64>,
@@ -29179,6 +31355,10 @@ pub mod builder {
         asset: ::std::result::Result<::std::string::String, ::std::string::String>,
         batch_status: ::std::result::Result<super::BatchStatus, ::std::string::String>,
         batch_uuid: ::std::result::Result<::std::string::String, ::std::string::String>,
+        bridge_origin: ::std::result::Result<
+            ::std::option::Option<super::DepositBridgeOrigin>,
+            ::std::string::String,
+        >,
         fallback_error_code: ::std::result::Result<
             ::std::option::Option<i64>,
             ::std::string::String,
@@ -29193,6 +31373,14 @@ pub mod builder {
         >,
         fee: ::std::result::Result<::bigdecimal::BigDecimal, ::std::string::String>,
         is_fallback: ::std::result::Result<bool, ::std::string::String>,
+        l1_sender: ::std::result::Result<
+            ::std::option::Option<::std::string::String>,
+            ::std::string::String,
+        >,
+        l1_tx_hash: ::std::result::Result<
+            ::std::option::Option<::std::string::String>,
+            ::std::string::String,
+        >,
         new_subaccount: ::std::result::Result<bool, ::std::string::String>,
         operation_id: ::std::result::Result<
             ::std::string::String,
@@ -29214,11 +31402,14 @@ pub mod builder {
                 asset: Err("no value supplied for asset".to_string()),
                 batch_status: Err("no value supplied for batch_status".to_string()),
                 batch_uuid: Err("no value supplied for batch_uuid".to_string()),
+                bridge_origin: Ok(Default::default()),
                 fallback_error_code: Ok(Default::default()),
                 fallback_error_data: Ok(Default::default()),
                 fallback_error_message: Ok(Default::default()),
                 fee: Err("no value supplied for fee".to_string()),
                 is_fallback: Err("no value supplied for is_fallback".to_string()),
+                l1_sender: Ok(Default::default()),
+                l1_tx_hash: Ok(Default::default()),
                 new_subaccount: Err("no value supplied for new_subaccount".to_string()),
                 operation_id: Err("no value supplied for operation_id".to_string()),
                 subaccount_id: Err("no value supplied for subaccount_id".to_string()),
@@ -29285,6 +31476,20 @@ pub mod builder {
                 });
             self
         }
+        pub fn bridge_origin<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<
+                ::std::option::Option<super::DepositBridgeOrigin>,
+            >,
+            T::Error: ::std::fmt::Display,
+        {
+            self.bridge_origin = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for bridge_origin: {e}")
+                });
+            self
+        }
         pub fn fallback_error_code<T>(mut self, value: T) -> Self
         where
             T: ::std::convert::TryInto<::std::option::Option<i64>>,
@@ -29346,6 +31551,30 @@ pub mod builder {
                 .try_into()
                 .map_err(|e| {
                     format!("error converting supplied value for is_fallback: {e}")
+                });
+            self
+        }
+        pub fn l1_sender<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.l1_sender = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for l1_sender: {e}")
+                });
+            self
+        }
+        pub fn l1_tx_hash<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.l1_tx_hash = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for l1_tx_hash: {e}")
                 });
             self
         }
@@ -29431,11 +31660,14 @@ pub mod builder {
                 asset: value.asset?,
                 batch_status: value.batch_status?,
                 batch_uuid: value.batch_uuid?,
+                bridge_origin: value.bridge_origin?,
                 fallback_error_code: value.fallback_error_code?,
                 fallback_error_data: value.fallback_error_data?,
                 fallback_error_message: value.fallback_error_message?,
                 fee: value.fee?,
                 is_fallback: value.is_fallback?,
+                l1_sender: value.l1_sender?,
+                l1_tx_hash: value.l1_tx_hash?,
                 new_subaccount: value.new_subaccount?,
                 operation_id: value.operation_id?,
                 subaccount_id: value.subaccount_id?,
@@ -29453,11 +31685,14 @@ pub mod builder {
                 asset: Ok(value.asset),
                 batch_status: Ok(value.batch_status),
                 batch_uuid: Ok(value.batch_uuid),
+                bridge_origin: Ok(value.bridge_origin),
                 fallback_error_code: Ok(value.fallback_error_code),
                 fallback_error_data: Ok(value.fallback_error_data),
                 fallback_error_message: Ok(value.fallback_error_message),
                 fee: Ok(value.fee),
                 is_fallback: Ok(value.is_fallback),
+                l1_sender: Ok(value.l1_sender),
+                l1_tx_hash: Ok(value.l1_tx_hash),
                 new_subaccount: Ok(value.new_subaccount),
                 operation_id: Ok(value.operation_id),
                 subaccount_id: Ok(value.subaccount_id),
@@ -29705,7 +31940,7 @@ pub mod builder {
             ::std::string::String,
         >,
         max_fee: ::std::result::Result<::bigdecimal::BigDecimal, ::std::string::String>,
-        nonce: ::std::result::Result<i64, ::std::string::String>,
+        nonce: ::std::result::Result<::std::string::String, ::std::string::String>,
         quote_id: ::std::result::Result<::uuid::Uuid, ::std::string::String>,
         referral_code: ::std::result::Result<
             ::std::string::String,
@@ -29812,7 +32047,7 @@ pub mod builder {
         }
         pub fn nonce<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<i64>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.nonce = value
@@ -30023,9 +32258,157 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
+    pub struct ExternalTransferActionDataResponse {
+        amount: ::std::result::Result<::bigdecimal::BigDecimal, ::std::string::String>,
+        asset: ::std::result::Result<::std::string::String, ::std::string::String>,
+        max_fee_usd: ::std::result::Result<
+            ::bigdecimal::BigDecimal,
+            ::std::string::String,
+        >,
+        new_subaccount_manager: ::std::result::Result<u32, ::std::string::String>,
+        recipient_address: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+        sub_id: ::std::result::Result<::std::string::String, ::std::string::String>,
+        to_subaccount_id: ::std::result::Result<u64, ::std::string::String>,
+    }
+    impl ::std::default::Default for ExternalTransferActionDataResponse {
+        fn default() -> Self {
+            Self {
+                amount: Err("no value supplied for amount".to_string()),
+                asset: Err("no value supplied for asset".to_string()),
+                max_fee_usd: Err("no value supplied for max_fee_usd".to_string()),
+                new_subaccount_manager: Err(
+                    "no value supplied for new_subaccount_manager".to_string(),
+                ),
+                recipient_address: Err(
+                    "no value supplied for recipient_address".to_string(),
+                ),
+                sub_id: Err("no value supplied for sub_id".to_string()),
+                to_subaccount_id: Err(
+                    "no value supplied for to_subaccount_id".to_string(),
+                ),
+            }
+        }
+    }
+    impl ExternalTransferActionDataResponse {
+        pub fn amount<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::bigdecimal::BigDecimal>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.amount = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for amount: {e}"));
+            self
+        }
+        pub fn asset<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.asset = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for asset: {e}"));
+            self
+        }
+        pub fn max_fee_usd<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::bigdecimal::BigDecimal>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.max_fee_usd = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for max_fee_usd: {e}")
+                });
+            self
+        }
+        pub fn new_subaccount_manager<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<u32>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.new_subaccount_manager = value
+                .try_into()
+                .map_err(|e| {
+                    format!(
+                        "error converting supplied value for new_subaccount_manager: {e}"
+                    )
+                });
+            self
+        }
+        pub fn recipient_address<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.recipient_address = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for recipient_address: {e}")
+                });
+            self
+        }
+        pub fn sub_id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.sub_id = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for sub_id: {e}"));
+            self
+        }
+        pub fn to_subaccount_id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<u64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.to_subaccount_id = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for to_subaccount_id: {e}")
+                });
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<ExternalTransferActionDataResponse>
+    for super::ExternalTransferActionDataResponse {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: ExternalTransferActionDataResponse,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                amount: value.amount?,
+                asset: value.asset?,
+                max_fee_usd: value.max_fee_usd?,
+                new_subaccount_manager: value.new_subaccount_manager?,
+                recipient_address: value.recipient_address?,
+                sub_id: value.sub_id?,
+                to_subaccount_id: value.to_subaccount_id?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::ExternalTransferActionDataResponse>
+    for ExternalTransferActionDataResponse {
+        fn from(value: super::ExternalTransferActionDataResponse) -> Self {
+            Self {
+                amount: Ok(value.amount),
+                asset: Ok(value.asset),
+                max_fee_usd: Ok(value.max_fee_usd),
+                new_subaccount_manager: Ok(value.new_subaccount_manager),
+                recipient_address: Ok(value.recipient_address),
+                sub_id: Ok(value.sub_id),
+                to_subaccount_id: Ok(value.to_subaccount_id),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
     pub struct ForceBurnRequest {
         holder: ::std::result::Result<super::Address, ::std::string::String>,
-        nonce: ::std::result::Result<u64, ::std::string::String>,
+        nonce: ::std::result::Result<::std::string::String, ::std::string::String>,
         signature: ::std::result::Result<::std::string::String, ::std::string::String>,
         signature_expiry_sec: ::std::result::Result<u64, ::std::string::String>,
         signer: ::std::result::Result<super::Address, ::std::string::String>,
@@ -30058,7 +32441,7 @@ pub mod builder {
         }
         pub fn nonce<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<u64>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.nonce = value
@@ -32353,6 +34736,53 @@ pub mod builder {
             Self {
                 limit: Ok(value.limit),
                 subaccount_id: Ok(value.subaccount_id),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct GetLiveIncidentsResponse {
+        incidents: ::std::result::Result<
+            ::std::vec::Vec<super::IncidentResponse>,
+            ::std::string::String,
+        >,
+    }
+    impl ::std::default::Default for GetLiveIncidentsResponse {
+        fn default() -> Self {
+            Self {
+                incidents: Err("no value supplied for incidents".to_string()),
+            }
+        }
+    }
+    impl GetLiveIncidentsResponse {
+        pub fn incidents<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::vec::Vec<super::IncidentResponse>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.incidents = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for incidents: {e}")
+                });
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<GetLiveIncidentsResponse>
+    for super::GetLiveIncidentsResponse {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: GetLiveIncidentsResponse,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                incidents: value.incidents?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::GetLiveIncidentsResponse>
+    for GetLiveIncidentsResponse {
+        fn from(value: super::GetLiveIncidentsResponse) -> Self {
+            Self {
+                incidents: Ok(value.incidents),
             }
         }
     }
@@ -35833,6 +38263,114 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
+    pub struct IncidentResponse {
+        creation_timestamp_sec: ::std::result::Result<i64, ::std::string::String>,
+        label: ::std::result::Result<::std::string::String, ::std::string::String>,
+        message: ::std::result::Result<::std::string::String, ::std::string::String>,
+        monitor_type: ::std::result::Result<super::MonitorType, ::std::string::String>,
+        severity: ::std::result::Result<super::Severity, ::std::string::String>,
+    }
+    impl ::std::default::Default for IncidentResponse {
+        fn default() -> Self {
+            Self {
+                creation_timestamp_sec: Err(
+                    "no value supplied for creation_timestamp_sec".to_string(),
+                ),
+                label: Err("no value supplied for label".to_string()),
+                message: Err("no value supplied for message".to_string()),
+                monitor_type: Err("no value supplied for monitor_type".to_string()),
+                severity: Err("no value supplied for severity".to_string()),
+            }
+        }
+    }
+    impl IncidentResponse {
+        pub fn creation_timestamp_sec<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<i64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.creation_timestamp_sec = value
+                .try_into()
+                .map_err(|e| {
+                    format!(
+                        "error converting supplied value for creation_timestamp_sec: {e}"
+                    )
+                });
+            self
+        }
+        pub fn label<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.label = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for label: {e}"));
+            self
+        }
+        pub fn message<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.message = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for message: {e}")
+                });
+            self
+        }
+        pub fn monitor_type<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::MonitorType>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.monitor_type = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for monitor_type: {e}")
+                });
+            self
+        }
+        pub fn severity<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::Severity>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.severity = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for severity: {e}")
+                });
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<IncidentResponse> for super::IncidentResponse {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: IncidentResponse,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                creation_timestamp_sec: value.creation_timestamp_sec?,
+                label: value.label?,
+                message: value.message?,
+                monitor_type: value.monitor_type?,
+                severity: value.severity?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::IncidentResponse> for IncidentResponse {
+        fn from(value: super::IncidentResponse) -> Self {
+            Self {
+                creation_timestamp_sec: Ok(value.creation_timestamp_sec),
+                label: Ok(value.label),
+                message: Ok(value.message),
+                monitor_type: Ok(value.monitor_type),
+                severity: Ok(value.severity),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
     pub struct IndexCandle {
         close_price: ::std::result::Result<::std::string::String, ::std::string::String>,
         high_price: ::std::result::Result<::std::string::String, ::std::string::String>,
@@ -37668,7 +40206,7 @@ pub mod builder {
             ::std::string::String,
             ::std::string::String,
         >,
-        nonce: ::std::result::Result<u64, ::std::string::String>,
+        nonce: ::std::result::Result<::std::string::String, ::std::string::String>,
         request_id: ::std::result::Result<super::VaultRequestId, ::std::string::String>,
         share_price: ::std::result::Result<
             ::bigdecimal::BigDecimal,
@@ -37710,7 +40248,7 @@ pub mod builder {
         }
         pub fn nonce<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<u64>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.nonce = value
@@ -40188,7 +42726,7 @@ pub mod builder {
         >,
         expiry: ::std::result::Result<u64, ::std::string::String>,
         module: ::std::result::Result<::std::string::String, ::std::string::String>,
-        nonce: ::std::result::Result<u64, ::std::string::String>,
+        nonce: ::std::result::Result<::std::string::String, ::std::string::String>,
         owner: ::std::result::Result<::std::string::String, ::std::string::String>,
         signer: ::std::result::Result<::std::string::String, ::std::string::String>,
         subaccount_id: ::std::result::Result<u64, ::std::string::String>,
@@ -40239,7 +42777,7 @@ pub mod builder {
         }
         pub fn nonce<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<u64>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.nonce = value
@@ -41810,44 +44348,377 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
-    pub struct PendingDepositEntry {
-        action_id: ::std::result::Result<u64, ::std::string::String>,
-        action_type: ::std::result::Result<::std::string::String, ::std::string::String>,
-        amount: ::std::result::Result<::std::string::String, ::std::string::String>,
-        asset: ::std::result::Result<::std::string::String, ::std::string::String>,
-        block_number: ::std::result::Result<u64, ::std::string::String>,
-        credit_nonce: ::std::result::Result<
+    pub struct PendingDepositBridgeOrigin {
+        bridge_id: ::std::result::Result<::std::string::String, ::std::string::String>,
+        bridge_status: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+        delivered_at_ms: ::std::result::Result<
+            ::std::option::Option<i64>,
+            ::std::string::String,
+        >,
+        deposit_address: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+        expected_amount: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+        expires_at_ms: ::std::result::Result<i64, ::std::string::String>,
+        provider_transfer_id: ::std::result::Result<
             ::std::option::Option<::std::string::String>,
+            ::std::string::String,
+        >,
+        rail: ::std::result::Result<::std::string::String, ::std::string::String>,
+        receiving_amount: ::std::result::Result<
+            ::std::option::Option<::std::string::String>,
+            ::std::string::String,
+        >,
+        receiving_token: ::std::result::Result<
+            ::std::option::Option<::std::string::String>,
+            ::std::string::String,
+        >,
+        receiving_tx_hash: ::std::result::Result<
+            ::std::option::Option<::std::string::String>,
+            ::std::string::String,
+        >,
+        source_address: ::std::result::Result<
+            ::std::option::Option<::std::string::String>,
+            ::std::string::String,
+        >,
+        source_chain_id: ::std::result::Result<u64, ::std::string::String>,
+        source_tx_hash: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+        substatus: ::std::result::Result<::std::string::String, ::std::string::String>,
+        token: ::std::result::Result<::std::string::String, ::std::string::String>,
+    }
+    impl ::std::default::Default for PendingDepositBridgeOrigin {
+        fn default() -> Self {
+            Self {
+                bridge_id: Err("no value supplied for bridge_id".to_string()),
+                bridge_status: Err("no value supplied for bridge_status".to_string()),
+                delivered_at_ms: Ok(Default::default()),
+                deposit_address: Err(
+                    "no value supplied for deposit_address".to_string(),
+                ),
+                expected_amount: Err(
+                    "no value supplied for expected_amount".to_string(),
+                ),
+                expires_at_ms: Err("no value supplied for expires_at_ms".to_string()),
+                provider_transfer_id: Ok(Default::default()),
+                rail: Err("no value supplied for rail".to_string()),
+                receiving_amount: Ok(Default::default()),
+                receiving_token: Ok(Default::default()),
+                receiving_tx_hash: Ok(Default::default()),
+                source_address: Ok(Default::default()),
+                source_chain_id: Err(
+                    "no value supplied for source_chain_id".to_string(),
+                ),
+                source_tx_hash: Err("no value supplied for source_tx_hash".to_string()),
+                substatus: Err("no value supplied for substatus".to_string()),
+                token: Err("no value supplied for token".to_string()),
+            }
+        }
+    }
+    impl PendingDepositBridgeOrigin {
+        pub fn bridge_id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.bridge_id = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for bridge_id: {e}")
+                });
+            self
+        }
+        pub fn bridge_status<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.bridge_status = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for bridge_status: {e}")
+                });
+            self
+        }
+        pub fn delivered_at_ms<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<i64>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.delivered_at_ms = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for delivered_at_ms: {e}")
+                });
+            self
+        }
+        pub fn deposit_address<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.deposit_address = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for deposit_address: {e}")
+                });
+            self
+        }
+        pub fn expected_amount<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.expected_amount = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for expected_amount: {e}")
+                });
+            self
+        }
+        pub fn expires_at_ms<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<i64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.expires_at_ms = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for expires_at_ms: {e}")
+                });
+            self
+        }
+        pub fn provider_transfer_id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.provider_transfer_id = value
+                .try_into()
+                .map_err(|e| {
+                    format!(
+                        "error converting supplied value for provider_transfer_id: {e}"
+                    )
+                });
+            self
+        }
+        pub fn rail<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.rail = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for rail: {e}"));
+            self
+        }
+        pub fn receiving_amount<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.receiving_amount = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for receiving_amount: {e}")
+                });
+            self
+        }
+        pub fn receiving_token<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.receiving_token = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for receiving_token: {e}")
+                });
+            self
+        }
+        pub fn receiving_tx_hash<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.receiving_tx_hash = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for receiving_tx_hash: {e}")
+                });
+            self
+        }
+        pub fn source_address<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.source_address = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for source_address: {e}")
+                });
+            self
+        }
+        pub fn source_chain_id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<u64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.source_chain_id = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for source_chain_id: {e}")
+                });
+            self
+        }
+        pub fn source_tx_hash<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.source_tx_hash = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for source_tx_hash: {e}")
+                });
+            self
+        }
+        pub fn substatus<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.substatus = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for substatus: {e}")
+                });
+            self
+        }
+        pub fn token<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.token = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for token: {e}"));
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<PendingDepositBridgeOrigin>
+    for super::PendingDepositBridgeOrigin {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: PendingDepositBridgeOrigin,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                bridge_id: value.bridge_id?,
+                bridge_status: value.bridge_status?,
+                delivered_at_ms: value.delivered_at_ms?,
+                deposit_address: value.deposit_address?,
+                expected_amount: value.expected_amount?,
+                expires_at_ms: value.expires_at_ms?,
+                provider_transfer_id: value.provider_transfer_id?,
+                rail: value.rail?,
+                receiving_amount: value.receiving_amount?,
+                receiving_token: value.receiving_token?,
+                receiving_tx_hash: value.receiving_tx_hash?,
+                source_address: value.source_address?,
+                source_chain_id: value.source_chain_id?,
+                source_tx_hash: value.source_tx_hash?,
+                substatus: value.substatus?,
+                token: value.token?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::PendingDepositBridgeOrigin>
+    for PendingDepositBridgeOrigin {
+        fn from(value: super::PendingDepositBridgeOrigin) -> Self {
+            Self {
+                bridge_id: Ok(value.bridge_id),
+                bridge_status: Ok(value.bridge_status),
+                delivered_at_ms: Ok(value.delivered_at_ms),
+                deposit_address: Ok(value.deposit_address),
+                expected_amount: Ok(value.expected_amount),
+                expires_at_ms: Ok(value.expires_at_ms),
+                provider_transfer_id: Ok(value.provider_transfer_id),
+                rail: Ok(value.rail),
+                receiving_amount: Ok(value.receiving_amount),
+                receiving_token: Ok(value.receiving_token),
+                receiving_tx_hash: Ok(value.receiving_tx_hash),
+                source_address: Ok(value.source_address),
+                source_chain_id: Ok(value.source_chain_id),
+                source_tx_hash: Ok(value.source_tx_hash),
+                substatus: Ok(value.substatus),
+                token: Ok(value.token),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct PendingDepositEntry {
+        action_id: ::std::result::Result<
+            ::std::option::Option<u64>,
+            ::std::string::String,
+        >,
+        action_type: ::std::result::Result<::std::string::String, ::std::string::String>,
+        amount: ::std::result::Result<
+            ::std::option::Option<::std::string::String>,
+            ::std::string::String,
+        >,
+        asset: ::std::result::Result<::std::string::String, ::std::string::String>,
+        block_number: ::std::result::Result<
+            ::std::option::Option<u64>,
+            ::std::string::String,
+        >,
+        bridge_to_l1: ::std::result::Result<
+            ::std::option::Option<super::PendingDepositBridgeOrigin>,
             ::std::string::String,
         >,
         deposit_type: ::std::result::Result<
             ::std::string::String,
             ::std::string::String,
         >,
-        log_index: ::std::result::Result<u64, ::std::string::String>,
+        log_index: ::std::result::Result<
+            ::std::option::Option<u64>,
+            ::std::string::String,
+        >,
         manager_id: ::std::result::Result<u32, ::std::string::String>,
         status: ::std::result::Result<::std::string::String, ::std::string::String>,
         subaccount_id: ::std::result::Result<i64, ::std::string::String>,
         timestamp: ::std::result::Result<i64, ::std::string::String>,
-        tx_hash: ::std::result::Result<::std::string::String, ::std::string::String>,
+        tx_hash: ::std::result::Result<
+            ::std::option::Option<::std::string::String>,
+            ::std::string::String,
+        >,
         updated_at_ms: ::std::result::Result<i64, ::std::string::String>,
     }
     impl ::std::default::Default for PendingDepositEntry {
         fn default() -> Self {
             Self {
-                action_id: Err("no value supplied for action_id".to_string()),
+                action_id: Ok(Default::default()),
                 action_type: Err("no value supplied for action_type".to_string()),
-                amount: Err("no value supplied for amount".to_string()),
+                amount: Ok(Default::default()),
                 asset: Err("no value supplied for asset".to_string()),
-                block_number: Err("no value supplied for block_number".to_string()),
-                credit_nonce: Ok(Default::default()),
+                block_number: Ok(Default::default()),
+                bridge_to_l1: Ok(Default::default()),
                 deposit_type: Err("no value supplied for deposit_type".to_string()),
-                log_index: Err("no value supplied for log_index".to_string()),
+                log_index: Ok(Default::default()),
                 manager_id: Err("no value supplied for manager_id".to_string()),
                 status: Err("no value supplied for status".to_string()),
                 subaccount_id: Err("no value supplied for subaccount_id".to_string()),
                 timestamp: Err("no value supplied for timestamp".to_string()),
-                tx_hash: Err("no value supplied for tx_hash".to_string()),
+                tx_hash: Ok(Default::default()),
                 updated_at_ms: Err("no value supplied for updated_at_ms".to_string()),
             }
         }
@@ -41855,7 +44726,7 @@ pub mod builder {
     impl PendingDepositEntry {
         pub fn action_id<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<u64>,
+            T: ::std::convert::TryInto<::std::option::Option<u64>>,
             T::Error: ::std::fmt::Display,
         {
             self.action_id = value
@@ -41879,7 +44750,7 @@ pub mod builder {
         }
         pub fn amount<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::std::string::String>,
+            T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
             T::Error: ::std::fmt::Display,
         {
             self.amount = value
@@ -41899,7 +44770,7 @@ pub mod builder {
         }
         pub fn block_number<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<u64>,
+            T: ::std::convert::TryInto<::std::option::Option<u64>>,
             T::Error: ::std::fmt::Display,
         {
             self.block_number = value
@@ -41909,15 +44780,17 @@ pub mod builder {
                 });
             self
         }
-        pub fn credit_nonce<T>(mut self, value: T) -> Self
+        pub fn bridge_to_l1<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+            T: ::std::convert::TryInto<
+                ::std::option::Option<super::PendingDepositBridgeOrigin>,
+            >,
             T::Error: ::std::fmt::Display,
         {
-            self.credit_nonce = value
+            self.bridge_to_l1 = value
                 .try_into()
                 .map_err(|e| {
-                    format!("error converting supplied value for credit_nonce: {e}")
+                    format!("error converting supplied value for bridge_to_l1: {e}")
                 });
             self
         }
@@ -41935,7 +44808,7 @@ pub mod builder {
         }
         pub fn log_index<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<u64>,
+            T: ::std::convert::TryInto<::std::option::Option<u64>>,
             T::Error: ::std::fmt::Display,
         {
             self.log_index = value
@@ -41993,7 +44866,7 @@ pub mod builder {
         }
         pub fn tx_hash<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::std::string::String>,
+            T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
             T::Error: ::std::fmt::Display,
         {
             self.tx_hash = value
@@ -42027,7 +44900,7 @@ pub mod builder {
                 amount: value.amount?,
                 asset: value.asset?,
                 block_number: value.block_number?,
-                credit_nonce: value.credit_nonce?,
+                bridge_to_l1: value.bridge_to_l1?,
                 deposit_type: value.deposit_type?,
                 log_index: value.log_index?,
                 manager_id: value.manager_id?,
@@ -42047,7 +44920,7 @@ pub mod builder {
                 amount: Ok(value.amount),
                 asset: Ok(value.asset),
                 block_number: Ok(value.block_number),
-                credit_nonce: Ok(value.credit_nonce),
+                bridge_to_l1: Ok(value.bridge_to_l1),
                 deposit_type: Ok(value.deposit_type),
                 log_index: Ok(value.log_index),
                 manager_id: Ok(value.manager_id),
@@ -44261,7 +47134,7 @@ pub mod builder {
     #[derive(Clone, Debug)]
     pub struct PrivateLiquidateRequest {
         liquidate_subaccount_id: ::std::result::Result<u64, ::std::string::String>,
-        nonce: ::std::result::Result<i64, ::std::string::String>,
+        nonce: ::std::result::Result<::std::string::String, ::std::string::String>,
         percent_of_acc: ::std::result::Result<
             ::bigdecimal::BigDecimal,
             ::std::string::String,
@@ -44310,7 +47183,7 @@ pub mod builder {
         }
         pub fn nonce<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<i64>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.nonce = value
@@ -44806,7 +47679,7 @@ pub mod builder {
             ::std::string::String,
         >,
         new_subaccount_manager: ::std::result::Result<u32, ::std::string::String>,
-        nonce: ::std::result::Result<i64, ::std::string::String>,
+        nonce: ::std::result::Result<::std::string::String, ::std::string::String>,
         recipient_address: ::std::result::Result<
             ::std::string::String,
             ::std::string::String,
@@ -44895,7 +47768,7 @@ pub mod builder {
         }
         pub fn nonce<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<i64>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.nonce = value
@@ -45096,7 +47969,7 @@ pub mod builder {
             ::std::string::String,
         >,
         new_subaccount_manager: ::std::result::Result<u32, ::std::string::String>,
-        nonce: ::std::result::Result<i64, ::std::string::String>,
+        nonce: ::std::result::Result<::std::string::String, ::std::string::String>,
         signature: ::std::result::Result<::std::string::String, ::std::string::String>,
         signature_expiry_sec: ::std::result::Result<u64, ::std::string::String>,
         signer: ::std::result::Result<::std::string::String, ::std::string::String>,
@@ -45178,7 +48051,7 @@ pub mod builder {
         }
         pub fn nonce<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<i64>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.nonce = value
@@ -45368,7 +48241,7 @@ pub mod builder {
             ::bigdecimal::BigDecimal,
             ::std::string::String,
         >,
-        nonce: ::std::result::Result<i64, ::std::string::String>,
+        nonce: ::std::result::Result<::std::string::String, ::std::string::String>,
         recipient: ::std::result::Result<
             ::std::option::Option<::std::string::String>,
             ::std::string::String,
@@ -45451,7 +48324,7 @@ pub mod builder {
         }
         pub fn nonce<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<i64>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.nonce = value
@@ -45922,7 +48795,7 @@ pub mod builder {
             ::std::string::String,
         >,
         max_fee: ::std::result::Result<::bigdecimal::BigDecimal, ::std::string::String>,
-        nonce: ::std::result::Result<i64, ::std::string::String>,
+        nonce: ::std::result::Result<::std::string::String, ::std::string::String>,
         quote_id: ::std::result::Result<::uuid::Uuid, ::std::string::String>,
         rfq_id: ::std::result::Result<::uuid::Uuid, ::std::string::String>,
         signature: ::std::result::Result<::std::string::String, ::std::string::String>,
@@ -45987,7 +48860,7 @@ pub mod builder {
         }
         pub fn nonce<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<i64>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.nonce = value
@@ -47899,7 +50772,7 @@ pub mod builder {
             ::std::string::String,
         >,
         max_fee: ::std::result::Result<::bigdecimal::BigDecimal, ::std::string::String>,
-        nonce: ::std::result::Result<i64, ::std::string::String>,
+        nonce: ::std::result::Result<::std::string::String, ::std::string::String>,
         rfq_id: ::std::result::Result<::uuid::Uuid, ::std::string::String>,
         signature: ::std::result::Result<::std::string::String, ::std::string::String>,
         signature_expiry_sec: ::std::result::Result<i64, ::std::string::String>,
@@ -47962,7 +50835,7 @@ pub mod builder {
         }
         pub fn nonce<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<i64>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.nonce = value
@@ -49538,7 +52411,7 @@ pub mod builder {
             ::bigdecimal::BigDecimal,
             ::std::string::String,
         >,
-        nonce: ::std::result::Result<i64, ::std::string::String>,
+        nonce: ::std::result::Result<::std::string::String, ::std::string::String>,
         recipient: ::std::result::Result<
             ::std::option::Option<::std::string::String>,
             ::std::string::String,
@@ -49619,7 +52492,7 @@ pub mod builder {
         }
         pub fn nonce<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<i64>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.nonce = value
@@ -51905,6 +54778,237 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
+    pub struct RegisterBridgeDepositParams {
+        bridge_token: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+        bridge_token_decimals: ::std::result::Result<u8, ::std::string::String>,
+        deposit_address: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+        expected_amount: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+        provider_transfer_id: ::std::result::Result<
+            ::std::option::Option<::std::string::String>,
+            ::std::string::String,
+        >,
+        rail: ::std::result::Result<::std::string::String, ::std::string::String>,
+        source_chain_id: ::std::result::Result<u64, ::std::string::String>,
+        source_token: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+        source_tx_hash: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+        tool: ::std::result::Result<
+            ::std::option::Option<::std::string::String>,
+            ::std::string::String,
+        >,
+        wallet: ::std::result::Result<::std::string::String, ::std::string::String>,
+    }
+    impl ::std::default::Default for RegisterBridgeDepositParams {
+        fn default() -> Self {
+            Self {
+                bridge_token: Err("no value supplied for bridge_token".to_string()),
+                bridge_token_decimals: Err(
+                    "no value supplied for bridge_token_decimals".to_string(),
+                ),
+                deposit_address: Err(
+                    "no value supplied for deposit_address".to_string(),
+                ),
+                expected_amount: Err(
+                    "no value supplied for expected_amount".to_string(),
+                ),
+                provider_transfer_id: Ok(Default::default()),
+                rail: Err("no value supplied for rail".to_string()),
+                source_chain_id: Err(
+                    "no value supplied for source_chain_id".to_string(),
+                ),
+                source_token: Err("no value supplied for source_token".to_string()),
+                source_tx_hash: Err("no value supplied for source_tx_hash".to_string()),
+                tool: Ok(Default::default()),
+                wallet: Err("no value supplied for wallet".to_string()),
+            }
+        }
+    }
+    impl RegisterBridgeDepositParams {
+        pub fn bridge_token<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.bridge_token = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for bridge_token: {e}")
+                });
+            self
+        }
+        pub fn bridge_token_decimals<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<u8>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.bridge_token_decimals = value
+                .try_into()
+                .map_err(|e| {
+                    format!(
+                        "error converting supplied value for bridge_token_decimals: {e}"
+                    )
+                });
+            self
+        }
+        pub fn deposit_address<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.deposit_address = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for deposit_address: {e}")
+                });
+            self
+        }
+        pub fn expected_amount<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.expected_amount = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for expected_amount: {e}")
+                });
+            self
+        }
+        pub fn provider_transfer_id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.provider_transfer_id = value
+                .try_into()
+                .map_err(|e| {
+                    format!(
+                        "error converting supplied value for provider_transfer_id: {e}"
+                    )
+                });
+            self
+        }
+        pub fn rail<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.rail = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for rail: {e}"));
+            self
+        }
+        pub fn source_chain_id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<u64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.source_chain_id = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for source_chain_id: {e}")
+                });
+            self
+        }
+        pub fn source_token<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.source_token = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for source_token: {e}")
+                });
+            self
+        }
+        pub fn source_tx_hash<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.source_tx_hash = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for source_tx_hash: {e}")
+                });
+            self
+        }
+        pub fn tool<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.tool = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for tool: {e}"));
+            self
+        }
+        pub fn wallet<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.wallet = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for wallet: {e}"));
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<RegisterBridgeDepositParams>
+    for super::RegisterBridgeDepositParams {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: RegisterBridgeDepositParams,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                bridge_token: value.bridge_token?,
+                bridge_token_decimals: value.bridge_token_decimals?,
+                deposit_address: value.deposit_address?,
+                expected_amount: value.expected_amount?,
+                provider_transfer_id: value.provider_transfer_id?,
+                rail: value.rail?,
+                source_chain_id: value.source_chain_id?,
+                source_token: value.source_token?,
+                source_tx_hash: value.source_tx_hash?,
+                tool: value.tool?,
+                wallet: value.wallet?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::RegisterBridgeDepositParams>
+    for RegisterBridgeDepositParams {
+        fn from(value: super::RegisterBridgeDepositParams) -> Self {
+            Self {
+                bridge_token: Ok(value.bridge_token),
+                bridge_token_decimals: Ok(value.bridge_token_decimals),
+                deposit_address: Ok(value.deposit_address),
+                expected_amount: Ok(value.expected_amount),
+                provider_transfer_id: Ok(value.provider_transfer_id),
+                rail: Ok(value.rail),
+                source_chain_id: Ok(value.source_chain_id),
+                source_token: Ok(value.source_token),
+                source_tx_hash: Ok(value.source_tx_hash),
+                tool: Ok(value.tool),
+                wallet: Ok(value.wallet),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
     pub struct RegisterDepositAddressParams {
         manager_id: ::std::result::Result<
             ::std::option::Option<u32>,
@@ -52207,7 +55311,7 @@ pub mod builder {
         mmp: ::std::result::Result<::std::option::Option<bool>, ::std::string::String>,
         nonce: ::std::result::Result<::std::string::String, ::std::string::String>,
         nonce_to_cancel: ::std::result::Result<
-            ::std::option::Option<i64>,
+            ::std::option::Option<::std::string::String>,
             ::std::string::String,
         >,
         order_id_to_cancel: ::std::result::Result<
@@ -52466,7 +55570,7 @@ pub mod builder {
         }
         pub fn nonce_to_cancel<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::std::option::Option<i64>>,
+            T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
             T::Error: ::std::fmt::Display,
         {
             self.nonce_to_cancel = value
@@ -52840,9 +55944,9 @@ pub mod builder {
         >,
         max_fee: ::std::result::Result<::bigdecimal::BigDecimal, ::std::string::String>,
         mmp: ::std::result::Result<bool, ::std::string::String>,
-        nonce: ::std::result::Result<i64, ::std::string::String>,
+        nonce: ::std::result::Result<::std::string::String, ::std::string::String>,
         nonce_to_cancel: ::std::result::Result<
-            ::std::option::Option<i64>,
+            ::std::option::Option<::std::string::String>,
             ::std::string::String,
         >,
         quote_id_to_cancel: ::std::result::Result<
@@ -52964,7 +56068,7 @@ pub mod builder {
         }
         pub fn nonce<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<i64>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.nonce = value
@@ -52974,7 +56078,7 @@ pub mod builder {
         }
         pub fn nonce_to_cancel<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::std::option::Option<i64>>,
+            T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
             T::Error: ::std::fmt::Display,
         {
             self.nonce_to_cancel = value
@@ -53120,7 +56224,7 @@ pub mod builder {
     pub struct RequestVaultDepositRequest {
         amount: ::std::result::Result<::bigdecimal::BigDecimal, ::std::string::String>,
         deposit_spot_asset: ::std::result::Result<super::Address, ::std::string::String>,
-        nonce: ::std::result::Result<u64, ::std::string::String>,
+        nonce: ::std::result::Result<::std::string::String, ::std::string::String>,
         signature: ::std::result::Result<::std::string::String, ::std::string::String>,
         signature_expiry_sec: ::std::result::Result<u64, ::std::string::String>,
         signer: ::std::result::Result<super::Address, ::std::string::String>,
@@ -53174,7 +56278,7 @@ pub mod builder {
         }
         pub fn nonce<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<u64>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.nonce = value
@@ -53280,7 +56384,7 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct RequestVaultWithdrawRequest {
-        nonce: ::std::result::Result<u64, ::std::string::String>,
+        nonce: ::std::result::Result<::std::string::String, ::std::string::String>,
         shares_to_burn: ::std::result::Result<
             ::bigdecimal::BigDecimal,
             ::std::string::String,
@@ -53311,7 +56415,7 @@ pub mod builder {
     impl RequestVaultWithdrawRequest {
         pub fn nonce<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<u64>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.nonce = value
@@ -54361,6 +57465,159 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
+    pub struct RfqLegResponse {
+        amount: ::std::result::Result<::bigdecimal::BigDecimal, ::std::string::String>,
+        asset_address: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+        asset_sub_id: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+        price: ::std::result::Result<::bigdecimal::BigDecimal, ::std::string::String>,
+    }
+    impl ::std::default::Default for RfqLegResponse {
+        fn default() -> Self {
+            Self {
+                amount: Err("no value supplied for amount".to_string()),
+                asset_address: Err("no value supplied for asset_address".to_string()),
+                asset_sub_id: Err("no value supplied for asset_sub_id".to_string()),
+                price: Err("no value supplied for price".to_string()),
+            }
+        }
+    }
+    impl RfqLegResponse {
+        pub fn amount<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::bigdecimal::BigDecimal>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.amount = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for amount: {e}"));
+            self
+        }
+        pub fn asset_address<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.asset_address = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for asset_address: {e}")
+                });
+            self
+        }
+        pub fn asset_sub_id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.asset_sub_id = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for asset_sub_id: {e}")
+                });
+            self
+        }
+        pub fn price<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::bigdecimal::BigDecimal>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.price = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for price: {e}"));
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<RfqLegResponse> for super::RfqLegResponse {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: RfqLegResponse,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                amount: value.amount?,
+                asset_address: value.asset_address?,
+                asset_sub_id: value.asset_sub_id?,
+                price: value.price?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::RfqLegResponse> for RfqLegResponse {
+        fn from(value: super::RfqLegResponse) -> Self {
+            Self {
+                amount: Ok(value.amount),
+                asset_address: Ok(value.asset_address),
+                asset_sub_id: Ok(value.asset_sub_id),
+                price: Ok(value.price),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct RfqMakerActionDataResponse {
+        max_fee: ::std::result::Result<::bigdecimal::BigDecimal, ::std::string::String>,
+        trades: ::std::result::Result<
+            ::std::vec::Vec<super::RfqLegResponse>,
+            ::std::string::String,
+        >,
+    }
+    impl ::std::default::Default for RfqMakerActionDataResponse {
+        fn default() -> Self {
+            Self {
+                max_fee: Err("no value supplied for max_fee".to_string()),
+                trades: Err("no value supplied for trades".to_string()),
+            }
+        }
+    }
+    impl RfqMakerActionDataResponse {
+        pub fn max_fee<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::bigdecimal::BigDecimal>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.max_fee = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for max_fee: {e}")
+                });
+            self
+        }
+        pub fn trades<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::vec::Vec<super::RfqLegResponse>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.trades = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for trades: {e}"));
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<RfqMakerActionDataResponse>
+    for super::RfqMakerActionDataResponse {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: RfqMakerActionDataResponse,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                max_fee: value.max_fee?,
+                trades: value.trades?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::RfqMakerActionDataResponse>
+    for RfqMakerActionDataResponse {
+        fn from(value: super::RfqMakerActionDataResponse) -> Self {
+            Self {
+                max_fee: Ok(value.max_fee),
+                trades: Ok(value.trades),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
     pub struct RfqPollResponse {
         pagination: ::std::result::Result<super::Pagination, ::std::string::String>,
         rfqs: ::std::result::Result<
@@ -54416,6 +57673,66 @@ pub mod builder {
             Self {
                 pagination: Ok(value.pagination),
                 rfqs: Ok(value.rfqs),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct RfqTakerActionDataResponse {
+        max_fee: ::std::result::Result<::bigdecimal::BigDecimal, ::std::string::String>,
+        order_hash: ::std::result::Result<::std::string::String, ::std::string::String>,
+    }
+    impl ::std::default::Default for RfqTakerActionDataResponse {
+        fn default() -> Self {
+            Self {
+                max_fee: Err("no value supplied for max_fee".to_string()),
+                order_hash: Err("no value supplied for order_hash".to_string()),
+            }
+        }
+    }
+    impl RfqTakerActionDataResponse {
+        pub fn max_fee<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::bigdecimal::BigDecimal>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.max_fee = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for max_fee: {e}")
+                });
+            self
+        }
+        pub fn order_hash<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.order_hash = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for order_hash: {e}")
+                });
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<RfqTakerActionDataResponse>
+    for super::RfqTakerActionDataResponse {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: RfqTakerActionDataResponse,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                max_fee: value.max_fee?,
+                order_hash: value.order_hash?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::RfqTakerActionDataResponse>
+    for RfqTakerActionDataResponse {
+        fn from(value: super::RfqTakerActionDataResponse) -> Self {
+            Self {
+                max_fee: Ok(value.max_fee),
+                order_hash: Ok(value.order_hash),
             }
         }
     }
@@ -54947,7 +58264,7 @@ pub mod builder {
         >,
         max_fee: ::std::result::Result<::bigdecimal::BigDecimal, ::std::string::String>,
         mmp: ::std::result::Result<bool, ::std::string::String>,
-        nonce: ::std::result::Result<i64, ::std::string::String>,
+        nonce: ::std::result::Result<::std::string::String, ::std::string::String>,
         referral_code: ::std::result::Result<
             ::std::string::String,
             ::std::string::String,
@@ -55061,7 +58378,7 @@ pub mod builder {
         }
         pub fn nonce<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<i64>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.nonce = value
@@ -55928,6 +59245,464 @@ pub mod builder {
                 mmp_frozen_time: Ok(value.mmp_frozen_time),
                 mmp_interval: Ok(value.mmp_interval),
                 subaccount_id: Ok(value.subaccount_id),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct SetSessionKeyActionDataResponse {
+        expiry_sec: ::std::result::Result<u64, ::std::string::String>,
+        scopes: ::std::result::Result<
+            ::std::vec::Vec<::std::string::String>,
+            ::std::string::String,
+        >,
+        session_key: ::std::result::Result<::std::string::String, ::std::string::String>,
+        subaccounts: ::std::result::Result<::std::vec::Vec<u64>, ::std::string::String>,
+    }
+    impl ::std::default::Default for SetSessionKeyActionDataResponse {
+        fn default() -> Self {
+            Self {
+                expiry_sec: Err("no value supplied for expiry_sec".to_string()),
+                scopes: Err("no value supplied for scopes".to_string()),
+                session_key: Err("no value supplied for session_key".to_string()),
+                subaccounts: Err("no value supplied for subaccounts".to_string()),
+            }
+        }
+    }
+    impl SetSessionKeyActionDataResponse {
+        pub fn expiry_sec<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<u64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.expiry_sec = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for expiry_sec: {e}")
+                });
+            self
+        }
+        pub fn scopes<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::vec::Vec<::std::string::String>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.scopes = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for scopes: {e}"));
+            self
+        }
+        pub fn session_key<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.session_key = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for session_key: {e}")
+                });
+            self
+        }
+        pub fn subaccounts<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::vec::Vec<u64>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.subaccounts = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for subaccounts: {e}")
+                });
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<SetSessionKeyActionDataResponse>
+    for super::SetSessionKeyActionDataResponse {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: SetSessionKeyActionDataResponse,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                expiry_sec: value.expiry_sec?,
+                scopes: value.scopes?,
+                session_key: value.session_key?,
+                subaccounts: value.subaccounts?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::SetSessionKeyActionDataResponse>
+    for SetSessionKeyActionDataResponse {
+        fn from(value: super::SetSessionKeyActionDataResponse) -> Self {
+            Self {
+                expiry_sec: Ok(value.expiry_sec),
+                scopes: Ok(value.scopes),
+                session_key: Ok(value.session_key),
+                subaccounts: Ok(value.subaccounts),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct SetSessionKeyActionInputData {
+        data: ::std::result::Result<
+            super::SetSessionKeyActionDataResponse,
+            ::std::string::String,
+        >,
+        expiry: ::std::result::Result<u64, ::std::string::String>,
+        module: ::std::result::Result<::std::string::String, ::std::string::String>,
+        nonce: ::std::result::Result<::std::string::String, ::std::string::String>,
+        owner: ::std::result::Result<::std::string::String, ::std::string::String>,
+        signer: ::std::result::Result<::std::string::String, ::std::string::String>,
+        subaccount_id: ::std::result::Result<u64, ::std::string::String>,
+    }
+    impl ::std::default::Default for SetSessionKeyActionInputData {
+        fn default() -> Self {
+            Self {
+                data: Err("no value supplied for data".to_string()),
+                expiry: Err("no value supplied for expiry".to_string()),
+                module: Err("no value supplied for module".to_string()),
+                nonce: Err("no value supplied for nonce".to_string()),
+                owner: Err("no value supplied for owner".to_string()),
+                signer: Err("no value supplied for signer".to_string()),
+                subaccount_id: Err("no value supplied for subaccount_id".to_string()),
+            }
+        }
+    }
+    impl SetSessionKeyActionInputData {
+        pub fn data<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::SetSessionKeyActionDataResponse>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.data = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for data: {e}"));
+            self
+        }
+        pub fn expiry<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<u64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.expiry = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for expiry: {e}"));
+            self
+        }
+        pub fn module<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.module = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for module: {e}"));
+            self
+        }
+        pub fn nonce<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.nonce = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for nonce: {e}"));
+            self
+        }
+        pub fn owner<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.owner = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for owner: {e}"));
+            self
+        }
+        pub fn signer<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.signer = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for signer: {e}"));
+            self
+        }
+        pub fn subaccount_id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<u64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.subaccount_id = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for subaccount_id: {e}")
+                });
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<SetSessionKeyActionInputData>
+    for super::SetSessionKeyActionInputData {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: SetSessionKeyActionInputData,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                data: value.data?,
+                expiry: value.expiry?,
+                module: value.module?,
+                nonce: value.nonce?,
+                owner: value.owner?,
+                signer: value.signer?,
+                subaccount_id: value.subaccount_id?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::SetSessionKeyActionInputData>
+    for SetSessionKeyActionInputData {
+        fn from(value: super::SetSessionKeyActionInputData) -> Self {
+            Self {
+                data: Ok(value.data),
+                expiry: Ok(value.expiry),
+                module: Ok(value.module),
+                nonce: Ok(value.nonce),
+                owner: Ok(value.owner),
+                signer: Ok(value.signer),
+                subaccount_id: Ok(value.subaccount_id),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct SetSessionKeyDebugResponse {
+        action_hash: ::std::result::Result<::std::string::String, ::std::string::String>,
+        action_typehash: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+        domain_separator: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+        encoded_data: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+        encoded_data_hashed: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+        expected_signer: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+        input_data: ::std::result::Result<
+            super::SetSessionKeyActionInputData,
+            ::std::string::String,
+        >,
+        module: ::std::result::Result<::std::string::String, ::std::string::String>,
+        owner: ::std::result::Result<::std::string::String, ::std::string::String>,
+        recovered_signer: ::std::result::Result<
+            ::std::option::Option<::std::string::String>,
+            ::std::string::String,
+        >,
+        typed_data_hash: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+    }
+    impl ::std::default::Default for SetSessionKeyDebugResponse {
+        fn default() -> Self {
+            Self {
+                action_hash: Err("no value supplied for action_hash".to_string()),
+                action_typehash: Err(
+                    "no value supplied for action_typehash".to_string(),
+                ),
+                domain_separator: Err(
+                    "no value supplied for domain_separator".to_string(),
+                ),
+                encoded_data: Err("no value supplied for encoded_data".to_string()),
+                encoded_data_hashed: Err(
+                    "no value supplied for encoded_data_hashed".to_string(),
+                ),
+                expected_signer: Err(
+                    "no value supplied for expected_signer".to_string(),
+                ),
+                input_data: Err("no value supplied for input_data".to_string()),
+                module: Err("no value supplied for module".to_string()),
+                owner: Err("no value supplied for owner".to_string()),
+                recovered_signer: Ok(Default::default()),
+                typed_data_hash: Err("no value supplied for typed_data_hash".to_string()),
+            }
+        }
+    }
+    impl SetSessionKeyDebugResponse {
+        pub fn action_hash<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.action_hash = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for action_hash: {e}")
+                });
+            self
+        }
+        pub fn action_typehash<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.action_typehash = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for action_typehash: {e}")
+                });
+            self
+        }
+        pub fn domain_separator<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.domain_separator = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for domain_separator: {e}")
+                });
+            self
+        }
+        pub fn encoded_data<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.encoded_data = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for encoded_data: {e}")
+                });
+            self
+        }
+        pub fn encoded_data_hashed<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.encoded_data_hashed = value
+                .try_into()
+                .map_err(|e| {
+                    format!(
+                        "error converting supplied value for encoded_data_hashed: {e}"
+                    )
+                });
+            self
+        }
+        pub fn expected_signer<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.expected_signer = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for expected_signer: {e}")
+                });
+            self
+        }
+        pub fn input_data<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::SetSessionKeyActionInputData>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.input_data = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for input_data: {e}")
+                });
+            self
+        }
+        pub fn module<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.module = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for module: {e}"));
+            self
+        }
+        pub fn owner<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.owner = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for owner: {e}"));
+            self
+        }
+        pub fn recovered_signer<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.recovered_signer = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for recovered_signer: {e}")
+                });
+            self
+        }
+        pub fn typed_data_hash<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.typed_data_hash = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for typed_data_hash: {e}")
+                });
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<SetSessionKeyDebugResponse>
+    for super::SetSessionKeyDebugResponse {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: SetSessionKeyDebugResponse,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                action_hash: value.action_hash?,
+                action_typehash: value.action_typehash?,
+                domain_separator: value.domain_separator?,
+                encoded_data: value.encoded_data?,
+                encoded_data_hashed: value.encoded_data_hashed?,
+                expected_signer: value.expected_signer?,
+                input_data: value.input_data?,
+                module: value.module?,
+                owner: value.owner?,
+                recovered_signer: value.recovered_signer?,
+                typed_data_hash: value.typed_data_hash?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::SetSessionKeyDebugResponse>
+    for SetSessionKeyDebugResponse {
+        fn from(value: super::SetSessionKeyDebugResponse) -> Self {
+            Self {
+                action_hash: Ok(value.action_hash),
+                action_typehash: Ok(value.action_typehash),
+                domain_separator: Ok(value.domain_separator),
+                encoded_data: Ok(value.encoded_data),
+                encoded_data_hashed: Ok(value.encoded_data_hashed),
+                expected_signer: Ok(value.expected_signer),
+                input_data: Ok(value.input_data),
+                module: Ok(value.module),
+                owner: Ok(value.owner),
+                recovered_signer: Ok(value.recovered_signer),
+                typed_data_hash: Ok(value.typed_data_hash),
             }
         }
     }
@@ -59791,6 +63566,133 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
+    pub struct TransferActionDataResponse {
+        amount: ::std::result::Result<::bigdecimal::BigDecimal, ::std::string::String>,
+        asset: ::std::result::Result<::std::string::String, ::std::string::String>,
+        max_fee_usd: ::std::result::Result<
+            ::bigdecimal::BigDecimal,
+            ::std::string::String,
+        >,
+        new_subaccount_manager: ::std::result::Result<u32, ::std::string::String>,
+        sub_id: ::std::result::Result<::std::string::String, ::std::string::String>,
+        to_subaccount_id: ::std::result::Result<u64, ::std::string::String>,
+    }
+    impl ::std::default::Default for TransferActionDataResponse {
+        fn default() -> Self {
+            Self {
+                amount: Err("no value supplied for amount".to_string()),
+                asset: Err("no value supplied for asset".to_string()),
+                max_fee_usd: Err("no value supplied for max_fee_usd".to_string()),
+                new_subaccount_manager: Err(
+                    "no value supplied for new_subaccount_manager".to_string(),
+                ),
+                sub_id: Err("no value supplied for sub_id".to_string()),
+                to_subaccount_id: Err(
+                    "no value supplied for to_subaccount_id".to_string(),
+                ),
+            }
+        }
+    }
+    impl TransferActionDataResponse {
+        pub fn amount<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::bigdecimal::BigDecimal>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.amount = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for amount: {e}"));
+            self
+        }
+        pub fn asset<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.asset = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for asset: {e}"));
+            self
+        }
+        pub fn max_fee_usd<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::bigdecimal::BigDecimal>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.max_fee_usd = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for max_fee_usd: {e}")
+                });
+            self
+        }
+        pub fn new_subaccount_manager<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<u32>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.new_subaccount_manager = value
+                .try_into()
+                .map_err(|e| {
+                    format!(
+                        "error converting supplied value for new_subaccount_manager: {e}"
+                    )
+                });
+            self
+        }
+        pub fn sub_id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.sub_id = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for sub_id: {e}"));
+            self
+        }
+        pub fn to_subaccount_id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<u64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.to_subaccount_id = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for to_subaccount_id: {e}")
+                });
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<TransferActionDataResponse>
+    for super::TransferActionDataResponse {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: TransferActionDataResponse,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                amount: value.amount?,
+                asset: value.asset?,
+                max_fee_usd: value.max_fee_usd?,
+                new_subaccount_manager: value.new_subaccount_manager?,
+                sub_id: value.sub_id?,
+                to_subaccount_id: value.to_subaccount_id?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::TransferActionDataResponse>
+    for TransferActionDataResponse {
+        fn from(value: super::TransferActionDataResponse) -> Self {
+            Self {
+                amount: Ok(value.amount),
+                asset: Ok(value.asset),
+                max_fee_usd: Ok(value.max_fee_usd),
+                new_subaccount_manager: Ok(value.new_subaccount_manager),
+                sub_id: Ok(value.sub_id),
+                to_subaccount_id: Ok(value.to_subaccount_id),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
     pub struct TransferEntry {
         amount: ::std::result::Result<::bigdecimal::BigDecimal, ::std::string::String>,
         asset: ::std::result::Result<::std::string::String, ::std::string::String>,
@@ -60077,6 +63979,437 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
+    pub struct TransferPositionsDebugResponse {
+        maker_result: ::std::result::Result<
+            super::TransferPositionsMakerDebugResponse,
+            ::std::string::String,
+        >,
+        taker_result: ::std::result::Result<
+            super::TransferPositionsTakerDebugResponse,
+            ::std::string::String,
+        >,
+    }
+    impl ::std::default::Default for TransferPositionsDebugResponse {
+        fn default() -> Self {
+            Self {
+                maker_result: Err("no value supplied for maker_result".to_string()),
+                taker_result: Err("no value supplied for taker_result".to_string()),
+            }
+        }
+    }
+    impl TransferPositionsDebugResponse {
+        pub fn maker_result<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::TransferPositionsMakerDebugResponse>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.maker_result = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for maker_result: {e}")
+                });
+            self
+        }
+        pub fn taker_result<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::TransferPositionsTakerDebugResponse>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.taker_result = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for taker_result: {e}")
+                });
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<TransferPositionsDebugResponse>
+    for super::TransferPositionsDebugResponse {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: TransferPositionsDebugResponse,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                maker_result: value.maker_result?,
+                taker_result: value.taker_result?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::TransferPositionsDebugResponse>
+    for TransferPositionsDebugResponse {
+        fn from(value: super::TransferPositionsDebugResponse) -> Self {
+            Self {
+                maker_result: Ok(value.maker_result),
+                taker_result: Ok(value.taker_result),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct TransferPositionsMakerActionInputData {
+        data: ::std::result::Result<
+            super::RfqMakerActionDataResponse,
+            ::std::string::String,
+        >,
+        expiry: ::std::result::Result<u64, ::std::string::String>,
+        module: ::std::result::Result<::std::string::String, ::std::string::String>,
+        nonce: ::std::result::Result<::std::string::String, ::std::string::String>,
+        owner: ::std::result::Result<::std::string::String, ::std::string::String>,
+        signer: ::std::result::Result<::std::string::String, ::std::string::String>,
+        subaccount_id: ::std::result::Result<u64, ::std::string::String>,
+    }
+    impl ::std::default::Default for TransferPositionsMakerActionInputData {
+        fn default() -> Self {
+            Self {
+                data: Err("no value supplied for data".to_string()),
+                expiry: Err("no value supplied for expiry".to_string()),
+                module: Err("no value supplied for module".to_string()),
+                nonce: Err("no value supplied for nonce".to_string()),
+                owner: Err("no value supplied for owner".to_string()),
+                signer: Err("no value supplied for signer".to_string()),
+                subaccount_id: Err("no value supplied for subaccount_id".to_string()),
+            }
+        }
+    }
+    impl TransferPositionsMakerActionInputData {
+        pub fn data<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::RfqMakerActionDataResponse>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.data = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for data: {e}"));
+            self
+        }
+        pub fn expiry<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<u64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.expiry = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for expiry: {e}"));
+            self
+        }
+        pub fn module<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.module = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for module: {e}"));
+            self
+        }
+        pub fn nonce<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.nonce = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for nonce: {e}"));
+            self
+        }
+        pub fn owner<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.owner = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for owner: {e}"));
+            self
+        }
+        pub fn signer<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.signer = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for signer: {e}"));
+            self
+        }
+        pub fn subaccount_id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<u64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.subaccount_id = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for subaccount_id: {e}")
+                });
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<TransferPositionsMakerActionInputData>
+    for super::TransferPositionsMakerActionInputData {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: TransferPositionsMakerActionInputData,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                data: value.data?,
+                expiry: value.expiry?,
+                module: value.module?,
+                nonce: value.nonce?,
+                owner: value.owner?,
+                signer: value.signer?,
+                subaccount_id: value.subaccount_id?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::TransferPositionsMakerActionInputData>
+    for TransferPositionsMakerActionInputData {
+        fn from(value: super::TransferPositionsMakerActionInputData) -> Self {
+            Self {
+                data: Ok(value.data),
+                expiry: Ok(value.expiry),
+                module: Ok(value.module),
+                nonce: Ok(value.nonce),
+                owner: Ok(value.owner),
+                signer: Ok(value.signer),
+                subaccount_id: Ok(value.subaccount_id),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct TransferPositionsMakerDebugResponse {
+        action_hash: ::std::result::Result<::std::string::String, ::std::string::String>,
+        action_typehash: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+        domain_separator: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+        encoded_data: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+        encoded_data_hashed: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+        expected_signer: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+        input_data: ::std::result::Result<
+            super::TransferPositionsMakerActionInputData,
+            ::std::string::String,
+        >,
+        module: ::std::result::Result<::std::string::String, ::std::string::String>,
+        owner: ::std::result::Result<::std::string::String, ::std::string::String>,
+        recovered_signer: ::std::result::Result<
+            ::std::option::Option<::std::string::String>,
+            ::std::string::String,
+        >,
+        typed_data_hash: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+    }
+    impl ::std::default::Default for TransferPositionsMakerDebugResponse {
+        fn default() -> Self {
+            Self {
+                action_hash: Err("no value supplied for action_hash".to_string()),
+                action_typehash: Err(
+                    "no value supplied for action_typehash".to_string(),
+                ),
+                domain_separator: Err(
+                    "no value supplied for domain_separator".to_string(),
+                ),
+                encoded_data: Err("no value supplied for encoded_data".to_string()),
+                encoded_data_hashed: Err(
+                    "no value supplied for encoded_data_hashed".to_string(),
+                ),
+                expected_signer: Err(
+                    "no value supplied for expected_signer".to_string(),
+                ),
+                input_data: Err("no value supplied for input_data".to_string()),
+                module: Err("no value supplied for module".to_string()),
+                owner: Err("no value supplied for owner".to_string()),
+                recovered_signer: Ok(Default::default()),
+                typed_data_hash: Err("no value supplied for typed_data_hash".to_string()),
+            }
+        }
+    }
+    impl TransferPositionsMakerDebugResponse {
+        pub fn action_hash<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.action_hash = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for action_hash: {e}")
+                });
+            self
+        }
+        pub fn action_typehash<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.action_typehash = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for action_typehash: {e}")
+                });
+            self
+        }
+        pub fn domain_separator<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.domain_separator = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for domain_separator: {e}")
+                });
+            self
+        }
+        pub fn encoded_data<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.encoded_data = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for encoded_data: {e}")
+                });
+            self
+        }
+        pub fn encoded_data_hashed<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.encoded_data_hashed = value
+                .try_into()
+                .map_err(|e| {
+                    format!(
+                        "error converting supplied value for encoded_data_hashed: {e}"
+                    )
+                });
+            self
+        }
+        pub fn expected_signer<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.expected_signer = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for expected_signer: {e}")
+                });
+            self
+        }
+        pub fn input_data<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::TransferPositionsMakerActionInputData>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.input_data = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for input_data: {e}")
+                });
+            self
+        }
+        pub fn module<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.module = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for module: {e}"));
+            self
+        }
+        pub fn owner<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.owner = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for owner: {e}"));
+            self
+        }
+        pub fn recovered_signer<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.recovered_signer = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for recovered_signer: {e}")
+                });
+            self
+        }
+        pub fn typed_data_hash<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.typed_data_hash = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for typed_data_hash: {e}")
+                });
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<TransferPositionsMakerDebugResponse>
+    for super::TransferPositionsMakerDebugResponse {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: TransferPositionsMakerDebugResponse,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                action_hash: value.action_hash?,
+                action_typehash: value.action_typehash?,
+                domain_separator: value.domain_separator?,
+                encoded_data: value.encoded_data?,
+                encoded_data_hashed: value.encoded_data_hashed?,
+                expected_signer: value.expected_signer?,
+                input_data: value.input_data?,
+                module: value.module?,
+                owner: value.owner?,
+                recovered_signer: value.recovered_signer?,
+                typed_data_hash: value.typed_data_hash?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::TransferPositionsMakerDebugResponse>
+    for TransferPositionsMakerDebugResponse {
+        fn from(value: super::TransferPositionsMakerDebugResponse) -> Self {
+            Self {
+                action_hash: Ok(value.action_hash),
+                action_typehash: Ok(value.action_typehash),
+                domain_separator: Ok(value.domain_separator),
+                encoded_data: Ok(value.encoded_data),
+                encoded_data_hashed: Ok(value.encoded_data_hashed),
+                expected_signer: Ok(value.expected_signer),
+                input_data: Ok(value.input_data),
+                module: Ok(value.module),
+                owner: Ok(value.owner),
+                recovered_signer: Ok(value.recovered_signer),
+                typed_data_hash: Ok(value.typed_data_hash),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
     pub struct TransferPositionsRequest {
         maker_params: ::std::result::Result<
             super::SignedTransferQuoteRequest,
@@ -60213,6 +64546,1101 @@ pub mod builder {
             Self {
                 maker_quote: Ok(value.maker_quote),
                 taker_quote: Ok(value.taker_quote),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct TransferPositionsTakerActionInputData {
+        data: ::std::result::Result<
+            super::RfqTakerActionDataResponse,
+            ::std::string::String,
+        >,
+        expiry: ::std::result::Result<u64, ::std::string::String>,
+        module: ::std::result::Result<::std::string::String, ::std::string::String>,
+        nonce: ::std::result::Result<::std::string::String, ::std::string::String>,
+        owner: ::std::result::Result<::std::string::String, ::std::string::String>,
+        signer: ::std::result::Result<::std::string::String, ::std::string::String>,
+        subaccount_id: ::std::result::Result<u64, ::std::string::String>,
+    }
+    impl ::std::default::Default for TransferPositionsTakerActionInputData {
+        fn default() -> Self {
+            Self {
+                data: Err("no value supplied for data".to_string()),
+                expiry: Err("no value supplied for expiry".to_string()),
+                module: Err("no value supplied for module".to_string()),
+                nonce: Err("no value supplied for nonce".to_string()),
+                owner: Err("no value supplied for owner".to_string()),
+                signer: Err("no value supplied for signer".to_string()),
+                subaccount_id: Err("no value supplied for subaccount_id".to_string()),
+            }
+        }
+    }
+    impl TransferPositionsTakerActionInputData {
+        pub fn data<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::RfqTakerActionDataResponse>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.data = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for data: {e}"));
+            self
+        }
+        pub fn expiry<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<u64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.expiry = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for expiry: {e}"));
+            self
+        }
+        pub fn module<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.module = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for module: {e}"));
+            self
+        }
+        pub fn nonce<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.nonce = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for nonce: {e}"));
+            self
+        }
+        pub fn owner<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.owner = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for owner: {e}"));
+            self
+        }
+        pub fn signer<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.signer = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for signer: {e}"));
+            self
+        }
+        pub fn subaccount_id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<u64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.subaccount_id = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for subaccount_id: {e}")
+                });
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<TransferPositionsTakerActionInputData>
+    for super::TransferPositionsTakerActionInputData {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: TransferPositionsTakerActionInputData,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                data: value.data?,
+                expiry: value.expiry?,
+                module: value.module?,
+                nonce: value.nonce?,
+                owner: value.owner?,
+                signer: value.signer?,
+                subaccount_id: value.subaccount_id?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::TransferPositionsTakerActionInputData>
+    for TransferPositionsTakerActionInputData {
+        fn from(value: super::TransferPositionsTakerActionInputData) -> Self {
+            Self {
+                data: Ok(value.data),
+                expiry: Ok(value.expiry),
+                module: Ok(value.module),
+                nonce: Ok(value.nonce),
+                owner: Ok(value.owner),
+                signer: Ok(value.signer),
+                subaccount_id: Ok(value.subaccount_id),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct TransferPositionsTakerDebugResponse {
+        action_hash: ::std::result::Result<::std::string::String, ::std::string::String>,
+        action_typehash: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+        domain_separator: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+        encoded_data: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+        encoded_data_hashed: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+        expected_signer: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+        input_data: ::std::result::Result<
+            super::TransferPositionsTakerActionInputData,
+            ::std::string::String,
+        >,
+        module: ::std::result::Result<::std::string::String, ::std::string::String>,
+        owner: ::std::result::Result<::std::string::String, ::std::string::String>,
+        recovered_signer: ::std::result::Result<
+            ::std::option::Option<::std::string::String>,
+            ::std::string::String,
+        >,
+        typed_data_hash: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+    }
+    impl ::std::default::Default for TransferPositionsTakerDebugResponse {
+        fn default() -> Self {
+            Self {
+                action_hash: Err("no value supplied for action_hash".to_string()),
+                action_typehash: Err(
+                    "no value supplied for action_typehash".to_string(),
+                ),
+                domain_separator: Err(
+                    "no value supplied for domain_separator".to_string(),
+                ),
+                encoded_data: Err("no value supplied for encoded_data".to_string()),
+                encoded_data_hashed: Err(
+                    "no value supplied for encoded_data_hashed".to_string(),
+                ),
+                expected_signer: Err(
+                    "no value supplied for expected_signer".to_string(),
+                ),
+                input_data: Err("no value supplied for input_data".to_string()),
+                module: Err("no value supplied for module".to_string()),
+                owner: Err("no value supplied for owner".to_string()),
+                recovered_signer: Ok(Default::default()),
+                typed_data_hash: Err("no value supplied for typed_data_hash".to_string()),
+            }
+        }
+    }
+    impl TransferPositionsTakerDebugResponse {
+        pub fn action_hash<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.action_hash = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for action_hash: {e}")
+                });
+            self
+        }
+        pub fn action_typehash<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.action_typehash = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for action_typehash: {e}")
+                });
+            self
+        }
+        pub fn domain_separator<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.domain_separator = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for domain_separator: {e}")
+                });
+            self
+        }
+        pub fn encoded_data<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.encoded_data = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for encoded_data: {e}")
+                });
+            self
+        }
+        pub fn encoded_data_hashed<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.encoded_data_hashed = value
+                .try_into()
+                .map_err(|e| {
+                    format!(
+                        "error converting supplied value for encoded_data_hashed: {e}"
+                    )
+                });
+            self
+        }
+        pub fn expected_signer<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.expected_signer = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for expected_signer: {e}")
+                });
+            self
+        }
+        pub fn input_data<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::TransferPositionsTakerActionInputData>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.input_data = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for input_data: {e}")
+                });
+            self
+        }
+        pub fn module<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.module = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for module: {e}"));
+            self
+        }
+        pub fn owner<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.owner = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for owner: {e}"));
+            self
+        }
+        pub fn recovered_signer<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.recovered_signer = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for recovered_signer: {e}")
+                });
+            self
+        }
+        pub fn typed_data_hash<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.typed_data_hash = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for typed_data_hash: {e}")
+                });
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<TransferPositionsTakerDebugResponse>
+    for super::TransferPositionsTakerDebugResponse {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: TransferPositionsTakerDebugResponse,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                action_hash: value.action_hash?,
+                action_typehash: value.action_typehash?,
+                domain_separator: value.domain_separator?,
+                encoded_data: value.encoded_data?,
+                encoded_data_hashed: value.encoded_data_hashed?,
+                expected_signer: value.expected_signer?,
+                input_data: value.input_data?,
+                module: value.module?,
+                owner: value.owner?,
+                recovered_signer: value.recovered_signer?,
+                typed_data_hash: value.typed_data_hash?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::TransferPositionsTakerDebugResponse>
+    for TransferPositionsTakerDebugResponse {
+        fn from(value: super::TransferPositionsTakerDebugResponse) -> Self {
+            Self {
+                action_hash: Ok(value.action_hash),
+                action_typehash: Ok(value.action_typehash),
+                domain_separator: Ok(value.domain_separator),
+                encoded_data: Ok(value.encoded_data),
+                encoded_data_hashed: Ok(value.encoded_data_hashed),
+                expected_signer: Ok(value.expected_signer),
+                input_data: Ok(value.input_data),
+                module: Ok(value.module),
+                owner: Ok(value.owner),
+                recovered_signer: Ok(value.recovered_signer),
+                typed_data_hash: Ok(value.typed_data_hash),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct TransferSpotActionInputData {
+        data: ::std::result::Result<
+            super::TransferActionDataResponse,
+            ::std::string::String,
+        >,
+        expiry: ::std::result::Result<u64, ::std::string::String>,
+        module: ::std::result::Result<::std::string::String, ::std::string::String>,
+        nonce: ::std::result::Result<::std::string::String, ::std::string::String>,
+        owner: ::std::result::Result<::std::string::String, ::std::string::String>,
+        signer: ::std::result::Result<::std::string::String, ::std::string::String>,
+        subaccount_id: ::std::result::Result<u64, ::std::string::String>,
+    }
+    impl ::std::default::Default for TransferSpotActionInputData {
+        fn default() -> Self {
+            Self {
+                data: Err("no value supplied for data".to_string()),
+                expiry: Err("no value supplied for expiry".to_string()),
+                module: Err("no value supplied for module".to_string()),
+                nonce: Err("no value supplied for nonce".to_string()),
+                owner: Err("no value supplied for owner".to_string()),
+                signer: Err("no value supplied for signer".to_string()),
+                subaccount_id: Err("no value supplied for subaccount_id".to_string()),
+            }
+        }
+    }
+    impl TransferSpotActionInputData {
+        pub fn data<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::TransferActionDataResponse>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.data = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for data: {e}"));
+            self
+        }
+        pub fn expiry<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<u64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.expiry = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for expiry: {e}"));
+            self
+        }
+        pub fn module<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.module = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for module: {e}"));
+            self
+        }
+        pub fn nonce<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.nonce = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for nonce: {e}"));
+            self
+        }
+        pub fn owner<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.owner = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for owner: {e}"));
+            self
+        }
+        pub fn signer<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.signer = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for signer: {e}"));
+            self
+        }
+        pub fn subaccount_id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<u64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.subaccount_id = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for subaccount_id: {e}")
+                });
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<TransferSpotActionInputData>
+    for super::TransferSpotActionInputData {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: TransferSpotActionInputData,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                data: value.data?,
+                expiry: value.expiry?,
+                module: value.module?,
+                nonce: value.nonce?,
+                owner: value.owner?,
+                signer: value.signer?,
+                subaccount_id: value.subaccount_id?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::TransferSpotActionInputData>
+    for TransferSpotActionInputData {
+        fn from(value: super::TransferSpotActionInputData) -> Self {
+            Self {
+                data: Ok(value.data),
+                expiry: Ok(value.expiry),
+                module: Ok(value.module),
+                nonce: Ok(value.nonce),
+                owner: Ok(value.owner),
+                signer: Ok(value.signer),
+                subaccount_id: Ok(value.subaccount_id),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct TransferSpotDebugResponse {
+        action_hash: ::std::result::Result<::std::string::String, ::std::string::String>,
+        action_typehash: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+        domain_separator: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+        encoded_data: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+        encoded_data_hashed: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+        expected_signer: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+        input_data: ::std::result::Result<
+            super::TransferSpotActionInputData,
+            ::std::string::String,
+        >,
+        module: ::std::result::Result<::std::string::String, ::std::string::String>,
+        owner: ::std::result::Result<::std::string::String, ::std::string::String>,
+        recovered_signer: ::std::result::Result<
+            ::std::option::Option<::std::string::String>,
+            ::std::string::String,
+        >,
+        typed_data_hash: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+    }
+    impl ::std::default::Default for TransferSpotDebugResponse {
+        fn default() -> Self {
+            Self {
+                action_hash: Err("no value supplied for action_hash".to_string()),
+                action_typehash: Err(
+                    "no value supplied for action_typehash".to_string(),
+                ),
+                domain_separator: Err(
+                    "no value supplied for domain_separator".to_string(),
+                ),
+                encoded_data: Err("no value supplied for encoded_data".to_string()),
+                encoded_data_hashed: Err(
+                    "no value supplied for encoded_data_hashed".to_string(),
+                ),
+                expected_signer: Err(
+                    "no value supplied for expected_signer".to_string(),
+                ),
+                input_data: Err("no value supplied for input_data".to_string()),
+                module: Err("no value supplied for module".to_string()),
+                owner: Err("no value supplied for owner".to_string()),
+                recovered_signer: Ok(Default::default()),
+                typed_data_hash: Err("no value supplied for typed_data_hash".to_string()),
+            }
+        }
+    }
+    impl TransferSpotDebugResponse {
+        pub fn action_hash<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.action_hash = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for action_hash: {e}")
+                });
+            self
+        }
+        pub fn action_typehash<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.action_typehash = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for action_typehash: {e}")
+                });
+            self
+        }
+        pub fn domain_separator<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.domain_separator = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for domain_separator: {e}")
+                });
+            self
+        }
+        pub fn encoded_data<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.encoded_data = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for encoded_data: {e}")
+                });
+            self
+        }
+        pub fn encoded_data_hashed<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.encoded_data_hashed = value
+                .try_into()
+                .map_err(|e| {
+                    format!(
+                        "error converting supplied value for encoded_data_hashed: {e}"
+                    )
+                });
+            self
+        }
+        pub fn expected_signer<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.expected_signer = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for expected_signer: {e}")
+                });
+            self
+        }
+        pub fn input_data<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::TransferSpotActionInputData>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.input_data = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for input_data: {e}")
+                });
+            self
+        }
+        pub fn module<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.module = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for module: {e}"));
+            self
+        }
+        pub fn owner<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.owner = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for owner: {e}"));
+            self
+        }
+        pub fn recovered_signer<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.recovered_signer = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for recovered_signer: {e}")
+                });
+            self
+        }
+        pub fn typed_data_hash<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.typed_data_hash = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for typed_data_hash: {e}")
+                });
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<TransferSpotDebugResponse>
+    for super::TransferSpotDebugResponse {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: TransferSpotDebugResponse,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                action_hash: value.action_hash?,
+                action_typehash: value.action_typehash?,
+                domain_separator: value.domain_separator?,
+                encoded_data: value.encoded_data?,
+                encoded_data_hashed: value.encoded_data_hashed?,
+                expected_signer: value.expected_signer?,
+                input_data: value.input_data?,
+                module: value.module?,
+                owner: value.owner?,
+                recovered_signer: value.recovered_signer?,
+                typed_data_hash: value.typed_data_hash?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::TransferSpotDebugResponse>
+    for TransferSpotDebugResponse {
+        fn from(value: super::TransferSpotDebugResponse) -> Self {
+            Self {
+                action_hash: Ok(value.action_hash),
+                action_typehash: Ok(value.action_typehash),
+                domain_separator: Ok(value.domain_separator),
+                encoded_data: Ok(value.encoded_data),
+                encoded_data_hashed: Ok(value.encoded_data_hashed),
+                expected_signer: Ok(value.expected_signer),
+                input_data: Ok(value.input_data),
+                module: Ok(value.module),
+                owner: Ok(value.owner),
+                recovered_signer: Ok(value.recovered_signer),
+                typed_data_hash: Ok(value.typed_data_hash),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct TransferSpotExternalActionInputData {
+        data: ::std::result::Result<
+            super::ExternalTransferActionDataResponse,
+            ::std::string::String,
+        >,
+        expiry: ::std::result::Result<u64, ::std::string::String>,
+        module: ::std::result::Result<::std::string::String, ::std::string::String>,
+        nonce: ::std::result::Result<::std::string::String, ::std::string::String>,
+        owner: ::std::result::Result<::std::string::String, ::std::string::String>,
+        signer: ::std::result::Result<::std::string::String, ::std::string::String>,
+        subaccount_id: ::std::result::Result<u64, ::std::string::String>,
+    }
+    impl ::std::default::Default for TransferSpotExternalActionInputData {
+        fn default() -> Self {
+            Self {
+                data: Err("no value supplied for data".to_string()),
+                expiry: Err("no value supplied for expiry".to_string()),
+                module: Err("no value supplied for module".to_string()),
+                nonce: Err("no value supplied for nonce".to_string()),
+                owner: Err("no value supplied for owner".to_string()),
+                signer: Err("no value supplied for signer".to_string()),
+                subaccount_id: Err("no value supplied for subaccount_id".to_string()),
+            }
+        }
+    }
+    impl TransferSpotExternalActionInputData {
+        pub fn data<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::ExternalTransferActionDataResponse>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.data = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for data: {e}"));
+            self
+        }
+        pub fn expiry<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<u64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.expiry = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for expiry: {e}"));
+            self
+        }
+        pub fn module<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.module = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for module: {e}"));
+            self
+        }
+        pub fn nonce<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.nonce = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for nonce: {e}"));
+            self
+        }
+        pub fn owner<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.owner = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for owner: {e}"));
+            self
+        }
+        pub fn signer<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.signer = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for signer: {e}"));
+            self
+        }
+        pub fn subaccount_id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<u64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.subaccount_id = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for subaccount_id: {e}")
+                });
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<TransferSpotExternalActionInputData>
+    for super::TransferSpotExternalActionInputData {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: TransferSpotExternalActionInputData,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                data: value.data?,
+                expiry: value.expiry?,
+                module: value.module?,
+                nonce: value.nonce?,
+                owner: value.owner?,
+                signer: value.signer?,
+                subaccount_id: value.subaccount_id?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::TransferSpotExternalActionInputData>
+    for TransferSpotExternalActionInputData {
+        fn from(value: super::TransferSpotExternalActionInputData) -> Self {
+            Self {
+                data: Ok(value.data),
+                expiry: Ok(value.expiry),
+                module: Ok(value.module),
+                nonce: Ok(value.nonce),
+                owner: Ok(value.owner),
+                signer: Ok(value.signer),
+                subaccount_id: Ok(value.subaccount_id),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct TransferSpotExternalDebugResponse {
+        action_hash: ::std::result::Result<::std::string::String, ::std::string::String>,
+        action_typehash: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+        domain_separator: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+        encoded_data: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+        encoded_data_hashed: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+        expected_signer: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+        input_data: ::std::result::Result<
+            super::TransferSpotExternalActionInputData,
+            ::std::string::String,
+        >,
+        module: ::std::result::Result<::std::string::String, ::std::string::String>,
+        owner: ::std::result::Result<::std::string::String, ::std::string::String>,
+        recovered_signer: ::std::result::Result<
+            ::std::option::Option<::std::string::String>,
+            ::std::string::String,
+        >,
+        typed_data_hash: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+    }
+    impl ::std::default::Default for TransferSpotExternalDebugResponse {
+        fn default() -> Self {
+            Self {
+                action_hash: Err("no value supplied for action_hash".to_string()),
+                action_typehash: Err(
+                    "no value supplied for action_typehash".to_string(),
+                ),
+                domain_separator: Err(
+                    "no value supplied for domain_separator".to_string(),
+                ),
+                encoded_data: Err("no value supplied for encoded_data".to_string()),
+                encoded_data_hashed: Err(
+                    "no value supplied for encoded_data_hashed".to_string(),
+                ),
+                expected_signer: Err(
+                    "no value supplied for expected_signer".to_string(),
+                ),
+                input_data: Err("no value supplied for input_data".to_string()),
+                module: Err("no value supplied for module".to_string()),
+                owner: Err("no value supplied for owner".to_string()),
+                recovered_signer: Ok(Default::default()),
+                typed_data_hash: Err("no value supplied for typed_data_hash".to_string()),
+            }
+        }
+    }
+    impl TransferSpotExternalDebugResponse {
+        pub fn action_hash<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.action_hash = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for action_hash: {e}")
+                });
+            self
+        }
+        pub fn action_typehash<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.action_typehash = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for action_typehash: {e}")
+                });
+            self
+        }
+        pub fn domain_separator<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.domain_separator = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for domain_separator: {e}")
+                });
+            self
+        }
+        pub fn encoded_data<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.encoded_data = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for encoded_data: {e}")
+                });
+            self
+        }
+        pub fn encoded_data_hashed<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.encoded_data_hashed = value
+                .try_into()
+                .map_err(|e| {
+                    format!(
+                        "error converting supplied value for encoded_data_hashed: {e}"
+                    )
+                });
+            self
+        }
+        pub fn expected_signer<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.expected_signer = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for expected_signer: {e}")
+                });
+            self
+        }
+        pub fn input_data<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::TransferSpotExternalActionInputData>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.input_data = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for input_data: {e}")
+                });
+            self
+        }
+        pub fn module<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.module = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for module: {e}"));
+            self
+        }
+        pub fn owner<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.owner = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for owner: {e}"));
+            self
+        }
+        pub fn recovered_signer<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.recovered_signer = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for recovered_signer: {e}")
+                });
+            self
+        }
+        pub fn typed_data_hash<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.typed_data_hash = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for typed_data_hash: {e}")
+                });
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<TransferSpotExternalDebugResponse>
+    for super::TransferSpotExternalDebugResponse {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: TransferSpotExternalDebugResponse,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                action_hash: value.action_hash?,
+                action_typehash: value.action_typehash?,
+                domain_separator: value.domain_separator?,
+                encoded_data: value.encoded_data?,
+                encoded_data_hashed: value.encoded_data_hashed?,
+                expected_signer: value.expected_signer?,
+                input_data: value.input_data?,
+                module: value.module?,
+                owner: value.owner?,
+                recovered_signer: value.recovered_signer?,
+                typed_data_hash: value.typed_data_hash?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::TransferSpotExternalDebugResponse>
+    for TransferSpotExternalDebugResponse {
+        fn from(value: super::TransferSpotExternalDebugResponse) -> Self {
+            Self {
+                action_hash: Ok(value.action_hash),
+                action_typehash: Ok(value.action_typehash),
+                domain_separator: Ok(value.domain_separator),
+                encoded_data: Ok(value.encoded_data),
+                encoded_data_hashed: Ok(value.encoded_data_hashed),
+                expected_signer: Ok(value.expected_signer),
+                input_data: Ok(value.input_data),
+                module: Ok(value.module),
+                owner: Ok(value.owner),
+                recovered_signer: Ok(value.recovered_signer),
+                typed_data_hash: Ok(value.typed_data_hash),
             }
         }
     }
@@ -60633,12 +66061,443 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
+    pub struct UpdateWhitelistedRecipientsActionDataResponse {
+        add: ::std::result::Result<
+            ::std::vec::Vec<::std::string::String>,
+            ::std::string::String,
+        >,
+        remove: ::std::result::Result<
+            ::std::vec::Vec<::std::string::String>,
+            ::std::string::String,
+        >,
+    }
+    impl ::std::default::Default for UpdateWhitelistedRecipientsActionDataResponse {
+        fn default() -> Self {
+            Self {
+                add: Err("no value supplied for add".to_string()),
+                remove: Err("no value supplied for remove".to_string()),
+            }
+        }
+    }
+    impl UpdateWhitelistedRecipientsActionDataResponse {
+        pub fn add<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::vec::Vec<::std::string::String>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.add = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for add: {e}"));
+            self
+        }
+        pub fn remove<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::vec::Vec<::std::string::String>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.remove = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for remove: {e}"));
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<UpdateWhitelistedRecipientsActionDataResponse>
+    for super::UpdateWhitelistedRecipientsActionDataResponse {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: UpdateWhitelistedRecipientsActionDataResponse,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                add: value.add?,
+                remove: value.remove?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::UpdateWhitelistedRecipientsActionDataResponse>
+    for UpdateWhitelistedRecipientsActionDataResponse {
+        fn from(value: super::UpdateWhitelistedRecipientsActionDataResponse) -> Self {
+            Self {
+                add: Ok(value.add),
+                remove: Ok(value.remove),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct UpdateWhitelistedRecipientsActionInputData {
+        data: ::std::result::Result<
+            super::UpdateWhitelistedRecipientsActionDataResponse,
+            ::std::string::String,
+        >,
+        expiry: ::std::result::Result<u64, ::std::string::String>,
+        module: ::std::result::Result<::std::string::String, ::std::string::String>,
+        nonce: ::std::result::Result<::std::string::String, ::std::string::String>,
+        owner: ::std::result::Result<::std::string::String, ::std::string::String>,
+        signer: ::std::result::Result<::std::string::String, ::std::string::String>,
+        subaccount_id: ::std::result::Result<u64, ::std::string::String>,
+    }
+    impl ::std::default::Default for UpdateWhitelistedRecipientsActionInputData {
+        fn default() -> Self {
+            Self {
+                data: Err("no value supplied for data".to_string()),
+                expiry: Err("no value supplied for expiry".to_string()),
+                module: Err("no value supplied for module".to_string()),
+                nonce: Err("no value supplied for nonce".to_string()),
+                owner: Err("no value supplied for owner".to_string()),
+                signer: Err("no value supplied for signer".to_string()),
+                subaccount_id: Err("no value supplied for subaccount_id".to_string()),
+            }
+        }
+    }
+    impl UpdateWhitelistedRecipientsActionInputData {
+        pub fn data<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<
+                super::UpdateWhitelistedRecipientsActionDataResponse,
+            >,
+            T::Error: ::std::fmt::Display,
+        {
+            self.data = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for data: {e}"));
+            self
+        }
+        pub fn expiry<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<u64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.expiry = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for expiry: {e}"));
+            self
+        }
+        pub fn module<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.module = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for module: {e}"));
+            self
+        }
+        pub fn nonce<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.nonce = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for nonce: {e}"));
+            self
+        }
+        pub fn owner<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.owner = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for owner: {e}"));
+            self
+        }
+        pub fn signer<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.signer = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for signer: {e}"));
+            self
+        }
+        pub fn subaccount_id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<u64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.subaccount_id = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for subaccount_id: {e}")
+                });
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<UpdateWhitelistedRecipientsActionInputData>
+    for super::UpdateWhitelistedRecipientsActionInputData {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: UpdateWhitelistedRecipientsActionInputData,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                data: value.data?,
+                expiry: value.expiry?,
+                module: value.module?,
+                nonce: value.nonce?,
+                owner: value.owner?,
+                signer: value.signer?,
+                subaccount_id: value.subaccount_id?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::UpdateWhitelistedRecipientsActionInputData>
+    for UpdateWhitelistedRecipientsActionInputData {
+        fn from(value: super::UpdateWhitelistedRecipientsActionInputData) -> Self {
+            Self {
+                data: Ok(value.data),
+                expiry: Ok(value.expiry),
+                module: Ok(value.module),
+                nonce: Ok(value.nonce),
+                owner: Ok(value.owner),
+                signer: Ok(value.signer),
+                subaccount_id: Ok(value.subaccount_id),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct UpdateWhitelistedRecipientsDebugResponse {
+        action_hash: ::std::result::Result<::std::string::String, ::std::string::String>,
+        action_typehash: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+        domain_separator: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+        encoded_data: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+        encoded_data_hashed: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+        expected_signer: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+        input_data: ::std::result::Result<
+            super::UpdateWhitelistedRecipientsActionInputData,
+            ::std::string::String,
+        >,
+        module: ::std::result::Result<::std::string::String, ::std::string::String>,
+        owner: ::std::result::Result<::std::string::String, ::std::string::String>,
+        recovered_signer: ::std::result::Result<
+            ::std::option::Option<::std::string::String>,
+            ::std::string::String,
+        >,
+        typed_data_hash: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+    }
+    impl ::std::default::Default for UpdateWhitelistedRecipientsDebugResponse {
+        fn default() -> Self {
+            Self {
+                action_hash: Err("no value supplied for action_hash".to_string()),
+                action_typehash: Err(
+                    "no value supplied for action_typehash".to_string(),
+                ),
+                domain_separator: Err(
+                    "no value supplied for domain_separator".to_string(),
+                ),
+                encoded_data: Err("no value supplied for encoded_data".to_string()),
+                encoded_data_hashed: Err(
+                    "no value supplied for encoded_data_hashed".to_string(),
+                ),
+                expected_signer: Err(
+                    "no value supplied for expected_signer".to_string(),
+                ),
+                input_data: Err("no value supplied for input_data".to_string()),
+                module: Err("no value supplied for module".to_string()),
+                owner: Err("no value supplied for owner".to_string()),
+                recovered_signer: Ok(Default::default()),
+                typed_data_hash: Err("no value supplied for typed_data_hash".to_string()),
+            }
+        }
+    }
+    impl UpdateWhitelistedRecipientsDebugResponse {
+        pub fn action_hash<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.action_hash = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for action_hash: {e}")
+                });
+            self
+        }
+        pub fn action_typehash<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.action_typehash = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for action_typehash: {e}")
+                });
+            self
+        }
+        pub fn domain_separator<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.domain_separator = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for domain_separator: {e}")
+                });
+            self
+        }
+        pub fn encoded_data<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.encoded_data = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for encoded_data: {e}")
+                });
+            self
+        }
+        pub fn encoded_data_hashed<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.encoded_data_hashed = value
+                .try_into()
+                .map_err(|e| {
+                    format!(
+                        "error converting supplied value for encoded_data_hashed: {e}"
+                    )
+                });
+            self
+        }
+        pub fn expected_signer<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.expected_signer = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for expected_signer: {e}")
+                });
+            self
+        }
+        pub fn input_data<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<
+                super::UpdateWhitelistedRecipientsActionInputData,
+            >,
+            T::Error: ::std::fmt::Display,
+        {
+            self.input_data = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for input_data: {e}")
+                });
+            self
+        }
+        pub fn module<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.module = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for module: {e}"));
+            self
+        }
+        pub fn owner<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.owner = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for owner: {e}"));
+            self
+        }
+        pub fn recovered_signer<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.recovered_signer = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for recovered_signer: {e}")
+                });
+            self
+        }
+        pub fn typed_data_hash<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.typed_data_hash = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for typed_data_hash: {e}")
+                });
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<UpdateWhitelistedRecipientsDebugResponse>
+    for super::UpdateWhitelistedRecipientsDebugResponse {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: UpdateWhitelistedRecipientsDebugResponse,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                action_hash: value.action_hash?,
+                action_typehash: value.action_typehash?,
+                domain_separator: value.domain_separator?,
+                encoded_data: value.encoded_data?,
+                encoded_data_hashed: value.encoded_data_hashed?,
+                expected_signer: value.expected_signer?,
+                input_data: value.input_data?,
+                module: value.module?,
+                owner: value.owner?,
+                recovered_signer: value.recovered_signer?,
+                typed_data_hash: value.typed_data_hash?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::UpdateWhitelistedRecipientsDebugResponse>
+    for UpdateWhitelistedRecipientsDebugResponse {
+        fn from(value: super::UpdateWhitelistedRecipientsDebugResponse) -> Self {
+            Self {
+                action_hash: Ok(value.action_hash),
+                action_typehash: Ok(value.action_typehash),
+                domain_separator: Ok(value.domain_separator),
+                encoded_data: Ok(value.encoded_data),
+                encoded_data_hashed: Ok(value.encoded_data_hashed),
+                expected_signer: Ok(value.expected_signer),
+                input_data: Ok(value.input_data),
+                module: Ok(value.module),
+                owner: Ok(value.owner),
+                recovered_signer: Ok(value.recovered_signer),
+                typed_data_hash: Ok(value.typed_data_hash),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
     pub struct UpdateWhitelistedRecipientsRequest {
         add: ::std::result::Result<
             ::std::vec::Vec<::std::string::String>,
             ::std::string::String,
         >,
-        nonce: ::std::result::Result<u64, ::std::string::String>,
+        nonce: ::std::result::Result<::std::string::String, ::std::string::String>,
         remove: ::std::result::Result<
             ::std::vec::Vec<::std::string::String>,
             ::std::string::String,
@@ -60676,7 +66535,7 @@ pub mod builder {
         }
         pub fn nonce<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<u64>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.nonce = value

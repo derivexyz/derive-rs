@@ -6,6 +6,13 @@ impl<'a> OnchainActionsNamespace<'a> {
     pub fn new(ws_client: &'a WsClient) -> Self {
         Self { ws_client }
     }
+    pub async fn register_bridge_deposit(
+        &self,
+        params: RegisterBridgeDepositParams,
+    ) -> Result<PendingDepositBridgeOrigin, ClientError> {
+        let params_json = serde_json::to_value(&params)?;
+        self.ws_client.send_rpc("private/register_bridge_deposit", params_json).await
+    }
     pub async fn get_onchain_action_history(
         &self,
         params: GetOnchainActionHistoryParams,

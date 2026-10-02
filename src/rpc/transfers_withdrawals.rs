@@ -13,12 +13,26 @@ impl<'a> TransfersWithdrawalsNamespace<'a> {
         let params_json = serde_json::to_value(&params)?;
         self.ws_client.send_rpc("private/transfer_positions", params_json).await
     }
+    pub async fn transfer_positions_debug(
+        &self,
+        params: TransferPositionsRequest,
+    ) -> Result<TransferPositionsDebugResponse, ClientError> {
+        let params_json = serde_json::to_value(&params)?;
+        self.ws_client.send_rpc("private/transfer_positions_debug", params_json).await
+    }
     pub async fn transfer_spot(
         &self,
         params: PrivateTransferSpotRequest,
     ) -> Result<PrivateTransferSpotResponse, ClientError> {
         let params_json = serde_json::to_value(&params)?;
         self.ws_client.send_rpc("private/transfer_spot", params_json).await
+    }
+    pub async fn transfer_spot_debug(
+        &self,
+        params: PrivateTransferSpotRequest,
+    ) -> Result<TransferSpotDebugResponse, ClientError> {
+        let params_json = serde_json::to_value(&params)?;
+        self.ws_client.send_rpc("private/transfer_spot_debug", params_json).await
     }
     pub async fn transfer_spot_external(
         &self,
@@ -27,6 +41,15 @@ impl<'a> TransfersWithdrawalsNamespace<'a> {
         let params_json = serde_json::to_value(&params)?;
         self.ws_client.send_rpc("private/transfer_spot_external", params_json).await
     }
+    pub async fn transfer_spot_external_debug(
+        &self,
+        params: PrivateTransferSpotExternalRequest,
+    ) -> Result<TransferSpotExternalDebugResponse, ClientError> {
+        let params_json = serde_json::to_value(&params)?;
+        self.ws_client
+            .send_rpc("private/transfer_spot_external_debug", params_json)
+            .await
+    }
     pub async fn update_whitelisted_recipients(
         &self,
         params: UpdateWhitelistedRecipientsRequest,
@@ -34,6 +57,15 @@ impl<'a> TransfersWithdrawalsNamespace<'a> {
         let params_json = serde_json::to_value(&params)?;
         self.ws_client
             .send_rpc("private/update_whitelisted_recipients", params_json)
+            .await
+    }
+    pub async fn update_whitelisted_recipients_debug(
+        &self,
+        params: UpdateWhitelistedRecipientsRequest,
+    ) -> Result<UpdateWhitelistedRecipientsDebugResponse, ClientError> {
+        let params_json = serde_json::to_value(&params)?;
+        self.ws_client
+            .send_rpc("private/update_whitelisted_recipients_debug", params_json)
             .await
     }
     pub async fn withdraw(
