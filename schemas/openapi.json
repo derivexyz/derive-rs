@@ -3862,7 +3862,7 @@
             "description": "JSON-RPC error (see Error Codes)"
           }
         },
-        "description": "Returns a paginated list of full instrument definitions filtered by `instrument_type`, optional `currency`, and `expired` flag, with `page`/`page_size` (max 1000) controls and pagination metadata. Expired options are included when the `expired` flag is set. Public endpoint.",
+        "description": "Returns a paginated, name-descending list of full instrument definitions filtered by `instrument_type`, optional `currency` and optional `risk_universe_id`, with `page`/`page_size` (max 1000) controls and pagination metadata. For options, `expired` selects the listing: `false` returns live options, `true` returns only expired options. An option enters the expired listing up to a minute before it expires, so it does not drop out of both listings at expiry. Perps and spot ignore `expired`. An empty listing returns `instrument_not_found`; a page past the end returns the last page. An option's `settlement_price` here can lag settlement by a few minutes; `public/get_instrument` returns it at once. Public endpoint.",
         "x-rate-limit-class": "non_matching",
         "requestBody": {
           "required": true,
