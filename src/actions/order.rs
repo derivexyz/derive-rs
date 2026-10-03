@@ -67,7 +67,7 @@ pub struct ReplaceArgs {
     pub instrument_name: String,
     pub reduce_only: Option<bool>,
     pub reject_post_only: Option<bool>,
-    pub nonce_to_cancel: Option<i64>,
+    pub nonce_to_cancel: Option<String>,
     pub order_id_to_cancel: Option<Uuid>,
     pub expected_filled_amount: Option<BigDecimal>,
     pub reject_timestamp: Option<i64>,

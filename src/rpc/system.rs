@@ -16,6 +16,13 @@ impl<'a> SystemNamespace<'a> {
     pub async fn get_rate_limits(&self) -> Result<RateLimitResult, ClientError> {
         self.ws_client.send_rpc("public/getRateLimits", serde_json::json!({})).await
     }
+    pub async fn get_live_incidents(
+        &self,
+        params: GetLiveIncidentsParams,
+    ) -> Result<GetLiveIncidentsResponse, ClientError> {
+        let params_json = serde_json::to_value(&params)?;
+        self.ws_client.send_rpc("public/get_live_incidents", params_json).await
+    }
     pub async fn get_time(&self) -> Result<i64, ClientError> {
         self.ws_client.send_rpc("public/get_time", serde_json::json!({})).await
     }
