@@ -16,7 +16,7 @@ use tracing::debug;
 
 use crate::{
     actions::utils::decimal_to_u256_with_prec,
-    constants::ACTION_MANAGER,
+    constants::OnChainConstants,
     models::SpotAssetEntry,
     types::{ClientError, Environment},
 };
@@ -150,7 +150,9 @@ impl DepositManager {
             .parse::<Address>()
             .map_err(Self::string_error)?;
 
-        let manager_address = ACTION_MANAGER
+        let constants = OnChainConstants::new(env.clone());
+        let manager_address = constants
+            .action_manager_address()
             .parse::<Address>()
             .map_err(Self::string_error)?;
 

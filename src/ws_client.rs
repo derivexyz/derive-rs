@@ -571,7 +571,7 @@ async fn connection_supervisor(
     private_subscriptions: Arc<DashMap<String, SubscriptionRoute>>,
     connection_state_tx: watch::Sender<ExternalEvent>,
 ) {
-    info!("Connection supervisor started for {url}");
+    debug!("Connection supervisor started for {url}");
 
     let mut attempts: u64 = 1;
     loop {
@@ -585,7 +585,7 @@ async fn connection_supervisor(
             Ok(ws_stream) => {
                 connection_state_tx.send(ExternalEvent::Connected).ok();
                 attempts = 1;
-                info!("Connected to {url}");
+                debug!("Connected to {url}");
                 let result = run_single_connection(
                     &url,
                     ws_stream,
@@ -596,7 +596,7 @@ async fn connection_supervisor(
                     &private_subscriptions,
                 )
                 .await;
-                info!("Connection to {url} ended with result: {result:?}");
+                debug!("Connection to {url} ended with result: {result:?}");
                 connection_state_tx.send(ExternalEvent::Disconnected).ok();
 
                 for key in pending_requests
@@ -611,18 +611,18 @@ async fn connection_supervisor(
 
                 if *shutdown_rx.borrow() {
                     connection_state_tx.send(ExternalEvent::Exited).ok();
-                    info!("Shutdown after connection end for {url}");
+                    debug!("Shutdown after connection end for {url}");
                     break;
                 }
 
                 if cmd_rx.is_closed() {
                     connection_state_tx.send(ExternalEvent::Exited).ok();
-                    info!("Command channel closed for {url}, stopping supervisor");
+                    debug!("Command channel closed for {url}, stopping supervisor");
                     break;
                 }
 
                 let cooldown_secs = attempts * 3;
-                info!("Reconnecting to {url} in {cooldown_secs}s (attempt {attempts})");
+                debug!("Reconnecting to {url} in {cooldown_secs}s (attempt {attempts})");
                 tokio::time::sleep(std::time::Duration::from_secs(cooldown_secs.min(60))).await;
                 attempts += 1;
             }
@@ -638,7 +638,7 @@ async fn connection_supervisor(
         }
     }
 
-    info!("Connection supervisor exited for {url}");
+    debug!("Connection supervisor exited for {url}");
 }
 
 async fn run_single_connection(
@@ -684,7 +684,7 @@ async fn run_single_connection(
                         return Ok(());
                     }
                     None => {
-                        info!("Command channel closed for {url}");
+                        debug!("Command channel closed for {url}");
                         let _ = ws.close().await;
                         return Ok(());
                     }
