@@ -47,7 +47,7 @@ fn get_action_typehash(env: &Environment) -> &'static str {
 pub fn get_domain_separator(env: &Environment) -> &'static str {
     match env {
         Environment::Mainnet => {
-            "0xd96e5f90797da7ec8dc4e276260c7f3f87fedf68775fbe1ef116e996fc60441b"
+            "0xda616dfabb88681b08e1592820a41d55ddc62d68de110e327ae99d734506fe19"
         }
         Environment::Testnet => {
             "0x24d674cd5f2b9d564691c51e9d88f649b99246a2244dd74ce27b96578d773e85"
