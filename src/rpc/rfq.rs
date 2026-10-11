@@ -41,6 +41,13 @@ impl<'a> RfqNamespace<'a> {
         let params_json = serde_json::to_value(&params)?;
         self.ws_client.send_rpc("private/execute_quote", params_json).await
     }
+    pub async fn get_maker_rfq_history(
+        &self,
+        params: GetMakerRfqHistoryRequest,
+    ) -> Result<RfqPollResponse, ClientError> {
+        let params_json = serde_json::to_value(&params)?;
+        self.ws_client.send_rpc("private/get_maker_rfq_history", params_json).await
+    }
     pub async fn get_quotes(
         &self,
         params: GetQuotesRequest,

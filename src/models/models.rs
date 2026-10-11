@@ -288,6 +288,82 @@ impl<'de> ::serde::Deserialize<'de> for Address {
             })
     }
 }
+///`AddressKind`
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "type": "string",
+///  "enum": [
+///    "evm",
+///    "solana"
+///  ]
+///}
+/// ```
+/// </details>
+#[derive(
+    ::serde::Deserialize,
+    ::serde::Serialize,
+    Clone,
+    Copy,
+    Debug,
+    Eq,
+    Hash,
+    Ord,
+    PartialEq,
+    PartialOrd
+)]
+pub enum AddressKind {
+    #[serde(rename = "evm")]
+    Evm,
+    #[serde(rename = "solana")]
+    Solana,
+}
+impl ::std::fmt::Display for AddressKind {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        match *self {
+            Self::Evm => f.write_str("evm"),
+            Self::Solana => f.write_str("solana"),
+        }
+    }
+}
+impl ::std::str::FromStr for AddressKind {
+    type Err = self::error::ConversionError;
+    fn from_str(
+        value: &str,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        match value {
+            "evm" => Ok(Self::Evm),
+            "solana" => Ok(Self::Solana),
+            _ => Err("invalid value".into()),
+        }
+    }
+}
+impl ::std::convert::TryFrom<&str> for AddressKind {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: &str,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<&::std::string::String> for AddressKind {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: &::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for AddressKind {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
 ///`AggregatedOrdersResult`
 ///
 /// <details><summary>JSON schema</summary>
@@ -4502,6 +4578,7 @@ impl Erc20Details {
 ///      "$ref": "#/definitions/Direction"
 ///    },
 ///    "enable_taker_protection": {
+///      "description": "If true, reject the execution with `QuoteTakerCostTooHigh` when the orderbook fills the same legs at a lower total cost. The check is skipped when the orderbook cannot fill every leg in full. The RFQ's `max_total_cost` and `min_total_cost` are not checked here.",
 ///      "default": false,
 ///      "type": "boolean"
 ///    },
@@ -4566,6 +4643,7 @@ pub struct ExecuteQuoteRequest {
     #[serde(default)]
     pub client: ::std::string::String,
     pub direction: Direction,
+    ///If true, reject the execution with `QuoteTakerCostTooHigh` when the orderbook fills the same legs at a lower total cost. The check is skipped when the orderbook cannot fill every leg in full. The RFQ's `max_total_cost` and `min_total_cost` are not checked here.
     #[serde(default)]
     pub enable_taker_protection: bool,
     #[serde(default)]
@@ -4849,6 +4927,47 @@ pub struct ForwardFeedDataResponse {
 }
 impl ForwardFeedDataResponse {
     pub fn builder() -> builder::ForwardFeedDataResponse {
+        Default::default()
+    }
+}
+///`ForwardedToken`
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "type": "object",
+///  "required": [
+///    "bridge_type",
+///    "symbol",
+///    "token"
+///  ],
+///  "properties": {
+///    "bridge_type": {
+///      "description": "`native-oft`, `oft` or `ccip`.",
+///      "type": "string"
+///    },
+///    "symbol": {
+///      "type": "string"
+///    },
+///    "token": {
+///      "description": "Ethereum token to withdraw.",
+///      "type": "string"
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct ForwardedToken {
+    ///`native-oft`, `oft` or `ccip`.
+    pub bridge_type: ::std::string::String,
+    pub symbol: ::std::string::String,
+    ///Ethereum token to withdraw.
+    pub token: ::std::string::String,
+}
+impl ForwardedToken {
+    pub fn builder() -> builder::ForwardedToken {
         Default::default()
     }
 }
@@ -6395,6 +6514,107 @@ for GetMakerProgramsParams {
         value: ::serde_json::Map<::std::string::String, ::serde_json::Value>,
     ) -> Self {
         Self(value)
+    }
+}
+///`GetMakerRfqHistoryRequest`
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "type": "object",
+///  "required": [
+///    "subaccount_id"
+///  ],
+///  "properties": {
+///    "from_timestamp": {
+///      "description": "Start of the RFQ creation-time window, in ms. Defaults to 30 days before the earlier of `to_timestamp` and now.",
+///      "default": null,
+///      "type": [
+///        "integer",
+///        "null"
+///      ],
+///      "format": "int64"
+///    },
+///    "page": {
+///      "default": 1,
+///      "type": "integer",
+///      "format": "uint64",
+///      "minimum": 0.0
+///    },
+///    "page_size": {
+///      "default": 20,
+///      "type": "integer",
+///      "format": "uint64",
+///      "minimum": 0.0
+///    },
+///    "rfq_id": {
+///      "default": null,
+///      "type": [
+///        "string",
+///        "null"
+///      ]
+///    },
+///    "rfq_subaccount_id": {
+///      "description": "Only RFQs sent from this taker subaccount.",
+///      "default": null,
+///      "type": [
+///        "integer",
+///        "null"
+///      ],
+///      "format": "int64"
+///    },
+///    "status": {
+///      "description": "`filled`, `cancelled` or `expired`. Omit for all three.",
+///      "default": null,
+///      "anyOf": [
+///        {
+///          "$ref": "#/definitions/RFQStatus"
+///        },
+///        {
+///          "type": "null"
+///        }
+///      ]
+///    },
+///    "subaccount_id": {
+///      "type": "integer",
+///      "format": "int64"
+///    },
+///    "to_timestamp": {
+///      "description": "End of the RFQ creation-time window, in ms.",
+///      "default": 9223372036854775807,
+///      "type": "integer",
+///      "format": "int64"
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct GetMakerRfqHistoryRequest {
+    ///Start of the RFQ creation-time window, in ms. Defaults to 30 days before the earlier of `to_timestamp` and now.
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub from_timestamp: ::std::option::Option<i64>,
+    #[serde(default = "defaults::default_u64::<u64, 1>")]
+    pub page: u64,
+    #[serde(default = "defaults::default_u64::<u64, 20>")]
+    pub page_size: u64,
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub rfq_id: ::std::option::Option<::std::string::String>,
+    ///Only RFQs sent from this taker subaccount.
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub rfq_subaccount_id: ::std::option::Option<i64>,
+    ///`filled`, `cancelled` or `expired`. Omit for all three.
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub status: ::std::option::Option<RfqStatus>,
+    pub subaccount_id: i64,
+    ///End of the RFQ creation-time window, in ms.
+    #[serde(default = "defaults::default_u64::<i64, 9223372036854775807>")]
+    pub to_timestamp: i64,
+}
+impl GetMakerRfqHistoryRequest {
+    pub fn builder() -> builder::GetMakerRfqHistoryRequest {
+        Default::default()
     }
 }
 ///Result of `public/get_margin` / `private/get_margin`: net margin (MtM minus requirement; positive = healthy) before and after the simulated changes, as USD decimal strings.
@@ -8310,6 +8530,65 @@ pub struct GetWalletsFromSessionKeyRequest {
 }
 impl GetWalletsFromSessionKeyRequest {
     pub fn builder() -> builder::GetWalletsFromSessionKeyRequest {
+        Default::default()
+    }
+}
+///`GetWithdrawAddressesParams`
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "type": "object",
+///  "required": [
+///    "wallet"
+///  ],
+///  "properties": {
+///    "wallet": {
+///      "$ref": "#/definitions/Address"
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct GetWithdrawAddressesParams {
+    pub wallet: Address,
+}
+impl GetWithdrawAddressesParams {
+    pub fn builder() -> builder::GetWithdrawAddressesParams {
+        Default::default()
+    }
+}
+///`GetWithdrawAddressesResult`
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "type": "object",
+///  "required": [
+///    "withdraw_addresses"
+///  ],
+///  "properties": {
+///    "withdraw_addresses": {
+///      "description": "The account's EVM withdraw addresses (their recipient is the wallet) and every withdraw address on its `whitelisted_recipients`, oldest first.",
+///      "type": "array",
+///      "items": {
+///        "$ref": "#/definitions/WithdrawAddressEntry"
+///      }
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct GetWithdrawAddressesResult {
+    ///The account's EVM withdraw addresses (their recipient is the wallet) and every withdraw address on its `whitelisted_recipients`, oldest first.
+    pub withdraw_addresses: ::std::vec::Vec<WithdrawAddressEntry>,
+}
+impl GetWithdrawAddressesResult {
+    pub fn builder() -> builder::GetWithdrawAddressesResult {
         Default::default()
     }
 }
@@ -14845,6 +15124,33 @@ impl PublicGetMarginRequest {
         Default::default()
     }
 }
+///`PublicGetSubaccountsRequest`
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "type": "object",
+///  "required": [
+///    "wallet"
+///  ],
+///  "properties": {
+///    "wallet": {
+///      "$ref": "#/definitions/Address"
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct PublicGetSubaccountsRequest {
+    pub wallet: Address,
+}
+impl PublicGetSubaccountsRequest {
+    pub fn builder() -> builder::PublicGetSubaccountsRequest {
+        Default::default()
+    }
+}
 ///`PublicGetWalletsFromSessionKeyResponse`
 ///
 /// <details><summary>JSON schema</summary>
@@ -17684,6 +17990,111 @@ impl RegisterDepositAddressResult {
         Default::default()
     }
 }
+///`RegisterWithdrawAddressParams`
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "type": "object",
+///  "required": [
+///    "chain_id",
+///    "recipient",
+///    "wallet"
+///  ],
+///  "properties": {
+///    "chain_id": {
+///      "description": "Destination chain: a key of the route file's `withdraw_forwarding` section. Solana is 101 (devnet 103); every other chain is EVM.",
+///      "type": "integer",
+///      "format": "uint64",
+///      "minimum": 0.0
+///    },
+///    "recipient": {
+///      "description": "Destination address. On an EVM chain it must be `wallet`. On Solana, a base58 wallet address (not a token or program-derived account).",
+///      "type": "string"
+///    },
+///    "wallet": {
+///      "description": "The account wallet.",
+///      "type": "string"
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct RegisterWithdrawAddressParams {
+    ///Destination chain: a key of the route file's `withdraw_forwarding` section. Solana is 101 (devnet 103); every other chain is EVM.
+    pub chain_id: u64,
+    ///Destination address. On an EVM chain it must be `wallet`. On Solana, a base58 wallet address (not a token or program-derived account).
+    pub recipient: ::std::string::String,
+    ///The account wallet.
+    pub wallet: ::std::string::String,
+}
+impl RegisterWithdrawAddressParams {
+    pub fn builder() -> builder::RegisterWithdrawAddressParams {
+        Default::default()
+    }
+}
+///`RegisterWithdrawAddressResult`
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "type": "object",
+///  "required": [
+///    "chain_id",
+///    "recipient",
+///    "recipient_display",
+///    "routes",
+///    "withdraw_address"
+///  ],
+///  "properties": {
+///    "chain_id": {
+///      "type": "integer",
+///      "format": "uint64",
+///      "minimum": 0.0
+///    },
+///    "recipient": {
+///      "description": "`0x` bytes32 the factory forwards to.",
+///      "type": "string"
+///    },
+///    "recipient_display": {
+///      "description": "`recipient` normalised: checksummed on EVM, base58 on Solana.",
+///      "type": "string"
+///    },
+///    "routes": {
+///      "description": "The tokens this address forwards.",
+///      "type": "array",
+///      "items": {
+///        "$ref": "#/definitions/ForwardedToken"
+///      }
+///    },
+///    "withdraw_address": {
+///      "description": "Withdraw a forwarded token to this Ethereum address to send it on to `recipient` on `chain_id`.",
+///      "type": "string"
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct RegisterWithdrawAddressResult {
+    pub chain_id: u64,
+    ///`0x` bytes32 the factory forwards to.
+    pub recipient: ::std::string::String,
+    ///`recipient` normalised: checksummed on EVM, base58 on Solana.
+    pub recipient_display: ::std::string::String,
+    ///The tokens this address forwards.
+    pub routes: ::std::vec::Vec<ForwardedToken>,
+    ///Withdraw a forwarded token to this Ethereum address to send it on to `recipient` on `chain_id`.
+    pub withdraw_address: ::std::string::String,
+}
+impl RegisterWithdrawAddressResult {
+    pub fn builder() -> builder::RegisterWithdrawAddressResult {
+        Default::default()
+    }
+}
 ///`RejectDepositRequestRequest`
 ///
 /// <details><summary>JSON schema</summary>
@@ -18634,10 +19045,10 @@ impl ::std::convert::TryFrom<::std::string::String> for ResetMmpResponse {
 ///      ]
 ///    },
 ///    "max_total_cost": {
-///      "description": "Optional decimal string of the human value (e.g. `\"1.5\"`), up to 12 fractional digits, or null; a string or JSON number is accepted",
+///      "description": "The `max_total_cost` sent with the RFQ, as a decimal string, or null. It filters the best quote only. See `private/send_rfq`.",
 ///      "anyOf": [
 ///        {
-///          "description": "Optional decimal string of the human value (e.g. `\"1.5\"`), up to 12 fractional digits, or null; a string or JSON number is accepted",
+///          "description": "The `max_total_cost` sent with the RFQ, as a decimal string, or null. It filters the best quote only. See `private/send_rfq`.",
 ///          "type": "string",
 ///          "format": "decimal",
 ///          "x-rust-type": {
@@ -18652,10 +19063,10 @@ impl ::std::convert::TryFrom<::std::string::String> for ResetMmpResponse {
 ///      ]
 ///    },
 ///    "min_total_cost": {
-///      "description": "Optional decimal string of the human value (e.g. `\"1.5\"`), up to 12 fractional digits, or null; a string or JSON number is accepted",
+///      "description": "The `min_total_cost` sent with the RFQ, as a decimal string, or null. It filters the best quote only. See `private/send_rfq`.",
 ///      "anyOf": [
 ///        {
-///          "description": "Optional decimal string of the human value (e.g. `\"1.5\"`), up to 12 fractional digits, or null; a string or JSON number is accepted",
+///          "description": "The `min_total_cost` sent with the RFQ, as a decimal string, or null. It filters the best quote only. See `private/send_rfq`.",
 ///          "type": "string",
 ///          "format": "decimal",
 ///          "x-rust-type": {
@@ -18739,9 +19150,9 @@ pub struct Rfq {
     pub legs: ::std::vec::Vec<LegUnpricedParams>,
     ///Optional decimal string of the human value (e.g. `"1.5"`), up to 12 fractional digits, or null; a string or JSON number is accepted
     pub mark_total_cost: ::std::option::Option<::bigdecimal::BigDecimal>,
-    ///Optional decimal string of the human value (e.g. `"1.5"`), up to 12 fractional digits, or null; a string or JSON number is accepted
+    ///The `max_total_cost` sent with the RFQ, as a decimal string, or null. It filters the best quote only. See `private/send_rfq`.
     pub max_total_cost: ::std::option::Option<::bigdecimal::BigDecimal>,
-    ///Optional decimal string of the human value (e.g. `"1.5"`), up to 12 fractional digits, or null; a string or JSON number is accepted
+    ///The `min_total_cost` sent with the RFQ, as a decimal string, or null. It filters the best quote only. See `private/send_rfq`.
     pub min_total_cost: ::std::option::Option<::bigdecimal::BigDecimal>,
     ///Non-negative decimal string of the human value (e.g. `"1.5"`), up to 12 fractional digits; a string or JSON number is accepted
     pub partial_fill_step: ::bigdecimal::BigDecimal,
@@ -19931,11 +20342,11 @@ impl SendQuoteRequest {
 ///      }
 ///    },
 ///    "max_total_cost": {
-///      "description": "Optional decimal string of the human value (e.g. `\"1.5\"`), up to 12 fractional digits, or null; a string or JSON number is accepted",
+///      "description": "Highest total cost you accept when you execute as buyer (`direction: buy`). Optional decimal string (e.g. `\"500\"`) or JSON number.\n\nTotal cost is in USD for the full RFQ size, from your side of the trade. A positive cost means you pay. A negative cost means you receive.\n\n`private/rfq_get_best_quote` and the `{subaccount_id}.best.quotes` channel skip quotes above this value. This is a quote filter only. `private/execute_quote` does not check it, and `private/poll_quotes` returns all quotes. Makers do not see this value.",
 ///      "default": null,
 ///      "anyOf": [
 ///        {
-///          "description": "Optional decimal string of the human value (e.g. `\"1.5\"`), up to 12 fractional digits, or null; a string or JSON number is accepted",
+///          "description": "Highest total cost you accept when you execute as buyer (`direction: buy`). Optional decimal string (e.g. `\"500\"`) or JSON number.\n\nTotal cost is in USD for the full RFQ size, from your side of the trade. A positive cost means you pay. A negative cost means you receive.\n\n`private/rfq_get_best_quote` and the `{subaccount_id}.best.quotes` channel skip quotes above this value. This is a quote filter only. `private/execute_quote` does not check it, and `private/poll_quotes` returns all quotes. Makers do not see this value.",
 ///          "default": null,
 ///          "type": "string",
 ///          "format": "decimal",
@@ -19951,11 +20362,11 @@ impl SendQuoteRequest {
 ///      ]
 ///    },
 ///    "min_total_cost": {
-///      "description": "Optional decimal string of the human value (e.g. `\"1.5\"`), up to 12 fractional digits, or null; a string or JSON number is accepted",
+///      "description": "Highest total cost you accept when you execute as seller (`direction: sell`). Optional decimal string (e.g. `\"-180\"`) or JSON number.\n\nIt uses the same sign as `max_total_cost`, so a sale that pays you has a negative cost. To set the smallest amount you will receive, send that amount as a negative number. For example, `-180` skips quotes that pay you less than 180. A positive value such as `180` skips only quotes that cost you more than 180.\n\nIt applies in the same places as `max_total_cost`. `private/execute_quote` does not check it. Makers do not see this value.",
 ///      "default": null,
 ///      "anyOf": [
 ///        {
-///          "description": "Optional decimal string of the human value (e.g. `\"1.5\"`), up to 12 fractional digits, or null; a string or JSON number is accepted",
+///          "description": "Highest total cost you accept when you execute as seller (`direction: sell`). Optional decimal string (e.g. `\"-180\"`) or JSON number.\n\nIt uses the same sign as `max_total_cost`, so a sale that pays you has a negative cost. To set the smallest amount you will receive, send that amount as a negative number. For example, `-180` skips quotes that pay you less than 180. A positive value such as `180` skips only quotes that cost you more than 180.\n\nIt applies in the same places as `max_total_cost`. `private/execute_quote` does not check it. Makers do not see this value.",
 ///          "default": null,
 ///          "type": "string",
 ///          "format": "decimal",
@@ -20006,10 +20417,18 @@ pub struct SendRfqRequest {
     #[serde(default)]
     pub label: ::std::string::String,
     pub legs: ::std::vec::Vec<LegUnpricedParams>,
-    ///Optional decimal string of the human value (e.g. `"1.5"`), up to 12 fractional digits, or null; a string or JSON number is accepted
+    /**Highest total cost you accept when you execute as buyer (`direction: buy`). Optional decimal string (e.g. `"500"`) or JSON number.
+
+Total cost is in USD for the full RFQ size, from your side of the trade. A positive cost means you pay. A negative cost means you receive.
+
+`private/rfq_get_best_quote` and the `{subaccount_id}.best.quotes` channel skip quotes above this value. This is a quote filter only. `private/execute_quote` does not check it, and `private/poll_quotes` returns all quotes. Makers do not see this value.*/
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub max_total_cost: ::std::option::Option<::bigdecimal::BigDecimal>,
-    ///Optional decimal string of the human value (e.g. `"1.5"`), up to 12 fractional digits, or null; a string or JSON number is accepted
+    /**Highest total cost you accept when you execute as seller (`direction: sell`). Optional decimal string (e.g. `"-180"`) or JSON number.
+
+It uses the same sign as `max_total_cost`, so a sale that pays you has a negative cost. To set the smallest amount you will receive, send that amount as a negative number. For example, `-180` skips quotes that pay you less than 180. A positive value such as `180` skips only quotes that cost you more than 180.
+
+It applies in the same places as `max_total_cost`. `private/execute_quote` does not check it. Makers do not see this value.*/
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub min_total_cost: ::std::option::Option<::bigdecimal::BigDecimal>,
     ///Non-negative decimal string of the human value (e.g. `"1.5"`), up to 12 fractional digits; a string or JSON number is accepted
@@ -21805,6 +22224,7 @@ impl SrmPerpMarginRequirements {
 ///      "type": "string"
 ///    },
 ///    "projected_margin_change": {
+///      "description": "Change in `maintenance_margin` a minute past the account's next option expiry, once the options expiring by then settle into cash at today's forward. `maintenance_margin + projected_margin_change < 0` signals liquidation right after that expiry. Excludes open orders; `\"0\"` for an account without an unexpired option.",
 ///      "type": "string"
 ///    },
 ///    "risk_universe_id": {
@@ -21854,6 +22274,7 @@ pub struct Subaccount {
     pub positions_initial_margin: ::std::string::String,
     pub positions_maintenance_margin: ::std::string::String,
     pub positions_value: ::std::string::String,
+    ///Change in `maintenance_margin` a minute past the account's next option expiry, once the options expiring by then settle into cash at today's forward. `maintenance_margin + projected_margin_change < 0` signals liquidation right after that expiry. Excludes open orders; `"0"` for an account without an unexpired option.
     pub projected_margin_change: ::std::string::String,
     pub risk_universe_id: u32,
     pub subaccount_id: u64,
@@ -26083,6 +26504,68 @@ impl ::std::convert::From<PublicRfq> for WalletRfqsNotification {
         Self(value)
     }
 }
+///`WithdrawAddressEntry`
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "type": "object",
+///  "required": [
+///    "address_kind",
+///    "chain_id",
+///    "recipient",
+///    "recipient_display",
+///    "whitelisted",
+///    "withdraw_address"
+///  ],
+///  "properties": {
+///    "address_kind": {
+///      "$ref": "#/definitions/AddressKind"
+///    },
+///    "chain_id": {
+///      "description": "Destination chain. Solana is 101 (devnet 103).",
+///      "type": "integer",
+///      "format": "uint64",
+///      "minimum": 0.0
+///    },
+///    "recipient": {
+///      "description": "`0x` bytes32 the factory forwards to.",
+///      "type": "string"
+///    },
+///    "recipient_display": {
+///      "description": "The recipient as registered: checksummed on EVM, base58 on Solana.",
+///      "type": "string"
+///    },
+///    "whitelisted": {
+///      "description": "On the account's `whitelisted_recipients`, so session keys may withdraw to it.",
+///      "type": "boolean"
+///    },
+///    "withdraw_address": {
+///      "type": "string"
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct WithdrawAddressEntry {
+    pub address_kind: AddressKind,
+    ///Destination chain. Solana is 101 (devnet 103).
+    pub chain_id: u64,
+    ///`0x` bytes32 the factory forwards to.
+    pub recipient: ::std::string::String,
+    ///The recipient as registered: checksummed on EVM, base58 on Solana.
+    pub recipient_display: ::std::string::String,
+    ///On the account's `whitelisted_recipients`, so session keys may withdraw to it.
+    pub whitelisted: bool,
+    pub withdraw_address: ::std::string::String,
+}
+impl WithdrawAddressEntry {
+    pub fn builder() -> builder::WithdrawAddressEntry {
+        Default::default()
+    }
+}
 ///`amount` and `fee` are decimal strings (e.g. `"1.1"`); the net sent to the recipient is `amount - fee`. `wallet` is the account owner; `recipient` is the L1 destination. `asset` is the currency name (e.g. `"USDC"`); `erc20_address` is the on-chain ERC20 the funds settle against (WETH for native ETH). `operation_id`/`batch_uuid` are the stable uuids.
 ///
 /// <details><summary>JSON schema</summary>
@@ -26137,6 +26620,17 @@ impl ::std::convert::From<PublicRfq> for WalletRfqsNotification {
 ///        "version": ">=0.4.0, <0.5.0"
 ///      }
 ///    },
+///    "forward": {
+///      "description": "Present when `recipient` is a withdraw address: the forward to its home chain.",
+///      "anyOf": [
+///        {
+///          "$ref": "#/definitions/WithdrawalForward"
+///        },
+///        {
+///          "type": "null"
+///        }
+///      ]
+///    },
 ///    "operation_id": {
 ///      "type": "string"
 ///    },
@@ -26177,6 +26671,9 @@ pub struct WithdrawalEntry {
     pub erc20_address: ::std::string::String,
     ///Non-negative decimal string of the human value (e.g. `"1.5"`), up to 12 fractional digits; a string or JSON number is accepted
     pub fee: ::bigdecimal::BigDecimal,
+    ///Present when `recipient` is a withdraw address: the forward to its home chain.
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub forward: ::std::option::Option<WithdrawalForward>,
     pub operation_id: ::std::string::String,
     pub recipient: ::std::string::String,
     pub subaccount_id: u64,
@@ -26189,6 +26686,266 @@ pub struct WithdrawalEntry {
 impl WithdrawalEntry {
     pub fn builder() -> builder::WithdrawalEntry {
         Default::default()
+    }
+}
+///`WithdrawalForward`
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "type": "object",
+///  "required": [
+///    "amount_forwarded",
+///    "chain_id",
+///    "recipient",
+///    "status"
+///  ],
+///  "properties": {
+///    "amount_forwarded": {
+///      "description": "This withdrawal's share of what sent forwards carried. OFT dust stays at the withdraw address for the next forward, so slightly less may arrive.",
+///      "anyOf": [
+///        {
+///          "description": "This withdrawal's share of what sent forwards carried. OFT dust stays at the withdraw address for the next forward, so slightly less may arrive.",
+///          "type": "string",
+///          "format": "decimal",
+///          "x-rust-type": {
+///            "crate": "bigdecimal",
+///            "path": "bigdecimal::BigDecimal",
+///            "version": ">=0.4.0, <0.5.0"
+///          }
+///        },
+///        {
+///          "type": "null"
+///        }
+///      ]
+///    },
+///    "chain_id": {
+///      "description": "The destination chain. Solana is 101 (devnet 103).",
+///      "type": "integer",
+///      "format": "uint64",
+///      "minimum": 0.0
+///    },
+///    "destination_tx": {
+///      "type": [
+///        "string",
+///        "null"
+///      ]
+///    },
+///    "forward_tx": {
+///      "description": "The latest Ethereum `processWithdrawal` (or owner `recover`) tx that carried it.",
+///      "type": [
+///        "string",
+///        "null"
+///      ]
+///    },
+///    "hold_reason": {
+///      "description": "`no_route`, `route_unavailable`, `external_only` or `dust`; set only when `held`.",
+///      "type": [
+///        "string",
+///        "null"
+///      ]
+///    },
+///    "message_id": {
+///      "description": "LayerZero guid or CCIP message id.",
+///      "type": [
+///        "string",
+///        "null"
+///      ]
+///    },
+///    "rail": {
+///      "description": "`layerzero` or `ccip`; none before a forward is sent and for a recovery.",
+///      "type": [
+///        "string",
+///        "null"
+///      ]
+///    },
+///    "recipient": {
+///      "description": "Who it forwards to: base58 on Solana, checksummed on EVM.",
+///      "type": "string"
+///    },
+///    "status": {
+///      "$ref": "#/definitions/WithdrawalForwardStatus"
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct WithdrawalForward {
+    ///This withdrawal's share of what sent forwards carried. OFT dust stays at the withdraw address for the next forward, so slightly less may arrive.
+    pub amount_forwarded: ::std::option::Option<::bigdecimal::BigDecimal>,
+    ///The destination chain. Solana is 101 (devnet 103).
+    pub chain_id: u64,
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub destination_tx: ::std::option::Option<::std::string::String>,
+    ///The latest Ethereum `processWithdrawal` (or owner `recover`) tx that carried it.
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub forward_tx: ::std::option::Option<::std::string::String>,
+    ///`no_route`, `route_unavailable`, `external_only` or `dust`; set only when `held`.
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub hold_reason: ::std::option::Option<::std::string::String>,
+    ///LayerZero guid or CCIP message id.
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub message_id: ::std::option::Option<::std::string::String>,
+    ///`layerzero` or `ccip`; none before a forward is sent and for a recovery.
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub rail: ::std::option::Option<::std::string::String>,
+    ///Who it forwards to: base58 on Solana, checksummed on EVM.
+    pub recipient: ::std::string::String,
+    pub status: WithdrawalForwardStatus,
+}
+impl WithdrawalForward {
+    pub fn builder() -> builder::WithdrawalForward {
+        Default::default()
+    }
+}
+///Where a forward is, in lifecycle order. A withdrawal paid in parts shows its least advanced part.
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "description": "Where a forward is, in lifecycle order. A withdrawal paid in parts shows its least advanced part.",
+///  "oneOf": [
+///    {
+///      "type": "string",
+///      "enum": [
+///        "delivered"
+///      ]
+///    },
+///    {
+///      "description": "The outbox has not paid all of it yet: batching, queued or throttled.",
+///      "type": "string",
+///      "enum": [
+///        "awaiting_payout"
+///      ]
+///    },
+///    {
+///      "description": "Paid to the withdraw address; the forward is not sent yet.",
+///      "type": "string",
+///      "enum": [
+///        "pending"
+///      ]
+///    },
+///    {
+///      "description": "Not forwarding; see `hold_reason`. Show `route_unavailable` as delayed.",
+///      "type": "string",
+///      "enum": [
+///        "held"
+///      ]
+///    },
+///    {
+///      "description": "Bridge message sent, not yet delivered.",
+///      "type": "string",
+///      "enum": [
+///        "in_flight"
+///      ]
+///    },
+///    {
+///      "description": "The bridge reported a failure. An ops retry can still deliver it.",
+///      "type": "string",
+///      "enum": [
+///        "failed"
+///      ]
+///    },
+///    {
+///      "description": "Pulled back by the owner for a manual refund.",
+///      "type": "string",
+///      "enum": [
+///        "recovered"
+///      ]
+///    }
+///  ]
+///}
+/// ```
+/// </details>
+#[derive(
+    ::serde::Deserialize,
+    ::serde::Serialize,
+    Clone,
+    Copy,
+    Debug,
+    Eq,
+    Hash,
+    Ord,
+    PartialEq,
+    PartialOrd
+)]
+pub enum WithdrawalForwardStatus {
+    #[serde(rename = "delivered")]
+    Delivered,
+    ///The outbox has not paid all of it yet: batching, queued or throttled.
+    #[serde(rename = "awaiting_payout")]
+    AwaitingPayout,
+    ///Paid to the withdraw address; the forward is not sent yet.
+    #[serde(rename = "pending")]
+    Pending,
+    ///Not forwarding; see `hold_reason`. Show `route_unavailable` as delayed.
+    #[serde(rename = "held")]
+    Held,
+    ///Bridge message sent, not yet delivered.
+    #[serde(rename = "in_flight")]
+    InFlight,
+    ///The bridge reported a failure. An ops retry can still deliver it.
+    #[serde(rename = "failed")]
+    Failed,
+    ///Pulled back by the owner for a manual refund.
+    #[serde(rename = "recovered")]
+    Recovered,
+}
+impl ::std::fmt::Display for WithdrawalForwardStatus {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        match *self {
+            Self::Delivered => f.write_str("delivered"),
+            Self::AwaitingPayout => f.write_str("awaiting_payout"),
+            Self::Pending => f.write_str("pending"),
+            Self::Held => f.write_str("held"),
+            Self::InFlight => f.write_str("in_flight"),
+            Self::Failed => f.write_str("failed"),
+            Self::Recovered => f.write_str("recovered"),
+        }
+    }
+}
+impl ::std::str::FromStr for WithdrawalForwardStatus {
+    type Err = self::error::ConversionError;
+    fn from_str(
+        value: &str,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        match value {
+            "delivered" => Ok(Self::Delivered),
+            "awaiting_payout" => Ok(Self::AwaitingPayout),
+            "pending" => Ok(Self::Pending),
+            "held" => Ok(Self::Held),
+            "in_flight" => Ok(Self::InFlight),
+            "failed" => Ok(Self::Failed),
+            "recovered" => Ok(Self::Recovered),
+            _ => Err("invalid value".into()),
+        }
+    }
+}
+impl ::std::convert::TryFrom<&str> for WithdrawalForwardStatus {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: &str,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<&::std::string::String> for WithdrawalForwardStatus {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: &::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for WithdrawalForwardStatus {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
     }
 }
 ///`WithdrawalHistoryResult`
@@ -32713,6 +33470,76 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
+    pub struct ForwardedToken {
+        bridge_type: ::std::result::Result<::std::string::String, ::std::string::String>,
+        symbol: ::std::result::Result<::std::string::String, ::std::string::String>,
+        token: ::std::result::Result<::std::string::String, ::std::string::String>,
+    }
+    impl ::std::default::Default for ForwardedToken {
+        fn default() -> Self {
+            Self {
+                bridge_type: Err("no value supplied for bridge_type".to_string()),
+                symbol: Err("no value supplied for symbol".to_string()),
+                token: Err("no value supplied for token".to_string()),
+            }
+        }
+    }
+    impl ForwardedToken {
+        pub fn bridge_type<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.bridge_type = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for bridge_type: {e}")
+                });
+            self
+        }
+        pub fn symbol<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.symbol = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for symbol: {e}"));
+            self
+        }
+        pub fn token<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.token = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for token: {e}"));
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<ForwardedToken> for super::ForwardedToken {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: ForwardedToken,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                bridge_type: value.bridge_type?,
+                symbol: value.symbol?,
+                token: value.token?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::ForwardedToken> for ForwardedToken {
+        fn from(value: super::ForwardedToken) -> Self {
+            Self {
+                bridge_type: Ok(value.bridge_type),
+                symbol: Ok(value.symbol),
+                token: Ok(value.token),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
     pub struct FundingFeedDataResponse {
         confidence: ::std::result::Result<::std::string::String, ::std::string::String>,
         currency: ::std::result::Result<::std::string::String, ::std::string::String>,
@@ -35042,6 +35869,170 @@ pub mod builder {
                 scores: Ok(value.scores),
                 total_score: Ok(value.total_score),
                 total_volume: Ok(value.total_volume),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct GetMakerRfqHistoryRequest {
+        from_timestamp: ::std::result::Result<
+            ::std::option::Option<i64>,
+            ::std::string::String,
+        >,
+        page: ::std::result::Result<u64, ::std::string::String>,
+        page_size: ::std::result::Result<u64, ::std::string::String>,
+        rfq_id: ::std::result::Result<
+            ::std::option::Option<::std::string::String>,
+            ::std::string::String,
+        >,
+        rfq_subaccount_id: ::std::result::Result<
+            ::std::option::Option<i64>,
+            ::std::string::String,
+        >,
+        status: ::std::result::Result<
+            ::std::option::Option<super::RfqStatus>,
+            ::std::string::String,
+        >,
+        subaccount_id: ::std::result::Result<i64, ::std::string::String>,
+        to_timestamp: ::std::result::Result<i64, ::std::string::String>,
+    }
+    impl ::std::default::Default for GetMakerRfqHistoryRequest {
+        fn default() -> Self {
+            Self {
+                from_timestamp: Ok(Default::default()),
+                page: Ok(super::defaults::default_u64::<u64, 1>()),
+                page_size: Ok(super::defaults::default_u64::<u64, 20>()),
+                rfq_id: Ok(Default::default()),
+                rfq_subaccount_id: Ok(Default::default()),
+                status: Ok(Default::default()),
+                subaccount_id: Err("no value supplied for subaccount_id".to_string()),
+                to_timestamp: Ok(
+                    super::defaults::default_u64::<i64, 9223372036854775807>(),
+                ),
+            }
+        }
+    }
+    impl GetMakerRfqHistoryRequest {
+        pub fn from_timestamp<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<i64>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.from_timestamp = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for from_timestamp: {e}")
+                });
+            self
+        }
+        pub fn page<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<u64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.page = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for page: {e}"));
+            self
+        }
+        pub fn page_size<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<u64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.page_size = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for page_size: {e}")
+                });
+            self
+        }
+        pub fn rfq_id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.rfq_id = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for rfq_id: {e}"));
+            self
+        }
+        pub fn rfq_subaccount_id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<i64>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.rfq_subaccount_id = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for rfq_subaccount_id: {e}")
+                });
+            self
+        }
+        pub fn status<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<super::RfqStatus>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.status = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for status: {e}"));
+            self
+        }
+        pub fn subaccount_id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<i64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.subaccount_id = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for subaccount_id: {e}")
+                });
+            self
+        }
+        pub fn to_timestamp<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<i64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.to_timestamp = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for to_timestamp: {e}")
+                });
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<GetMakerRfqHistoryRequest>
+    for super::GetMakerRfqHistoryRequest {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: GetMakerRfqHistoryRequest,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                from_timestamp: value.from_timestamp?,
+                page: value.page?,
+                page_size: value.page_size?,
+                rfq_id: value.rfq_id?,
+                rfq_subaccount_id: value.rfq_subaccount_id?,
+                status: value.status?,
+                subaccount_id: value.subaccount_id?,
+                to_timestamp: value.to_timestamp?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::GetMakerRfqHistoryRequest>
+    for GetMakerRfqHistoryRequest {
+        fn from(value: super::GetMakerRfqHistoryRequest) -> Self {
+            Self {
+                from_timestamp: Ok(value.from_timestamp),
+                page: Ok(value.page),
+                page_size: Ok(value.page_size),
+                rfq_id: Ok(value.rfq_id),
+                rfq_subaccount_id: Ok(value.rfq_subaccount_id),
+                status: Ok(value.status),
+                subaccount_id: Ok(value.subaccount_id),
+                to_timestamp: Ok(value.to_timestamp),
             }
         }
     }
@@ -38157,6 +39148,95 @@ pub mod builder {
             Self {
                 public_session_key: Ok(value.public_session_key),
                 scope: Ok(value.scope),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct GetWithdrawAddressesParams {
+        wallet: ::std::result::Result<super::Address, ::std::string::String>,
+    }
+    impl ::std::default::Default for GetWithdrawAddressesParams {
+        fn default() -> Self {
+            Self {
+                wallet: Err("no value supplied for wallet".to_string()),
+            }
+        }
+    }
+    impl GetWithdrawAddressesParams {
+        pub fn wallet<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::Address>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.wallet = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for wallet: {e}"));
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<GetWithdrawAddressesParams>
+    for super::GetWithdrawAddressesParams {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: GetWithdrawAddressesParams,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self { wallet: value.wallet? })
+        }
+    }
+    impl ::std::convert::From<super::GetWithdrawAddressesParams>
+    for GetWithdrawAddressesParams {
+        fn from(value: super::GetWithdrawAddressesParams) -> Self {
+            Self { wallet: Ok(value.wallet) }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct GetWithdrawAddressesResult {
+        withdraw_addresses: ::std::result::Result<
+            ::std::vec::Vec<super::WithdrawAddressEntry>,
+            ::std::string::String,
+        >,
+    }
+    impl ::std::default::Default for GetWithdrawAddressesResult {
+        fn default() -> Self {
+            Self {
+                withdraw_addresses: Err(
+                    "no value supplied for withdraw_addresses".to_string(),
+                ),
+            }
+        }
+    }
+    impl GetWithdrawAddressesResult {
+        pub fn withdraw_addresses<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::vec::Vec<super::WithdrawAddressEntry>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.withdraw_addresses = value
+                .try_into()
+                .map_err(|e| {
+                    format!(
+                        "error converting supplied value for withdraw_addresses: {e}"
+                    )
+                });
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<GetWithdrawAddressesResult>
+    for super::GetWithdrawAddressesResult {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: GetWithdrawAddressesResult,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                withdraw_addresses: value.withdraw_addresses?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::GetWithdrawAddressesResult>
+    for GetWithdrawAddressesResult {
+        fn from(value: super::GetWithdrawAddressesResult) -> Self {
+            Self {
+                withdraw_addresses: Ok(value.withdraw_addresses),
             }
         }
     }
@@ -49497,6 +50577,44 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
+    pub struct PublicGetSubaccountsRequest {
+        wallet: ::std::result::Result<super::Address, ::std::string::String>,
+    }
+    impl ::std::default::Default for PublicGetSubaccountsRequest {
+        fn default() -> Self {
+            Self {
+                wallet: Err("no value supplied for wallet".to_string()),
+            }
+        }
+    }
+    impl PublicGetSubaccountsRequest {
+        pub fn wallet<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::Address>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.wallet = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for wallet: {e}"));
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<PublicGetSubaccountsRequest>
+    for super::PublicGetSubaccountsRequest {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: PublicGetSubaccountsRequest,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self { wallet: value.wallet? })
+        }
+    }
+    impl ::std::convert::From<super::PublicGetSubaccountsRequest>
+    for PublicGetSubaccountsRequest {
+        fn from(value: super::PublicGetSubaccountsRequest) -> Self {
+            Self { wallet: Ok(value.wallet) }
+        }
+    }
+    #[derive(Clone, Debug)]
     pub struct PublicGetWalletsFromSessionKeyResponse {
         wallets: ::std::result::Result<
             ::std::vec::Vec<::std::string::String>,
@@ -55183,6 +56301,199 @@ pub mod builder {
                 manager_id: Ok(value.manager_id),
                 subaccount_id: Ok(value.subaccount_id),
                 wallet: Ok(value.wallet),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct RegisterWithdrawAddressParams {
+        chain_id: ::std::result::Result<u64, ::std::string::String>,
+        recipient: ::std::result::Result<::std::string::String, ::std::string::String>,
+        wallet: ::std::result::Result<::std::string::String, ::std::string::String>,
+    }
+    impl ::std::default::Default for RegisterWithdrawAddressParams {
+        fn default() -> Self {
+            Self {
+                chain_id: Err("no value supplied for chain_id".to_string()),
+                recipient: Err("no value supplied for recipient".to_string()),
+                wallet: Err("no value supplied for wallet".to_string()),
+            }
+        }
+    }
+    impl RegisterWithdrawAddressParams {
+        pub fn chain_id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<u64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.chain_id = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for chain_id: {e}")
+                });
+            self
+        }
+        pub fn recipient<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.recipient = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for recipient: {e}")
+                });
+            self
+        }
+        pub fn wallet<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.wallet = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for wallet: {e}"));
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<RegisterWithdrawAddressParams>
+    for super::RegisterWithdrawAddressParams {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: RegisterWithdrawAddressParams,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                chain_id: value.chain_id?,
+                recipient: value.recipient?,
+                wallet: value.wallet?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::RegisterWithdrawAddressParams>
+    for RegisterWithdrawAddressParams {
+        fn from(value: super::RegisterWithdrawAddressParams) -> Self {
+            Self {
+                chain_id: Ok(value.chain_id),
+                recipient: Ok(value.recipient),
+                wallet: Ok(value.wallet),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct RegisterWithdrawAddressResult {
+        chain_id: ::std::result::Result<u64, ::std::string::String>,
+        recipient: ::std::result::Result<::std::string::String, ::std::string::String>,
+        recipient_display: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+        routes: ::std::result::Result<
+            ::std::vec::Vec<super::ForwardedToken>,
+            ::std::string::String,
+        >,
+        withdraw_address: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+    }
+    impl ::std::default::Default for RegisterWithdrawAddressResult {
+        fn default() -> Self {
+            Self {
+                chain_id: Err("no value supplied for chain_id".to_string()),
+                recipient: Err("no value supplied for recipient".to_string()),
+                recipient_display: Err(
+                    "no value supplied for recipient_display".to_string(),
+                ),
+                routes: Err("no value supplied for routes".to_string()),
+                withdraw_address: Err(
+                    "no value supplied for withdraw_address".to_string(),
+                ),
+            }
+        }
+    }
+    impl RegisterWithdrawAddressResult {
+        pub fn chain_id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<u64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.chain_id = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for chain_id: {e}")
+                });
+            self
+        }
+        pub fn recipient<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.recipient = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for recipient: {e}")
+                });
+            self
+        }
+        pub fn recipient_display<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.recipient_display = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for recipient_display: {e}")
+                });
+            self
+        }
+        pub fn routes<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::vec::Vec<super::ForwardedToken>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.routes = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for routes: {e}"));
+            self
+        }
+        pub fn withdraw_address<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.withdraw_address = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for withdraw_address: {e}")
+                });
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<RegisterWithdrawAddressResult>
+    for super::RegisterWithdrawAddressResult {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: RegisterWithdrawAddressResult,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                chain_id: value.chain_id?,
+                recipient: value.recipient?,
+                recipient_display: value.recipient_display?,
+                routes: value.routes?,
+                withdraw_address: value.withdraw_address?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::RegisterWithdrawAddressResult>
+    for RegisterWithdrawAddressResult {
+        fn from(value: super::RegisterWithdrawAddressResult) -> Self {
+            Self {
+                chain_id: Ok(value.chain_id),
+                recipient: Ok(value.recipient),
+                recipient_display: Ok(value.recipient_display),
+                routes: Ok(value.routes),
+                withdraw_address: Ok(value.withdraw_address),
             }
         }
     }
@@ -68763,6 +70074,138 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
+    pub struct WithdrawAddressEntry {
+        address_kind: ::std::result::Result<super::AddressKind, ::std::string::String>,
+        chain_id: ::std::result::Result<u64, ::std::string::String>,
+        recipient: ::std::result::Result<::std::string::String, ::std::string::String>,
+        recipient_display: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+        whitelisted: ::std::result::Result<bool, ::std::string::String>,
+        withdraw_address: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+    }
+    impl ::std::default::Default for WithdrawAddressEntry {
+        fn default() -> Self {
+            Self {
+                address_kind: Err("no value supplied for address_kind".to_string()),
+                chain_id: Err("no value supplied for chain_id".to_string()),
+                recipient: Err("no value supplied for recipient".to_string()),
+                recipient_display: Err(
+                    "no value supplied for recipient_display".to_string(),
+                ),
+                whitelisted: Err("no value supplied for whitelisted".to_string()),
+                withdraw_address: Err(
+                    "no value supplied for withdraw_address".to_string(),
+                ),
+            }
+        }
+    }
+    impl WithdrawAddressEntry {
+        pub fn address_kind<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::AddressKind>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.address_kind = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for address_kind: {e}")
+                });
+            self
+        }
+        pub fn chain_id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<u64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.chain_id = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for chain_id: {e}")
+                });
+            self
+        }
+        pub fn recipient<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.recipient = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for recipient: {e}")
+                });
+            self
+        }
+        pub fn recipient_display<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.recipient_display = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for recipient_display: {e}")
+                });
+            self
+        }
+        pub fn whitelisted<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<bool>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.whitelisted = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for whitelisted: {e}")
+                });
+            self
+        }
+        pub fn withdraw_address<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.withdraw_address = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for withdraw_address: {e}")
+                });
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<WithdrawAddressEntry> for super::WithdrawAddressEntry {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: WithdrawAddressEntry,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                address_kind: value.address_kind?,
+                chain_id: value.chain_id?,
+                recipient: value.recipient?,
+                recipient_display: value.recipient_display?,
+                whitelisted: value.whitelisted?,
+                withdraw_address: value.withdraw_address?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::WithdrawAddressEntry> for WithdrawAddressEntry {
+        fn from(value: super::WithdrawAddressEntry) -> Self {
+            Self {
+                address_kind: Ok(value.address_kind),
+                chain_id: Ok(value.chain_id),
+                recipient: Ok(value.recipient),
+                recipient_display: Ok(value.recipient_display),
+                whitelisted: Ok(value.whitelisted),
+                withdraw_address: Ok(value.withdraw_address),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
     pub struct WithdrawalEntry {
         amount: ::std::result::Result<::bigdecimal::BigDecimal, ::std::string::String>,
         asset: ::std::result::Result<::std::string::String, ::std::string::String>,
@@ -68773,6 +70216,10 @@ pub mod builder {
             ::std::string::String,
         >,
         fee: ::std::result::Result<::bigdecimal::BigDecimal, ::std::string::String>,
+        forward: ::std::result::Result<
+            ::std::option::Option<super::WithdrawalForward>,
+            ::std::string::String,
+        >,
         operation_id: ::std::result::Result<
             ::std::string::String,
             ::std::string::String,
@@ -68795,6 +70242,7 @@ pub mod builder {
                 batch_uuid: Err("no value supplied for batch_uuid".to_string()),
                 erc20_address: Err("no value supplied for erc20_address".to_string()),
                 fee: Err("no value supplied for fee".to_string()),
+                forward: Ok(Default::default()),
                 operation_id: Err("no value supplied for operation_id".to_string()),
                 recipient: Err("no value supplied for recipient".to_string()),
                 subaccount_id: Err("no value supplied for subaccount_id".to_string()),
@@ -68869,6 +70317,18 @@ pub mod builder {
             self.fee = value
                 .try_into()
                 .map_err(|e| format!("error converting supplied value for fee: {e}"));
+            self
+        }
+        pub fn forward<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<super::WithdrawalForward>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.forward = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for forward: {e}")
+                });
             self
         }
         pub fn operation_id<T>(mut self, value: T) -> Self
@@ -68954,6 +70414,7 @@ pub mod builder {
                 batch_uuid: value.batch_uuid?,
                 erc20_address: value.erc20_address?,
                 fee: value.fee?,
+                forward: value.forward?,
                 operation_id: value.operation_id?,
                 recipient: value.recipient?,
                 subaccount_id: value.subaccount_id?,
@@ -68972,12 +70433,202 @@ pub mod builder {
                 batch_uuid: Ok(value.batch_uuid),
                 erc20_address: Ok(value.erc20_address),
                 fee: Ok(value.fee),
+                forward: Ok(value.forward),
                 operation_id: Ok(value.operation_id),
                 recipient: Ok(value.recipient),
                 subaccount_id: Ok(value.subaccount_id),
                 timestamp: Ok(value.timestamp),
                 tx_hash: Ok(value.tx_hash),
                 wallet: Ok(value.wallet),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct WithdrawalForward {
+        amount_forwarded: ::std::result::Result<
+            ::std::option::Option<::bigdecimal::BigDecimal>,
+            ::std::string::String,
+        >,
+        chain_id: ::std::result::Result<u64, ::std::string::String>,
+        destination_tx: ::std::result::Result<
+            ::std::option::Option<::std::string::String>,
+            ::std::string::String,
+        >,
+        forward_tx: ::std::result::Result<
+            ::std::option::Option<::std::string::String>,
+            ::std::string::String,
+        >,
+        hold_reason: ::std::result::Result<
+            ::std::option::Option<::std::string::String>,
+            ::std::string::String,
+        >,
+        message_id: ::std::result::Result<
+            ::std::option::Option<::std::string::String>,
+            ::std::string::String,
+        >,
+        rail: ::std::result::Result<
+            ::std::option::Option<::std::string::String>,
+            ::std::string::String,
+        >,
+        recipient: ::std::result::Result<::std::string::String, ::std::string::String>,
+        status: ::std::result::Result<
+            super::WithdrawalForwardStatus,
+            ::std::string::String,
+        >,
+    }
+    impl ::std::default::Default for WithdrawalForward {
+        fn default() -> Self {
+            Self {
+                amount_forwarded: Err(
+                    "no value supplied for amount_forwarded".to_string(),
+                ),
+                chain_id: Err("no value supplied for chain_id".to_string()),
+                destination_tx: Ok(Default::default()),
+                forward_tx: Ok(Default::default()),
+                hold_reason: Ok(Default::default()),
+                message_id: Ok(Default::default()),
+                rail: Ok(Default::default()),
+                recipient: Err("no value supplied for recipient".to_string()),
+                status: Err("no value supplied for status".to_string()),
+            }
+        }
+    }
+    impl WithdrawalForward {
+        pub fn amount_forwarded<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<::bigdecimal::BigDecimal>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.amount_forwarded = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for amount_forwarded: {e}")
+                });
+            self
+        }
+        pub fn chain_id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<u64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.chain_id = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for chain_id: {e}")
+                });
+            self
+        }
+        pub fn destination_tx<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.destination_tx = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for destination_tx: {e}")
+                });
+            self
+        }
+        pub fn forward_tx<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.forward_tx = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for forward_tx: {e}")
+                });
+            self
+        }
+        pub fn hold_reason<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.hold_reason = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for hold_reason: {e}")
+                });
+            self
+        }
+        pub fn message_id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.message_id = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for message_id: {e}")
+                });
+            self
+        }
+        pub fn rail<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.rail = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for rail: {e}"));
+            self
+        }
+        pub fn recipient<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.recipient = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for recipient: {e}")
+                });
+            self
+        }
+        pub fn status<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::WithdrawalForwardStatus>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.status = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for status: {e}"));
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<WithdrawalForward> for super::WithdrawalForward {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: WithdrawalForward,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                amount_forwarded: value.amount_forwarded?,
+                chain_id: value.chain_id?,
+                destination_tx: value.destination_tx?,
+                forward_tx: value.forward_tx?,
+                hold_reason: value.hold_reason?,
+                message_id: value.message_id?,
+                rail: value.rail?,
+                recipient: value.recipient?,
+                status: value.status?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::WithdrawalForward> for WithdrawalForward {
+        fn from(value: super::WithdrawalForward) -> Self {
+            Self {
+                amount_forwarded: Ok(value.amount_forwarded),
+                chain_id: Ok(value.chain_id),
+                destination_tx: Ok(value.destination_tx),
+                forward_tx: Ok(value.forward_tx),
+                hold_reason: Ok(value.hold_reason),
+                message_id: Ok(value.message_id),
+                rail: Ok(value.rail),
+                recipient: Ok(value.recipient),
+                status: Ok(value.status),
             }
         }
     }
