@@ -1,35 +1,66 @@
+use alloy::signers::local::PrivateKeySigner;
+
 use crate::{
     actions::{ActionData, ModuleType, OrderArgs, ReplaceArgs, TradeData},
     models::{
-        CancelOrderRequest, Direction, GetOrderRequest, Order, OrderCreatedResponse,
+        CancelOrderRequest, Direction, GetOrderRequest, Instrument, Order, OrderCreatedResponse,
         ReplaceOrderResponse,
     },
     types::ClientError,
-    utils::round_to_ticks,
+    utils::snap_to_instrument_grid,
     ws_client::WsClient,
 };
+
+/// Everything a signed order needs, resolved up front.
+struct SigningContext {
+    subaccount_id: u64,
+    signer: PrivateKeySigner,
+    instrument: Instrument,
+    derive_wallet: String,
+}
+
 pub struct OrdersNamespace<'a> {
     pub ws_client: &'a WsClient,
 }
 impl<'a> OrdersNamespace<'a> {
-    pub async fn place(&self, order_args: OrderArgs) -> Result<OrderCreatedResponse, ClientError> {
-        let subaccount_id = self.ws_client.subaccount_id.unwrap();
-        let signer = self.ws_client.wallet.clone().unwrap();
-        let instrument = self
-            .ws_client
-            .instruments_cache
-            .get(&order_args.instrument_name)
-            .ok_or_else(|| {
-                format!(
-                    "Instrument {} not found in cache",
-                    order_args.instrument_name
-                )
-            })
-            .expect("Couldnt collect instrument.");
+    /// Resolves the signing context, or names what is missing. These used to be `unwrap`s and
+    /// `expect`s, which took the caller's task down rather than failing the order.
+    fn signing_context(&self, instrument_name: &str) -> Result<SigningContext, ClientError> {
+        Ok(SigningContext {
+            subaccount_id: self.ws_client.subaccount_id.ok_or_else(|| {
+                ClientError::InvalidOrder("client has no subaccount_id".to_string())
+            })?,
+            signer: self
+                .ws_client
+                .wallet
+                .clone()
+                .ok_or_else(|| ClientError::InvalidOrder("client has no wallet".to_string()))?,
+            derive_wallet: self.ws_client.derive_wallet.clone().ok_or_else(|| {
+                ClientError::InvalidOrder("client has no derive wallet address".to_string())
+            })?,
+            instrument: self
+                .ws_client
+                .instruments_cache
+                .get(instrument_name)
+                .ok_or_else(|| {
+                    ClientError::InvalidOrder(format!(
+                        "Instrument {instrument_name} not found in cache"
+                    ))
+                })?
+                .clone(),
+        })
+    }
 
-        // we round the limit price to the nearest tick size to avoid errors from the exchange
-        let rounded_price = round_to_ticks(&order_args.limit_price, &instrument.tick_size);
-        let rounded_amount = round_to_ticks(&order_args.amount, &instrument.minimum_amount);
+    pub async fn place(&self, order_args: OrderArgs) -> Result<OrderCreatedResponse, ClientError> {
+        let SigningContext {
+            subaccount_id,
+            signer,
+            instrument,
+            derive_wallet,
+        } = self.signing_context(&order_args.instrument_name)?;
+
+        let (rounded_price, rounded_amount) =
+            snap_to_instrument_grid(&instrument, &order_args.limit_price, &order_args.amount)?;
 
         let trade_data = TradeData::new(
             &instrument,
@@ -44,13 +75,11 @@ impl<'a> OrdersNamespace<'a> {
             trade_data,
             subaccount_id,
             signer.address(),
-            &self
-                .ws_client
-                .derive_wallet
-                .clone()
-                .unwrap()
-                .parse()
-                .expect("Couldnt unwrap."),
+            &derive_wallet.parse().map_err(|e| {
+                ClientError::InvalidOrder(format!(
+                    "derive wallet {derive_wallet} is not an address: {e}"
+                ))
+            })?,
             &self.ws_client.environment,
             ModuleType::Trade,
         )?;
@@ -68,21 +97,16 @@ impl<'a> OrdersNamespace<'a> {
         &self,
         replace_args: ReplaceArgs,
     ) -> Result<ReplaceOrderResponse, ClientError> {
-        let subaccount_id = self.ws_client.subaccount_id.unwrap();
-        let signer = self.ws_client.wallet.clone().unwrap();
-        let instrument = self
-            .ws_client
-            .instruments_cache
-            .get(&replace_args.instrument_name)
-            .ok_or_else(|| {
-                format!(
-                    "Instrument {} not found in cache",
-                    replace_args.instrument_name
-                )
-            })
-            .expect("Couldnt collect instrument.");
-        let rounded_price = round_to_ticks(&replace_args.limit_price, &instrument.tick_size);
-        let rounded_amount = round_to_ticks(&replace_args.amount, &instrument.minimum_amount);
+        let SigningContext {
+            subaccount_id,
+            signer,
+            instrument,
+            derive_wallet,
+        } = self.signing_context(&replace_args.instrument_name)?;
+
+        let (rounded_price, rounded_amount) =
+            snap_to_instrument_grid(&instrument, &replace_args.limit_price, &replace_args.amount)?;
+
         let trade_data = TradeData::new(
             &instrument,
             // ticker,
@@ -96,13 +120,11 @@ impl<'a> OrdersNamespace<'a> {
             trade_data,
             subaccount_id,
             signer.address(),
-            &self
-                .ws_client
-                .derive_wallet
-                .clone()
-                .unwrap()
-                .parse()
-                .expect("Couldnt unwrap."),
+            &derive_wallet.parse().map_err(|e| {
+                ClientError::InvalidOrder(format!(
+                    "derive wallet {derive_wallet} is not an address: {e}"
+                ))
+            })?,
             &self.ws_client.environment,
             ModuleType::Trade,
         )?;
@@ -122,15 +144,14 @@ impl<'a> OrdersNamespace<'a> {
     }
 
     pub async fn get_order(&self, order_id: String) -> Result<Order, ClientError> {
-        let params = GetOrderRequest::builder()
-            .order_id(order_id.clone())
-            .subaccount_id(
-                self.ws_client
-                    .subaccount_id
-                    .expect("Must have a subaccount_id"),
-            )
-            .try_into()
-            .expect("Failed to build GetOrderRequest");
+        let subaccount_id = self
+            .ws_client
+            .subaccount_id
+            .ok_or_else(|| ClientError::InvalidOrder("client has no subaccount_id".to_string()))?;
+        let params: GetOrderRequest = GetOrderRequest::builder()
+            .order_id(order_id)
+            .subaccount_id(subaccount_id)
+            .try_into()?;
         self.ws_client.rpc().orderbook().get_order(params).await
     }
 

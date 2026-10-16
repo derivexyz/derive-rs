@@ -58,8 +58,10 @@ pub enum ClientError {
     RpcError { error: Value },
     #[error("Conversion error: {0}")]
     Conversion(#[from] crate::models::error::ConversionError),
+    /// `Send + Sync` so `ClientError` can cross a `tokio::spawn`; no `#[from]`, it would
+    /// collide with `Transport`'s.
     #[error("String error: {0}")]
-    StringError(#[from] Box<dyn StdError>),
+    StringError(Box<dyn StdError + Send + Sync>),
     #[error("Approval error: {0}")]
     ApprovalError(String),
     #[error("Subaccount error: {0}")]
@@ -68,8 +70,11 @@ pub enum ClientError {
     InsufficientBalance(String),
     #[error("Rounding error: {0}")]
     RoundingError(#[from] ParseBigDecimalError),
-    #[error("Timeout error: {0}")]
-    TimeoutError(#[from] tokio::time::error::Elapsed),
+    #[error("RPC {method} timed out after {timeout_secs}s")]
+    TimeoutError { method: String, timeout_secs: u64 },
+    /// Refused locally, before signing.
+    #[error("Invalid order: {0}")]
+    InvalidOrder(String),
 }
 
 // environment enum

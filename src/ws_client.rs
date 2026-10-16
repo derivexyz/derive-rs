@@ -44,6 +44,10 @@ use crate::{
 const PING_INTERVAL: Duration = Duration::from_secs(5);
 const READ_TIMEOUT: Duration = Duration::from_secs(7);
 
+/// Above `READ_TIMEOUT`, so a dead socket is torn down and fails its pending requests first;
+/// anything still outstanding after this is a venue that never answered.
+const RPC_TIMEOUT: Duration = Duration::from_secs(10);
+
 #[inline(always)]
 pub fn deserialise_to_type<T>(s: &Bytes) -> Result<T, serde_json::Error>
 where
@@ -70,7 +74,13 @@ pub struct WsClient {
     pub erc20_cache: Arc<DashMap<String, SpotAssetEntry>>,
     pub risk_universe_cache: Arc<DashMap<String, RiskUniverse>>,
     connection_state_rx: watch::Receiver<ExternalEvent>,
+    /// Kept rather than cloned per call, so the "seen" version persists and a transition that
+    /// lands while the caller is away is still delivered.
+    event_rx: Arc<Mutex<watch::Receiver<ExternalEvent>>>,
     current_connection_state: Arc<Mutex<ExternalEvent>>,
+    /// One per successful connect. Two `Connected` observations with different epochs are
+    /// different sockets.
+    connection_epoch: Arc<AtomicU64>,
     supervisor_handle: Arc<Mutex<Option<JoinHandle<()>>>>,
     subscription_tasks: Arc<Mutex<Vec<JoinHandle<()>>>>,
     pub wallet: Option<PrivateKeySigner>,
@@ -186,6 +196,8 @@ impl WsClient {
 
         let _ = connection_state_tx.send(ExternalEvent::Disconnected);
 
+        let connection_epoch = Arc::new(AtomicU64::new(0));
+
         let supervisor_handle = tokio::spawn(connection_supervisor(
             url,
             cmd_rx,
@@ -193,7 +205,10 @@ impl WsClient {
             pending_requests.clone(),
             public_subscriptions.clone(),
             private_subscriptions.clone(),
-            connection_state_tx,
+            ConnectionAnnouncer {
+                state_tx: connection_state_tx,
+                epoch: connection_epoch.clone(),
+            },
         ));
 
         let client = WsClient {
@@ -203,8 +218,10 @@ impl WsClient {
             private_subscriptions: private_subscriptions.clone(),
             next_id: next_id.clone(),
             shutdown_tx: shutdown_tx.clone(),
+            event_rx: Arc::new(Mutex::new(connection_state_rx.clone())),
             connection_state_rx,
             current_connection_state: Arc::new(Mutex::new(ExternalEvent::Disconnected)),
+            connection_epoch,
             supervisor_handle: Arc::new(Mutex::new(Some(supervisor_handle))),
             subscription_tasks: Arc::new(Mutex::new(Vec::new())),
             wallet,
@@ -250,8 +267,21 @@ impl WsClient {
             return Err(ClientError::Transport(Box::new(e)));
         }
 
-        let timeout_duration = Duration::from_secs(10);
-        let response = tokio::time::timeout(timeout_duration, rx).await??;
+        let response = match tokio::time::timeout(RPC_TIMEOUT, rx).await {
+            Ok(received) => received?,
+            Err(_) => {
+                // Nothing will complete this oneshot; drop the slot rather than leak it.
+                self.pending_requests.remove(&id);
+                error!(
+                    "RPC {method} (id {id}) timed out after {}s",
+                    RPC_TIMEOUT.as_secs()
+                );
+                return Err(ClientError::TimeoutError {
+                    method: method.to_string(),
+                    timeout_secs: RPC_TIMEOUT.as_secs(),
+                });
+            }
+        };
 
         match serde_json::from_slice::<RpcResult<T>>(&response) {
             Ok(result) => Ok(result.result),
@@ -429,18 +459,28 @@ impl WsClient {
         })))
     }
 
+    /// Waits for the next connection state the caller has not acted on yet. Checks the current
+    /// state before awaiting a change, so a transition that happened while the caller was away
+    /// is still reported. Pair with [`WsClient::connection_epoch`] to tell sockets apart.
     pub async fn run_till_event(&self) -> ExternalEvent {
-        let mut rx = self.connection_state_rx.clone();
+        let mut rx = self.event_rx.lock().await;
         loop {
-            if rx.changed().await.is_ok() {
-                let state = *rx.borrow_and_update();
-                if state != *self.current_connection_state.lock().await {
-                    let mut current_state = self.current_connection_state.lock().await;
+            let state = *rx.borrow_and_update();
+            {
+                let mut current_state = self.current_connection_state.lock().await;
+                if state != *current_state {
                     *current_state = state;
                     return state;
                 }
             }
+            if rx.changed().await.is_err() {
+                return ExternalEvent::Exited;
+            }
         }
+    }
+
+    pub fn connection_epoch(&self) -> u64 {
+        self.connection_epoch.load(Ordering::Acquire)
     }
 
     pub async fn login(&self) -> Result<Vec<u64>, ClientError> {
@@ -562,6 +602,24 @@ impl WsClient {
     }
 }
 
+struct ConnectionAnnouncer {
+    state_tx: watch::Sender<ExternalEvent>,
+    epoch: Arc<AtomicU64>,
+}
+
+impl ConnectionAnnouncer {
+    fn send(&self, event: ExternalEvent) {
+        self.state_tx.send(event).ok();
+    }
+
+    /// Bumps the epoch before announcing, so anyone woken by `Connected` reads the epoch of the
+    /// socket they were woken for.
+    fn connected(&self) {
+        self.epoch.fetch_add(1, Ordering::Release);
+        self.send(ExternalEvent::Connected);
+    }
+}
+
 async fn connection_supervisor(
     url: String,
     mut cmd_rx: mpsc::UnboundedReceiver<InternalCommand>,
@@ -569,7 +627,7 @@ async fn connection_supervisor(
     pending_requests: Arc<DashMap<u64, ResponseSender>>,
     public_subscriptions: Arc<DashMap<String, SubscriptionRoute>>,
     private_subscriptions: Arc<DashMap<String, SubscriptionRoute>>,
-    connection_state_tx: watch::Sender<ExternalEvent>,
+    announce: ConnectionAnnouncer,
 ) {
     debug!("Connection supervisor started for {url}");
 
@@ -577,13 +635,13 @@ async fn connection_supervisor(
     loop {
         if *shutdown_rx.borrow() {
             info!("Supervisor sees shutdown for {url}");
-            connection_state_tx.send(ExternalEvent::Disconnected).ok();
+            announce.send(ExternalEvent::Disconnected);
             break;
         }
 
         match yawc::WebSocket::connect(url.parse().unwrap()).await {
             Ok(ws_stream) => {
-                connection_state_tx.send(ExternalEvent::Connected).ok();
+                announce.connected();
                 attempts = 1;
                 debug!("Connected to {url}");
                 let result = run_single_connection(
@@ -597,7 +655,7 @@ async fn connection_supervisor(
                 )
                 .await;
                 debug!("Connection to {url} ended with result: {result:?}");
-                connection_state_tx.send(ExternalEvent::Disconnected).ok();
+                announce.send(ExternalEvent::Disconnected);
 
                 for key in pending_requests
                     .iter()
@@ -610,13 +668,13 @@ async fn connection_supervisor(
                 }
 
                 if *shutdown_rx.borrow() {
-                    connection_state_tx.send(ExternalEvent::Exited).ok();
+                    announce.send(ExternalEvent::Exited);
                     debug!("Shutdown after connection end for {url}");
                     break;
                 }
 
                 if cmd_rx.is_closed() {
-                    connection_state_tx.send(ExternalEvent::Exited).ok();
+                    announce.send(ExternalEvent::Exited);
                     debug!("Command channel closed for {url}, stopping supervisor");
                     break;
                 }
@@ -633,7 +691,7 @@ async fn connection_supervisor(
                 }
                 tokio::time::sleep(std::time::Duration::from_secs(attempts * 3)).await;
                 attempts += 1;
-                connection_state_tx.send(ExternalEvent::Disconnected).ok();
+                announce.send(ExternalEvent::Disconnected);
             }
         }
     }
