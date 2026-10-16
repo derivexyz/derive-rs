@@ -15,11 +15,4 @@ impl<'a> OtherNamespace<'a> {
             .send_rpc("private/get_subaccount_value_history", params_json)
             .await
     }
-    pub async fn set_socialization_feed_data(
-        &self,
-        params: PublicSetSocializationFeedDataRequest,
-    ) -> Result<OperationAckResponse, ClientError> {
-        let params_json = serde_json::to_value(&params)?;
-        self.ws_client.send_rpc("public/set_socialization_feed_data", params_json).await
-    }
 }

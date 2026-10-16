@@ -109,7 +109,7 @@
           }
         },
         "description": "Updates the human-readable label for a subaccount. The label must be at most 16 characters, otherwise an invalid-params error is returned. Requires a signed session key with account-info scope; on success it echoes back the subaccount ID and the new label.",
-        "x-rate-limit-class": "non_matching",
+        "x-rate-limit-class": "proven",
         "requestBody": {
           "required": true,
           "content": {
@@ -255,7 +255,7 @@
             "description": "JSON-RPC error (see Error Codes)"
           }
         },
-        "description": "Calculates net initial and maintenance margin for a subaccount before and after an optional simulated state change (position and/or collateral deltas), and whether that change would pass the margin requirement. Values are net margin — mark-to-market value minus the requirement — so positive means healthy. Does not take open-order margin into account.",
+        "description": "Calculates net initial and maintenance margin for a subaccount before and after an optional simulated state change (position and/or collateral deltas), and whether that change would pass the margin requirement. Values are net margin — mark-to-market value minus the requirement — so positive means healthy. Does not take open-order margin into account. Margins use the subaccount's manager's params. Set is_delayed_liquidation to use its delayed-liquidation override instead, as order checks do; the request is rejected for a subaccount without one.",
         "x-rate-limit-class": "non_matching",
         "requestBody": {
           "required": true,
@@ -449,6 +449,42 @@
         }
       }
     },
+    "/public/get_wallet": {
+      "post": {
+        "tags": [
+          "Subaccounts"
+        ],
+        "summary": "public/get_wallet",
+        "operationId": "public_get_wallet",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicGetWalletResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "JSON-RPC error (see Error Codes)"
+          }
+        },
+        "description": "Returns the wallet address that owns `subaccount_id`; the reverse of `public/get_subaccounts`. Returns a subaccount-not-found error if the subaccount does not exist. The result can be up to 60 seconds old. Public endpoint, no authentication required.",
+        "x-rate-limit-class": "non_matching",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PublicGetWalletRequest"
+              }
+            }
+          }
+        }
+      }
+    },
     "/private/edit_session_key": {
       "post": {
         "tags": [
@@ -472,7 +508,7 @@
           }
         },
         "description": "Updates an existing session key's label, IP allowlist, and/or off-chain scopes for a given wallet; it cannot change on-chain (protocol) scopes, for which you must re-register with private/set_session_key. Editing only the label needs account-info permission, while changing the IP allowlist or off-chain scopes requires admin/owner authorization. Returns the updated session key details.",
-        "x-rate-limit-class": "non_matching",
+        "x-rate-limit-class": "proven",
         "requestBody": {
           "required": true,
           "content": {
@@ -2022,7 +2058,7 @@
             "description": "JSON-RPC error (see Error Codes)"
           }
         },
-        "description": "Calculates the mark-to-market value and initial/maintenance margin for a given subaccount, with per-position and per-collateral breakdowns, computed from live feed data at request time. Margins are reported on the margin basis actually in effect: when a delayed-liquidation override is active the response's is_delayed_liquidation flag is true and the reported margins use the temporarily lowered requirements. A maintenance margin below zero means the subaccount is flagged for liquidation.",
+        "description": "Calculates the mark-to-market value and initial/maintenance margin for a given subaccount, with per-position and per-collateral breakdowns, computed from live feed data at request time. Margins use the subaccount's manager's params. Set is_delayed_liquidation to get them under the subaccount's delayed-liquidation override instead; the request is rejected for a subaccount without one. has_delayed_liquidation reports whether the subaccount has one. A maintenance margin below zero means the subaccount is flagged for liquidation.",
         "x-rate-limit-class": "non_matching",
         "requestBody": {
           "required": true,
@@ -2030,42 +2066,6 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/MarginWatchRequest"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/public/start_auction": {
-      "post": {
-        "tags": [
-          "Liquidations"
-        ],
-        "summary": "public/start_auction",
-        "operationId": "public_start_auction",
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PublicStartAuctionResponse"
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "JSON-RPC error (see Error Codes)"
-          }
-        },
-        "description": "Opens a Dutch-auction liquidation against a subaccount whose maintenance margin is breached. Permissionless: it takes only the target subaccount and needs no signer, nonce or session-key scope, and the engine validates the breach before opening. Fails if an auction is already running on that account. The liquidation keeper calls this automatically, so it is rarely needed by hand.",
-        "x-rate-limit-class": "non_matching",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/PublicStartAuctionRequest"
               }
             }
           }
@@ -2779,7 +2779,7 @@
           }
         },
         "description": "Applies an off-chain patch to a vault the caller curates, updating any of its display name, description, advisory mark-to-market cap (a USD decimal), or whitelist-only flag. Only the fields supplied are changed. The caller must own the vault's subaccount (i.e. be its curator); description length is capped.",
-        "x-rate-limit-class": "non_matching",
+        "x-rate-limit-class": "proven",
         "requestBody": {
           "required": true,
           "content": {
@@ -3142,7 +3142,7 @@
           }
         },
         "description": "Clears an active market maker protection freeze and resets the rolling MMP window for a subaccount, optionally scoped to a single currency. Use this to resume quoting after MMP has frozen a subaccount. Requires a trading-scoped session key and returns \"ok\" on success.",
-        "x-rate-limit-class": "non_matching",
+        "x-rate-limit-class": "proven",
         "requestBody": {
           "required": true,
           "content": {
@@ -3178,7 +3178,7 @@
           }
         },
         "description": "Creates or fully replaces the market maker protection settings for a subaccount and currency. Accepts an amount limit and delta limit (as decimals) plus the rolling interval and freeze duration in milliseconds; omitted limits default to zero. Requires a trading-scoped session key and echoes the applied configuration back.",
-        "x-rate-limit-class": "non_matching",
+        "x-rate-limit-class": "proven",
         "requestBody": {
           "required": true,
           "content": {
@@ -4720,41 +4720,6 @@
           }
         }
       }
-    },
-    "/public/set_socialization_feed_data": {
-      "post": {
-        "tags": [
-          "Other"
-        ],
-        "summary": "public/set_socialization_feed_data",
-        "operationId": "public_set_socialization_feed_data",
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/OperationAckResponse"
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "JSON-RPC error (see Error Codes)"
-          }
-        },
-        "x-rate-limit-class": "non_matching",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/PublicSetSocializationFeedDataRequest"
-              }
-            }
-          }
-        }
-      }
     }
   },
   "components": {
@@ -5602,7 +5567,8 @@
           "compliance",
           "trigger_failed",
           "validation_failed",
-          "algo_completed"
+          "algo_completed",
+          "max_crossed_orders"
         ]
       },
       "CancelRfqRequest": {
@@ -8904,6 +8870,7 @@
           "pro_rata_amount_step",
           "pro_rata_fraction",
           "quote_currency",
+          "risk_universe_id",
           "scheduled_activation",
           "scheduled_deactivation",
           "taker_fee_rate",
@@ -8992,6 +8959,12 @@
           },
           "quote_currency": {
             "type": "string"
+          },
+          "risk_universe_id": {
+            "description": "Only subaccounts in this risk universe can trade the instrument.",
+            "type": "integer",
+            "format": "uint32",
+            "minimum": 0.0
           },
           "scheduled_activation": {
             "type": "integer",
@@ -9289,6 +9262,11 @@
           "subaccount_id"
         ],
         "properties": {
+          "is_delayed_liquidation": {
+            "description": "`true` returns margins under the subaccount's delayed-liquidation override. Rejected for a subaccount without one.",
+            "default": false,
+            "type": "boolean"
+          },
           "subaccount_id": {
             "type": "integer",
             "format": "uint64",
@@ -9636,33 +9614,6 @@
           },
           "interest_cap": {
             "type": "string"
-          }
-        }
-      },
-      "OperationAckResponse": {
-        "description": "Postcard-friendly mirror of `sequencer_runtime::types::OperationResult`.\n\nWe can't use `OperationResult` directly for two reasons: - it only derives `Serialize` (no `Deserialize` or `JsonSchema`), and - it has a `BalanceSnapshot` field marked `#[serde(skip)]` that we don't want crossing the wire.\n\nThis mirror carries just the fields that actually cross the wire and adds the derives the gateway needs.",
-        "type": "object",
-        "required": [
-          "mmp_triggered",
-          "op_uuid",
-          "operation_id"
-        ],
-        "properties": {
-          "mmp_triggered": {
-            "type": "array",
-            "items": {
-              "type": "integer",
-              "format": "uint64",
-              "minimum": 0.0
-            }
-          },
-          "op_uuid": {
-            "type": "string"
-          },
-          "operation_id": {
-            "type": "integer",
-            "format": "uint64",
-            "minimum": 0.0
           }
         }
       },
@@ -11167,6 +11118,7 @@
             "type": "string"
           },
           "open_orders_margin": {
+            "description": "Uses the same params as `initial_margin`: the manager's, even for a subaccount with a delayed-liquidation override, unless `public/margin_watch` asks for the override.",
             "type": "string"
           },
           "pending_funding": {
@@ -11359,6 +11311,11 @@
           "subaccount_id"
         ],
         "properties": {
+          "is_delayed_liquidation": {
+            "description": "`true` margins under the subaccount's delayed-liquidation override, as order checks do. Rejected for a subaccount without one.",
+            "default": false,
+            "type": "boolean"
+          },
           "simulated_collateral_changes": {
             "description": "Optional collateral deltas to simulate deposits / withdrawals / spot trades.",
             "type": [
@@ -11960,84 +11917,6 @@
           }
         }
       },
-      "PublicForwardFeedDataParams": {
-        "type": "object",
-        "required": [
-          "confidence",
-          "currency",
-          "expiry",
-          "fwd_diff",
-          "spot_aggregate_latest",
-          "spot_aggregate_start",
-          "timestamp"
-        ],
-        "properties": {
-          "confidence": {
-            "type": "string"
-          },
-          "currency": {
-            "type": "string"
-          },
-          "deadline": {
-            "default": 0,
-            "type": "integer",
-            "format": "int64"
-          },
-          "expiry": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "fwd_diff": {
-            "type": "string"
-          },
-          "signatures": {
-            "$ref": "#/components/schemas/PublicOracleSignatureDataParams"
-          },
-          "spot_aggregate_latest": {
-            "type": "string"
-          },
-          "spot_aggregate_start": {
-            "type": "string"
-          },
-          "timestamp": {
-            "type": "integer",
-            "format": "int64"
-          }
-        }
-      },
-      "PublicFundingFeedDataParams": {
-        "type": "object",
-        "required": [
-          "confidence",
-          "currency",
-          "funding_rate",
-          "timestamp"
-        ],
-        "properties": {
-          "confidence": {
-            "type": "string"
-          },
-          "currency": {
-            "type": "string"
-          },
-          "deadline": {
-            "default": 0,
-            "type": "integer",
-            "format": "int64"
-          },
-          "funding_rate": {
-            "description": "Per-hour funding rate as a decimal string; may be negative.",
-            "type": "string"
-          },
-          "signatures": {
-            "$ref": "#/components/schemas/PublicOracleSignatureDataParams"
-          },
-          "timestamp": {
-            "type": "integer",
-            "format": "int64"
-          }
-        }
-      },
       "PublicGetLiveAuctionsResponse": {
         "type": "object",
         "required": [
@@ -12120,6 +11999,36 @@
           }
         }
       },
+      "PublicGetWalletRequest": {
+        "type": "object",
+        "required": [
+          "subaccount_id"
+        ],
+        "properties": {
+          "subaccount_id": {
+            "type": "integer",
+            "format": "uint64",
+            "minimum": 0.0
+          }
+        }
+      },
+      "PublicGetWalletResponse": {
+        "type": "object",
+        "required": [
+          "subaccount_id",
+          "wallet"
+        ],
+        "properties": {
+          "subaccount_id": {
+            "type": "integer",
+            "format": "uint64",
+            "minimum": 0.0
+          },
+          "wallet": {
+            "type": "string"
+          }
+        }
+      },
       "PublicGetWalletsFromSessionKeyResponse": {
         "type": "object",
         "required": [
@@ -12135,11 +12044,12 @@
         }
       },
       "PublicMarginWatchResponse": {
-        "description": "Result of `public/margin_watch`: the margin state a liquidation watcher needs, computed on the margin basis actually in effect (a delayed- liquidation override, when installed, is already applied).",
+        "description": "Result of `public/margin_watch`: the margin state a liquidation watcher needs, under the subaccount's manager's params, or its delayed-liquidation override when the request asks for it.",
         "type": "object",
         "required": [
           "collaterals",
           "currency",
+          "has_delayed_liquidation",
           "initial_margin",
           "is_delayed_liquidation",
           "maintenance_margin",
@@ -12163,11 +12073,15 @@
               "type": "string"
             }
           },
+          "has_delayed_liquidation": {
+            "description": "`true` when the subaccount has a delayed-liquidation override.",
+            "type": "boolean"
+          },
           "initial_margin": {
             "type": "string"
           },
           "is_delayed_liquidation": {
-            "description": "`true` when a delayed-liquidation margin override is active, i.e. the margins above are computed on the temporarily lowered basis.",
+            "description": "`true` when the margins above use the delayed-liquidation override.",
             "type": "boolean"
           },
           "maintenance_margin": {
@@ -12182,6 +12096,15 @@
             "items": {
               "$ref": "#/components/schemas/Position"
             }
+          },
+          "regular_margin_flagged_sec": {
+            "description": "Unix seconds at which a subaccount with a delayed-liquidation override was first seen below its manager's maintenance margin. Its grace period before liquidation counts from here. Null otherwise.",
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "uint64",
+            "minimum": 0.0
           },
           "risk_universe_id": {
             "type": "integer",
@@ -12200,61 +12123,6 @@
             "description": "Unix seconds at which margin and MtM were computed.",
             "type": "integer",
             "format": "int64"
-          }
-        }
-      },
-      "PublicOracleSignatureDataParams": {
-        "type": "object",
-        "properties": {
-          "signatures": {
-            "default": [],
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "signers": {
-            "default": [],
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          }
-        }
-      },
-      "PublicPerpFeedDataParams": {
-        "type": "object",
-        "required": [
-          "confidence",
-          "currency",
-          "spot_diff_value",
-          "timestamp",
-          "type"
-        ],
-        "properties": {
-          "confidence": {
-            "type": "string"
-          },
-          "currency": {
-            "type": "string"
-          },
-          "deadline": {
-            "default": 0,
-            "type": "integer",
-            "format": "int64"
-          },
-          "signatures": {
-            "$ref": "#/components/schemas/PublicOracleSignatureDataParams"
-          },
-          "spot_diff_value": {
-            "type": "string"
-          },
-          "timestamp": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "type": {
-            "type": "string"
           }
         }
       },
@@ -12326,43 +12194,6 @@
           },
           "wallet": {
             "$ref": "#/components/schemas/Address"
-          }
-        }
-      },
-      "PublicRateFeedDataParams": {
-        "type": "object",
-        "required": [
-          "confidence",
-          "currency",
-          "expiry",
-          "rate",
-          "timestamp"
-        ],
-        "properties": {
-          "confidence": {
-            "type": "string"
-          },
-          "currency": {
-            "type": "string"
-          },
-          "deadline": {
-            "default": 0,
-            "type": "integer",
-            "format": "int64"
-          },
-          "expiry": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "rate": {
-            "type": "string"
-          },
-          "signatures": {
-            "$ref": "#/components/schemas/PublicOracleSignatureDataParams"
-          },
-          "timestamp": {
-            "type": "integer",
-            "format": "int64"
           }
         }
       },
@@ -12520,144 +12351,6 @@
           }
         }
       },
-      "PublicSetFeedDataRequest": {
-        "type": "object",
-        "required": [
-          "forward",
-          "perp",
-          "rate",
-          "spot",
-          "vol"
-        ],
-        "properties": {
-          "forward": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/PublicForwardFeedDataParams"
-            }
-          },
-          "funding": {
-            "description": "Per-hour perpetual funding rates. Optional so an oracle that predates the funding feed keeps publishing the other five.",
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/PublicFundingFeedDataParams"
-            }
-          },
-          "perp": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/PublicPerpFeedDataParams"
-            }
-          },
-          "rate": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/PublicRateFeedDataParams"
-            }
-          },
-          "spot": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/PublicSpotFeedDataParams"
-            }
-          },
-          "vol": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/PublicVolFeedDataParams"
-            }
-          }
-        }
-      },
-      "PublicSetSocializationFeedDataRequest": {
-        "type": "object",
-        "required": [
-          "feeds",
-          "universe_id"
-        ],
-        "properties": {
-          "feeds": {
-            "description": "Oracle feed batch, in the `public/set_feed_data` shape.",
-            "$ref": "#/components/schemas/PublicSetFeedDataRequest"
-          },
-          "universe_id": {
-            "description": "Universe whose pending socialization event to patch.",
-            "type": "integer",
-            "format": "uint32",
-            "minimum": 0.0
-          }
-        }
-      },
-      "PublicSpotFeedDataParams": {
-        "type": "object",
-        "required": [
-          "confidence",
-          "currency",
-          "price",
-          "timestamp"
-        ],
-        "properties": {
-          "confidence": {
-            "type": "string"
-          },
-          "currency": {
-            "type": "string"
-          },
-          "deadline": {
-            "default": 0,
-            "type": "integer",
-            "format": "int64"
-          },
-          "feed_source_type": {
-            "default": null,
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "price": {
-            "type": "string"
-          },
-          "signatures": {
-            "$ref": "#/components/schemas/PublicOracleSignatureDataParams"
-          },
-          "timestamp": {
-            "type": "integer",
-            "format": "int64"
-          }
-        }
-      },
-      "PublicStartAuctionRequest": {
-        "type": "object",
-        "required": [
-          "subaccount_id"
-        ],
-        "properties": {
-          "subaccount_id": {
-            "description": "Subaccount to auction.",
-            "type": "integer",
-            "format": "uint64",
-            "minimum": 0.0
-          }
-        }
-      },
-      "PublicStartAuctionResponse": {
-        "type": "object",
-        "required": [
-          "op_uuid",
-          "operation_id"
-        ],
-        "properties": {
-          "op_uuid": {
-            "type": "string"
-          },
-          "operation_id": {
-            "type": "integer",
-            "format": "uint64",
-            "minimum": 0.0
-          }
-        }
-      },
       "PublicTradesResult": {
         "type": "object",
         "required": [
@@ -12771,78 +12464,6 @@
             "description": "Non-negative decimal string of the human value (e.g. `\"1.5\"`), up to 12 fractional digits; a string or JSON number is accepted",
             "type": "string",
             "format": "decimal"
-          }
-        }
-      },
-      "PublicVolFeedDataParams": {
-        "type": "object",
-        "required": [
-          "confidence",
-          "currency",
-          "expiry",
-          "timestamp",
-          "vol_data"
-        ],
-        "properties": {
-          "confidence": {
-            "type": "string"
-          },
-          "currency": {
-            "type": "string"
-          },
-          "deadline": {
-            "default": 0,
-            "type": "integer",
-            "format": "int64"
-          },
-          "expiry": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "signatures": {
-            "$ref": "#/components/schemas/PublicOracleSignatureDataParams"
-          },
-          "timestamp": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "vol_data": {
-            "$ref": "#/components/schemas/PublicVolSVIParamDataParams"
-          }
-        }
-      },
-      "PublicVolSVIParamDataParams": {
-        "type": "object",
-        "required": [
-          "SVI_a",
-          "SVI_b",
-          "SVI_fwd",
-          "SVI_m",
-          "SVI_refTau",
-          "SVI_rho",
-          "SVI_sigma"
-        ],
-        "properties": {
-          "SVI_a": {
-            "type": "string"
-          },
-          "SVI_b": {
-            "type": "string"
-          },
-          "SVI_fwd": {
-            "type": "string"
-          },
-          "SVI_m": {
-            "type": "string"
-          },
-          "SVI_refTau": {
-            "type": "string"
-          },
-          "SVI_rho": {
-            "type": "string"
-          },
-          "SVI_sigma": {
-            "type": "string"
           }
         }
       },
@@ -15685,6 +15306,7 @@
             }
           },
           "open_orders_margin": {
+            "description": "Uses the manager's params, as `initial_margin` does, even for a subaccount with a delayed-liquidation override. Order checks use the override, so the two can differ. This is rare: an override usually loosens maintenance margin only, and this is an initial-margin figure.",
             "type": "string"
           },
           "positions": {

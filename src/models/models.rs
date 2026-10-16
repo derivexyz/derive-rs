@@ -2602,7 +2602,8 @@ impl CancelQuoteRequest {
 ///    "compliance",
 ///    "trigger_failed",
 ///    "validation_failed",
-///    "algo_completed"
+///    "algo_completed",
+///    "max_crossed_orders"
 ///  ]
 ///}
 /// ```
@@ -2646,6 +2647,8 @@ pub enum CancelReason {
     ValidationFailed,
     #[serde(rename = "algo_completed")]
     AlgoCompleted,
+    #[serde(rename = "max_crossed_orders")]
+    MaxCrossedOrders,
 }
 impl ::std::fmt::Display for CancelReason {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
@@ -2663,6 +2666,7 @@ impl ::std::fmt::Display for CancelReason {
             Self::TriggerFailed => f.write_str("trigger_failed"),
             Self::ValidationFailed => f.write_str("validation_failed"),
             Self::AlgoCompleted => f.write_str("algo_completed"),
+            Self::MaxCrossedOrders => f.write_str("max_crossed_orders"),
         }
     }
 }
@@ -2685,6 +2689,7 @@ impl ::std::str::FromStr for CancelReason {
             "trigger_failed" => Ok(Self::TriggerFailed),
             "validation_failed" => Ok(Self::ValidationFailed),
             "algo_completed" => Ok(Self::AlgoCompleted),
+            "max_crossed_orders" => Ok(Self::MaxCrossedOrders),
             _ => Err("invalid value".into()),
         }
     }
@@ -8809,6 +8814,7 @@ impl IndexCandle {
 ///    "pro_rata_amount_step",
 ///    "pro_rata_fraction",
 ///    "quote_currency",
+///    "risk_universe_id",
 ///    "scheduled_activation",
 ///    "scheduled_deactivation",
 ///    "taker_fee_rate",
@@ -8910,6 +8916,12 @@ impl IndexCandle {
 ///    "quote_currency": {
 ///      "type": "string"
 ///    },
+///    "risk_universe_id": {
+///      "description": "Only subaccounts in this risk universe can trade the instrument.",
+///      "type": "integer",
+///      "format": "uint32",
+///      "minimum": 0.0
+///    },
 ///    "scheduled_activation": {
 ///      "type": "integer",
 ///      "format": "int64"
@@ -8961,6 +8973,8 @@ pub struct Instrument {
     pub pro_rata_amount_step: ::std::string::String,
     pub pro_rata_fraction: ::std::string::String,
     pub quote_currency: ::std::string::String,
+    ///Only subaccounts in this risk universe can trade the instrument.
+    pub risk_universe_id: u32,
     pub scheduled_activation: i64,
     pub scheduled_deactivation: i64,
     pub taker_fee_rate: ::std::string::String,
@@ -9793,6 +9807,11 @@ impl ::std::convert::From<MarginWatchResult> for MarginWatchNotification {
 ///    "subaccount_id"
 ///  ],
 ///  "properties": {
+///    "is_delayed_liquidation": {
+///      "description": "`true` returns margins under the subaccount's delayed-liquidation override. Rejected for a subaccount without one.",
+///      "default": false,
+///      "type": "boolean"
+///    },
 ///    "subaccount_id": {
 ///      "type": "integer",
 ///      "format": "uint64",
@@ -9806,6 +9825,9 @@ impl ::std::convert::From<MarginWatchResult> for MarginWatchNotification {
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct MarginWatchRequest {
+    ///`true` returns margins under the subaccount's delayed-liquidation override. Rejected for a subaccount without one.
+    #[serde(default)]
+    pub is_delayed_liquidation: bool,
     pub subaccount_id: u64,
 }
 impl MarginWatchRequest {
@@ -10641,55 +10663,6 @@ pub struct OpenInterestStats {
 }
 impl OpenInterestStats {
     pub fn builder() -> builder::OpenInterestStats {
-        Default::default()
-    }
-}
-/**Postcard-friendly mirror of `sequencer_runtime::types::OperationResult`.
-
-We can't use `OperationResult` directly for two reasons: - it only derives `Serialize` (no `Deserialize` or `JsonSchema`), and - it has a `BalanceSnapshot` field marked `#[serde(skip)]` that we don't want crossing the wire.
-
-This mirror carries just the fields that actually cross the wire and adds the derives the gateway needs.*/
-///
-/// <details><summary>JSON schema</summary>
-///
-/// ```json
-///{
-///  "description": "Postcard-friendly mirror of `sequencer_runtime::types::OperationResult`.\n\nWe can't use `OperationResult` directly for two reasons: - it only derives `Serialize` (no `Deserialize` or `JsonSchema`), and - it has a `BalanceSnapshot` field marked `#[serde(skip)]` that we don't want crossing the wire.\n\nThis mirror carries just the fields that actually cross the wire and adds the derives the gateway needs.",
-///  "type": "object",
-///  "required": [
-///    "mmp_triggered",
-///    "op_uuid",
-///    "operation_id"
-///  ],
-///  "properties": {
-///    "mmp_triggered": {
-///      "type": "array",
-///      "items": {
-///        "type": "integer",
-///        "format": "uint64",
-///        "minimum": 0.0
-///      }
-///    },
-///    "op_uuid": {
-///      "type": "string"
-///    },
-///    "operation_id": {
-///      "type": "integer",
-///      "format": "uint64",
-///      "minimum": 0.0
-///    }
-///  }
-///}
-/// ```
-/// </details>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
-pub struct OperationAckResponse {
-    pub mmp_triggered: ::std::vec::Vec<u64>,
-    pub op_uuid: ::std::string::String,
-    pub operation_id: u64,
-}
-impl OperationAckResponse {
-    pub fn builder() -> builder::OperationAckResponse {
         Default::default()
     }
 }
@@ -13428,6 +13401,7 @@ impl PollRfqsRequest {
 ///      "type": "string"
 ///    },
 ///    "open_orders_margin": {
+///      "description": "Uses the same params as `initial_margin`: the manager's, even for a subaccount with a delayed-liquidation override, unless `public/margin_watch` asks for the override.",
 ///      "type": "string"
 ///    },
 ///    "pending_funding": {
@@ -13480,6 +13454,7 @@ pub struct Position {
     pub mark_price: ::std::string::String,
     pub mark_value: ::std::string::String,
     pub net_settlements: ::std::string::String,
+    ///Uses the same params as `initial_margin`: the manager's, even for a subaccount with a delayed-liquidation override, unless `public/margin_watch` asks for the override.
     pub open_orders_margin: ::std::string::String,
     pub pending_funding: ::std::string::String,
     pub realized_pnl: ::std::string::String,
@@ -13762,6 +13737,11 @@ impl PrivateGetCollateralsResponse {
 ///    "subaccount_id"
 ///  ],
 ///  "properties": {
+///    "is_delayed_liquidation": {
+///      "description": "`true` margins under the subaccount's delayed-liquidation override, as order checks do. Rejected for a subaccount without one.",
+///      "default": false,
+///      "type": "boolean"
+///    },
 ///    "simulated_collateral_changes": {
 ///      "description": "Optional collateral deltas to simulate deposits / withdrawals / spot trades.",
 ///      "type": [
@@ -13795,6 +13775,9 @@ impl PrivateGetCollateralsResponse {
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct PrivateGetMarginRequest {
+    ///`true` margins under the subaccount's delayed-liquidation override, as order checks do. Rejected for a subaccount without one.
+    #[serde(default)]
+    pub is_delayed_liquidation: bool,
     ///Optional collateral deltas to simulate deposits / withdrawals / spot trades.
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub simulated_collateral_changes: ::std::option::Option<
@@ -14874,134 +14857,6 @@ impl PublicExecuteQuoteDebugRequest {
         Default::default()
     }
 }
-///`PublicForwardFeedDataParams`
-///
-/// <details><summary>JSON schema</summary>
-///
-/// ```json
-///{
-///  "type": "object",
-///  "required": [
-///    "confidence",
-///    "currency",
-///    "expiry",
-///    "fwd_diff",
-///    "spot_aggregate_latest",
-///    "spot_aggregate_start",
-///    "timestamp"
-///  ],
-///  "properties": {
-///    "confidence": {
-///      "type": "string"
-///    },
-///    "currency": {
-///      "type": "string"
-///    },
-///    "deadline": {
-///      "default": 0,
-///      "type": "integer",
-///      "format": "int64"
-///    },
-///    "expiry": {
-///      "type": "integer",
-///      "format": "int64"
-///    },
-///    "fwd_diff": {
-///      "type": "string"
-///    },
-///    "signatures": {
-///      "$ref": "#/definitions/PublicOracleSignatureDataParams"
-///    },
-///    "spot_aggregate_latest": {
-///      "type": "string"
-///    },
-///    "spot_aggregate_start": {
-///      "type": "string"
-///    },
-///    "timestamp": {
-///      "type": "integer",
-///      "format": "int64"
-///    }
-///  }
-///}
-/// ```
-/// </details>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
-pub struct PublicForwardFeedDataParams {
-    pub confidence: ::std::string::String,
-    pub currency: ::std::string::String,
-    #[serde(default)]
-    pub deadline: i64,
-    pub expiry: i64,
-    pub fwd_diff: ::std::string::String,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
-    pub signatures: ::std::option::Option<PublicOracleSignatureDataParams>,
-    pub spot_aggregate_latest: ::std::string::String,
-    pub spot_aggregate_start: ::std::string::String,
-    pub timestamp: i64,
-}
-impl PublicForwardFeedDataParams {
-    pub fn builder() -> builder::PublicForwardFeedDataParams {
-        Default::default()
-    }
-}
-///`PublicFundingFeedDataParams`
-///
-/// <details><summary>JSON schema</summary>
-///
-/// ```json
-///{
-///  "type": "object",
-///  "required": [
-///    "confidence",
-///    "currency",
-///    "funding_rate",
-///    "timestamp"
-///  ],
-///  "properties": {
-///    "confidence": {
-///      "type": "string"
-///    },
-///    "currency": {
-///      "type": "string"
-///    },
-///    "deadline": {
-///      "default": 0,
-///      "type": "integer",
-///      "format": "int64"
-///    },
-///    "funding_rate": {
-///      "description": "Per-hour funding rate as a decimal string; may be negative.",
-///      "type": "string"
-///    },
-///    "signatures": {
-///      "$ref": "#/definitions/PublicOracleSignatureDataParams"
-///    },
-///    "timestamp": {
-///      "type": "integer",
-///      "format": "int64"
-///    }
-///  }
-///}
-/// ```
-/// </details>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
-pub struct PublicFundingFeedDataParams {
-    pub confidence: ::std::string::String,
-    pub currency: ::std::string::String,
-    #[serde(default)]
-    pub deadline: i64,
-    ///Per-hour funding rate as a decimal string; may be negative.
-    pub funding_rate: ::std::string::String,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
-    pub signatures: ::std::option::Option<PublicOracleSignatureDataParams>,
-    pub timestamp: i64,
-}
-impl PublicFundingFeedDataParams {
-    pub fn builder() -> builder::PublicFundingFeedDataParams {
-        Default::default()
-    }
-}
 ///`PublicGetLiveAuctionsResponse`
 ///
 /// <details><summary>JSON schema</summary>
@@ -15151,6 +15006,69 @@ impl PublicGetSubaccountsRequest {
         Default::default()
     }
 }
+///`PublicGetWalletRequest`
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "type": "object",
+///  "required": [
+///    "subaccount_id"
+///  ],
+///  "properties": {
+///    "subaccount_id": {
+///      "type": "integer",
+///      "format": "uint64",
+///      "minimum": 0.0
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct PublicGetWalletRequest {
+    pub subaccount_id: u64,
+}
+impl PublicGetWalletRequest {
+    pub fn builder() -> builder::PublicGetWalletRequest {
+        Default::default()
+    }
+}
+///`PublicGetWalletResponse`
+///
+/// <details><summary>JSON schema</summary>
+///
+/// ```json
+///{
+///  "type": "object",
+///  "required": [
+///    "subaccount_id",
+///    "wallet"
+///  ],
+///  "properties": {
+///    "subaccount_id": {
+///      "type": "integer",
+///      "format": "uint64",
+///      "minimum": 0.0
+///    },
+///    "wallet": {
+///      "type": "string"
+///    }
+///  }
+///}
+/// ```
+/// </details>
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct PublicGetWalletResponse {
+    pub subaccount_id: u64,
+    pub wallet: ::std::string::String,
+}
+impl PublicGetWalletResponse {
+    pub fn builder() -> builder::PublicGetWalletResponse {
+        Default::default()
+    }
+}
 ///`PublicGetWalletsFromSessionKeyResponse`
 ///
 /// <details><summary>JSON schema</summary>
@@ -15287,17 +15205,18 @@ pub enum PublicLoginResponse {
     Variant0 { id: JsonRpcId, result: ::std::vec::Vec<u64> },
     Variant1 { error: RpcError, id: JsonRpcId },
 }
-///Result of `public/margin_watch`: the margin state a liquidation watcher needs, computed on the margin basis actually in effect (a delayed- liquidation override, when installed, is already applied).
+///Result of `public/margin_watch`: the margin state a liquidation watcher needs, under the subaccount's manager's params, or its delayed-liquidation override when the request asks for it.
 ///
 /// <details><summary>JSON schema</summary>
 ///
 /// ```json
 ///{
-///  "description": "Result of `public/margin_watch`: the margin state a liquidation watcher needs, computed on the margin basis actually in effect (a delayed- liquidation override, when installed, is already applied).",
+///  "description": "Result of `public/margin_watch`: the margin state a liquidation watcher needs, under the subaccount's manager's params, or its delayed-liquidation override when the request asks for it.",
 ///  "type": "object",
 ///  "required": [
 ///    "collaterals",
 ///    "currency",
+///    "has_delayed_liquidation",
 ///    "initial_margin",
 ///    "is_delayed_liquidation",
 ///    "maintenance_margin",
@@ -15321,11 +15240,15 @@ pub enum PublicLoginResponse {
 ///        "type": "string"
 ///      }
 ///    },
+///    "has_delayed_liquidation": {
+///      "description": "`true` when the subaccount has a delayed-liquidation override.",
+///      "type": "boolean"
+///    },
 ///    "initial_margin": {
 ///      "type": "string"
 ///    },
 ///    "is_delayed_liquidation": {
-///      "description": "`true` when a delayed-liquidation margin override is active, i.e. the margins above are computed on the temporarily lowered basis.",
+///      "description": "`true` when the margins above use the delayed-liquidation override.",
 ///      "type": "boolean"
 ///    },
 ///    "maintenance_margin": {
@@ -15340,6 +15263,15 @@ pub enum PublicLoginResponse {
 ///      "items": {
 ///        "$ref": "#/definitions/Position"
 ///      }
+///    },
+///    "regular_margin_flagged_sec": {
+///      "description": "Unix seconds at which a subaccount with a delayed-liquidation override was first seen below its manager's maintenance margin. Its grace period before liquidation counts from here. Null otherwise.",
+///      "type": [
+///        "integer",
+///        "null"
+///      ],
+///      "format": "uint64",
+///      "minimum": 0.0
 ///    },
 ///    "risk_universe_id": {
 ///      "type": "integer",
@@ -15367,13 +15299,18 @@ pub enum PublicLoginResponse {
 pub struct PublicMarginWatchResponse {
     pub collaterals: ::std::vec::Vec<Collateral>,
     pub currency: ::std::vec::Vec<::std::string::String>,
+    ///`true` when the subaccount has a delayed-liquidation override.
+    pub has_delayed_liquidation: bool,
     pub initial_margin: ::std::string::String,
-    ///`true` when a delayed-liquidation margin override is active, i.e. the margins above are computed on the temporarily lowered basis.
+    ///`true` when the margins above use the delayed-liquidation override.
     pub is_delayed_liquidation: bool,
     ///Below zero the subaccount is flagged for liquidation.
     pub maintenance_margin: ::std::string::String,
     pub margin_type: ::std::string::String,
     pub positions: ::std::vec::Vec<Position>,
+    ///Unix seconds at which a subaccount with a delayed-liquidation override was first seen below its manager's maintenance margin. Its grace period before liquidation counts from here. Null otherwise.
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub regular_margin_flagged_sec: ::std::option::Option<u64>,
     pub risk_universe_id: u32,
     pub subaccount_id: u64,
     pub subaccount_value: ::std::string::String,
@@ -15382,113 +15319,6 @@ pub struct PublicMarginWatchResponse {
 }
 impl PublicMarginWatchResponse {
     pub fn builder() -> builder::PublicMarginWatchResponse {
-        Default::default()
-    }
-}
-///`PublicOracleSignatureDataParams`
-///
-/// <details><summary>JSON schema</summary>
-///
-/// ```json
-///{
-///  "type": "object",
-///  "properties": {
-///    "signatures": {
-///      "default": [],
-///      "type": "array",
-///      "items": {
-///        "type": "string"
-///      }
-///    },
-///    "signers": {
-///      "default": [],
-///      "type": "array",
-///      "items": {
-///        "type": "string"
-///      }
-///    }
-///  }
-///}
-/// ```
-/// </details>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
-pub struct PublicOracleSignatureDataParams {
-    #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
-    pub signatures: ::std::vec::Vec<::std::string::String>,
-    #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
-    pub signers: ::std::vec::Vec<::std::string::String>,
-}
-impl ::std::default::Default for PublicOracleSignatureDataParams {
-    fn default() -> Self {
-        Self {
-            signatures: Default::default(),
-            signers: Default::default(),
-        }
-    }
-}
-impl PublicOracleSignatureDataParams {
-    pub fn builder() -> builder::PublicOracleSignatureDataParams {
-        Default::default()
-    }
-}
-///`PublicPerpFeedDataParams`
-///
-/// <details><summary>JSON schema</summary>
-///
-/// ```json
-///{
-///  "type": "object",
-///  "required": [
-///    "confidence",
-///    "currency",
-///    "spot_diff_value",
-///    "timestamp",
-///    "type"
-///  ],
-///  "properties": {
-///    "confidence": {
-///      "type": "string"
-///    },
-///    "currency": {
-///      "type": "string"
-///    },
-///    "deadline": {
-///      "default": 0,
-///      "type": "integer",
-///      "format": "int64"
-///    },
-///    "signatures": {
-///      "$ref": "#/definitions/PublicOracleSignatureDataParams"
-///    },
-///    "spot_diff_value": {
-///      "type": "string"
-///    },
-///    "timestamp": {
-///      "type": "integer",
-///      "format": "int64"
-///    },
-///    "type": {
-///      "type": "string"
-///    }
-///  }
-///}
-/// ```
-/// </details>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
-pub struct PublicPerpFeedDataParams {
-    pub confidence: ::std::string::String,
-    pub currency: ::std::string::String,
-    #[serde(default)]
-    pub deadline: i64,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
-    pub signatures: ::std::option::Option<PublicOracleSignatureDataParams>,
-    pub spot_diff_value: ::std::string::String,
-    pub timestamp: i64,
-    #[serde(rename = "type")]
-    pub type_: ::std::string::String,
-}
-impl PublicPerpFeedDataParams {
-    pub fn builder() -> builder::PublicPerpFeedDataParams {
         Default::default()
     }
 }
@@ -15596,67 +15426,6 @@ pub struct PublicQuote {
 }
 impl PublicQuote {
     pub fn builder() -> builder::PublicQuote {
-        Default::default()
-    }
-}
-///`PublicRateFeedDataParams`
-///
-/// <details><summary>JSON schema</summary>
-///
-/// ```json
-///{
-///  "type": "object",
-///  "required": [
-///    "confidence",
-///    "currency",
-///    "expiry",
-///    "rate",
-///    "timestamp"
-///  ],
-///  "properties": {
-///    "confidence": {
-///      "type": "string"
-///    },
-///    "currency": {
-///      "type": "string"
-///    },
-///    "deadline": {
-///      "default": 0,
-///      "type": "integer",
-///      "format": "int64"
-///    },
-///    "expiry": {
-///      "type": "integer",
-///      "format": "int64"
-///    },
-///    "rate": {
-///      "type": "string"
-///    },
-///    "signatures": {
-///      "$ref": "#/definitions/PublicOracleSignatureDataParams"
-///    },
-///    "timestamp": {
-///      "type": "integer",
-///      "format": "int64"
-///    }
-///  }
-///}
-/// ```
-/// </details>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
-pub struct PublicRateFeedDataParams {
-    pub confidence: ::std::string::String,
-    pub currency: ::std::string::String,
-    #[serde(default)]
-    pub deadline: i64,
-    pub expiry: i64,
-    pub rate: ::std::string::String,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
-    pub signatures: ::std::option::Option<PublicOracleSignatureDataParams>,
-    pub timestamp: i64,
-}
-impl PublicRateFeedDataParams {
-    pub fn builder() -> builder::PublicRateFeedDataParams {
         Default::default()
     }
 }
@@ -15919,245 +15688,6 @@ pub struct PublicSendQuoteDebugRequest {
 }
 impl PublicSendQuoteDebugRequest {
     pub fn builder() -> builder::PublicSendQuoteDebugRequest {
-        Default::default()
-    }
-}
-///`PublicSetFeedDataRequest`
-///
-/// <details><summary>JSON schema</summary>
-///
-/// ```json
-///{
-///  "type": "object",
-///  "required": [
-///    "forward",
-///    "perp",
-///    "rate",
-///    "spot",
-///    "vol"
-///  ],
-///  "properties": {
-///    "forward": {
-///      "type": "array",
-///      "items": {
-///        "$ref": "#/definitions/PublicForwardFeedDataParams"
-///      }
-///    },
-///    "funding": {
-///      "description": "Per-hour perpetual funding rates. Optional so an oracle that predates the funding feed keeps publishing the other five.",
-///      "type": "array",
-///      "items": {
-///        "$ref": "#/definitions/PublicFundingFeedDataParams"
-///      }
-///    },
-///    "perp": {
-///      "type": "array",
-///      "items": {
-///        "$ref": "#/definitions/PublicPerpFeedDataParams"
-///      }
-///    },
-///    "rate": {
-///      "type": "array",
-///      "items": {
-///        "$ref": "#/definitions/PublicRateFeedDataParams"
-///      }
-///    },
-///    "spot": {
-///      "type": "array",
-///      "items": {
-///        "$ref": "#/definitions/PublicSpotFeedDataParams"
-///      }
-///    },
-///    "vol": {
-///      "type": "array",
-///      "items": {
-///        "$ref": "#/definitions/PublicVolFeedDataParams"
-///      }
-///    }
-///  }
-///}
-/// ```
-/// </details>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
-pub struct PublicSetFeedDataRequest {
-    pub forward: ::std::vec::Vec<PublicForwardFeedDataParams>,
-    ///Per-hour perpetual funding rates. Optional so an oracle that predates the funding feed keeps publishing the other five.
-    #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
-    pub funding: ::std::vec::Vec<PublicFundingFeedDataParams>,
-    pub perp: ::std::vec::Vec<PublicPerpFeedDataParams>,
-    pub rate: ::std::vec::Vec<PublicRateFeedDataParams>,
-    pub spot: ::std::vec::Vec<PublicSpotFeedDataParams>,
-    pub vol: ::std::vec::Vec<PublicVolFeedDataParams>,
-}
-impl PublicSetFeedDataRequest {
-    pub fn builder() -> builder::PublicSetFeedDataRequest {
-        Default::default()
-    }
-}
-///`PublicSetSocializationFeedDataRequest`
-///
-/// <details><summary>JSON schema</summary>
-///
-/// ```json
-///{
-///  "type": "object",
-///  "required": [
-///    "feeds",
-///    "universe_id"
-///  ],
-///  "properties": {
-///    "feeds": {
-///      "description": "Oracle feed batch, in the `public/set_feed_data` shape.",
-///      "$ref": "#/definitions/PublicSetFeedDataRequest"
-///    },
-///    "universe_id": {
-///      "description": "Universe whose pending socialization event to patch.",
-///      "type": "integer",
-///      "format": "uint32",
-///      "minimum": 0.0
-///    }
-///  }
-///}
-/// ```
-/// </details>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
-pub struct PublicSetSocializationFeedDataRequest {
-    ///Oracle feed batch, in the `public/set_feed_data` shape.
-    pub feeds: PublicSetFeedDataRequest,
-    ///Universe whose pending socialization event to patch.
-    pub universe_id: u32,
-}
-impl PublicSetSocializationFeedDataRequest {
-    pub fn builder() -> builder::PublicSetSocializationFeedDataRequest {
-        Default::default()
-    }
-}
-///`PublicSpotFeedDataParams`
-///
-/// <details><summary>JSON schema</summary>
-///
-/// ```json
-///{
-///  "type": "object",
-///  "required": [
-///    "confidence",
-///    "currency",
-///    "price",
-///    "timestamp"
-///  ],
-///  "properties": {
-///    "confidence": {
-///      "type": "string"
-///    },
-///    "currency": {
-///      "type": "string"
-///    },
-///    "deadline": {
-///      "default": 0,
-///      "type": "integer",
-///      "format": "int64"
-///    },
-///    "feed_source_type": {
-///      "default": null,
-///      "type": [
-///        "string",
-///        "null"
-///      ]
-///    },
-///    "price": {
-///      "type": "string"
-///    },
-///    "signatures": {
-///      "$ref": "#/definitions/PublicOracleSignatureDataParams"
-///    },
-///    "timestamp": {
-///      "type": "integer",
-///      "format": "int64"
-///    }
-///  }
-///}
-/// ```
-/// </details>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
-pub struct PublicSpotFeedDataParams {
-    pub confidence: ::std::string::String,
-    pub currency: ::std::string::String,
-    #[serde(default)]
-    pub deadline: i64,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
-    pub feed_source_type: ::std::option::Option<::std::string::String>,
-    pub price: ::std::string::String,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
-    pub signatures: ::std::option::Option<PublicOracleSignatureDataParams>,
-    pub timestamp: i64,
-}
-impl PublicSpotFeedDataParams {
-    pub fn builder() -> builder::PublicSpotFeedDataParams {
-        Default::default()
-    }
-}
-///`PublicStartAuctionRequest`
-///
-/// <details><summary>JSON schema</summary>
-///
-/// ```json
-///{
-///  "type": "object",
-///  "required": [
-///    "subaccount_id"
-///  ],
-///  "properties": {
-///    "subaccount_id": {
-///      "description": "Subaccount to auction.",
-///      "type": "integer",
-///      "format": "uint64",
-///      "minimum": 0.0
-///    }
-///  }
-///}
-/// ```
-/// </details>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
-pub struct PublicStartAuctionRequest {
-    ///Subaccount to auction.
-    pub subaccount_id: u64,
-}
-impl PublicStartAuctionRequest {
-    pub fn builder() -> builder::PublicStartAuctionRequest {
-        Default::default()
-    }
-}
-///`PublicStartAuctionResponse`
-///
-/// <details><summary>JSON schema</summary>
-///
-/// ```json
-///{
-///  "type": "object",
-///  "required": [
-///    "op_uuid",
-///    "operation_id"
-///  ],
-///  "properties": {
-///    "op_uuid": {
-///      "type": "string"
-///    },
-///    "operation_id": {
-///      "type": "integer",
-///      "format": "uint64",
-///      "minimum": 0.0
-///    }
-///  }
-///}
-/// ```
-/// </details>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
-pub struct PublicStartAuctionResponse {
-    pub op_uuid: ::std::string::String,
-    pub operation_id: u64,
-}
-impl PublicStartAuctionResponse {
-    pub fn builder() -> builder::PublicStartAuctionResponse {
         Default::default()
     }
 }
@@ -16507,131 +16037,6 @@ Once the action is in the protocol, the status takes on `BatchStatus` values: "B
 }
 impl PublicVaultActionResponse {
     pub fn builder() -> builder::PublicVaultActionResponse {
-        Default::default()
-    }
-}
-///`PublicVolFeedDataParams`
-///
-/// <details><summary>JSON schema</summary>
-///
-/// ```json
-///{
-///  "type": "object",
-///  "required": [
-///    "confidence",
-///    "currency",
-///    "expiry",
-///    "timestamp",
-///    "vol_data"
-///  ],
-///  "properties": {
-///    "confidence": {
-///      "type": "string"
-///    },
-///    "currency": {
-///      "type": "string"
-///    },
-///    "deadline": {
-///      "default": 0,
-///      "type": "integer",
-///      "format": "int64"
-///    },
-///    "expiry": {
-///      "type": "integer",
-///      "format": "int64"
-///    },
-///    "signatures": {
-///      "$ref": "#/definitions/PublicOracleSignatureDataParams"
-///    },
-///    "timestamp": {
-///      "type": "integer",
-///      "format": "int64"
-///    },
-///    "vol_data": {
-///      "$ref": "#/definitions/PublicVolSVIParamDataParams"
-///    }
-///  }
-///}
-/// ```
-/// </details>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
-pub struct PublicVolFeedDataParams {
-    pub confidence: ::std::string::String,
-    pub currency: ::std::string::String,
-    #[serde(default)]
-    pub deadline: i64,
-    pub expiry: i64,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
-    pub signatures: ::std::option::Option<PublicOracleSignatureDataParams>,
-    pub timestamp: i64,
-    pub vol_data: PublicVolSviParamDataParams,
-}
-impl PublicVolFeedDataParams {
-    pub fn builder() -> builder::PublicVolFeedDataParams {
-        Default::default()
-    }
-}
-///`PublicVolSviParamDataParams`
-///
-/// <details><summary>JSON schema</summary>
-///
-/// ```json
-///{
-///  "type": "object",
-///  "required": [
-///    "SVI_a",
-///    "SVI_b",
-///    "SVI_fwd",
-///    "SVI_m",
-///    "SVI_refTau",
-///    "SVI_rho",
-///    "SVI_sigma"
-///  ],
-///  "properties": {
-///    "SVI_a": {
-///      "type": "string"
-///    },
-///    "SVI_b": {
-///      "type": "string"
-///    },
-///    "SVI_fwd": {
-///      "type": "string"
-///    },
-///    "SVI_m": {
-///      "type": "string"
-///    },
-///    "SVI_refTau": {
-///      "type": "string"
-///    },
-///    "SVI_rho": {
-///      "type": "string"
-///    },
-///    "SVI_sigma": {
-///      "type": "string"
-///    }
-///  }
-///}
-/// ```
-/// </details>
-#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
-pub struct PublicVolSviParamDataParams {
-    #[serde(rename = "SVI_a")]
-    pub svi_a: ::std::string::String,
-    #[serde(rename = "SVI_b")]
-    pub svi_b: ::std::string::String,
-    #[serde(rename = "SVI_fwd")]
-    pub svi_fwd: ::std::string::String,
-    #[serde(rename = "SVI_m")]
-    pub svi_m: ::std::string::String,
-    #[serde(rename = "SVI_refTau")]
-    pub svi_ref_tau: ::std::string::String,
-    #[serde(rename = "SVI_rho")]
-    pub svi_rho: ::std::string::String,
-    #[serde(rename = "SVI_sigma")]
-    pub svi_sigma: ::std::string::String,
-}
-impl PublicVolSviParamDataParams {
-    pub fn builder() -> builder::PublicVolSviParamDataParams {
         Default::default()
     }
 }
@@ -22206,6 +21611,7 @@ impl SrmPerpMarginRequirements {
 ///      }
 ///    },
 ///    "open_orders_margin": {
+///      "description": "Uses the manager's params, as `initial_margin` does, even for a subaccount with a delayed-liquidation override. Order checks use the override, so the two can differ. This is rare: an override usually loosens maintenance margin only, and this is an initial-margin figure.",
 ///      "type": "string"
 ///    },
 ///    "positions": {
@@ -22269,6 +21675,7 @@ pub struct Subaccount {
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub mm_credits: ::std::option::Option<::std::string::String>,
     pub open_orders: ::std::vec::Vec<Order>,
+    ///Uses the manager's params, as `initial_margin` does, even for a subaccount with a delayed-liquidation override. Order checks use the override, so the two can differ. This is rare: an override usually loosens maintenance margin only, and this is an initial-margin figure.
     pub open_orders_margin: ::std::string::String,
     pub positions: ::std::vec::Vec<Position>,
     pub positions_initial_margin: ::std::string::String,
@@ -39654,6 +39061,7 @@ pub mod builder {
             ::std::string::String,
             ::std::string::String,
         >,
+        risk_universe_id: ::std::result::Result<u32, ::std::string::String>,
         scheduled_activation: ::std::result::Result<i64, ::std::string::String>,
         scheduled_deactivation: ::std::result::Result<i64, ::std::string::String>,
         taker_fee_rate: ::std::result::Result<
@@ -39701,6 +39109,9 @@ pub mod builder {
                     "no value supplied for pro_rata_fraction".to_string(),
                 ),
                 quote_currency: Err("no value supplied for quote_currency".to_string()),
+                risk_universe_id: Err(
+                    "no value supplied for risk_universe_id".to_string(),
+                ),
                 scheduled_activation: Err(
                     "no value supplied for scheduled_activation".to_string(),
                 ),
@@ -39949,6 +39360,18 @@ pub mod builder {
                 });
             self
         }
+        pub fn risk_universe_id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<u32>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.risk_universe_id = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for risk_universe_id: {e}")
+                });
+            self
+        }
         pub fn scheduled_activation<T>(mut self, value: T) -> Self
         where
             T: ::std::convert::TryInto<i64>,
@@ -40027,6 +39450,7 @@ pub mod builder {
                 pro_rata_amount_step: value.pro_rata_amount_step?,
                 pro_rata_fraction: value.pro_rata_fraction?,
                 quote_currency: value.quote_currency?,
+                risk_universe_id: value.risk_universe_id?,
                 scheduled_activation: value.scheduled_activation?,
                 scheduled_deactivation: value.scheduled_deactivation?,
                 taker_fee_rate: value.taker_fee_rate?,
@@ -40056,6 +39480,7 @@ pub mod builder {
                 pro_rata_amount_step: Ok(value.pro_rata_amount_step),
                 pro_rata_fraction: Ok(value.pro_rata_fraction),
                 quote_currency: Ok(value.quote_currency),
+                risk_universe_id: Ok(value.risk_universe_id),
                 scheduled_activation: Ok(value.scheduled_activation),
                 scheduled_deactivation: Ok(value.scheduled_deactivation),
                 taker_fee_rate: Ok(value.taker_fee_rate),
@@ -41045,16 +40470,32 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct MarginWatchRequest {
+        is_delayed_liquidation: ::std::result::Result<bool, ::std::string::String>,
         subaccount_id: ::std::result::Result<u64, ::std::string::String>,
     }
     impl ::std::default::Default for MarginWatchRequest {
         fn default() -> Self {
             Self {
+                is_delayed_liquidation: Ok(Default::default()),
                 subaccount_id: Err("no value supplied for subaccount_id".to_string()),
             }
         }
     }
     impl MarginWatchRequest {
+        pub fn is_delayed_liquidation<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<bool>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.is_delayed_liquidation = value
+                .try_into()
+                .map_err(|e| {
+                    format!(
+                        "error converting supplied value for is_delayed_liquidation: {e}"
+                    )
+                });
+            self
+        }
         pub fn subaccount_id<T>(mut self, value: T) -> Self
         where
             T: ::std::convert::TryInto<u64>,
@@ -41074,6 +40515,7 @@ pub mod builder {
             value: MarginWatchRequest,
         ) -> ::std::result::Result<Self, super::error::ConversionError> {
             Ok(Self {
+                is_delayed_liquidation: value.is_delayed_liquidation?,
                 subaccount_id: value.subaccount_id?,
             })
         }
@@ -41081,6 +40523,7 @@ pub mod builder {
     impl ::std::convert::From<super::MarginWatchRequest> for MarginWatchRequest {
         fn from(value: super::MarginWatchRequest) -> Self {
             Self {
+                is_delayed_liquidation: Ok(value.is_delayed_liquidation),
                 subaccount_id: Ok(value.subaccount_id),
             }
         }
@@ -42288,83 +41731,6 @@ pub mod builder {
             Self {
                 current_open_interest: Ok(value.current_open_interest),
                 interest_cap: Ok(value.interest_cap),
-            }
-        }
-    }
-    #[derive(Clone, Debug)]
-    pub struct OperationAckResponse {
-        mmp_triggered: ::std::result::Result<
-            ::std::vec::Vec<u64>,
-            ::std::string::String,
-        >,
-        op_uuid: ::std::result::Result<::std::string::String, ::std::string::String>,
-        operation_id: ::std::result::Result<u64, ::std::string::String>,
-    }
-    impl ::std::default::Default for OperationAckResponse {
-        fn default() -> Self {
-            Self {
-                mmp_triggered: Err("no value supplied for mmp_triggered".to_string()),
-                op_uuid: Err("no value supplied for op_uuid".to_string()),
-                operation_id: Err("no value supplied for operation_id".to_string()),
-            }
-        }
-    }
-    impl OperationAckResponse {
-        pub fn mmp_triggered<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::std::vec::Vec<u64>>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.mmp_triggered = value
-                .try_into()
-                .map_err(|e| {
-                    format!("error converting supplied value for mmp_triggered: {e}")
-                });
-            self
-        }
-        pub fn op_uuid<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::std::string::String>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.op_uuid = value
-                .try_into()
-                .map_err(|e| {
-                    format!("error converting supplied value for op_uuid: {e}")
-                });
-            self
-        }
-        pub fn operation_id<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<u64>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.operation_id = value
-                .try_into()
-                .map_err(|e| {
-                    format!("error converting supplied value for operation_id: {e}")
-                });
-            self
-        }
-    }
-    impl ::std::convert::TryFrom<OperationAckResponse> for super::OperationAckResponse {
-        type Error = super::error::ConversionError;
-        fn try_from(
-            value: OperationAckResponse,
-        ) -> ::std::result::Result<Self, super::error::ConversionError> {
-            Ok(Self {
-                mmp_triggered: value.mmp_triggered?,
-                op_uuid: value.op_uuid?,
-                operation_id: value.operation_id?,
-            })
-        }
-    }
-    impl ::std::convert::From<super::OperationAckResponse> for OperationAckResponse {
-        fn from(value: super::OperationAckResponse) -> Self {
-            Self {
-                mmp_triggered: Ok(value.mmp_triggered),
-                op_uuid: Ok(value.op_uuid),
-                operation_id: Ok(value.operation_id),
             }
         }
     }
@@ -47999,6 +47365,7 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct PrivateGetMarginRequest {
+        is_delayed_liquidation: ::std::result::Result<bool, ::std::string::String>,
         simulated_collateral_changes: ::std::result::Result<
             ::std::option::Option<::std::vec::Vec<super::SimulatedCollateralRequest>>,
             ::std::string::String,
@@ -48012,6 +47379,7 @@ pub mod builder {
     impl ::std::default::Default for PrivateGetMarginRequest {
         fn default() -> Self {
             Self {
+                is_delayed_liquidation: Ok(Default::default()),
                 simulated_collateral_changes: Ok(Default::default()),
                 simulated_position_changes: Ok(Default::default()),
                 subaccount_id: Err("no value supplied for subaccount_id".to_string()),
@@ -48019,6 +47387,20 @@ pub mod builder {
         }
     }
     impl PrivateGetMarginRequest {
+        pub fn is_delayed_liquidation<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<bool>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.is_delayed_liquidation = value
+                .try_into()
+                .map_err(|e| {
+                    format!(
+                        "error converting supplied value for is_delayed_liquidation: {e}"
+                    )
+                });
+            self
+        }
         pub fn simulated_collateral_changes<T>(mut self, value: T) -> Self
         where
             T: ::std::convert::TryInto<
@@ -48071,6 +47453,7 @@ pub mod builder {
             value: PrivateGetMarginRequest,
         ) -> ::std::result::Result<Self, super::error::ConversionError> {
             Ok(Self {
+                is_delayed_liquidation: value.is_delayed_liquidation?,
                 simulated_collateral_changes: value.simulated_collateral_changes?,
                 simulated_position_changes: value.simulated_position_changes?,
                 subaccount_id: value.subaccount_id?,
@@ -48081,6 +47464,7 @@ pub mod builder {
     for PrivateGetMarginRequest {
         fn from(value: super::PrivateGetMarginRequest) -> Self {
             Self {
+                is_delayed_liquidation: Ok(value.is_delayed_liquidation),
                 simulated_collateral_changes: Ok(value.simulated_collateral_changes),
                 simulated_position_changes: Ok(value.simulated_position_changes),
                 subaccount_id: Ok(value.subaccount_id),
@@ -50057,327 +49441,6 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
-    pub struct PublicForwardFeedDataParams {
-        confidence: ::std::result::Result<::std::string::String, ::std::string::String>,
-        currency: ::std::result::Result<::std::string::String, ::std::string::String>,
-        deadline: ::std::result::Result<i64, ::std::string::String>,
-        expiry: ::std::result::Result<i64, ::std::string::String>,
-        fwd_diff: ::std::result::Result<::std::string::String, ::std::string::String>,
-        signatures: ::std::result::Result<
-            ::std::option::Option<super::PublicOracleSignatureDataParams>,
-            ::std::string::String,
-        >,
-        spot_aggregate_latest: ::std::result::Result<
-            ::std::string::String,
-            ::std::string::String,
-        >,
-        spot_aggregate_start: ::std::result::Result<
-            ::std::string::String,
-            ::std::string::String,
-        >,
-        timestamp: ::std::result::Result<i64, ::std::string::String>,
-    }
-    impl ::std::default::Default for PublicForwardFeedDataParams {
-        fn default() -> Self {
-            Self {
-                confidence: Err("no value supplied for confidence".to_string()),
-                currency: Err("no value supplied for currency".to_string()),
-                deadline: Ok(Default::default()),
-                expiry: Err("no value supplied for expiry".to_string()),
-                fwd_diff: Err("no value supplied for fwd_diff".to_string()),
-                signatures: Ok(Default::default()),
-                spot_aggregate_latest: Err(
-                    "no value supplied for spot_aggregate_latest".to_string(),
-                ),
-                spot_aggregate_start: Err(
-                    "no value supplied for spot_aggregate_start".to_string(),
-                ),
-                timestamp: Err("no value supplied for timestamp".to_string()),
-            }
-        }
-    }
-    impl PublicForwardFeedDataParams {
-        pub fn confidence<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::std::string::String>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.confidence = value
-                .try_into()
-                .map_err(|e| {
-                    format!("error converting supplied value for confidence: {e}")
-                });
-            self
-        }
-        pub fn currency<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::std::string::String>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.currency = value
-                .try_into()
-                .map_err(|e| {
-                    format!("error converting supplied value for currency: {e}")
-                });
-            self
-        }
-        pub fn deadline<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<i64>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.deadline = value
-                .try_into()
-                .map_err(|e| {
-                    format!("error converting supplied value for deadline: {e}")
-                });
-            self
-        }
-        pub fn expiry<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<i64>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.expiry = value
-                .try_into()
-                .map_err(|e| format!("error converting supplied value for expiry: {e}"));
-            self
-        }
-        pub fn fwd_diff<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::std::string::String>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.fwd_diff = value
-                .try_into()
-                .map_err(|e| {
-                    format!("error converting supplied value for fwd_diff: {e}")
-                });
-            self
-        }
-        pub fn signatures<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<
-                ::std::option::Option<super::PublicOracleSignatureDataParams>,
-            >,
-            T::Error: ::std::fmt::Display,
-        {
-            self.signatures = value
-                .try_into()
-                .map_err(|e| {
-                    format!("error converting supplied value for signatures: {e}")
-                });
-            self
-        }
-        pub fn spot_aggregate_latest<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::std::string::String>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.spot_aggregate_latest = value
-                .try_into()
-                .map_err(|e| {
-                    format!(
-                        "error converting supplied value for spot_aggregate_latest: {e}"
-                    )
-                });
-            self
-        }
-        pub fn spot_aggregate_start<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::std::string::String>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.spot_aggregate_start = value
-                .try_into()
-                .map_err(|e| {
-                    format!(
-                        "error converting supplied value for spot_aggregate_start: {e}"
-                    )
-                });
-            self
-        }
-        pub fn timestamp<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<i64>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.timestamp = value
-                .try_into()
-                .map_err(|e| {
-                    format!("error converting supplied value for timestamp: {e}")
-                });
-            self
-        }
-    }
-    impl ::std::convert::TryFrom<PublicForwardFeedDataParams>
-    for super::PublicForwardFeedDataParams {
-        type Error = super::error::ConversionError;
-        fn try_from(
-            value: PublicForwardFeedDataParams,
-        ) -> ::std::result::Result<Self, super::error::ConversionError> {
-            Ok(Self {
-                confidence: value.confidence?,
-                currency: value.currency?,
-                deadline: value.deadline?,
-                expiry: value.expiry?,
-                fwd_diff: value.fwd_diff?,
-                signatures: value.signatures?,
-                spot_aggregate_latest: value.spot_aggregate_latest?,
-                spot_aggregate_start: value.spot_aggregate_start?,
-                timestamp: value.timestamp?,
-            })
-        }
-    }
-    impl ::std::convert::From<super::PublicForwardFeedDataParams>
-    for PublicForwardFeedDataParams {
-        fn from(value: super::PublicForwardFeedDataParams) -> Self {
-            Self {
-                confidence: Ok(value.confidence),
-                currency: Ok(value.currency),
-                deadline: Ok(value.deadline),
-                expiry: Ok(value.expiry),
-                fwd_diff: Ok(value.fwd_diff),
-                signatures: Ok(value.signatures),
-                spot_aggregate_latest: Ok(value.spot_aggregate_latest),
-                spot_aggregate_start: Ok(value.spot_aggregate_start),
-                timestamp: Ok(value.timestamp),
-            }
-        }
-    }
-    #[derive(Clone, Debug)]
-    pub struct PublicFundingFeedDataParams {
-        confidence: ::std::result::Result<::std::string::String, ::std::string::String>,
-        currency: ::std::result::Result<::std::string::String, ::std::string::String>,
-        deadline: ::std::result::Result<i64, ::std::string::String>,
-        funding_rate: ::std::result::Result<
-            ::std::string::String,
-            ::std::string::String,
-        >,
-        signatures: ::std::result::Result<
-            ::std::option::Option<super::PublicOracleSignatureDataParams>,
-            ::std::string::String,
-        >,
-        timestamp: ::std::result::Result<i64, ::std::string::String>,
-    }
-    impl ::std::default::Default for PublicFundingFeedDataParams {
-        fn default() -> Self {
-            Self {
-                confidence: Err("no value supplied for confidence".to_string()),
-                currency: Err("no value supplied for currency".to_string()),
-                deadline: Ok(Default::default()),
-                funding_rate: Err("no value supplied for funding_rate".to_string()),
-                signatures: Ok(Default::default()),
-                timestamp: Err("no value supplied for timestamp".to_string()),
-            }
-        }
-    }
-    impl PublicFundingFeedDataParams {
-        pub fn confidence<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::std::string::String>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.confidence = value
-                .try_into()
-                .map_err(|e| {
-                    format!("error converting supplied value for confidence: {e}")
-                });
-            self
-        }
-        pub fn currency<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::std::string::String>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.currency = value
-                .try_into()
-                .map_err(|e| {
-                    format!("error converting supplied value for currency: {e}")
-                });
-            self
-        }
-        pub fn deadline<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<i64>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.deadline = value
-                .try_into()
-                .map_err(|e| {
-                    format!("error converting supplied value for deadline: {e}")
-                });
-            self
-        }
-        pub fn funding_rate<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::std::string::String>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.funding_rate = value
-                .try_into()
-                .map_err(|e| {
-                    format!("error converting supplied value for funding_rate: {e}")
-                });
-            self
-        }
-        pub fn signatures<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<
-                ::std::option::Option<super::PublicOracleSignatureDataParams>,
-            >,
-            T::Error: ::std::fmt::Display,
-        {
-            self.signatures = value
-                .try_into()
-                .map_err(|e| {
-                    format!("error converting supplied value for signatures: {e}")
-                });
-            self
-        }
-        pub fn timestamp<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<i64>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.timestamp = value
-                .try_into()
-                .map_err(|e| {
-                    format!("error converting supplied value for timestamp: {e}")
-                });
-            self
-        }
-    }
-    impl ::std::convert::TryFrom<PublicFundingFeedDataParams>
-    for super::PublicFundingFeedDataParams {
-        type Error = super::error::ConversionError;
-        fn try_from(
-            value: PublicFundingFeedDataParams,
-        ) -> ::std::result::Result<Self, super::error::ConversionError> {
-            Ok(Self {
-                confidence: value.confidence?,
-                currency: value.currency?,
-                deadline: value.deadline?,
-                funding_rate: value.funding_rate?,
-                signatures: value.signatures?,
-                timestamp: value.timestamp?,
-            })
-        }
-    }
-    impl ::std::convert::From<super::PublicFundingFeedDataParams>
-    for PublicFundingFeedDataParams {
-        fn from(value: super::PublicFundingFeedDataParams) -> Self {
-            Self {
-                confidence: Ok(value.confidence),
-                currency: Ok(value.currency),
-                deadline: Ok(value.deadline),
-                funding_rate: Ok(value.funding_rate),
-                signatures: Ok(value.signatures),
-                timestamp: Ok(value.timestamp),
-            }
-        }
-    }
-    #[derive(Clone, Debug)]
     pub struct PublicGetLiveAuctionsResponse {
         auctions: ::std::result::Result<
             ::std::vec::Vec<super::LiveAuction>,
@@ -50615,6 +49678,107 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
+    pub struct PublicGetWalletRequest {
+        subaccount_id: ::std::result::Result<u64, ::std::string::String>,
+    }
+    impl ::std::default::Default for PublicGetWalletRequest {
+        fn default() -> Self {
+            Self {
+                subaccount_id: Err("no value supplied for subaccount_id".to_string()),
+            }
+        }
+    }
+    impl PublicGetWalletRequest {
+        pub fn subaccount_id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<u64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.subaccount_id = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for subaccount_id: {e}")
+                });
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<PublicGetWalletRequest>
+    for super::PublicGetWalletRequest {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: PublicGetWalletRequest,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                subaccount_id: value.subaccount_id?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::PublicGetWalletRequest> for PublicGetWalletRequest {
+        fn from(value: super::PublicGetWalletRequest) -> Self {
+            Self {
+                subaccount_id: Ok(value.subaccount_id),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct PublicGetWalletResponse {
+        subaccount_id: ::std::result::Result<u64, ::std::string::String>,
+        wallet: ::std::result::Result<::std::string::String, ::std::string::String>,
+    }
+    impl ::std::default::Default for PublicGetWalletResponse {
+        fn default() -> Self {
+            Self {
+                subaccount_id: Err("no value supplied for subaccount_id".to_string()),
+                wallet: Err("no value supplied for wallet".to_string()),
+            }
+        }
+    }
+    impl PublicGetWalletResponse {
+        pub fn subaccount_id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<u64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.subaccount_id = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for subaccount_id: {e}")
+                });
+            self
+        }
+        pub fn wallet<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.wallet = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for wallet: {e}"));
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<PublicGetWalletResponse>
+    for super::PublicGetWalletResponse {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: PublicGetWalletResponse,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                subaccount_id: value.subaccount_id?,
+                wallet: value.wallet?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::PublicGetWalletResponse>
+    for PublicGetWalletResponse {
+        fn from(value: super::PublicGetWalletResponse) -> Self {
+            Self {
+                subaccount_id: Ok(value.subaccount_id),
+                wallet: Ok(value.wallet),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
     pub struct PublicGetWalletsFromSessionKeyResponse {
         wallets: ::std::result::Result<
             ::std::vec::Vec<::std::string::String>,
@@ -50760,6 +49924,7 @@ pub mod builder {
             ::std::vec::Vec<::std::string::String>,
             ::std::string::String,
         >,
+        has_delayed_liquidation: ::std::result::Result<bool, ::std::string::String>,
         initial_margin: ::std::result::Result<
             ::std::string::String,
             ::std::string::String,
@@ -50772,6 +49937,10 @@ pub mod builder {
         margin_type: ::std::result::Result<::std::string::String, ::std::string::String>,
         positions: ::std::result::Result<
             ::std::vec::Vec<super::Position>,
+            ::std::string::String,
+        >,
+        regular_margin_flagged_sec: ::std::result::Result<
+            ::std::option::Option<u64>,
             ::std::string::String,
         >,
         risk_universe_id: ::std::result::Result<u32, ::std::string::String>,
@@ -50787,6 +49956,9 @@ pub mod builder {
             Self {
                 collaterals: Err("no value supplied for collaterals".to_string()),
                 currency: Err("no value supplied for currency".to_string()),
+                has_delayed_liquidation: Err(
+                    "no value supplied for has_delayed_liquidation".to_string(),
+                ),
                 initial_margin: Err("no value supplied for initial_margin".to_string()),
                 is_delayed_liquidation: Err(
                     "no value supplied for is_delayed_liquidation".to_string(),
@@ -50796,6 +49968,7 @@ pub mod builder {
                 ),
                 margin_type: Err("no value supplied for margin_type".to_string()),
                 positions: Err("no value supplied for positions".to_string()),
+                regular_margin_flagged_sec: Ok(Default::default()),
                 risk_universe_id: Err(
                     "no value supplied for risk_universe_id".to_string(),
                 ),
@@ -50831,6 +50004,20 @@ pub mod builder {
                 .try_into()
                 .map_err(|e| {
                     format!("error converting supplied value for currency: {e}")
+                });
+            self
+        }
+        pub fn has_delayed_liquidation<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<bool>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.has_delayed_liquidation = value
+                .try_into()
+                .map_err(|e| {
+                    format!(
+                        "error converting supplied value for has_delayed_liquidation: {e}"
+                    )
                 });
             self
         }
@@ -50898,6 +50085,20 @@ pub mod builder {
                 });
             self
         }
+        pub fn regular_margin_flagged_sec<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<u64>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.regular_margin_flagged_sec = value
+                .try_into()
+                .map_err(|e| {
+                    format!(
+                        "error converting supplied value for regular_margin_flagged_sec: {e}"
+                    )
+                });
+            self
+        }
         pub fn risk_universe_id<T>(mut self, value: T) -> Self
         where
             T: ::std::convert::TryInto<u32>,
@@ -50958,11 +50159,13 @@ pub mod builder {
             Ok(Self {
                 collaterals: value.collaterals?,
                 currency: value.currency?,
+                has_delayed_liquidation: value.has_delayed_liquidation?,
                 initial_margin: value.initial_margin?,
                 is_delayed_liquidation: value.is_delayed_liquidation?,
                 maintenance_margin: value.maintenance_margin?,
                 margin_type: value.margin_type?,
                 positions: value.positions?,
+                regular_margin_flagged_sec: value.regular_margin_flagged_sec?,
                 risk_universe_id: value.risk_universe_id?,
                 subaccount_id: value.subaccount_id?,
                 subaccount_value: value.subaccount_value?,
@@ -50976,229 +50179,17 @@ pub mod builder {
             Self {
                 collaterals: Ok(value.collaterals),
                 currency: Ok(value.currency),
+                has_delayed_liquidation: Ok(value.has_delayed_liquidation),
                 initial_margin: Ok(value.initial_margin),
                 is_delayed_liquidation: Ok(value.is_delayed_liquidation),
                 maintenance_margin: Ok(value.maintenance_margin),
                 margin_type: Ok(value.margin_type),
                 positions: Ok(value.positions),
+                regular_margin_flagged_sec: Ok(value.regular_margin_flagged_sec),
                 risk_universe_id: Ok(value.risk_universe_id),
                 subaccount_id: Ok(value.subaccount_id),
                 subaccount_value: Ok(value.subaccount_value),
                 valuation_timestamp: Ok(value.valuation_timestamp),
-            }
-        }
-    }
-    #[derive(Clone, Debug)]
-    pub struct PublicOracleSignatureDataParams {
-        signatures: ::std::result::Result<
-            ::std::vec::Vec<::std::string::String>,
-            ::std::string::String,
-        >,
-        signers: ::std::result::Result<
-            ::std::vec::Vec<::std::string::String>,
-            ::std::string::String,
-        >,
-    }
-    impl ::std::default::Default for PublicOracleSignatureDataParams {
-        fn default() -> Self {
-            Self {
-                signatures: Ok(Default::default()),
-                signers: Ok(Default::default()),
-            }
-        }
-    }
-    impl PublicOracleSignatureDataParams {
-        pub fn signatures<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::std::vec::Vec<::std::string::String>>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.signatures = value
-                .try_into()
-                .map_err(|e| {
-                    format!("error converting supplied value for signatures: {e}")
-                });
-            self
-        }
-        pub fn signers<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::std::vec::Vec<::std::string::String>>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.signers = value
-                .try_into()
-                .map_err(|e| {
-                    format!("error converting supplied value for signers: {e}")
-                });
-            self
-        }
-    }
-    impl ::std::convert::TryFrom<PublicOracleSignatureDataParams>
-    for super::PublicOracleSignatureDataParams {
-        type Error = super::error::ConversionError;
-        fn try_from(
-            value: PublicOracleSignatureDataParams,
-        ) -> ::std::result::Result<Self, super::error::ConversionError> {
-            Ok(Self {
-                signatures: value.signatures?,
-                signers: value.signers?,
-            })
-        }
-    }
-    impl ::std::convert::From<super::PublicOracleSignatureDataParams>
-    for PublicOracleSignatureDataParams {
-        fn from(value: super::PublicOracleSignatureDataParams) -> Self {
-            Self {
-                signatures: Ok(value.signatures),
-                signers: Ok(value.signers),
-            }
-        }
-    }
-    #[derive(Clone, Debug)]
-    pub struct PublicPerpFeedDataParams {
-        confidence: ::std::result::Result<::std::string::String, ::std::string::String>,
-        currency: ::std::result::Result<::std::string::String, ::std::string::String>,
-        deadline: ::std::result::Result<i64, ::std::string::String>,
-        signatures: ::std::result::Result<
-            ::std::option::Option<super::PublicOracleSignatureDataParams>,
-            ::std::string::String,
-        >,
-        spot_diff_value: ::std::result::Result<
-            ::std::string::String,
-            ::std::string::String,
-        >,
-        timestamp: ::std::result::Result<i64, ::std::string::String>,
-        type_: ::std::result::Result<::std::string::String, ::std::string::String>,
-    }
-    impl ::std::default::Default for PublicPerpFeedDataParams {
-        fn default() -> Self {
-            Self {
-                confidence: Err("no value supplied for confidence".to_string()),
-                currency: Err("no value supplied for currency".to_string()),
-                deadline: Ok(Default::default()),
-                signatures: Ok(Default::default()),
-                spot_diff_value: Err(
-                    "no value supplied for spot_diff_value".to_string(),
-                ),
-                timestamp: Err("no value supplied for timestamp".to_string()),
-                type_: Err("no value supplied for type_".to_string()),
-            }
-        }
-    }
-    impl PublicPerpFeedDataParams {
-        pub fn confidence<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::std::string::String>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.confidence = value
-                .try_into()
-                .map_err(|e| {
-                    format!("error converting supplied value for confidence: {e}")
-                });
-            self
-        }
-        pub fn currency<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::std::string::String>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.currency = value
-                .try_into()
-                .map_err(|e| {
-                    format!("error converting supplied value for currency: {e}")
-                });
-            self
-        }
-        pub fn deadline<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<i64>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.deadline = value
-                .try_into()
-                .map_err(|e| {
-                    format!("error converting supplied value for deadline: {e}")
-                });
-            self
-        }
-        pub fn signatures<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<
-                ::std::option::Option<super::PublicOracleSignatureDataParams>,
-            >,
-            T::Error: ::std::fmt::Display,
-        {
-            self.signatures = value
-                .try_into()
-                .map_err(|e| {
-                    format!("error converting supplied value for signatures: {e}")
-                });
-            self
-        }
-        pub fn spot_diff_value<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::std::string::String>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.spot_diff_value = value
-                .try_into()
-                .map_err(|e| {
-                    format!("error converting supplied value for spot_diff_value: {e}")
-                });
-            self
-        }
-        pub fn timestamp<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<i64>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.timestamp = value
-                .try_into()
-                .map_err(|e| {
-                    format!("error converting supplied value for timestamp: {e}")
-                });
-            self
-        }
-        pub fn type_<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::std::string::String>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.type_ = value
-                .try_into()
-                .map_err(|e| format!("error converting supplied value for type_: {e}"));
-            self
-        }
-    }
-    impl ::std::convert::TryFrom<PublicPerpFeedDataParams>
-    for super::PublicPerpFeedDataParams {
-        type Error = super::error::ConversionError;
-        fn try_from(
-            value: PublicPerpFeedDataParams,
-        ) -> ::std::result::Result<Self, super::error::ConversionError> {
-            Ok(Self {
-                confidence: value.confidence?,
-                currency: value.currency?,
-                deadline: value.deadline?,
-                signatures: value.signatures?,
-                spot_diff_value: value.spot_diff_value?,
-                timestamp: value.timestamp?,
-                type_: value.type_?,
-            })
-        }
-    }
-    impl ::std::convert::From<super::PublicPerpFeedDataParams>
-    for PublicPerpFeedDataParams {
-        fn from(value: super::PublicPerpFeedDataParams) -> Self {
-            Self {
-                confidence: Ok(value.confidence),
-                currency: Ok(value.currency),
-                deadline: Ok(value.deadline),
-                signatures: Ok(value.signatures),
-                spot_diff_value: Ok(value.spot_diff_value),
-                timestamp: Ok(value.timestamp),
-                type_: Ok(value.type_),
             }
         }
     }
@@ -51444,147 +50435,6 @@ pub mod builder {
                 status: Ok(value.status),
                 subaccount_id: Ok(value.subaccount_id),
                 wallet: Ok(value.wallet),
-            }
-        }
-    }
-    #[derive(Clone, Debug)]
-    pub struct PublicRateFeedDataParams {
-        confidence: ::std::result::Result<::std::string::String, ::std::string::String>,
-        currency: ::std::result::Result<::std::string::String, ::std::string::String>,
-        deadline: ::std::result::Result<i64, ::std::string::String>,
-        expiry: ::std::result::Result<i64, ::std::string::String>,
-        rate: ::std::result::Result<::std::string::String, ::std::string::String>,
-        signatures: ::std::result::Result<
-            ::std::option::Option<super::PublicOracleSignatureDataParams>,
-            ::std::string::String,
-        >,
-        timestamp: ::std::result::Result<i64, ::std::string::String>,
-    }
-    impl ::std::default::Default for PublicRateFeedDataParams {
-        fn default() -> Self {
-            Self {
-                confidence: Err("no value supplied for confidence".to_string()),
-                currency: Err("no value supplied for currency".to_string()),
-                deadline: Ok(Default::default()),
-                expiry: Err("no value supplied for expiry".to_string()),
-                rate: Err("no value supplied for rate".to_string()),
-                signatures: Ok(Default::default()),
-                timestamp: Err("no value supplied for timestamp".to_string()),
-            }
-        }
-    }
-    impl PublicRateFeedDataParams {
-        pub fn confidence<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::std::string::String>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.confidence = value
-                .try_into()
-                .map_err(|e| {
-                    format!("error converting supplied value for confidence: {e}")
-                });
-            self
-        }
-        pub fn currency<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::std::string::String>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.currency = value
-                .try_into()
-                .map_err(|e| {
-                    format!("error converting supplied value for currency: {e}")
-                });
-            self
-        }
-        pub fn deadline<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<i64>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.deadline = value
-                .try_into()
-                .map_err(|e| {
-                    format!("error converting supplied value for deadline: {e}")
-                });
-            self
-        }
-        pub fn expiry<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<i64>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.expiry = value
-                .try_into()
-                .map_err(|e| format!("error converting supplied value for expiry: {e}"));
-            self
-        }
-        pub fn rate<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::std::string::String>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.rate = value
-                .try_into()
-                .map_err(|e| format!("error converting supplied value for rate: {e}"));
-            self
-        }
-        pub fn signatures<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<
-                ::std::option::Option<super::PublicOracleSignatureDataParams>,
-            >,
-            T::Error: ::std::fmt::Display,
-        {
-            self.signatures = value
-                .try_into()
-                .map_err(|e| {
-                    format!("error converting supplied value for signatures: {e}")
-                });
-            self
-        }
-        pub fn timestamp<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<i64>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.timestamp = value
-                .try_into()
-                .map_err(|e| {
-                    format!("error converting supplied value for timestamp: {e}")
-                });
-            self
-        }
-    }
-    impl ::std::convert::TryFrom<PublicRateFeedDataParams>
-    for super::PublicRateFeedDataParams {
-        type Error = super::error::ConversionError;
-        fn try_from(
-            value: PublicRateFeedDataParams,
-        ) -> ::std::result::Result<Self, super::error::ConversionError> {
-            Ok(Self {
-                confidence: value.confidence?,
-                currency: value.currency?,
-                deadline: value.deadline?,
-                expiry: value.expiry?,
-                rate: value.rate?,
-                signatures: value.signatures?,
-                timestamp: value.timestamp?,
-            })
-        }
-    }
-    impl ::std::convert::From<super::PublicRateFeedDataParams>
-    for PublicRateFeedDataParams {
-        fn from(value: super::PublicRateFeedDataParams) -> Self {
-            Self {
-                confidence: Ok(value.confidence),
-                currency: Ok(value.currency),
-                deadline: Ok(value.deadline),
-                expiry: Ok(value.expiry),
-                rate: Ok(value.rate),
-                signatures: Ok(value.signatures),
-                timestamp: Ok(value.timestamp),
             }
         }
     }
@@ -52052,455 +50902,6 @@ pub mod builder {
                 signature_expiry_sec: Ok(value.signature_expiry_sec),
                 signer: Ok(value.signer),
                 subaccount_id: Ok(value.subaccount_id),
-            }
-        }
-    }
-    #[derive(Clone, Debug)]
-    pub struct PublicSetFeedDataRequest {
-        forward: ::std::result::Result<
-            ::std::vec::Vec<super::PublicForwardFeedDataParams>,
-            ::std::string::String,
-        >,
-        funding: ::std::result::Result<
-            ::std::vec::Vec<super::PublicFundingFeedDataParams>,
-            ::std::string::String,
-        >,
-        perp: ::std::result::Result<
-            ::std::vec::Vec<super::PublicPerpFeedDataParams>,
-            ::std::string::String,
-        >,
-        rate: ::std::result::Result<
-            ::std::vec::Vec<super::PublicRateFeedDataParams>,
-            ::std::string::String,
-        >,
-        spot: ::std::result::Result<
-            ::std::vec::Vec<super::PublicSpotFeedDataParams>,
-            ::std::string::String,
-        >,
-        vol: ::std::result::Result<
-            ::std::vec::Vec<super::PublicVolFeedDataParams>,
-            ::std::string::String,
-        >,
-    }
-    impl ::std::default::Default for PublicSetFeedDataRequest {
-        fn default() -> Self {
-            Self {
-                forward: Err("no value supplied for forward".to_string()),
-                funding: Ok(Default::default()),
-                perp: Err("no value supplied for perp".to_string()),
-                rate: Err("no value supplied for rate".to_string()),
-                spot: Err("no value supplied for spot".to_string()),
-                vol: Err("no value supplied for vol".to_string()),
-            }
-        }
-    }
-    impl PublicSetFeedDataRequest {
-        pub fn forward<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<
-                ::std::vec::Vec<super::PublicForwardFeedDataParams>,
-            >,
-            T::Error: ::std::fmt::Display,
-        {
-            self.forward = value
-                .try_into()
-                .map_err(|e| {
-                    format!("error converting supplied value for forward: {e}")
-                });
-            self
-        }
-        pub fn funding<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<
-                ::std::vec::Vec<super::PublicFundingFeedDataParams>,
-            >,
-            T::Error: ::std::fmt::Display,
-        {
-            self.funding = value
-                .try_into()
-                .map_err(|e| {
-                    format!("error converting supplied value for funding: {e}")
-                });
-            self
-        }
-        pub fn perp<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::std::vec::Vec<super::PublicPerpFeedDataParams>>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.perp = value
-                .try_into()
-                .map_err(|e| format!("error converting supplied value for perp: {e}"));
-            self
-        }
-        pub fn rate<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::std::vec::Vec<super::PublicRateFeedDataParams>>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.rate = value
-                .try_into()
-                .map_err(|e| format!("error converting supplied value for rate: {e}"));
-            self
-        }
-        pub fn spot<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::std::vec::Vec<super::PublicSpotFeedDataParams>>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.spot = value
-                .try_into()
-                .map_err(|e| format!("error converting supplied value for spot: {e}"));
-            self
-        }
-        pub fn vol<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::std::vec::Vec<super::PublicVolFeedDataParams>>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.vol = value
-                .try_into()
-                .map_err(|e| format!("error converting supplied value for vol: {e}"));
-            self
-        }
-    }
-    impl ::std::convert::TryFrom<PublicSetFeedDataRequest>
-    for super::PublicSetFeedDataRequest {
-        type Error = super::error::ConversionError;
-        fn try_from(
-            value: PublicSetFeedDataRequest,
-        ) -> ::std::result::Result<Self, super::error::ConversionError> {
-            Ok(Self {
-                forward: value.forward?,
-                funding: value.funding?,
-                perp: value.perp?,
-                rate: value.rate?,
-                spot: value.spot?,
-                vol: value.vol?,
-            })
-        }
-    }
-    impl ::std::convert::From<super::PublicSetFeedDataRequest>
-    for PublicSetFeedDataRequest {
-        fn from(value: super::PublicSetFeedDataRequest) -> Self {
-            Self {
-                forward: Ok(value.forward),
-                funding: Ok(value.funding),
-                perp: Ok(value.perp),
-                rate: Ok(value.rate),
-                spot: Ok(value.spot),
-                vol: Ok(value.vol),
-            }
-        }
-    }
-    #[derive(Clone, Debug)]
-    pub struct PublicSetSocializationFeedDataRequest {
-        feeds: ::std::result::Result<
-            super::PublicSetFeedDataRequest,
-            ::std::string::String,
-        >,
-        universe_id: ::std::result::Result<u32, ::std::string::String>,
-    }
-    impl ::std::default::Default for PublicSetSocializationFeedDataRequest {
-        fn default() -> Self {
-            Self {
-                feeds: Err("no value supplied for feeds".to_string()),
-                universe_id: Err("no value supplied for universe_id".to_string()),
-            }
-        }
-    }
-    impl PublicSetSocializationFeedDataRequest {
-        pub fn feeds<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<super::PublicSetFeedDataRequest>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.feeds = value
-                .try_into()
-                .map_err(|e| format!("error converting supplied value for feeds: {e}"));
-            self
-        }
-        pub fn universe_id<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<u32>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.universe_id = value
-                .try_into()
-                .map_err(|e| {
-                    format!("error converting supplied value for universe_id: {e}")
-                });
-            self
-        }
-    }
-    impl ::std::convert::TryFrom<PublicSetSocializationFeedDataRequest>
-    for super::PublicSetSocializationFeedDataRequest {
-        type Error = super::error::ConversionError;
-        fn try_from(
-            value: PublicSetSocializationFeedDataRequest,
-        ) -> ::std::result::Result<Self, super::error::ConversionError> {
-            Ok(Self {
-                feeds: value.feeds?,
-                universe_id: value.universe_id?,
-            })
-        }
-    }
-    impl ::std::convert::From<super::PublicSetSocializationFeedDataRequest>
-    for PublicSetSocializationFeedDataRequest {
-        fn from(value: super::PublicSetSocializationFeedDataRequest) -> Self {
-            Self {
-                feeds: Ok(value.feeds),
-                universe_id: Ok(value.universe_id),
-            }
-        }
-    }
-    #[derive(Clone, Debug)]
-    pub struct PublicSpotFeedDataParams {
-        confidence: ::std::result::Result<::std::string::String, ::std::string::String>,
-        currency: ::std::result::Result<::std::string::String, ::std::string::String>,
-        deadline: ::std::result::Result<i64, ::std::string::String>,
-        feed_source_type: ::std::result::Result<
-            ::std::option::Option<::std::string::String>,
-            ::std::string::String,
-        >,
-        price: ::std::result::Result<::std::string::String, ::std::string::String>,
-        signatures: ::std::result::Result<
-            ::std::option::Option<super::PublicOracleSignatureDataParams>,
-            ::std::string::String,
-        >,
-        timestamp: ::std::result::Result<i64, ::std::string::String>,
-    }
-    impl ::std::default::Default for PublicSpotFeedDataParams {
-        fn default() -> Self {
-            Self {
-                confidence: Err("no value supplied for confidence".to_string()),
-                currency: Err("no value supplied for currency".to_string()),
-                deadline: Ok(Default::default()),
-                feed_source_type: Ok(Default::default()),
-                price: Err("no value supplied for price".to_string()),
-                signatures: Ok(Default::default()),
-                timestamp: Err("no value supplied for timestamp".to_string()),
-            }
-        }
-    }
-    impl PublicSpotFeedDataParams {
-        pub fn confidence<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::std::string::String>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.confidence = value
-                .try_into()
-                .map_err(|e| {
-                    format!("error converting supplied value for confidence: {e}")
-                });
-            self
-        }
-        pub fn currency<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::std::string::String>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.currency = value
-                .try_into()
-                .map_err(|e| {
-                    format!("error converting supplied value for currency: {e}")
-                });
-            self
-        }
-        pub fn deadline<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<i64>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.deadline = value
-                .try_into()
-                .map_err(|e| {
-                    format!("error converting supplied value for deadline: {e}")
-                });
-            self
-        }
-        pub fn feed_source_type<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.feed_source_type = value
-                .try_into()
-                .map_err(|e| {
-                    format!("error converting supplied value for feed_source_type: {e}")
-                });
-            self
-        }
-        pub fn price<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::std::string::String>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.price = value
-                .try_into()
-                .map_err(|e| format!("error converting supplied value for price: {e}"));
-            self
-        }
-        pub fn signatures<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<
-                ::std::option::Option<super::PublicOracleSignatureDataParams>,
-            >,
-            T::Error: ::std::fmt::Display,
-        {
-            self.signatures = value
-                .try_into()
-                .map_err(|e| {
-                    format!("error converting supplied value for signatures: {e}")
-                });
-            self
-        }
-        pub fn timestamp<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<i64>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.timestamp = value
-                .try_into()
-                .map_err(|e| {
-                    format!("error converting supplied value for timestamp: {e}")
-                });
-            self
-        }
-    }
-    impl ::std::convert::TryFrom<PublicSpotFeedDataParams>
-    for super::PublicSpotFeedDataParams {
-        type Error = super::error::ConversionError;
-        fn try_from(
-            value: PublicSpotFeedDataParams,
-        ) -> ::std::result::Result<Self, super::error::ConversionError> {
-            Ok(Self {
-                confidence: value.confidence?,
-                currency: value.currency?,
-                deadline: value.deadline?,
-                feed_source_type: value.feed_source_type?,
-                price: value.price?,
-                signatures: value.signatures?,
-                timestamp: value.timestamp?,
-            })
-        }
-    }
-    impl ::std::convert::From<super::PublicSpotFeedDataParams>
-    for PublicSpotFeedDataParams {
-        fn from(value: super::PublicSpotFeedDataParams) -> Self {
-            Self {
-                confidence: Ok(value.confidence),
-                currency: Ok(value.currency),
-                deadline: Ok(value.deadline),
-                feed_source_type: Ok(value.feed_source_type),
-                price: Ok(value.price),
-                signatures: Ok(value.signatures),
-                timestamp: Ok(value.timestamp),
-            }
-        }
-    }
-    #[derive(Clone, Debug)]
-    pub struct PublicStartAuctionRequest {
-        subaccount_id: ::std::result::Result<u64, ::std::string::String>,
-    }
-    impl ::std::default::Default for PublicStartAuctionRequest {
-        fn default() -> Self {
-            Self {
-                subaccount_id: Err("no value supplied for subaccount_id".to_string()),
-            }
-        }
-    }
-    impl PublicStartAuctionRequest {
-        pub fn subaccount_id<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<u64>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.subaccount_id = value
-                .try_into()
-                .map_err(|e| {
-                    format!("error converting supplied value for subaccount_id: {e}")
-                });
-            self
-        }
-    }
-    impl ::std::convert::TryFrom<PublicStartAuctionRequest>
-    for super::PublicStartAuctionRequest {
-        type Error = super::error::ConversionError;
-        fn try_from(
-            value: PublicStartAuctionRequest,
-        ) -> ::std::result::Result<Self, super::error::ConversionError> {
-            Ok(Self {
-                subaccount_id: value.subaccount_id?,
-            })
-        }
-    }
-    impl ::std::convert::From<super::PublicStartAuctionRequest>
-    for PublicStartAuctionRequest {
-        fn from(value: super::PublicStartAuctionRequest) -> Self {
-            Self {
-                subaccount_id: Ok(value.subaccount_id),
-            }
-        }
-    }
-    #[derive(Clone, Debug)]
-    pub struct PublicStartAuctionResponse {
-        op_uuid: ::std::result::Result<::std::string::String, ::std::string::String>,
-        operation_id: ::std::result::Result<u64, ::std::string::String>,
-    }
-    impl ::std::default::Default for PublicStartAuctionResponse {
-        fn default() -> Self {
-            Self {
-                op_uuid: Err("no value supplied for op_uuid".to_string()),
-                operation_id: Err("no value supplied for operation_id".to_string()),
-            }
-        }
-    }
-    impl PublicStartAuctionResponse {
-        pub fn op_uuid<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::std::string::String>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.op_uuid = value
-                .try_into()
-                .map_err(|e| {
-                    format!("error converting supplied value for op_uuid: {e}")
-                });
-            self
-        }
-        pub fn operation_id<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<u64>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.operation_id = value
-                .try_into()
-                .map_err(|e| {
-                    format!("error converting supplied value for operation_id: {e}")
-                });
-            self
-        }
-    }
-    impl ::std::convert::TryFrom<PublicStartAuctionResponse>
-    for super::PublicStartAuctionResponse {
-        type Error = super::error::ConversionError;
-        fn try_from(
-            value: PublicStartAuctionResponse,
-        ) -> ::std::result::Result<Self, super::error::ConversionError> {
-            Ok(Self {
-                op_uuid: value.op_uuid?,
-                operation_id: value.operation_id?,
-            })
-        }
-    }
-    impl ::std::convert::From<super::PublicStartAuctionResponse>
-    for PublicStartAuctionResponse {
-        fn from(value: super::PublicStartAuctionResponse) -> Self {
-            Self {
-                op_uuid: Ok(value.op_uuid),
-                operation_id: Ok(value.operation_id),
             }
         }
     }
@@ -53234,286 +51635,6 @@ pub mod builder {
                 status: Ok(value.status),
                 subaccount_id: Ok(value.subaccount_id),
                 total_shares: Ok(value.total_shares),
-            }
-        }
-    }
-    #[derive(Clone, Debug)]
-    pub struct PublicVolFeedDataParams {
-        confidence: ::std::result::Result<::std::string::String, ::std::string::String>,
-        currency: ::std::result::Result<::std::string::String, ::std::string::String>,
-        deadline: ::std::result::Result<i64, ::std::string::String>,
-        expiry: ::std::result::Result<i64, ::std::string::String>,
-        signatures: ::std::result::Result<
-            ::std::option::Option<super::PublicOracleSignatureDataParams>,
-            ::std::string::String,
-        >,
-        timestamp: ::std::result::Result<i64, ::std::string::String>,
-        vol_data: ::std::result::Result<
-            super::PublicVolSviParamDataParams,
-            ::std::string::String,
-        >,
-    }
-    impl ::std::default::Default for PublicVolFeedDataParams {
-        fn default() -> Self {
-            Self {
-                confidence: Err("no value supplied for confidence".to_string()),
-                currency: Err("no value supplied for currency".to_string()),
-                deadline: Ok(Default::default()),
-                expiry: Err("no value supplied for expiry".to_string()),
-                signatures: Ok(Default::default()),
-                timestamp: Err("no value supplied for timestamp".to_string()),
-                vol_data: Err("no value supplied for vol_data".to_string()),
-            }
-        }
-    }
-    impl PublicVolFeedDataParams {
-        pub fn confidence<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::std::string::String>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.confidence = value
-                .try_into()
-                .map_err(|e| {
-                    format!("error converting supplied value for confidence: {e}")
-                });
-            self
-        }
-        pub fn currency<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::std::string::String>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.currency = value
-                .try_into()
-                .map_err(|e| {
-                    format!("error converting supplied value for currency: {e}")
-                });
-            self
-        }
-        pub fn deadline<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<i64>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.deadline = value
-                .try_into()
-                .map_err(|e| {
-                    format!("error converting supplied value for deadline: {e}")
-                });
-            self
-        }
-        pub fn expiry<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<i64>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.expiry = value
-                .try_into()
-                .map_err(|e| format!("error converting supplied value for expiry: {e}"));
-            self
-        }
-        pub fn signatures<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<
-                ::std::option::Option<super::PublicOracleSignatureDataParams>,
-            >,
-            T::Error: ::std::fmt::Display,
-        {
-            self.signatures = value
-                .try_into()
-                .map_err(|e| {
-                    format!("error converting supplied value for signatures: {e}")
-                });
-            self
-        }
-        pub fn timestamp<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<i64>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.timestamp = value
-                .try_into()
-                .map_err(|e| {
-                    format!("error converting supplied value for timestamp: {e}")
-                });
-            self
-        }
-        pub fn vol_data<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<super::PublicVolSviParamDataParams>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.vol_data = value
-                .try_into()
-                .map_err(|e| {
-                    format!("error converting supplied value for vol_data: {e}")
-                });
-            self
-        }
-    }
-    impl ::std::convert::TryFrom<PublicVolFeedDataParams>
-    for super::PublicVolFeedDataParams {
-        type Error = super::error::ConversionError;
-        fn try_from(
-            value: PublicVolFeedDataParams,
-        ) -> ::std::result::Result<Self, super::error::ConversionError> {
-            Ok(Self {
-                confidence: value.confidence?,
-                currency: value.currency?,
-                deadline: value.deadline?,
-                expiry: value.expiry?,
-                signatures: value.signatures?,
-                timestamp: value.timestamp?,
-                vol_data: value.vol_data?,
-            })
-        }
-    }
-    impl ::std::convert::From<super::PublicVolFeedDataParams>
-    for PublicVolFeedDataParams {
-        fn from(value: super::PublicVolFeedDataParams) -> Self {
-            Self {
-                confidence: Ok(value.confidence),
-                currency: Ok(value.currency),
-                deadline: Ok(value.deadline),
-                expiry: Ok(value.expiry),
-                signatures: Ok(value.signatures),
-                timestamp: Ok(value.timestamp),
-                vol_data: Ok(value.vol_data),
-            }
-        }
-    }
-    #[derive(Clone, Debug)]
-    pub struct PublicVolSviParamDataParams {
-        svi_a: ::std::result::Result<::std::string::String, ::std::string::String>,
-        svi_b: ::std::result::Result<::std::string::String, ::std::string::String>,
-        svi_fwd: ::std::result::Result<::std::string::String, ::std::string::String>,
-        svi_m: ::std::result::Result<::std::string::String, ::std::string::String>,
-        svi_ref_tau: ::std::result::Result<::std::string::String, ::std::string::String>,
-        svi_rho: ::std::result::Result<::std::string::String, ::std::string::String>,
-        svi_sigma: ::std::result::Result<::std::string::String, ::std::string::String>,
-    }
-    impl ::std::default::Default for PublicVolSviParamDataParams {
-        fn default() -> Self {
-            Self {
-                svi_a: Err("no value supplied for svi_a".to_string()),
-                svi_b: Err("no value supplied for svi_b".to_string()),
-                svi_fwd: Err("no value supplied for svi_fwd".to_string()),
-                svi_m: Err("no value supplied for svi_m".to_string()),
-                svi_ref_tau: Err("no value supplied for svi_ref_tau".to_string()),
-                svi_rho: Err("no value supplied for svi_rho".to_string()),
-                svi_sigma: Err("no value supplied for svi_sigma".to_string()),
-            }
-        }
-    }
-    impl PublicVolSviParamDataParams {
-        pub fn svi_a<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::std::string::String>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.svi_a = value
-                .try_into()
-                .map_err(|e| format!("error converting supplied value for svi_a: {e}"));
-            self
-        }
-        pub fn svi_b<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::std::string::String>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.svi_b = value
-                .try_into()
-                .map_err(|e| format!("error converting supplied value for svi_b: {e}"));
-            self
-        }
-        pub fn svi_fwd<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::std::string::String>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.svi_fwd = value
-                .try_into()
-                .map_err(|e| {
-                    format!("error converting supplied value for svi_fwd: {e}")
-                });
-            self
-        }
-        pub fn svi_m<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::std::string::String>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.svi_m = value
-                .try_into()
-                .map_err(|e| format!("error converting supplied value for svi_m: {e}"));
-            self
-        }
-        pub fn svi_ref_tau<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::std::string::String>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.svi_ref_tau = value
-                .try_into()
-                .map_err(|e| {
-                    format!("error converting supplied value for svi_ref_tau: {e}")
-                });
-            self
-        }
-        pub fn svi_rho<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::std::string::String>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.svi_rho = value
-                .try_into()
-                .map_err(|e| {
-                    format!("error converting supplied value for svi_rho: {e}")
-                });
-            self
-        }
-        pub fn svi_sigma<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::std::string::String>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.svi_sigma = value
-                .try_into()
-                .map_err(|e| {
-                    format!("error converting supplied value for svi_sigma: {e}")
-                });
-            self
-        }
-    }
-    impl ::std::convert::TryFrom<PublicVolSviParamDataParams>
-    for super::PublicVolSviParamDataParams {
-        type Error = super::error::ConversionError;
-        fn try_from(
-            value: PublicVolSviParamDataParams,
-        ) -> ::std::result::Result<Self, super::error::ConversionError> {
-            Ok(Self {
-                svi_a: value.svi_a?,
-                svi_b: value.svi_b?,
-                svi_fwd: value.svi_fwd?,
-                svi_m: value.svi_m?,
-                svi_ref_tau: value.svi_ref_tau?,
-                svi_rho: value.svi_rho?,
-                svi_sigma: value.svi_sigma?,
-            })
-        }
-    }
-    impl ::std::convert::From<super::PublicVolSviParamDataParams>
-    for PublicVolSviParamDataParams {
-        fn from(value: super::PublicVolSviParamDataParams) -> Self {
-            Self {
-                svi_a: Ok(value.svi_a),
-                svi_b: Ok(value.svi_b),
-                svi_fwd: Ok(value.svi_fwd),
-                svi_m: Ok(value.svi_m),
-                svi_ref_tau: Ok(value.svi_ref_tau),
-                svi_rho: Ok(value.svi_rho),
-                svi_sigma: Ok(value.svi_sigma),
             }
         }
     }
