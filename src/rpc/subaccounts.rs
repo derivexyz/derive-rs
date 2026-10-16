@@ -76,4 +76,11 @@ impl<'a> SubaccountsNamespace<'a> {
         let params_json = serde_json::to_value(&params)?;
         self.ws_client.send_rpc("public/get_subaccounts", params_json).await
     }
+    pub async fn get_wallet(
+        &self,
+        params: PublicGetWalletRequest,
+    ) -> Result<PublicGetWalletResponse, ClientError> {
+        let params_json = serde_json::to_value(&params)?;
+        self.ws_client.send_rpc("public/get_wallet", params_json).await
+    }
 }

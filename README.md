@@ -91,7 +91,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let result = client.orders().place(order).await?;
 
-    println!("Order placed: {result:#?}");
+    println!("Order placed: {}", result.order.order_id);
 
     tokio::time::sleep(std::time::Duration::from_secs(1)).await;
 
@@ -100,10 +100,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .instrument_name("HYPE-PERP".to_string())
         .subaccount_id(client.subaccount_id.unwrap())
         .try_into()?;
-    let cancel_result = client.orders().cancel_order(cancel_params).await?;
-
-    println!("Order cancelled: {cancel_result:#?}");
-
+    let cancel_result = client.orders().cancel_order(cancel_params).await;
+    match cancel_result {
+        Ok(_) => {
+            println!("Order cancelled!");
+        }
+        Err(err) => {
+            println!("Error! {err}");
+        }
+    }
     Ok(())
 }
 

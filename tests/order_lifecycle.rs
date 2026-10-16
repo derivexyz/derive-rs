@@ -76,7 +76,7 @@ async fn test_ws_order_lifecycle() {
 
     let order = order_result.unwrap();
 
-    println!("Order created: {:?}", order);
+    println!("Order created with id: {}", order.order.order_id);
     // sleep(std::time::Duration::from_secs(1)).await;
 
     let replace_params = ReplaceArgs::builder()
