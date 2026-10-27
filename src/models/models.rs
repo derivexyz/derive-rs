@@ -3162,11 +3162,11 @@ impl Collateral {
 ///      "$ref": "#/definitions/Direction"
 ///    },
 ///    "extra_fee": {
-///      "description": "Optional extra fee per unit of volume, as a decimal string or JSON number. Defaults to zero.",
+///      "description": "Optional builder fee for the whole order, in USDC, as a decimal string or JSON number. Each fill pays its pro-rata share. Defaults to zero.",
 ///      "default": null,
 ///      "anyOf": [
 ///        {
-///          "description": "Optional extra fee per unit of volume, as a decimal string or JSON number. Defaults to zero.",
+///          "description": "Optional builder fee for the whole order, in USDC, as a decimal string or JSON number. Each fill pays its pro-rata share. Defaults to zero.",
 ///          "default": null,
 ///          "type": "string",
 ///          "format": "decimal",
@@ -3339,7 +3339,7 @@ pub struct CreateOrderRequest {
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub client: ::std::option::Option<::std::string::String>,
     pub direction: Direction,
-    ///Optional extra fee per unit of volume, as a decimal string or JSON number. Defaults to zero.
+    ///Optional builder fee for the whole order, in USDC, as a decimal string or JSON number. Each fill pays its pro-rata share. Defaults to zero.
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub extra_fee: ::std::option::Option<::bigdecimal::BigDecimal>,
     pub instrument_name: ::std::string::String,
@@ -4077,7 +4077,7 @@ impl DeleteSubaccountResponse {
 ///  ],
 ///  "properties": {
 ///    "rail": {
-///      "description": "Bridge protocol: `lifi` or `layerzero`.",
+///      "description": "Bridge protocol: `lifi`, `layerzero` or `ccip`.",
 ///      "type": "string"
 ///    },
 ///    "source_address": {
@@ -4103,7 +4103,7 @@ impl DeleteSubaccountResponse {
 /// </details>
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
 pub struct DepositBridgeOrigin {
-    ///Bridge protocol: `lifi` or `layerzero`.
+    ///Bridge protocol: `lifi`, `layerzero` or `ccip`.
     pub rail: ::std::string::String,
     ///Their wallet on that chain, lower-cased; absent when the rail gave none.
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
@@ -11702,11 +11702,11 @@ impl OrderDebugResponse {
 ///      "$ref": "#/definitions/Direction"
 ///    },
 ///    "extra_fee": {
-///      "description": "Optional extra fee per unit of volume, as a decimal string or JSON number. Defaults to zero.",
+///      "description": "Optional builder fee for the whole order, in USDC, as a decimal string or JSON number. Each fill pays its pro-rata share. Defaults to zero.",
 ///      "default": null,
 ///      "anyOf": [
 ///        {
-///          "description": "Optional extra fee per unit of volume, as a decimal string or JSON number. Defaults to zero.",
+///          "description": "Optional builder fee for the whole order, in USDC, as a decimal string or JSON number. Each fill pays its pro-rata share. Defaults to zero.",
 ///          "default": null,
 ///          "type": "string",
 ///          "format": "decimal",
@@ -11856,7 +11856,7 @@ pub struct OrderQuoteRequest {
     pub client: ::std::string::String,
     ///Order direction
     pub direction: Direction,
-    ///Optional extra fee per unit of volume, as a decimal string or JSON number. Defaults to zero.
+    ///Optional builder fee for the whole order, in USDC, as a decimal string or JSON number. Each fill pays its pro-rata share. Defaults to zero.
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub extra_fee: ::std::option::Option<::bigdecimal::BigDecimal>,
     ///Instrument name
@@ -12503,7 +12503,7 @@ impl Pagination {
 ///      "type": "string"
 ///    },
 ///    "bridge_status": {
-///      "description": "`registered` (reported by the client, not yet confirmed by Li.Fi) `submitted` (in flight) `delivered` (landed on the destination chain) `matched` (joined to the L1 deposit) `failed` (the bridge refunded or could not fill — nothing reached the escrow) `expired` (unresolved past `expires_at_ms`; check the source chain) `unmatched` (delivered, but not credited within 24h; contact support)",
+///      "description": "`registered` (reported by the client, not yet confirmed by its rail) `submitted` (in flight) `delivered` (landed on the destination chain) `matched` (joined to the L1 deposit) `failed` (the bridge refunded or could not fill — nothing reached the escrow) `expired` (unresolved past `expires_at_ms`; check the source chain) `unmatched` (delivered, but not credited within 24h; contact support)",
 ///      "type": "string"
 ///    },
 ///    "delivered_at_ms": {
@@ -12527,14 +12527,14 @@ impl Pagination {
 ///      "format": "int64"
 ///    },
 ///    "provider_transfer_id": {
-///      "description": "The provider's own id for the bridge (Li.Fi: the quote's `transactionId`), stable through its lifecycle.",
+///      "description": "The provider's own id for the bridge (Li.Fi: the quote's `transactionId`; LayerZero: the message `guid`; CCIP: the `messageId`), stable through its lifecycle.",
 ///      "type": [
 ///        "string",
 ///        "null"
 ///      ]
 ///    },
 ///    "rail": {
-///      "description": "Bridge protocol: `lifi` or `layerzero`.",
+///      "description": "Bridge protocol: `lifi`, `layerzero` or `ccip`.",
 ///      "type": "string"
 ///    },
 ///    "receiving_amount": {
@@ -12590,7 +12590,7 @@ impl Pagination {
 pub struct PendingDepositBridgeOrigin {
     ///Unique with `rail`; changes if a registered source tx is replaced, so key on `provider_transfer_id` when present.
     pub bridge_id: ::std::string::String,
-    ///`registered` (reported by the client, not yet confirmed by Li.Fi) `submitted` (in flight) `delivered` (landed on the destination chain) `matched` (joined to the L1 deposit) `failed` (the bridge refunded or could not fill — nothing reached the escrow) `expired` (unresolved past `expires_at_ms`; check the source chain) `unmatched` (delivered, but not credited within 24h; contact support)
+    ///`registered` (reported by the client, not yet confirmed by its rail) `submitted` (in flight) `delivered` (landed on the destination chain) `matched` (joined to the L1 deposit) `failed` (the bridge refunded or could not fill — nothing reached the escrow) `expired` (unresolved past `expires_at_ms`; check the source chain) `unmatched` (delivered, but not credited within 24h; contact support)
     pub bridge_status: ::std::string::String,
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub delivered_at_ms: ::std::option::Option<i64>,
@@ -12600,10 +12600,10 @@ pub struct PendingDepositBridgeOrigin {
     pub expected_amount: ::std::string::String,
     ///When a still-`registered` or `submitted` bridge will be marked `expired`.
     pub expires_at_ms: i64,
-    ///The provider's own id for the bridge (Li.Fi: the quote's `transactionId`), stable through its lifecycle.
+    ///The provider's own id for the bridge (Li.Fi: the quote's `transactionId`; LayerZero: the message `guid`; CCIP: the `messageId`), stable through its lifecycle.
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub provider_transfer_id: ::std::option::Option<::std::string::String>,
-    ///Bridge protocol: `lifi` or `layerzero`.
+    ///Bridge protocol: `lifi`, `layerzero` or `ccip`.
     pub rail: ::std::string::String,
     ///What actually arrived, native units, as a decimal string.
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
@@ -14905,7 +14905,7 @@ impl PublicGetLiveAuctionsResponse {
 ///      "type": "string"
 ///    },
 ///    "market": {
-///      "description": "Currency the PM2 manager must cover; required for PM2.",
+///      "description": "Currency the manager must cover; required for PM2.",
 ///      "default": null,
 ///      "type": [
 ///        "string",
@@ -14956,7 +14956,7 @@ impl PublicGetLiveAuctionsResponse {
 pub struct PublicGetMarginRequest {
     ///`SM` (standard margin) or `PM2` (portfolio margin).
     pub margin_type: ::std::string::String,
-    ///Currency the PM2 manager must cover; required for PM2.
+    ///Currency the manager must cover; required for PM2.
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub market: ::std::option::Option<::std::string::String>,
     ///Optional collateral deltas to simulate deposits / withdrawals / spot trades.
@@ -17218,11 +17218,11 @@ impl Referrer {
 ///      "type": "string"
 ///    },
 ///    "expected_amount": {
-///      "description": "What the quote says will arrive, in `bridge_token`'s native units, as a decimal string (Li.Fi: `estimate.toAmount`).",
+///      "description": "What will arrive, in `bridge_token`'s native units, as a decimal string (Li.Fi: `estimate.toAmount`; LayerZero: `amountReceivedLD`; CCIP: the amount sent).",
 ///      "type": "string"
 ///    },
 ///    "provider_transfer_id": {
-///      "description": "The provider's own id for the transfer, kept if the source transaction is sped up or replaced: Li.Fi's quote `transactionId`.",
+///      "description": "The provider's own id for the transfer, kept if the source transaction is sped up or replaced. Li.Fi: the quote's `transactionId`, optional. LayerZero: the message `guid`; CCIP: the `messageId`. Both required.",
 ///      "default": null,
 ///      "type": [
 ///        "string",
@@ -17230,17 +17230,17 @@ impl Referrer {
 ///      ]
 ///    },
 ///    "rail": {
-///      "description": "Bridge protocol: `lifi`. (`layerzero` is not registrable yet.)",
+///      "description": "Bridge protocol: `lifi`, `layerzero` or `ccip`.",
 ///      "type": "string"
 ///    },
 ///    "source_chain_id": {
-///      "description": "Chain the bridge was sent from.",
+///      "description": "EVM chain the bridge was sent from.",
 ///      "type": "integer",
 ///      "format": "uint64",
 ///      "minimum": 0.0
 ///    },
 ///    "source_token": {
-///      "description": "The ERC20 sent on the source chain.",
+///      "description": "The ERC20 sent on the source chain; the zero address for the chain's gas token.",
 ///      "type": "string"
 ///    },
 ///    "source_tx_hash": {
@@ -17271,16 +17271,16 @@ pub struct RegisterBridgeDepositParams {
     pub bridge_token_decimals: u8,
     ///One of the wallet's escrows, from `public/register_deposit_address`.
     pub deposit_address: ::std::string::String,
-    ///What the quote says will arrive, in `bridge_token`'s native units, as a decimal string (Li.Fi: `estimate.toAmount`).
+    ///What will arrive, in `bridge_token`'s native units, as a decimal string (Li.Fi: `estimate.toAmount`; LayerZero: `amountReceivedLD`; CCIP: the amount sent).
     pub expected_amount: ::std::string::String,
-    ///The provider's own id for the transfer, kept if the source transaction is sped up or replaced: Li.Fi's quote `transactionId`.
+    ///The provider's own id for the transfer, kept if the source transaction is sped up or replaced. Li.Fi: the quote's `transactionId`, optional. LayerZero: the message `guid`; CCIP: the `messageId`. Both required.
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub provider_transfer_id: ::std::option::Option<::std::string::String>,
-    ///Bridge protocol: `lifi`. (`layerzero` is not registrable yet.)
+    ///Bridge protocol: `lifi`, `layerzero` or `ccip`.
     pub rail: ::std::string::String,
-    ///Chain the bridge was sent from.
+    ///EVM chain the bridge was sent from.
     pub source_chain_id: u64,
-    ///The ERC20 sent on the source chain.
+    ///The ERC20 sent on the source chain; the zero address for the chain's gas token.
     pub source_token: ::std::string::String,
     ///The bridge transaction on that chain.
     pub source_tx_hash: ::std::string::String,
@@ -17636,11 +17636,11 @@ impl RejectDepositRequestRequest {
 ///      ]
 ///    },
 ///    "extra_fee": {
-///      "description": "Optional extra fee per unit of volume, as a decimal string or JSON number. Defaults to zero.",
+///      "description": "Optional builder fee for the whole order, in USDC, as a decimal string or JSON number. Each fill pays its pro-rata share. Defaults to zero.",
 ///      "default": null,
 ///      "anyOf": [
 ///        {
-///          "description": "Optional extra fee per unit of volume, as a decimal string or JSON number. Defaults to zero.",
+///          "description": "Optional builder fee for the whole order, in USDC, as a decimal string or JSON number. Each fill pays its pro-rata share. Defaults to zero.",
 ///          "default": null,
 ///          "type": "string",
 ///          "format": "decimal",
@@ -17832,7 +17832,7 @@ pub struct ReplaceOrderRequest {
     ///Optional decimal string of the human value (e.g. `"1.5"`), up to 12 fractional digits, or null; a string or JSON number is accepted
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub expected_filled_amount: ::std::option::Option<::bigdecimal::BigDecimal>,
-    ///Optional extra fee per unit of volume, as a decimal string or JSON number. Defaults to zero.
+    ///Optional builder fee for the whole order, in USDC, as a decimal string or JSON number. Each fill pays its pro-rata share. Defaults to zero.
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub extra_fee: ::std::option::Option<::bigdecimal::BigDecimal>,
     pub instrument_name: ::std::string::String,

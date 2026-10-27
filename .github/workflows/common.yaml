@@ -38,6 +38,14 @@ jobs:
           toolchain: 1.94.1
           components: rustfmt, clippy
 
+      - name: Install cargo-audit
+        uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-audit
+
+      - name: Audit
+        run: make audit
+
       - name: Machete
         uses: bnjbvr/cargo-machete@main
 
