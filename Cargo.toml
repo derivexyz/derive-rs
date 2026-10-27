@@ -7,26 +7,26 @@ homepage = "https://github.com/derivexyz/derive-rs"
 description = "Rust SDK for Derive.xyz"
 
 [dependencies]
-alloy = { version = "2.3.0", default-features = false, features = ["signer-local", "providers", "reqwest", "contract"] }
-bigdecimal = { version = "0.4.10", features = ["serde", "serde-json"] }
+alloy = { version = "2.5.0", default-features = false, features = ["signer-local", "providers", "reqwest", "contract"] }
+bigdecimal = { version = "0.4.11", features = ["serde", "serde-json"] }
 chrono = { version = "0.4.45", features = ["serde"] }
-reqwest = { version = "0.13.4", features = ["json", "query"] }
+reqwest = { version = "0.13.5", features = ["json", "query"] }
 serde = { version = "1.0.229", features = ["derive"] }
 strum = { version = "0.28.0", features = ["derive", "strum_macros"] }
-tokio = { version = "1.53.1", features = ["macros", "rt", "rt-multi-thread"] }
+tokio = { version = "1.54.1", features = ["macros", "rt", "rt-multi-thread"] }
 tokio-stream = { version = "0.1.19", features = ["sync"] }
-uuid = { version = "1.24.0", features = ["serde"] }
-alloy-sol-types = "1.6.1"
+uuid = { version = "1.29.0", features = ["serde"] }
+alloy-sol-types = "1.7.3"
 anyhow = "1.0.104"
-bon = "3.9.3"
+bon = "3.10.3"
 bytes = "1.12.1"
 dashmap = "6.2.1"
-futures-util = "0.3.33"
-regress = "0.11.1"
-serde_json = "1.0.151"
-thiserror = "2.0.19"
+futures-util = "0.3.34"
+regress = "0.12.0"
+serde_json = "1.0.154"
+thiserror = "2.0.21"
 tracing = "0.1.44"
-yawc = "0.3.3"
+yawc = "0.5.0"
 
 [workspace]
 
@@ -36,10 +36,10 @@ prettyplease = "0.3.0"
 proc-macro2 = "1.0.107"
 quote = "1.0.47"
 regex = "1.13.1"
-schemars = "0.8"
-serde_json = "1.0.151"
-syn = "3.0.3"
-typify = "0.7.0"
+schemars = "1.2"
+serde_json = "1.0.154"
+syn = "3.0.9"
+typify = "0.8.0"
 
 [dev-dependencies]
 regex = "1.13.1"
