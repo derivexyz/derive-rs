@@ -564,20 +564,20 @@ impl ::std::convert::TryFrom<::std::string::String> for AuctionType {
 ///`AuctionsWatchNotification`
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
 #[serde(transparent)]
-pub struct AuctionsWatchNotification(pub AuctionResult);
+pub struct AuctionsWatchNotification(pub ::std::vec::Vec<AuctionResult>);
 impl ::std::ops::Deref for AuctionsWatchNotification {
-    type Target = AuctionResult;
-    fn deref(&self) -> &AuctionResult {
+    type Target = ::std::vec::Vec<AuctionResult>;
+    fn deref(&self) -> &::std::vec::Vec<AuctionResult> {
         &self.0
     }
 }
-impl ::std::convert::From<AuctionsWatchNotification> for AuctionResult {
+impl ::std::convert::From<AuctionsWatchNotification> for ::std::vec::Vec<AuctionResult> {
     fn from(value: AuctionsWatchNotification) -> Self {
         value.0
     }
 }
-impl ::std::convert::From<AuctionResult> for AuctionsWatchNotification {
-    fn from(value: AuctionResult) -> Self {
+impl ::std::convert::From<::std::vec::Vec<AuctionResult>> for AuctionsWatchNotification {
+    fn from(value: ::std::vec::Vec<AuctionResult>) -> Self {
         Self(value)
     }
 }
@@ -3554,20 +3554,22 @@ impl ::std::convert::TryFrom<::std::string::String> for MarginType {
 ///`MarginWatchNotification`
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
 #[serde(transparent)]
-pub struct MarginWatchNotification(pub MarginWatchResult);
+pub struct MarginWatchNotification(pub ::std::vec::Vec<MarginWatchResult>);
 impl ::std::ops::Deref for MarginWatchNotification {
-    type Target = MarginWatchResult;
-    fn deref(&self) -> &MarginWatchResult {
+    type Target = ::std::vec::Vec<MarginWatchResult>;
+    fn deref(&self) -> &::std::vec::Vec<MarginWatchResult> {
         &self.0
     }
 }
-impl ::std::convert::From<MarginWatchNotification> for MarginWatchResult {
+impl ::std::convert::From<MarginWatchNotification>
+for ::std::vec::Vec<MarginWatchResult> {
     fn from(value: MarginWatchNotification) -> Self {
         value.0
     }
 }
-impl ::std::convert::From<MarginWatchResult> for MarginWatchNotification {
-    fn from(value: MarginWatchResult) -> Self {
+impl ::std::convert::From<::std::vec::Vec<MarginWatchResult>>
+for MarginWatchNotification {
+    fn from(value: ::std::vec::Vec<MarginWatchResult>) -> Self {
         Self(value)
     }
 }
@@ -7095,100 +7097,106 @@ impl Subaccount {
 ///`SubaccountBalancesNotification`
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
 #[serde(transparent)]
-pub struct SubaccountBalancesNotification(pub BalanceUpdate);
+pub struct SubaccountBalancesNotification(pub ::std::vec::Vec<BalanceUpdate>);
 impl ::std::ops::Deref for SubaccountBalancesNotification {
-    type Target = BalanceUpdate;
-    fn deref(&self) -> &BalanceUpdate {
+    type Target = ::std::vec::Vec<BalanceUpdate>;
+    fn deref(&self) -> &::std::vec::Vec<BalanceUpdate> {
         &self.0
     }
 }
-impl ::std::convert::From<SubaccountBalancesNotification> for BalanceUpdate {
+impl ::std::convert::From<SubaccountBalancesNotification>
+for ::std::vec::Vec<BalanceUpdate> {
     fn from(value: SubaccountBalancesNotification) -> Self {
         value.0
     }
 }
-impl ::std::convert::From<BalanceUpdate> for SubaccountBalancesNotification {
-    fn from(value: BalanceUpdate) -> Self {
+impl ::std::convert::From<::std::vec::Vec<BalanceUpdate>>
+for SubaccountBalancesNotification {
+    fn from(value: ::std::vec::Vec<BalanceUpdate>) -> Self {
         Self(value)
     }
 }
 ///`SubaccountBestQuotesNotification`
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
 #[serde(transparent)]
-pub struct SubaccountBestQuotesNotification(pub BestQuoteChannelResult);
+pub struct SubaccountBestQuotesNotification(pub ::std::vec::Vec<BestQuoteChannelResult>);
 impl ::std::ops::Deref for SubaccountBestQuotesNotification {
-    type Target = BestQuoteChannelResult;
-    fn deref(&self) -> &BestQuoteChannelResult {
+    type Target = ::std::vec::Vec<BestQuoteChannelResult>;
+    fn deref(&self) -> &::std::vec::Vec<BestQuoteChannelResult> {
         &self.0
     }
 }
-impl ::std::convert::From<SubaccountBestQuotesNotification> for BestQuoteChannelResult {
+impl ::std::convert::From<SubaccountBestQuotesNotification>
+for ::std::vec::Vec<BestQuoteChannelResult> {
     fn from(value: SubaccountBestQuotesNotification) -> Self {
         value.0
     }
 }
-impl ::std::convert::From<BestQuoteChannelResult> for SubaccountBestQuotesNotification {
-    fn from(value: BestQuoteChannelResult) -> Self {
+impl ::std::convert::From<::std::vec::Vec<BestQuoteChannelResult>>
+for SubaccountBestQuotesNotification {
+    fn from(value: ::std::vec::Vec<BestQuoteChannelResult>) -> Self {
         Self(value)
     }
 }
 ///`SubaccountOrdersNotification`
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
 #[serde(transparent)]
-pub struct SubaccountOrdersNotification(pub Order);
+pub struct SubaccountOrdersNotification(pub ::std::vec::Vec<Order>);
 impl ::std::ops::Deref for SubaccountOrdersNotification {
-    type Target = Order;
-    fn deref(&self) -> &Order {
+    type Target = ::std::vec::Vec<Order>;
+    fn deref(&self) -> &::std::vec::Vec<Order> {
         &self.0
     }
 }
-impl ::std::convert::From<SubaccountOrdersNotification> for Order {
+impl ::std::convert::From<SubaccountOrdersNotification> for ::std::vec::Vec<Order> {
     fn from(value: SubaccountOrdersNotification) -> Self {
         value.0
     }
 }
-impl ::std::convert::From<Order> for SubaccountOrdersNotification {
-    fn from(value: Order) -> Self {
+impl ::std::convert::From<::std::vec::Vec<Order>> for SubaccountOrdersNotification {
+    fn from(value: ::std::vec::Vec<Order>) -> Self {
         Self(value)
     }
 }
 ///`SubaccountQuotesNotification`
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
 #[serde(transparent)]
-pub struct SubaccountQuotesNotification(pub QuotePublishResult);
+pub struct SubaccountQuotesNotification(pub ::std::vec::Vec<QuotePublishResult>);
 impl ::std::ops::Deref for SubaccountQuotesNotification {
-    type Target = QuotePublishResult;
-    fn deref(&self) -> &QuotePublishResult {
+    type Target = ::std::vec::Vec<QuotePublishResult>;
+    fn deref(&self) -> &::std::vec::Vec<QuotePublishResult> {
         &self.0
     }
 }
-impl ::std::convert::From<SubaccountQuotesNotification> for QuotePublishResult {
+impl ::std::convert::From<SubaccountQuotesNotification>
+for ::std::vec::Vec<QuotePublishResult> {
     fn from(value: SubaccountQuotesNotification) -> Self {
         value.0
     }
 }
-impl ::std::convert::From<QuotePublishResult> for SubaccountQuotesNotification {
-    fn from(value: QuotePublishResult) -> Self {
+impl ::std::convert::From<::std::vec::Vec<QuotePublishResult>>
+for SubaccountQuotesNotification {
+    fn from(value: ::std::vec::Vec<QuotePublishResult>) -> Self {
         Self(value)
     }
 }
 ///`SubaccountTradesNotification`
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
 #[serde(transparent)]
-pub struct SubaccountTradesNotification(pub Trade);
+pub struct SubaccountTradesNotification(pub ::std::vec::Vec<Trade>);
 impl ::std::ops::Deref for SubaccountTradesNotification {
-    type Target = Trade;
-    fn deref(&self) -> &Trade {
+    type Target = ::std::vec::Vec<Trade>;
+    fn deref(&self) -> &::std::vec::Vec<Trade> {
         &self.0
     }
 }
-impl ::std::convert::From<SubaccountTradesNotification> for Trade {
+impl ::std::convert::From<SubaccountTradesNotification> for ::std::vec::Vec<Trade> {
     fn from(value: SubaccountTradesNotification) -> Self {
         value.0
     }
 }
-impl ::std::convert::From<Trade> for SubaccountTradesNotification {
-    fn from(value: Trade) -> Self {
+impl ::std::convert::From<::std::vec::Vec<Trade>> for SubaccountTradesNotification {
+    fn from(value: ::std::vec::Vec<Trade>) -> Self {
         Self(value)
     }
 }
@@ -7463,40 +7471,44 @@ impl TradeHistoryResponse {
 ///`TradesByInstrumentNotification`
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
 #[serde(transparent)]
-pub struct TradesByInstrumentNotification(pub PublicTrade);
+pub struct TradesByInstrumentNotification(pub ::std::vec::Vec<PublicTrade>);
 impl ::std::ops::Deref for TradesByInstrumentNotification {
-    type Target = PublicTrade;
-    fn deref(&self) -> &PublicTrade {
+    type Target = ::std::vec::Vec<PublicTrade>;
+    fn deref(&self) -> &::std::vec::Vec<PublicTrade> {
         &self.0
     }
 }
-impl ::std::convert::From<TradesByInstrumentNotification> for PublicTrade {
+impl ::std::convert::From<TradesByInstrumentNotification>
+for ::std::vec::Vec<PublicTrade> {
     fn from(value: TradesByInstrumentNotification) -> Self {
         value.0
     }
 }
-impl ::std::convert::From<PublicTrade> for TradesByInstrumentNotification {
-    fn from(value: PublicTrade) -> Self {
+impl ::std::convert::From<::std::vec::Vec<PublicTrade>>
+for TradesByInstrumentNotification {
+    fn from(value: ::std::vec::Vec<PublicTrade>) -> Self {
         Self(value)
     }
 }
 ///`TradesByInstrumentTypeCurrencyNotification`
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
 #[serde(transparent)]
-pub struct TradesByInstrumentTypeCurrencyNotification(pub PublicTrade);
+pub struct TradesByInstrumentTypeCurrencyNotification(pub ::std::vec::Vec<PublicTrade>);
 impl ::std::ops::Deref for TradesByInstrumentTypeCurrencyNotification {
-    type Target = PublicTrade;
-    fn deref(&self) -> &PublicTrade {
+    type Target = ::std::vec::Vec<PublicTrade>;
+    fn deref(&self) -> &::std::vec::Vec<PublicTrade> {
         &self.0
     }
 }
-impl ::std::convert::From<TradesByInstrumentTypeCurrencyNotification> for PublicTrade {
+impl ::std::convert::From<TradesByInstrumentTypeCurrencyNotification>
+for ::std::vec::Vec<PublicTrade> {
     fn from(value: TradesByInstrumentTypeCurrencyNotification) -> Self {
         value.0
     }
 }
-impl ::std::convert::From<PublicTrade> for TradesByInstrumentTypeCurrencyNotification {
-    fn from(value: PublicTrade) -> Self {
+impl ::std::convert::From<::std::vec::Vec<PublicTrade>>
+for TradesByInstrumentTypeCurrencyNotification {
+    fn from(value: ::std::vec::Vec<PublicTrade>) -> Self {
         Self(value)
     }
 }
@@ -8402,20 +8414,20 @@ impl VolSviParamDataResponse {
 ///`WalletRfqsNotification`
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
 #[serde(transparent)]
-pub struct WalletRfqsNotification(pub PublicRfq);
+pub struct WalletRfqsNotification(pub ::std::vec::Vec<PublicRfq>);
 impl ::std::ops::Deref for WalletRfqsNotification {
-    type Target = PublicRfq;
-    fn deref(&self) -> &PublicRfq {
+    type Target = ::std::vec::Vec<PublicRfq>;
+    fn deref(&self) -> &::std::vec::Vec<PublicRfq> {
         &self.0
     }
 }
-impl ::std::convert::From<WalletRfqsNotification> for PublicRfq {
+impl ::std::convert::From<WalletRfqsNotification> for ::std::vec::Vec<PublicRfq> {
     fn from(value: WalletRfqsNotification) -> Self {
         value.0
     }
 }
-impl ::std::convert::From<PublicRfq> for WalletRfqsNotification {
-    fn from(value: PublicRfq) -> Self {
+impl ::std::convert::From<::std::vec::Vec<PublicRfq>> for WalletRfqsNotification {
+    fn from(value: ::std::vec::Vec<PublicRfq>) -> Self {
         Self(value)
     }
 }
