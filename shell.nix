@@ -4,6 +4,7 @@ in
 pkgs.mkShell {
   packages = with pkgs; [
     rustup
+    cargo-audit
     cargo
     redocly
   ];
@@ -19,11 +20,15 @@ pkgs.mkShell {
     with pkgs;
     [ openssl ]
     ++ lib.optionals stdenv.hostPlatform.isLinux [ glib-networking ]
-    ++ lib.optionals stdenv.hostPlatform.isDarwin [ darwin.apple_sdk.frameworks.WebKit ];
+    ++ lib.optionals stdenv.hostPlatform.isDarwin [
+      # Frameworks (WebKit et al.) ship with the SDK; darwin.apple_sdk.frameworks
+      # was removed from nixpkgs. Pin the SDK version explicitly instead.
+      apple-sdk_15
+    ];
   shellHook = ''
-    rustup default 1.94.1
-    rustup component add rust-src
-    rustup component add clippy
-    export PATH=/home/$(whoami)/.cargo/bin:$PATH
+    # Toolchain version and components come from rust-toolchain.toml;
+    # `rustup show` provisions them. Don't hardcode a version here.
+    rustup show > /dev/null
+    export PATH=$HOME/.cargo/bin:$PATH
   '';
 }

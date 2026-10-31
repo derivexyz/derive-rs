@@ -4,7 +4,7 @@ DEV_BRANCH := dev
 
 VERSION := $(shell sed -n 's/^version *= *"\(.*\)"/\1/p' $(TOML_FILE))
 
-.PHONY: dev-version release tag lint fmt build test run codegen all
+.PHONY: audit dev-version release tag lint fmt build test run codegen all
 
 
 #
@@ -43,6 +43,9 @@ release:
 		--title "v$$VERSION" \
 		--notes "Release v$$VERSION"
 
+
+audit:
+	cargo audit
 
 lint:
 	cargo clippy --benches --examples --tests -- -D warnings

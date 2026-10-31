@@ -58,3 +58,25 @@ pub fn snap_to_instrument_grid(
     }
     Ok((price, amount))
 }
+
+/// The one spot entry of each currency, keyed by currency name. A currency with no spot entry
+/// is skipped; one with more than one is an error naming it. The venue controls this data, so a
+/// second spot market for a currency must not be a panic inside every client's constructor.
+pub fn single_spot_per_currency<T>(
+    currencies: impl IntoIterator<Item = (String, Vec<T>)>,
+) -> Result<Vec<(String, T)>, ClientError> {
+    let mut out = Vec::new();
+    for (name, spots) in currencies {
+        let mut spots = spots.into_iter();
+        let Some(spot) = spots.next() else {
+            continue;
+        };
+        if spots.next().is_some() {
+            return Err(ClientError::InvalidOrder(format!(
+                "currency {name:?} has more than one spot entry; the client cannot choose one"
+            )));
+        }
+        out.push((name, spot));
+    }
+    Ok(out)
+}
