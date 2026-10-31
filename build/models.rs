@@ -214,13 +214,6 @@ fn extract_asyncapi_definitions(
         // Normalize the payload schema
         normalize_schema(&mut payload);
 
-        // The spec gives such a payload as the element schema and says "array" only in the
-        // summary; decoding the array as one element drops every notification on the channel.
-        let summary = message.get("summary").and_then(Value::as_str).unwrap_or("");
-        if summary.starts_with("Pushed as a JSON array") {
-            payload = serde_json::json!({ "type": "array", "items": payload });
-        }
-
         // Check for conflicts
         if let Some(existing) = all_definitions.get(message_name) {
             if existing != &payload {

@@ -21,7 +21,6 @@ use tokio::{
 use tracing::{debug, error, info, warn};
 use yawc::{Frame, OpCode};
 
-use crate::utils::single_spot_per_currency;
 use crate::{
     models::{
         AssetType, GetAllInstrumentsRequest, Instrument, RiskUniverse,
@@ -568,14 +567,24 @@ impl WsClient {
 
     async fn cache_erc20_assets(&self) -> Result<(), ClientError> {
         let currencies = self.rpc().market_data().get_all_currencies().await?;
-        let asset_name_to_erc20_details = single_spot_per_currency(
-            currencies
-                .into_iter()
-                .map(|currency| (currency.currency, currency.spot)),
-        )?;
+        let asset_name_to_erc20_details = currencies
+            .into_iter()
+            .filter_map(|currency| {
+                let mut spots = currency.spot.into_iter();
+                let spot = spots.next()?;
+                if spots.next().is_some() {
+                    panic!(
+                        "Currency {:?} has more than one spot entry",
+                        currency.currency,
+                    );
+                }
+                Some((currency.currency, spot))
+            })
+            .collect::<DashMap<_, _>>();
         self.erc20_cache.clear();
-        for (name, spot) in asset_name_to_erc20_details {
-            self.erc20_cache.insert(name, spot);
+        for entry in asset_name_to_erc20_details.iter() {
+            self.erc20_cache
+                .insert(entry.key().clone(), entry.value().clone());
         }
         Ok(())
     }

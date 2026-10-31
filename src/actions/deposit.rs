@@ -54,8 +54,6 @@ pub enum SupportDepositAssets {
     AAVE,
     AUSD,
     FXRP,
-    LIT,
-    CBXRP,
 }
 
 #[derive(Clone, Debug, Deserialize)]

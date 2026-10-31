@@ -91,7 +91,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let result = client.orders().place(order).await?;
 
-    println!("Order placed successfully.");
+    println!("Order placed: {}", result.order.order_id);
 
     tokio::time::sleep(std::time::Duration::from_secs(1)).await;
 
@@ -105,8 +105,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         Ok(_) => {
             println!("Order cancelled!");
         }
-        Err(_err) => {
-            println!("Order cancellation failed.");
+        Err(err) => {
+            println!("Error! {err}");
         }
     }
     Ok(())
