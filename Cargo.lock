@@ -1622,7 +1622,7 @@ dependencies = [
 
 [[package]]
 name = "derive-rs"
-version = "0.1.21"
+version = "0.1.22"
 dependencies = [
  "alloy",
  "alloy-sol-types",
