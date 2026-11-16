@@ -77,24 +77,55 @@ pub enum ClientError {
     InvalidOrder(String),
 }
 
-// environment enum
+/// The network used for signing and on-chain contract addresses.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+pub enum Network {
+    Mainnet,
+    #[default]
+    Testnet,
+}
+
+/// API endpoints and their underlying network.
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub enum Environment {
     Mainnet,
     #[default]
     Testnet,
+    /// Custom endpoints with the selected network's signing and contract settings.
+    Custom {
+        network: Network,
+        /// Full WebSocket URL, including the path (for example, `/v3/ws`).
+        ws_url: String,
+        /// Ethereum RPC override. `None` uses the selected network's default.
+        rpc_url: Option<String>,
+    },
 }
 impl Environment {
+    pub fn network(&self) -> Network {
+        match self {
+            Self::Mainnet => Network::Mainnet,
+            Self::Testnet => Network::Testnet,
+            Self::Custom { network, .. } => *network,
+        }
+    }
+
     pub fn get_url(&self) -> &str {
         match self {
             Environment::Mainnet => "wss://api.derive.xyz/v3/ws",
             Environment::Testnet => "wss://testnet.api.derive.xyz/v3/ws",
+            Environment::Custom { ws_url, .. } => ws_url,
         }
     }
     pub fn get_default_rpc(&self) -> String {
-        match self {
-            Environment::Testnet => "https://sepolia.rpc.sentio.xyz".to_string(),
-            Environment::Mainnet => "https://eth.drpc.org".to_string(),
+        if let Self::Custom {
+            rpc_url: Some(url), ..
+        } = self
+        {
+            return url.clone();
+        }
+        match self.network() {
+            Network::Testnet => "https://sepolia.rpc.sentio.xyz".to_string(),
+            Network::Mainnet => "https://eth.drpc.org".to_string(),
         }
     }
 }
