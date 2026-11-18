@@ -133,6 +133,8 @@ schemas/openapi.json:
     - '#/paths/~1public~1get_referral_performance/post/responses'
     - '#/paths/~1private~1get_subaccount_value_history/post/responses'
   security-defined:
+    - '#/paths/~1public~1get_block_proposal/post'
+    - '#/paths/~1public~1get_block_proposals/post'
     - '#/paths/~1private~1change_subaccount_label/post'
     - '#/paths/~1private~1delete_subaccount/post'
     - '#/paths/~1private~1get_all_portfolios/post'

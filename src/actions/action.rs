@@ -1,4 +1,4 @@
-use crate::types::Environment;
+use crate::types::{Environment, Network};
 use alloy::{
     hex::encode,
     primitives::{Address, B256, U256, keccak256},
@@ -34,24 +34,16 @@ fn get_trade_module(module: ModuleType) -> &'static str {
 }
 
 fn get_action_typehash(env: &Environment) -> &'static str {
-    match env {
-        Environment::Mainnet => {
-            "0x4d7a9f27c403ff9c0f19bce61d76d82f9aa29f8d6d4b0c5474607d9770d1af17"
-        }
-        Environment::Testnet => {
-            "0x4d7a9f27c403ff9c0f19bce61d76d82f9aa29f8d6d4b0c5474607d9770d1af17"
-        }
+    match env.network() {
+        Network::Mainnet => "0x4d7a9f27c403ff9c0f19bce61d76d82f9aa29f8d6d4b0c5474607d9770d1af17",
+        Network::Testnet => "0x4d7a9f27c403ff9c0f19bce61d76d82f9aa29f8d6d4b0c5474607d9770d1af17",
     }
 }
 
 pub fn get_domain_separator(env: &Environment) -> &'static str {
-    match env {
-        Environment::Mainnet => {
-            "0xda616dfabb88681b08e1592820a41d55ddc62d68de110e327ae99d734506fe19"
-        }
-        Environment::Testnet => {
-            "0x24d674cd5f2b9d564691c51e9d88f649b99246a2244dd74ce27b96578d773e85"
-        }
+    match env.network() {
+        Network::Mainnet => "0xda616dfabb88681b08e1592820a41d55ddc62d68de110e327ae99d734506fe19",
+        Network::Testnet => "0x24d674cd5f2b9d564691c51e9d88f649b99246a2244dd74ce27b96578d773e85",
     }
 }
 

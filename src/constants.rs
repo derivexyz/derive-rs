@@ -1,4 +1,4 @@
-use crate::Environment;
+use crate::{Environment, Network};
 
 pub const REFFERAL_CODE: &str = "0x9135BA0f495244dc0A5F029b25CDE95157Db89AD";
 pub const CLIENT_NAME: &str = "derive-rs";
@@ -26,37 +26,37 @@ impl OnChainConstants {
     }
 
     pub fn action_manager_address(&self) -> &str {
-        match self.env {
-            Environment::Mainnet => MAINNET_ACTION_MANAGER,
-            Environment::Testnet => TESTNET_ACTION_MANAGER,
+        match self.env.network() {
+            Network::Mainnet => MAINNET_ACTION_MANAGER,
+            Network::Testnet => TESTNET_ACTION_MANAGER,
         }
     }
 
     pub fn vapp_address(&self) -> &str {
-        match self.env {
-            Environment::Mainnet => MAINNET_VAPP,
-            Environment::Testnet => TESTNET_VAPP,
+        match self.env.network() {
+            Network::Mainnet => MAINNET_VAPP,
+            Network::Testnet => TESTNET_VAPP,
         }
     }
 
     pub fn withdrawal_outbox_address(&self) -> &str {
-        match self.env {
-            Environment::Mainnet => MAINNET_WITHDRAWAL_OUTBOX,
-            Environment::Testnet => TESTNET_WITHDRAWAL_OUTBOX,
+        match self.env.network() {
+            Network::Mainnet => MAINNET_WITHDRAWAL_OUTBOX,
+            Network::Testnet => TESTNET_WITHDRAWAL_OUTBOX,
         }
     }
 
     pub fn spot_vault_address(&self) -> &str {
-        match self.env {
-            Environment::Mainnet => MAINNET_SPOT_VAULT,
-            Environment::Testnet => TESTNET_SPOT_VAULT,
+        match self.env.network() {
+            Network::Mainnet => MAINNET_SPOT_VAULT,
+            Network::Testnet => TESTNET_SPOT_VAULT,
         }
     }
 
     pub fn withdrawal_factory_address(&self) -> &str {
-        match self.env {
-            Environment::Mainnet => MAINNET_WITHDRAWAL_FACTORY,
-            Environment::Testnet => TESTNET_WITHDRAWAL_FACTORY,
+        match self.env.network() {
+            Network::Mainnet => MAINNET_WITHDRAWAL_FACTORY,
+            Network::Testnet => TESTNET_WITHDRAWAL_FACTORY,
         }
     }
 }
