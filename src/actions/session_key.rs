@@ -49,8 +49,8 @@ pub enum ProtocolScope {
     TransferNewSubaccount = 13,
     #[strum(to_string = "transfer:different_owner_subaccount")]
     TransferDifferentOwnerSubaccount = 14,
-    #[strum(to_string = "create_session_key")]
-    CreateSessionKey = 15,
+    #[strum(to_string = "set_session_key")]
+    SetSessionKey = 15,
     #[strum(to_string = "liquidate")]
     Liquidate = 16,
     #[strum(to_string = "vault:all")]

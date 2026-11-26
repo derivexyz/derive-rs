@@ -26,6 +26,45 @@ pub mod accounting {
         }
     }
 }
+pub mod block_proposals {
+    use super::*;
+    #[derive(Clone, Debug, PartialEq, Eq, Default)]
+    pub struct BlockProposalsChannelSpec {}
+    impl BlockProposalsChannelSpec {
+        pub fn new() -> Self {
+            Self {}
+        }
+    }
+    impl ChannelSpec for BlockProposalsChannelSpec {
+        type Output = BlockProposalsNotification;
+        fn scope(&self) -> RequestScope {
+            RequestScope::Public
+        }
+        #[allow(clippy::needless_return, clippy::useless_format)]
+        fn channel(&self) -> String {
+            return format!("block_proposals",);
+        }
+    }
+    #[derive(Clone, Debug, PartialEq, Eq, Default)]
+    pub struct WalletBlockProposalsChannelSpec {
+        pub wallet: String,
+    }
+    impl WalletBlockProposalsChannelSpec {
+        pub fn new(wallet: impl Into<String>) -> Self {
+            Self { wallet: wallet.into() }
+        }
+    }
+    impl ChannelSpec for WalletBlockProposalsChannelSpec {
+        type Output = WalletBlockProposalsNotification;
+        fn scope(&self) -> RequestScope {
+            RequestScope::Private
+        }
+        #[allow(clippy::needless_return, clippy::useless_format)]
+        fn channel(&self) -> String {
+            return format!("{wallet}.block_proposals", wallet = self.wallet.as_str());
+        }
+    }
+}
 pub mod liquidations {
     use super::*;
     #[derive(Clone, Debug, PartialEq, Eq, Default)]

@@ -2087,6 +2087,64 @@
         }
       }
     },
+    "/private/accept_block_proposal": {
+      "post": {
+        "tags": [
+          "RFQ"
+        ],
+        "summary": "private/accept_block_proposal",
+        "operationId": "private_accept_block_proposal",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BlockProposalResultPublic"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "JSON-RPC error (see Error Codes)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "$ref": "#/components/schemas/RPCError"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "DeriveWallet": [],
+            "DeriveTimestamp": [],
+            "DeriveSignature": []
+          }
+        ],
+        "description": "Accepts a block proposal and executes its block trade at once. The caller signs the taker side of private/execute_block_trade for its own subaccount, over the legs and prices of the proposal, in the opposite direction to the proposal's direction. Send proposal_id with the signed fields subaccount_id, nonce, signer, max_fee, signature_expiry_sec and signature. The params have no legs or direction: the exchange uses those of the proposal, so a side signed over other terms fails the signature check. The first valid accept wins. The block trade executes at the prices of the proposal, with no broker fee. Returns the proposal with status executed and its block_trade_id. A failed accept leaves the proposal open, unless the maker side can no longer execute. The proposal is then cancelled, and the accept fails with block_proposal_not_open (11118). The error of a failed accept has no details, so it shows nothing about the maker. The caller can check its own side with private/verify_block_trade. If the outcome of the block trade is not known, the proposal stays executing until it expires, and private/get_block_trades shows whether the block trade executed. Fails with block_proposal_not_found (11117) if no proposal has that id, or if the proposal has a recipient_wallet that is not the caller's wallet. Fails with block_proposal_not_open (11118) if the proposal is not open: it executed, was cancelled or declined, expired, or another accept is in progress. Fails with block_trade_same_owner (11115) if the caller's wallet made the proposal, and with block_trade_outside_price_band (11123) if the total cost is now outside the price band. Requires the block_trade off-chain scope. A session key that signs the side needs block_trade and an RFQ trade scope for every instrument in the legs.",
+        "x-rate-limit-class": "endpoint",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AcceptBlockProposalRequest"
+              }
+            }
+          }
+        }
+      }
+    },
     "/private/cancel_batch_quotes": {
       "post": {
         "tags": [
@@ -2197,6 +2255,64 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/CancelBatchRfqsRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/private/cancel_block_proposal": {
+      "post": {
+        "tags": [
+          "RFQ"
+        ],
+        "summary": "private/cancel_block_proposal",
+        "operationId": "private_cancel_block_proposal",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BlockProposalPrivateResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "JSON-RPC error (see Error Codes)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "$ref": "#/components/schemas/RPCError"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "DeriveWallet": [],
+            "DeriveTimestamp": [],
+            "DeriveSignature": []
+          }
+        ],
+        "description": "Ends an open block proposal and returns it. When the maker calls it, the status becomes cancelled. When the recipient_wallet of the proposal calls it, the status becomes declined. Only an open proposal can be cancelled or declined. After a successful call, the proposal can never execute. Fails with block_proposal_not_found (11117) if no proposal has that id, or if the caller is neither its maker nor its recipient. Fails with block_proposal_not_open (11118) if the proposal is not open, for example because it has executed or an accept is in progress. Requires the block_trade off-chain scope.",
+        "x-rate-limit-class": "endpoint",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CancelBlockProposalRequest"
               }
             }
           }
@@ -2319,6 +2435,64 @@
         }
       }
     },
+    "/private/execute_block_trade": {
+      "post": {
+        "tags": [
+          "RFQ"
+        ],
+        "summary": "private/execute_block_trade",
+        "operationId": "private_execute_block_trade",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BlockTradeExecuteResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "JSON-RPC error (see Error Codes)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "$ref": "#/components/schemas/RPCError"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "DeriveWallet": [],
+            "DeriveTimestamp": [],
+            "DeriveSignature": []
+          }
+        ],
+        "description": "Settles a block trade: a multi-leg trade that two parties agree off the platform, directly or through a broker. Each party signs its own side. The maker side signs the same payload as an RFQ quote and the taker side signs the same payload as an RFQ execution, over the same priced legs. Anyone who holds both signed sides can submit them, and the submitter needs no access to either subaccount. A submitter can add a broker fee to each side with extra_fee and referral_code, up to that side's signed max_fee. The trade settles at the signed prices in one atomic step. The total cost must be inside the currency's RFQ price band for both sides, as within_price_band in private/simulate_block_trade and private/verify_block_trade reports. Each leg must be at least 100 times its instrument's minimum_amount. Returns the block_trade_id and the trades of each side. Fails with block_trade_outside_price_band (11123) if the total cost is outside the band, with block_trades_not_available_for_currency (11124) if the currency has no band, and with invalid_amount (11012) if a leg is too small. Requires the block_trade off-chain scope; RFQ scopes do not cover block trades. A session key that signs a side needs block_trade and an RFQ trade scope for every instrument in the legs, or fails with unauthorized_key_scope (14031).",
+        "x-rate-limit-class": "non_matching",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExecuteBlockTradeRequest"
+              }
+            }
+          }
+        }
+      }
+    },
     "/private/execute_quote": {
       "post": {
         "tags": [
@@ -2371,6 +2545,180 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/ExecuteQuoteRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/private/get_block_proposals": {
+      "post": {
+        "tags": [
+          "RFQ"
+        ],
+        "summary": "private/get_block_proposals",
+        "operationId": "private_get_block_proposals",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BlockProposalGetResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "JSON-RPC error (see Error Codes)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "$ref": "#/components/schemas/RPCError"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "DeriveWallet": [],
+            "DeriveTimestamp": [],
+            "DeriveSignature": []
+          }
+        ],
+        "description": "Returns the block proposals that the wallet made or received as recipient_wallet: the open ones and those that ended recently, most recently updated first. Each proposal shows maker_wallet, recipient_wallet, the maker's direction and the priced legs. The taker trades the opposite direction. status is open, executing (an accept is in progress), executed (block_trade_id identifies the block trade), cancelled (by the maker), declined (by the recipient) or expired. A proposal can be accepted until expires_at_sec (UTC seconds). Requires the block_trade off-chain scope.",
+        "x-rate-limit-class": "non_matching",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GetBlockProposalsRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/private/get_block_trade": {
+      "post": {
+        "tags": [
+          "RFQ"
+        ],
+        "summary": "private/get_block_trade",
+        "operationId": "private_get_block_trade",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BlockTradeHistoryResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "JSON-RPC error (see Error Codes)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "$ref": "#/components/schemas/RPCError"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "DeriveWallet": [],
+            "DeriveTimestamp": [],
+            "DeriveSignature": []
+          }
+        ],
+        "description": "Returns the caller's side of one block trade, by block_trade_id, for a wallet or one of its subaccounts: the block's time, the caller's liquidity role and the caller's trades, one per leg, in the private/get_trade_history shape with their batch status and tx_hash. Fails with a block-trade-not-found error if no trade of the wallet or subaccount has that id. A session key restricted to some subaccounts sees only their blocks.",
+        "x-rate-limit-class": "non_matching",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GetBlockTradeRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/private/get_block_trades": {
+      "post": {
+        "tags": [
+          "RFQ"
+        ],
+        "summary": "private/get_block_trades",
+        "operationId": "private_get_block_trades",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedBlockTradesResult"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "JSON-RPC error (see Error Codes)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "$ref": "#/components/schemas/RPCError"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "DeriveWallet": [],
+            "DeriveTimestamp": [],
+            "DeriveSignature": []
+          }
+        ],
+        "description": "Returns a paginated history of the caller's block trades for a wallet or one of its subaccounts, newest first. Pages count blocks, not trades. Each block has its time, the caller's liquidity role and the caller's trades, one per leg, in the private/get_trade_history shape. Optional filters: a time window, an instrument name and a direction. A block matches the instrument filter if it has a trade in that instrument, and the direction filter if any of the caller's trades has that direction. A matching block returns all of its trades. A session key restricted to some subaccounts sees only their blocks.",
+        "x-rate-limit-class": "non_matching",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GetBlockTradesRequest"
               }
             }
           }
@@ -2545,6 +2893,64 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/GetRfqsRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/private/invalidate_block_trade_signature": {
+      "post": {
+        "tags": [
+          "RFQ"
+        ],
+        "summary": "private/invalidate_block_trade_signature",
+        "operationId": "private_invalidate_block_trade_signature",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvalidateBlockTradeSignatureResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "JSON-RPC error (see Error Codes)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "$ref": "#/components/schemas/RPCError"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "DeriveWallet": [],
+            "DeriveTimestamp": [],
+            "DeriveSignature": []
+          }
+        ],
+        "description": "Invalidates a signed block-trade side of the given subaccount, identified by its nonce, so that private/execute_block_trade rejects it. The nonce can be at most one hour ahead of the server clock. Fails with a non-unique-nonce error if the side has already executed or its execution is in progress. Returns \"ok\" on success. Requires the block_trade off-chain scope.",
+        "x-rate-limit-class": "non_matching",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InvalidateBlockTradeSignatureRequest"
               }
             }
           }
@@ -2783,6 +3189,64 @@
         }
       }
     },
+    "/private/send_block_proposal": {
+      "post": {
+        "tags": [
+          "RFQ"
+        ],
+        "summary": "private/send_block_proposal",
+        "operationId": "private_send_block_proposal",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BlockProposalPrivateResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "JSON-RPC error (see Error Codes)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "$ref": "#/components/schemas/RPCError"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "DeriveWallet": [],
+            "DeriveTimestamp": [],
+            "DeriveSignature": []
+          }
+        ],
+        "description": "Posts the caller's signed maker side of a block trade as a block proposal, for a taker to accept with private/accept_block_proposal. The side is signed as the maker side of private/execute_block_trade. The exchange keeps the signature, and no other user can see it. With recipient_wallet, only that wallet can see and accept the proposal. With listed true, the proposal is on the public list that public/get_block_proposals returns, and anyone can accept it. With neither, anyone who has the proposal_id can read and accept the proposal, so share the id only with the intended counterparty. A listed proposal cannot have a recipient_wallet. The proposal can be accepted while the signed side can execute: until 60 seconds before its signature_expiry_sec, or 59 minutes after its nonce time, whichever is first. The response gives that time as expires_at_sec. So the signed signature_expiry_sec sets how long the proposal stays open. A proposal must stay open for at least 60 seconds, or the call fails with invalid_params (-32602). The side must pass the checks that private/verify_block_trade makes for a maker side, except that its nonce time can be up to 59 minutes old. Its total cost must be inside the currency's RFQ price band. A proposal trades with no broker fee. A wallet can have a limited number of open proposals. Returns the proposal with its proposal_id. Its maker and its recipient also receive it on the {wallet}.block_proposals channel. Fails with block_trade_outside_price_band (11123) if the total cost is outside the band, with block_trades_not_available_for_currency (11124) if the currency has no band, with insufficient_funds (11000) if the side does not have enough margin, with block_trade_same_owner (11115) if recipient_wallet is the caller's wallet, with non_unique_nonce (11017) if an open proposal already uses the nonce, and with rate_limit_exceeded (-32000) if the wallet has too many open proposals. Requires the block_trade off-chain scope. A session key that signs the side needs block_trade and an RFQ trade scope for every instrument in the legs.",
+        "x-rate-limit-class": "endpoint",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendBlockProposalRequest"
+              }
+            }
+          }
+        }
+      }
+    },
     "/private/send_quote": {
       "post": {
         "tags": [
@@ -2899,6 +3363,122 @@
         }
       }
     },
+    "/private/simulate_block_trade": {
+      "post": {
+        "tags": [
+          "RFQ"
+        ],
+        "summary": "private/simulate_block_trade",
+        "operationId": "private_simulate_block_trade",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BlockTradeSideCheckResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "JSON-RPC error (see Error Codes)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "$ref": "#/components/schemas/RPCError"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "DeriveWallet": [],
+            "DeriveTimestamp": [],
+            "DeriveSignature": []
+          }
+        ],
+        "description": "Estimates one side of a block trade for the caller's subaccount before it is signed. Takes the side's direction, the agreed priced legs and an optional extra_fee. Returns the total fee the side would pay, extra_fee included, its initial margin before and after the trade, and within_price_band, which is whether the total cost is inside the currency's RFQ price band for both sides, or null if the currency has no band. Also returns price_band_min_total_cost and price_band_max_total_cost, the lowest and highest total cost at which this side is inside the band. Fails with invalid_amount (11012) if a leg is smaller than 100 times its instrument's minimum_amount. A side without enough margin returns is_valid false and the reason, not an error. Requires the block_trade off-chain scope.",
+        "x-rate-limit-class": "non_matching",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SimulateBlockTradeRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/private/verify_block_trade": {
+      "post": {
+        "tags": [
+          "RFQ"
+        ],
+        "summary": "private/verify_block_trade",
+        "operationId": "private_verify_block_trade",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BlockTradeSideCheckResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "JSON-RPC error (see Error Codes)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "$ref": "#/components/schemas/RPCError"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "DeriveWallet": [],
+            "DeriveTimestamp": [],
+            "DeriveSignature": []
+          }
+        ],
+        "description": "Checks one signed side of a block trade for the caller's subaccount, as private/execute_block_trade would check it now: its signature, nonce and signature lifetime. Takes the signed side in the private/execute_block_trade shape and its role, maker or taker. Returns the total fee the side would pay, its initial margin before and after the trade, expires_at_sec, the last second at which the side can execute, and within_price_band, which is whether the total cost is inside the currency's RFQ price band for both sides, or null if the currency has no band. Also returns price_band_min_total_cost and price_band_max_total_cost, the lowest and highest total cost at which this side is inside the band. Fails with invalid_amount (11012) if a leg is smaller than 100 times its instrument's minimum_amount. A side without enough margin returns is_valid false and the reason, not an error. The side stays usable. Requires the block_trade off-chain scope.",
+        "x-rate-limit-class": "non_matching",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyBlockTradeRequest"
+              }
+            }
+          }
+        }
+      }
+    },
     "/public/execute_quote_debug": {
       "post": {
         "tags": [
@@ -2944,6 +3524,108 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/PublicExecuteQuoteDebugRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/public/get_block_proposal": {
+      "post": {
+        "tags": [
+          "RFQ"
+        ],
+        "summary": "public/get_block_proposal",
+        "operationId": "public_get_block_proposal",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BlockProposalResultPublic"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "JSON-RPC error (see Error Codes)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "$ref": "#/components/schemas/RPCError"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "description": "Returns one block proposal by its proposal_id, listed or not, in the public/get_block_proposals shape. It never shows a wallet, a subaccount or a signature. A proposal stays readable for some time after it ends, with its final status. A proposal with a recipient_wallet is not returned: its maker and its recipient read it with private/get_block_proposals. Fails with block_proposal_not_found (11117) if no proposal has that id, or if the proposal has a recipient_wallet.",
+        "x-rate-limit-class": "non_matching",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PublicGetBlockProposalRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/public/get_block_proposals": {
+      "post": {
+        "tags": [
+          "RFQ"
+        ],
+        "summary": "public/get_block_proposals",
+        "operationId": "public_get_block_proposals",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BlockProposalGetPublicResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "JSON-RPC error (see Error Codes)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "$ref": "#/components/schemas/RPCError"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "description": "Returns the listed block proposals: those that have not ended, then those that ended recently. Each group has the most recently updated first. Pass currency to return the proposals of one currency. Each proposal shows the maker's direction, the priced legs, its status and expires_at_sec. It never shows a wallet, a subaccount or a signature. Accept an open proposal with private/accept_block_proposal.",
+        "x-rate-limit-class": "non_matching",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PublicGetBlockProposalsRequest"
               }
             }
           }
@@ -4562,7 +5244,7 @@
             "DeriveSignature": []
           }
         ],
-        "description": "Returns realized interest settlements per subaccount, for a single subaccount or an entire wallet (specify exactly one), optionally bounded by a start/end timestamp window. Each entry gives the settled interest as a decimal, where a negative value was paid (borrowed) and a positive value was received (supplied).",
+        "description": "Returns realized interest settlements per subaccount, for a single subaccount or an entire wallet (specify exactly one), optionally bounded by a start/end timestamp window. Each entry gives the asset the interest settled on and the settled interest as a decimal, where a negative value was paid (borrowed) and a positive value was received (supplied).",
         "x-rate-limit-class": "non_matching",
         "requestBody": {
           "required": true,
@@ -5818,7 +6500,7 @@
             }
           }
         },
-        "description": "Returns deposits queued on L1 but not yet applied by the sequencer, indexed for a wallet and keyed by (tx_hash, log_index). Once a deposit is applied it moves to private/get_deposit_history; this endpoint covers the window in between. Public because a first-time depositor has no account (and thus no session key) until their deposit is applied.",
+        "description": "Returns deposits queued on L1 but not yet applied by the sequencer, indexed for a wallet and keyed by (tx_hash, log_index). Once a deposit is applied it moves to private/get_deposit_history; this endpoint covers the window in between. Public because a first-time depositor has no account (and thus no session key) until their deposit is applied. A deposit below the asset's minimum is donated to the security module and credits nothing: its entry reports `below_min_deposit: true`. A deposit address holding less than the minimum is not swept: its entries report status `below_min` until a later deposit brings the total over.",
         "x-rate-limit-class": "non_matching",
         "requestBody": {
           "required": true,
@@ -6901,7 +7583,7 @@
             }
           }
         },
-        "description": "Returns paginated, anonymized trades with optional filters: `trade_id` (a UUID, which overrides all other filters), `instrument_name`, `instrument_type` (erc20/option/perp), `currency`, `subaccount_id`, `batch_status` (a batch-status name; unset returns trades in every batch state), and `from_timestamp`/`to_timestamp`. Without `trade_id`, `subaccount_id` or `instrument_name`, or whenever `batch_status` is set, the window is limited to the 30 days ending at `to_timestamp` (or now). Each trade is enriched with its settlement status and transaction hash. Public endpoint.",
+        "description": "Returns paginated, anonymized trades with optional filters: `trade_id` (a UUID, which overrides all other filters), `instrument_name`, `instrument_type` (erc20/option/perp), `currency`, `subaccount_id`, `batch_status` (a batch-status name; unset returns trades in every batch state), and `from_timestamp`/`to_timestamp`. Without `trade_id`, `subaccount_id` or `instrument_name`, or whenever `batch_status` is set, the window is limited to the 30 days ending at `to_timestamp` (or now). Each trade is enriched with its settlement status and transaction hash. A block trade does not show who traded it: `wallet` is the zero address, and `subaccount_id`, `realized_pnl` and `realized_pnl_excl_fees` are 0. The `subaccount_id` filter does not return block trades. Public endpoint.",
         "x-rate-limit-class": "non_matching",
         "requestBody": {
           "required": true,
@@ -7239,6 +7921,48 @@
   },
   "components": {
     "schemas": {
+      "AcceptBlockProposalRequest": {
+        "description": "The caller's taker side, signed as for `private/execute_block_trade` over the legs of the proposal, in the opposite direction.",
+        "type": "object",
+        "required": [
+          "max_fee",
+          "nonce",
+          "proposal_id",
+          "signature",
+          "signature_expiry_sec",
+          "signer",
+          "subaccount_id"
+        ],
+        "properties": {
+          "max_fee": {
+            "description": "Highest total fee this side pays, in USD.",
+            "type": "string",
+            "format": "decimal"
+          },
+          "nonce": {
+            "type": "string"
+          },
+          "proposal_id": {
+            "description": "UUID v4 string",
+            "type": "string",
+            "format": "uuid"
+          },
+          "signature": {
+            "type": "string"
+          },
+          "signature_expiry_sec": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "signer": {
+            "$ref": "#/components/schemas/Address"
+          },
+          "subaccount_id": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
       "AccountFeeInfo": {
         "type": "object",
         "required": [
@@ -7659,6 +8383,347 @@
           "SettledError"
         ]
       },
+      "BlockProposalGetPublicResponse": {
+        "description": "Result for `public/get_block_proposals`.",
+        "type": "object",
+        "required": [
+          "proposals"
+        ],
+        "properties": {
+          "proposals": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BlockProposalResultPublic"
+            }
+          }
+        }
+      },
+      "BlockProposalGetResponse": {
+        "description": "Result for `private/get_block_proposals`.",
+        "type": "object",
+        "required": [
+          "proposals"
+        ],
+        "properties": {
+          "proposals": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BlockProposalPrivateResponse"
+            }
+          }
+        }
+      },
+      "BlockProposalPrivateResponse": {
+        "description": "A block proposal as its maker and its recipient see it.",
+        "type": "object",
+        "required": [
+          "block_trade_id",
+          "creation_timestamp",
+          "currency",
+          "direction",
+          "expires_at_sec",
+          "last_update_timestamp",
+          "legs",
+          "listed",
+          "maker_wallet",
+          "proposal_id",
+          "risk_universe_id",
+          "status"
+        ],
+        "properties": {
+          "block_trade_id": {
+            "description": "The block trade, once the proposal executes.",
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "creation_timestamp": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "direction": {
+            "description": "The maker's direction. The taker trades the opposite.",
+            "$ref": "#/components/schemas/Direction"
+          },
+          "expires_at_sec": {
+            "description": "The last second (UTC) at which the proposal can be accepted.",
+            "type": "integer",
+            "format": "int64"
+          },
+          "last_update_timestamp": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "legs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PricedLegParamsAndResponse"
+            }
+          },
+          "listed": {
+            "description": "Whether the proposal is on the public list.",
+            "type": "boolean"
+          },
+          "maker_wallet": {
+            "$ref": "#/components/schemas/Address"
+          },
+          "proposal_id": {
+            "description": "UUID v4 string",
+            "type": "string",
+            "format": "uuid"
+          },
+          "recipient_wallet": {
+            "description": "The only wallet that can accept the proposal. Null if any wallet can.",
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Address"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "risk_universe_id": {
+            "type": "integer",
+            "format": "uint32",
+            "minimum": 0.0
+          },
+          "status": {
+            "$ref": "#/components/schemas/BlockProposalStatus"
+          }
+        }
+      },
+      "BlockProposalResultPublic": {
+        "description": "A block proposal as every other wallet sees it.",
+        "type": "object",
+        "required": [
+          "block_trade_id",
+          "creation_timestamp",
+          "currency",
+          "direction",
+          "expires_at_sec",
+          "last_update_timestamp",
+          "legs",
+          "listed",
+          "proposal_id",
+          "risk_universe_id",
+          "status"
+        ],
+        "properties": {
+          "block_trade_id": {
+            "description": "The block trade, once the proposal executes.",
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "creation_timestamp": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "direction": {
+            "description": "The maker's direction. The taker trades the opposite.",
+            "$ref": "#/components/schemas/Direction"
+          },
+          "expires_at_sec": {
+            "description": "The last second (UTC) at which the proposal can be accepted.",
+            "type": "integer",
+            "format": "int64"
+          },
+          "last_update_timestamp": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "legs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PricedLegParamsAndResponse"
+            }
+          },
+          "listed": {
+            "description": "Whether the proposal is on the public list.",
+            "type": "boolean"
+          },
+          "proposal_id": {
+            "description": "UUID v4 string",
+            "type": "string",
+            "format": "uuid"
+          },
+          "risk_universe_id": {
+            "type": "integer",
+            "format": "uint32",
+            "minimum": 0.0
+          },
+          "status": {
+            "$ref": "#/components/schemas/BlockProposalStatus"
+          }
+        }
+      },
+      "BlockProposalStatus": {
+        "oneOf": [
+          {
+            "type": "string",
+            "enum": [
+              "open",
+              "executing",
+              "executed",
+              "expired"
+            ]
+          },
+          {
+            "description": "By the maker.",
+            "type": "string",
+            "enum": [
+              "cancelled"
+            ]
+          },
+          {
+            "description": "By the recipient.",
+            "type": "string",
+            "enum": [
+              "declined"
+            ]
+          }
+        ]
+      },
+      "BlockTradeExecuteResponse": {
+        "description": "Result for `private/execute_block_trade`: the trades each side took.",
+        "type": "object",
+        "required": [
+          "block_trade_id",
+          "maker_trades",
+          "taker_trades"
+        ],
+        "properties": {
+          "block_trade_id": {
+            "description": "UUID v4 string",
+            "type": "string",
+            "format": "uuid"
+          },
+          "maker_trades": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Trade"
+            }
+          },
+          "taker_trades": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Trade"
+            }
+          }
+        }
+      },
+      "BlockTradeHistoryResponse": {
+        "description": "A block trade as returned by `private/get_block_trades` and `private/get_block_trade`. It holds the caller's side only: the two sides of a block belong to different wallets.",
+        "type": "object",
+        "required": [
+          "block_trade_id",
+          "liquidity_role",
+          "timestamp",
+          "trades"
+        ],
+        "properties": {
+          "block_trade_id": {
+            "description": "UUID v4 string",
+            "type": "string",
+            "format": "uuid"
+          },
+          "liquidity_role": {
+            "$ref": "#/components/schemas/LiquidityRole"
+          },
+          "timestamp": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "trades": {
+            "description": "One trade per leg.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TradeHistoryResponse"
+            }
+          }
+        }
+      },
+      "BlockTradeSideCheckResponse": {
+        "description": "Result for `private/simulate_block_trade` and `private/verify_block_trade`: one side's fee and margin if it executed now.",
+        "type": "object",
+        "required": [
+          "estimated_fee",
+          "is_valid",
+          "post_initial_margin",
+          "pre_initial_margin",
+          "price_band_max_total_cost",
+          "price_band_min_total_cost"
+        ],
+        "properties": {
+          "estimated_fee": {
+            "description": "The side's total fee, `extra_fee` included.",
+            "type": "string",
+            "format": "decimal"
+          },
+          "expires_at_sec": {
+            "description": "The last second at which the signed side can execute. Null for an unsigned side.",
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "invalid_reason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "is_valid": {
+            "description": "False if the side does not have enough margin for its trade and fees, or if the trade takes the subaccount over its maximum asset count.",
+            "type": "boolean"
+          },
+          "post_initial_margin": {
+            "description": "Decimal string of the human value (e.g. `\"1.5\"`), up to 12 fractional digits; a string or JSON number is accepted",
+            "type": "string",
+            "format": "decimal"
+          },
+          "pre_initial_margin": {
+            "description": "Decimal string of the human value (e.g. `\"1.5\"`), up to 12 fractional digits; a string or JSON number is accepted",
+            "type": "string",
+            "format": "decimal"
+          },
+          "price_band_max_total_cost": {
+            "description": "The highest total cost at which this side is within the RFQ price band, as a decimal string. Null if the currency has no band.",
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "decimal"
+          },
+          "price_band_min_total_cost": {
+            "description": "The lowest total cost at which this side is within the RFQ price band, as a decimal string. A negative cost means the side receives. Null if the currency has no band.",
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "decimal"
+          },
+          "within_price_band": {
+            "description": "Whether both sides are within the currency's RFQ price band. Null if it has no band.",
+            "type": [
+              "boolean",
+              "null"
+            ]
+          }
+        }
+      },
       "BurnSharesRequest": {
         "description": "Fields common to every signed vault action. They appear alongside each endpoint's action-specific parameters in the same request object.",
         "type": "object",
@@ -7905,6 +8970,24 @@
               "type": "string",
               "format": "uuid"
             }
+          }
+        }
+      },
+      "CancelBlockProposalRequest": {
+        "type": "object",
+        "required": [
+          "proposal_id",
+          "wallet"
+        ],
+        "properties": {
+          "proposal_id": {
+            "description": "UUID v4 string",
+            "type": "string",
+            "format": "uuid"
+          },
+          "wallet": {
+            "description": "The session's wallet: the maker or the recipient of the proposal.",
+            "$ref": "#/components/schemas/Address"
           }
         }
       },
@@ -9039,6 +10122,21 @@
           }
         }
       },
+      "ExecuteBlockTradeRequest": {
+        "type": "object",
+        "required": [
+          "maker_params",
+          "taker_params"
+        ],
+        "properties": {
+          "maker_params": {
+            "$ref": "#/components/schemas/SignedBlockTradeSideRequest"
+          },
+          "taker_params": {
+            "$ref": "#/components/schemas/SignedBlockTradeSideRequest"
+          }
+        }
+      },
       "ExecuteQuoteRequest": {
         "type": "object",
         "required": [
@@ -9491,6 +10589,120 @@
       },
       "GetAllReferralCodesParams": {
         "type": "object"
+      },
+      "GetBlockProposalsRequest": {
+        "type": "object",
+        "required": [
+          "wallet"
+        ],
+        "properties": {
+          "wallet": {
+            "description": "The session's wallet.",
+            "$ref": "#/components/schemas/Address"
+          }
+        }
+      },
+      "GetBlockTradeRequest": {
+        "type": "object",
+        "required": [
+          "block_trade_id"
+        ],
+        "properties": {
+          "block_trade_id": {
+            "description": "The `block_trade_id` of the block's trades.",
+            "type": "string",
+            "format": "uuid"
+          },
+          "subaccount_id": {
+            "default": null,
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "wallet": {
+            "default": null,
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "GetBlockTradesRequest": {
+        "type": "object",
+        "properties": {
+          "direction": {
+            "description": "Returns the blocks in which any of the caller's trades has this direction.",
+            "default": null,
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Direction"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "from_timestamp": {
+            "default": null,
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "instrument_name": {
+            "description": "Returns the blocks with a trade in this instrument.",
+            "default": null,
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "page": {
+            "default": null,
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "uint32",
+            "minimum": 0.0
+          },
+          "page_size": {
+            "default": null,
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "uint32",
+            "minimum": 0.0
+          },
+          "subaccount_id": {
+            "default": null,
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "to_timestamp": {
+            "default": null,
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "wallet": {
+            "default": null,
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
       },
       "GetCollateralsRequest": {
         "type": "object",
@@ -11520,6 +12732,13 @@
           "timestamp"
         ],
         "properties": {
+          "asset": {
+            "description": "Name of the asset the interest settled on (e.g. `\"USDC\"`); null if the asset is not in the asset config table.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
           "interest": {
             "type": "string"
           },
@@ -11583,6 +12802,32 @@
             }
           }
         }
+      },
+      "InvalidateBlockTradeSignatureRequest": {
+        "type": "object",
+        "required": [
+          "nonce",
+          "subaccount_id"
+        ],
+        "properties": {
+          "nonce": {
+            "description": "The `nonce` of the signed side.",
+            "type": "string"
+          },
+          "subaccount_id": {
+            "description": "The subaccount of the signed side.",
+            "type": "integer",
+            "format": "uint64",
+            "minimum": 0.0
+          }
+        }
+      },
+      "InvalidateBlockTradeSignatureResponse": {
+        "description": "The literal string `\"ok\"` returned on success.",
+        "type": "string",
+        "enum": [
+          "ok"
+        ]
       },
       "LegUnpricedParams": {
         "type": "object",
@@ -11957,9 +13202,20 @@
       },
       "OffchainKeyScope": {
         "description": "Additional permission scopes enforced off-chain (not part of the on-chain session-key scopes).",
-        "type": "string",
-        "enum": [
-          "account_info"
+        "oneOf": [
+          {
+            "type": "string",
+            "enum": [
+              "account_info"
+            ]
+          },
+          {
+            "description": "Sign, submit, check or invalidate block trades. RFQ scopes do not cover them.",
+            "type": "string",
+            "enum": [
+              "block_trade"
+            ]
+          }
         ]
       },
       "Ohlc": {
@@ -12942,6 +14198,24 @@
           "market"
         ]
       },
+      "PaginatedBlockTradesResult": {
+        "type": "object",
+        "required": [
+          "block_trades",
+          "pagination"
+        ],
+        "properties": {
+          "block_trades": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BlockTradeHistoryResponse"
+            }
+          },
+          "pagination": {
+            "$ref": "#/components/schemas/Pagination"
+          }
+        }
+      },
       "PaginatedOrdersResult": {
         "type": "object",
         "required": [
@@ -13075,7 +14349,7 @@
             "type": "string"
           },
           "bridge_status": {
-            "description": "`registered` (reported by the client, not yet confirmed by its rail) `submitted` (in flight) `delivered` (landed on the destination chain) `matched` (joined to the L1 deposit) `failed` (the bridge refunded or could not fill — nothing reached the escrow) `expired` (unresolved past `expires_at_ms`; check the source chain) `unmatched` (delivered, but not credited within 24h; contact support)",
+            "description": "`registered` (reported by the client, not yet confirmed by its rail) `submitted` (in flight) `delivered` (landed on the destination chain) `matched` (joined to the L1 deposit) `failed` (the bridge could not fill - nothing reached the escrow) `refunded` (the bridge sent the funds back on the source chain - nothing reached the escrow) `expired` (unresolved past `expires_at_ms`; check the source chain) `unmatched` (delivered, but not credited within 24h; contact support)",
             "type": "string"
           },
           "delivered_at_ms": {
@@ -13110,7 +14384,7 @@
             "type": "string"
           },
           "receiving_amount": {
-            "description": "What actually arrived, native units, as a decimal string.",
+            "description": "What actually arrived, or was refunded, in `receiving_token`'s native units, as a decimal string.",
             "type": [
               "string",
               "null"
@@ -13123,7 +14397,7 @@
             ]
           },
           "receiving_tx_hash": {
-            "description": "The bridge's delivery transaction on the destination chain.",
+            "description": "The bridge's delivery transaction on the destination chain. When `refunded`, the refund transaction on the source chain.",
             "type": [
               "string",
               "null"
@@ -13161,6 +14435,7 @@
         "required": [
           "action_type",
           "asset",
+          "below_min_deposit",
           "deposit_type",
           "manager_id",
           "status",
@@ -13183,7 +14458,7 @@
             "type": "string"
           },
           "amount": {
-            "description": "Amount in the asset's native ERC-20 units, as a decimal string. While `bridging`, the estimated `bridge_to_l1.expected_amount` until the bridge delivers, then what it delivered.",
+            "description": "Amount in the asset's native ERC-20 units, as a decimal string. While `bridging`, the estimated `bridge_to_l1.expected_amount` until the bridge delivers, then what it delivered. A refunded bridge keeps the estimate.",
             "type": [
               "string",
               "null"
@@ -13191,6 +14466,10 @@
           },
           "asset": {
             "type": "string"
+          },
+          "below_min_deposit": {
+            "description": "Below the asset's minimum deposit: the whole amount went to the security module and nothing was credited.",
+            "type": "boolean"
           },
           "block_number": {
             "type": [
@@ -13230,7 +14509,7 @@
             "minimum": 0.0
           },
           "status": {
-            "description": "`bridging` (a bridge not yet recorded on L1; its detail is `bridge_to_l1.bridge_status`) `detected` (transfer seen at the tip, pre-confirmation) `pending` (escrow swept, awaiting confirmation) `confirmed` (sweep tx past the confirmation range) `reverted` (the sweep reorged out — or uncreditable: no valid destination exists)",
+            "description": "`bridging` (a bridge not yet recorded on L1; its detail is `bridge_to_l1.bridge_status`) `detected` (transfer seen at the tip, pre-confirmation) `below_min` (not swept yet: the deposit address holds less than the asset's minimum deposit; swept once a later deposit brings it over the minimum) `pending` (escrow swept, awaiting confirmation) `confirmed` (sweep tx past the confirmation range) `reverted` (the sweep reorged out — or uncreditable: no valid destination exists)",
             "type": "string"
           },
           "subaccount_id": {
@@ -14075,7 +15354,7 @@
             "type": "string"
           },
           "recipient_address": {
-            "description": "Owner of the destination account/subaccount.",
+            "description": "Owner of the destination account/subaccount. Must not be the sender's own wallet; use `private/transfer_spot` for that.",
             "type": "string"
           },
           "signature": {
@@ -14240,7 +15519,7 @@
             "type": "string"
           },
           "recipient": {
-            "description": "L1 address the funds are paid out to. Defaults to the subaccount's owner wallet when omitted.\n\nA non-owner signer (session key) may only pay out to an address on the owner's `whitelisted_recipients`, unless the key holds `Admin`.",
+            "description": "L1 address the funds are paid out to. Defaults to the subaccount's owner wallet when omitted.\n\nOwners and all-subaccount admin keys may withdraw to any recipient. All other session keys may only withdraw to: - owner wallet, or - address in `whitelisted_recipients`",
             "default": null,
             "type": [
               "string",
@@ -14429,6 +15708,31 @@
             "type": "integer",
             "format": "uint64",
             "minimum": 0.0
+          }
+        }
+      },
+      "PublicGetBlockProposalRequest": {
+        "type": "object",
+        "required": [
+          "proposal_id"
+        ],
+        "properties": {
+          "proposal_id": {
+            "description": "UUID v4 string",
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "PublicGetBlockProposalsRequest": {
+        "type": "object",
+        "properties": {
+          "currency": {
+            "description": "Returns only the proposals of this currency (e.g. `ETH`).",
+            "type": [
+              "string",
+              "null"
+            ]
           }
         }
       },
@@ -16795,6 +18099,69 @@
           }
         }
       },
+      "SendBlockProposalRequest": {
+        "description": "The caller's maker side of a block trade, signed as for `private/execute_block_trade`, and who can accept it.",
+        "type": "object",
+        "required": [
+          "direction",
+          "legs",
+          "max_fee",
+          "nonce",
+          "signature",
+          "signature_expiry_sec",
+          "signer",
+          "subaccount_id"
+        ],
+        "properties": {
+          "direction": {
+            "$ref": "#/components/schemas/Direction"
+          },
+          "legs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PricedLegParamsAndResponse"
+            }
+          },
+          "listed": {
+            "description": "Whether the proposal is on the public list.",
+            "default": false,
+            "type": "boolean"
+          },
+          "max_fee": {
+            "description": "Highest total fee this side pays, in USD.",
+            "type": "string",
+            "format": "decimal"
+          },
+          "nonce": {
+            "type": "string"
+          },
+          "recipient_wallet": {
+            "description": "The only wallet that can see and accept the proposal. Not allowed with `listed`.",
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Address"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "signature": {
+            "type": "string"
+          },
+          "signature_expiry_sec": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "signer": {
+            "$ref": "#/components/schemas/Address"
+          },
+          "subaccount_id": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
       "SendQuoteRequest": {
         "type": "object",
         "required": [
@@ -17321,6 +18688,7 @@
         "description": "A settled trade returned by `public/get_trade_history`. Anonymized: no `order_id` or `label`. `wallet` is included since settled trades are visible on-chain.",
         "type": "object",
         "required": [
+          "block_trade_id",
           "direction",
           "expected_rebate",
           "extra_fee",
@@ -17351,6 +18719,14 @@
                 "type": "null"
               }
             ]
+          },
+          "block_trade_id": {
+            "description": "Optional UUID v4 string",
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
           },
           "direction": {
             "$ref": "#/components/schemas/Direction"
@@ -17472,6 +18848,71 @@
           }
         }
       },
+      "SignedBlockTradeSideRequest": {
+        "description": "One party's side of a block trade, signed by that party.",
+        "type": "object",
+        "required": [
+          "direction",
+          "legs",
+          "max_fee",
+          "nonce",
+          "signature",
+          "signature_expiry_sec",
+          "signer",
+          "subaccount_id"
+        ],
+        "properties": {
+          "client": {
+            "default": "",
+            "type": "string"
+          },
+          "direction": {
+            "$ref": "#/components/schemas/Direction"
+          },
+          "extra_fee": {
+            "description": "Broker fee for this side, in USD, paid to the owner of `referral_code`. It is not signed. The side's `max_fee` caps the total fee.",
+            "default": "0",
+            "type": "string",
+            "format": "decimal"
+          },
+          "label": {
+            "default": "",
+            "type": "string"
+          },
+          "legs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PricedLegParamsAndResponse"
+            }
+          },
+          "max_fee": {
+            "description": "Highest total fee this side pays, in USD, including `extra_fee`.",
+            "type": "string",
+            "format": "decimal"
+          },
+          "nonce": {
+            "type": "string"
+          },
+          "referral_code": {
+            "default": "",
+            "type": "string"
+          },
+          "signature": {
+            "type": "string"
+          },
+          "signature_expiry_sec": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "signer": {
+            "$ref": "#/components/schemas/Address"
+          },
+          "subaccount_id": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
       "SignedTransferQuoteRequest": {
         "description": "Action info that needs to be signed by quoter or RFQ executor for a transfer. The quoter signs the legs hash + max fee; the executor signs the same legs hash + their own max fee.",
         "type": "object",
@@ -17512,6 +18953,37 @@
           },
           "signer": {
             "$ref": "#/components/schemas/Address"
+          },
+          "subaccount_id": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "SimulateBlockTradeRequest": {
+        "type": "object",
+        "required": [
+          "direction",
+          "legs",
+          "subaccount_id"
+        ],
+        "properties": {
+          "direction": {
+            "description": "This side's direction. The taker side trades opposite the maker side.",
+            "$ref": "#/components/schemas/Direction"
+          },
+          "extra_fee": {
+            "description": "Broker fee for this side, in USD.",
+            "default": "0",
+            "type": "string",
+            "format": "decimal"
+          },
+          "legs": {
+            "description": "The agreed priced legs, the same on both sides.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PricedLegParamsAndResponse"
+            }
           },
           "subaccount_id": {
             "type": "integer",
@@ -17811,7 +19283,7 @@
             "type": "string"
           },
           "mm_credits": {
-            "description": "MM credit from universe loss-socialization events: the socialized USDC debit lands on cash in full, and `debit × (1 − write_down)` is added back to maintenance margin while the 15-minute write-down runs. Events this subaccount has not yet realized contribute their expected credit, with the current subaccount value standing in for the MtM at realization. Zero while under auction — the credit is cleared when liquidation starts.",
+            "description": "MM credit from universe loss-socialization events: the socialized USDC debit lands on cash in full, and `debit × (1 − write_down)` is added back to maintenance margin while the 6-hour write-down runs. Events this subaccount has not yet realized contribute their expected credit, with the current subaccount value standing in for the MtM at realization. Zero while under auction — the credit is cleared when liquidation starts.",
             "type": "string"
           },
           "open_orders": {
@@ -18019,6 +19491,7 @@
         "description": "Info that the user expects to get delivered when requesting trade info.",
         "type": "object",
         "required": [
+          "block_trade_id",
           "direction",
           "expected_rebate",
           "extra_fee",
@@ -18051,6 +19524,14 @@
                 "type": "null"
               }
             ]
+          },
+          "block_trade_id": {
+            "description": "Optional UUID v4 string",
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
           },
           "direction": {
             "$ref": "#/components/schemas/Direction"
@@ -18158,6 +19639,7 @@
         "description": "A trade as returned by `private/get_trade_history`. Mirrors a private trades subscription event, except `batch_status` is the settlement status (`null` until the batch settles).",
         "type": "object",
         "required": [
+          "block_trade_id",
           "direction",
           "expected_rebate",
           "extra_fee",
@@ -18190,6 +19672,14 @@
                 "type": "null"
               }
             ]
+          },
+          "block_trade_id": {
+            "description": "Optional UUID v4 string",
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
           },
           "direction": {
             "$ref": "#/components/schemas/Direction"
@@ -19794,6 +21284,76 @@
             "items": {
               "$ref": "#/components/schemas/Vault"
             }
+          }
+        }
+      },
+      "VerifyBlockTradeRequest": {
+        "description": "A signed side, as `private/execute_block_trade` takes it, and its role.",
+        "type": "object",
+        "required": [
+          "direction",
+          "legs",
+          "max_fee",
+          "nonce",
+          "role",
+          "signature",
+          "signature_expiry_sec",
+          "signer",
+          "subaccount_id"
+        ],
+        "properties": {
+          "client": {
+            "default": "",
+            "type": "string"
+          },
+          "direction": {
+            "$ref": "#/components/schemas/Direction"
+          },
+          "extra_fee": {
+            "description": "Broker fee for this side, in USD, paid to the owner of `referral_code`. It is not signed. The side's `max_fee` caps the total fee.",
+            "default": "0",
+            "type": "string",
+            "format": "decimal"
+          },
+          "label": {
+            "default": "",
+            "type": "string"
+          },
+          "legs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PricedLegParamsAndResponse"
+            }
+          },
+          "max_fee": {
+            "description": "Highest total fee this side pays, in USD, including `extra_fee`.",
+            "type": "string",
+            "format": "decimal"
+          },
+          "nonce": {
+            "type": "string"
+          },
+          "referral_code": {
+            "default": "",
+            "type": "string"
+          },
+          "role": {
+            "description": "The payload this side signed: `maker` (a quote) or `taker` (an execution).",
+            "$ref": "#/components/schemas/LiquidityRole"
+          },
+          "signature": {
+            "type": "string"
+          },
+          "signature_expiry_sec": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "signer": {
+            "$ref": "#/components/schemas/Address"
+          },
+          "subaccount_id": {
+            "type": "integer",
+            "format": "int64"
           }
         }
       },

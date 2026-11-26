@@ -14,5 +14,5 @@ pub mod subscriptions;
 
 pub mod constants;
 
-pub use types::Environment;
+pub use types::{Environment, Network};
 pub use ws_client::WsClient;

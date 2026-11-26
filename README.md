@@ -342,7 +342,24 @@ DERIVE_ENVIRONMENT
 | Environment | WebSocket URL | Network |
 |---|---|---|
 | Testnet | `wss://testnet.api.derive.xyz/v3/ws` | Sepolia |
-| Mainnet | `wss://api.lyra.finance/ws` | Ethereum |
+| Mainnet | `wss://api.derive.xyz/v3/ws` | Ethereum |
+| Custom { network, ws_url, rpc_url } | Supplied WebSocket URL | Selected network |
+
+Use `Environment::Custom` to supply a complete WebSocket URL and optionally an
+Ethereum RPC URL, while selecting Mainnet or Testnet signing and contract settings:
+
+```text
+Environment::Custom {
+    network: Network::Testnet,
+    ws_url: "ws://localhost:8080/v3/ws".into(),
+    rpc_url: Some("http://localhost:8545".into()),
+}
+```
+
+Both `Environment` and `Network` are exported from `derive_rs`. Set `rpc_url` to
+`None` to use the selected network's default Ethereum RPC. A deposit's
+`DepositArgs::builder().rpc_provider(...)` overrides the environment's RPC URL.
+`Environment::default()` remains Testnet.
 
 ## Architecture
 

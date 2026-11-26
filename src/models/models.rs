@@ -5,6 +5,24 @@
 #![allow(clippy::type_complexity)]
 #![allow(clippy::should_implement_trait)]
 
+///The caller's taker side, signed as for `private/execute_block_trade` over the legs of the proposal, in the opposite direction.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct AcceptBlockProposalRequest {
+    ///Highest total fee this side pays, in USD.
+    pub max_fee: ::bigdecimal::BigDecimal,
+    pub nonce: ::std::string::String,
+    ///UUID v4 string
+    pub proposal_id: ::uuid::Uuid,
+    pub signature: ::std::string::String,
+    pub signature_expiry_sec: i64,
+    pub signer: Address,
+    pub subaccount_id: i64,
+}
+impl AcceptBlockProposalRequest {
+    pub fn builder() -> builder::AcceptBlockProposalRequest {
+        Default::default()
+    }
+}
 ///`AccountFeeInfo`
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
 pub struct AccountFeeInfo {
@@ -797,6 +815,234 @@ impl BestQuoteChannelResult {
         Default::default()
     }
 }
+///Result for `public/get_block_proposals`.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct BlockProposalGetPublicResponse {
+    pub proposals: ::std::vec::Vec<BlockProposalResultPublic>,
+}
+impl BlockProposalGetPublicResponse {
+    pub fn builder() -> builder::BlockProposalGetPublicResponse {
+        Default::default()
+    }
+}
+///Result for `private/get_block_proposals`.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct BlockProposalGetResponse {
+    pub proposals: ::std::vec::Vec<BlockProposalPrivateResponse>,
+}
+impl BlockProposalGetResponse {
+    pub fn builder() -> builder::BlockProposalGetResponse {
+        Default::default()
+    }
+}
+///A block proposal as its maker and its recipient see it.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct BlockProposalPrivateResponse {
+    ///The block trade, once the proposal executes.
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub block_trade_id: ::std::option::Option<::uuid::Uuid>,
+    pub creation_timestamp: i64,
+    pub currency: ::std::string::String,
+    ///The maker's direction. The taker trades the opposite.
+    pub direction: Direction,
+    ///The last second (UTC) at which the proposal can be accepted.
+    pub expires_at_sec: i64,
+    pub last_update_timestamp: i64,
+    pub legs: ::std::vec::Vec<PricedLegParamsAndResponse>,
+    ///Whether the proposal is on the public list.
+    pub listed: bool,
+    pub maker_wallet: Address,
+    ///UUID v4 string
+    pub proposal_id: ::uuid::Uuid,
+    ///The only wallet that can accept the proposal. Null if any wallet can.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub recipient_wallet: ::std::option::Option<Address>,
+    pub risk_universe_id: u32,
+    pub status: BlockProposalStatus,
+}
+impl BlockProposalPrivateResponse {
+    pub fn builder() -> builder::BlockProposalPrivateResponse {
+        Default::default()
+    }
+}
+///A block proposal as every other wallet sees it.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct BlockProposalResultPublic {
+    ///The block trade, once the proposal executes.
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub block_trade_id: ::std::option::Option<::uuid::Uuid>,
+    pub creation_timestamp: i64,
+    pub currency: ::std::string::String,
+    ///The maker's direction. The taker trades the opposite.
+    pub direction: Direction,
+    ///The last second (UTC) at which the proposal can be accepted.
+    pub expires_at_sec: i64,
+    pub last_update_timestamp: i64,
+    pub legs: ::std::vec::Vec<PricedLegParamsAndResponse>,
+    ///Whether the proposal is on the public list.
+    pub listed: bool,
+    ///UUID v4 string
+    pub proposal_id: ::uuid::Uuid,
+    pub risk_universe_id: u32,
+    pub status: BlockProposalStatus,
+}
+impl BlockProposalResultPublic {
+    pub fn builder() -> builder::BlockProposalResultPublic {
+        Default::default()
+    }
+}
+///`BlockProposalStatus`
+#[derive(
+    ::serde::Deserialize,
+    ::serde::Serialize,
+    Clone,
+    Copy,
+    Debug,
+    Eq,
+    Hash,
+    Ord,
+    PartialEq,
+    PartialOrd
+)]
+pub enum BlockProposalStatus {
+    #[serde(rename = "open")]
+    Open,
+    #[serde(rename = "executing")]
+    Executing,
+    #[serde(rename = "executed")]
+    Executed,
+    #[serde(rename = "expired")]
+    Expired,
+    ///By the maker.
+    #[serde(rename = "cancelled")]
+    Cancelled,
+    ///By the recipient.
+    #[serde(rename = "declined")]
+    Declined,
+}
+impl ::std::fmt::Display for BlockProposalStatus {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        match *self {
+            Self::Open => f.write_str("open"),
+            Self::Executing => f.write_str("executing"),
+            Self::Executed => f.write_str("executed"),
+            Self::Expired => f.write_str("expired"),
+            Self::Cancelled => f.write_str("cancelled"),
+            Self::Declined => f.write_str("declined"),
+        }
+    }
+}
+impl ::std::str::FromStr for BlockProposalStatus {
+    type Err = self::error::ConversionError;
+    fn from_str(
+        value: &str,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        match value {
+            "open" => Ok(Self::Open),
+            "executing" => Ok(Self::Executing),
+            "executed" => Ok(Self::Executed),
+            "expired" => Ok(Self::Expired),
+            "cancelled" => Ok(Self::Cancelled),
+            "declined" => Ok(Self::Declined),
+            _ => Err("invalid value".into()),
+        }
+    }
+}
+impl ::std::convert::TryFrom<&str> for BlockProposalStatus {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: &str,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for BlockProposalStatus {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+///`BlockProposalsNotification`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+#[serde(transparent)]
+pub struct BlockProposalsNotification(pub BlockProposalResultPublic);
+impl ::std::ops::Deref for BlockProposalsNotification {
+    type Target = BlockProposalResultPublic;
+    fn deref(&self) -> &BlockProposalResultPublic {
+        &self.0
+    }
+}
+impl ::std::convert::From<BlockProposalsNotification> for BlockProposalResultPublic {
+    fn from(value: BlockProposalsNotification) -> Self {
+        value.0
+    }
+}
+impl ::std::convert::From<BlockProposalResultPublic> for BlockProposalsNotification {
+    fn from(value: BlockProposalResultPublic) -> Self {
+        Self(value)
+    }
+}
+///Result for `private/execute_block_trade`: the trades each side took.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct BlockTradeExecuteResponse {
+    ///UUID v4 string
+    pub block_trade_id: ::uuid::Uuid,
+    pub maker_trades: ::std::vec::Vec<Trade>,
+    pub taker_trades: ::std::vec::Vec<Trade>,
+}
+impl BlockTradeExecuteResponse {
+    pub fn builder() -> builder::BlockTradeExecuteResponse {
+        Default::default()
+    }
+}
+///A block trade as returned by `private/get_block_trades` and `private/get_block_trade`. It holds the caller's side only: the two sides of a block belong to different wallets.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct BlockTradeHistoryResponse {
+    ///UUID v4 string
+    pub block_trade_id: ::uuid::Uuid,
+    pub liquidity_role: LiquidityRole,
+    pub timestamp: i64,
+    ///One trade per leg.
+    pub trades: ::std::vec::Vec<TradeHistoryResponse>,
+}
+impl BlockTradeHistoryResponse {
+    pub fn builder() -> builder::BlockTradeHistoryResponse {
+        Default::default()
+    }
+}
+///Result for `private/simulate_block_trade` and `private/verify_block_trade`: one side's fee and margin if it executed now.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct BlockTradeSideCheckResponse {
+    ///The side's total fee, `extra_fee` included.
+    pub estimated_fee: ::bigdecimal::BigDecimal,
+    ///The last second at which the signed side can execute. Null for an unsigned side.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub expires_at_sec: ::std::option::Option<i64>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub invalid_reason: ::std::option::Option<::std::string::String>,
+    ///False if the side does not have enough margin for its trade and fees, or if the trade takes the subaccount over its maximum asset count.
+    pub is_valid: bool,
+    ///Decimal string of the human value (e.g. `"1.5"`), up to 12 fractional digits; a string or JSON number is accepted
+    pub post_initial_margin: ::bigdecimal::BigDecimal,
+    ///Decimal string of the human value (e.g. `"1.5"`), up to 12 fractional digits; a string or JSON number is accepted
+    pub pre_initial_margin: ::bigdecimal::BigDecimal,
+    ///The highest total cost at which this side is within the RFQ price band, as a decimal string. Null if the currency has no band.
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub price_band_max_total_cost: ::std::option::Option<::bigdecimal::BigDecimal>,
+    ///The lowest total cost at which this side is within the RFQ price band, as a decimal string. A negative cost means the side receives. Null if the currency has no band.
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub price_band_min_total_cost: ::std::option::Option<::bigdecimal::BigDecimal>,
+    ///Whether both sides are within the currency's RFQ price band. Null if it has no band.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub within_price_band: ::std::option::Option<bool>,
+}
+impl BlockTradeSideCheckResponse {
+    pub fn builder() -> builder::BlockTradeSideCheckResponse {
+        Default::default()
+    }
+}
 ///Fields common to every signed vault action. They appear alongside each endpoint's action-specific parameters in the same request object.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
 pub struct BurnSharesRequest {
@@ -1071,6 +1317,19 @@ pub struct CancelBatchRfqsResponse {
 }
 impl CancelBatchRfqsResponse {
     pub fn builder() -> builder::CancelBatchRfqsResponse {
+        Default::default()
+    }
+}
+///`CancelBlockProposalRequest`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct CancelBlockProposalRequest {
+    ///UUID v4 string
+    pub proposal_id: ::uuid::Uuid,
+    ///The session's wallet: the maker or the recipient of the proposal.
+    pub wallet: Address,
+}
+impl CancelBlockProposalRequest {
+    pub fn builder() -> builder::CancelBlockProposalRequest {
         Default::default()
     }
 }
@@ -1906,6 +2165,17 @@ impl Erc20Details {
         Default::default()
     }
 }
+///`ExecuteBlockTradeRequest`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct ExecuteBlockTradeRequest {
+    pub maker_params: SignedBlockTradeSideRequest,
+    pub taker_params: SignedBlockTradeSideRequest,
+}
+impl ExecuteBlockTradeRequest {
+    pub fn builder() -> builder::ExecuteBlockTradeRequest {
+        Default::default()
+    }
+}
 ///`ExecuteQuoteRequest`
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
 pub struct ExecuteQuoteRequest {
@@ -2148,6 +2418,59 @@ for GetAllReferralCodesParams {
         value: ::serde_json::Map<::std::string::String, ::serde_json::Value>,
     ) -> Self {
         Self(value)
+    }
+}
+///`GetBlockProposalsRequest`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct GetBlockProposalsRequest {
+    ///The session's wallet.
+    pub wallet: Address,
+}
+impl GetBlockProposalsRequest {
+    pub fn builder() -> builder::GetBlockProposalsRequest {
+        Default::default()
+    }
+}
+///`GetBlockTradeRequest`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct GetBlockTradeRequest {
+    ///The `block_trade_id` of the block's trades.
+    pub block_trade_id: ::uuid::Uuid,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub subaccount_id: ::std::option::Option<i64>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub wallet: ::std::option::Option<::std::string::String>,
+}
+impl GetBlockTradeRequest {
+    pub fn builder() -> builder::GetBlockTradeRequest {
+        Default::default()
+    }
+}
+///`GetBlockTradesRequest`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default)]
+pub struct GetBlockTradesRequest {
+    ///Returns the blocks in which any of the caller's trades has this direction.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub direction: ::std::option::Option<Direction>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub from_timestamp: ::std::option::Option<i64>,
+    ///Returns the blocks with a trade in this instrument.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub instrument_name: ::std::option::Option<::std::string::String>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub page: ::std::option::Option<u32>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub page_size: ::std::option::Option<u32>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub subaccount_id: ::std::option::Option<i64>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub to_timestamp: ::std::option::Option<i64>,
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub wallet: ::std::option::Option<::std::string::String>,
+}
+impl GetBlockTradesRequest {
+    pub fn builder() -> builder::GetBlockTradesRequest {
+        Default::default()
     }
 }
 ///`GetCollateralsRequest`
@@ -3230,6 +3553,9 @@ impl InterestHistoryResult {
 ///One realized interest settlement. `interest` is a decimal string; negative = paid, positive = received. `timestamp` is unix ms.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
 pub struct InterestPayment {
+    ///Name of the asset the interest settled on (e.g. `"USDC"`); null if the asset is not in the asset config table.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub asset: ::std::option::Option<::std::string::String>,
     pub interest: ::std::string::String,
     pub subaccount_id: u64,
     pub timestamp: i64,
@@ -3262,6 +3588,71 @@ pub struct InterestRateHistoryResult {
 impl InterestRateHistoryResult {
     pub fn builder() -> builder::InterestRateHistoryResult {
         Default::default()
+    }
+}
+///`InvalidateBlockTradeSignatureRequest`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct InvalidateBlockTradeSignatureRequest {
+    ///The `nonce` of the signed side.
+    pub nonce: ::std::string::String,
+    ///The subaccount of the signed side.
+    pub subaccount_id: u64,
+}
+impl InvalidateBlockTradeSignatureRequest {
+    pub fn builder() -> builder::InvalidateBlockTradeSignatureRequest {
+        Default::default()
+    }
+}
+///The literal string `"ok"` returned on success.
+#[derive(
+    ::serde::Deserialize,
+    ::serde::Serialize,
+    Clone,
+    Copy,
+    Debug,
+    Eq,
+    Hash,
+    Ord,
+    PartialEq,
+    PartialOrd
+)]
+pub enum InvalidateBlockTradeSignatureResponse {
+    #[serde(rename = "ok")]
+    Ok,
+}
+impl ::std::fmt::Display for InvalidateBlockTradeSignatureResponse {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        match *self {
+            Self::Ok => f.write_str("ok"),
+        }
+    }
+}
+impl ::std::str::FromStr for InvalidateBlockTradeSignatureResponse {
+    type Err = self::error::ConversionError;
+    fn from_str(
+        value: &str,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        match value {
+            "ok" => Ok(Self::Ok),
+            _ => Err("invalid value".into()),
+        }
+    }
+}
+impl ::std::convert::TryFrom<&str> for InvalidateBlockTradeSignatureResponse {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: &str,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String>
+for InvalidateBlockTradeSignatureResponse {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
     }
 }
 ///`JsonRpcId`
@@ -3814,11 +4205,15 @@ impl OffchainAckResponse {
 pub enum OffchainKeyScope {
     #[serde(rename = "account_info")]
     AccountInfo,
+    ///Sign, submit, check or invalidate block trades. RFQ scopes do not cover them.
+    #[serde(rename = "block_trade")]
+    BlockTrade,
 }
 impl ::std::fmt::Display for OffchainKeyScope {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         match *self {
             Self::AccountInfo => f.write_str("account_info"),
+            Self::BlockTrade => f.write_str("block_trade"),
         }
     }
 }
@@ -3829,6 +4224,7 @@ impl ::std::str::FromStr for OffchainKeyScope {
     ) -> ::std::result::Result<Self, self::error::ConversionError> {
         match value {
             "account_info" => Ok(Self::AccountInfo),
+            "block_trade" => Ok(Self::BlockTrade),
             _ => Err("invalid value".into()),
         }
     }
@@ -4423,6 +4819,17 @@ impl OrderbookPayloadDoc {
         Default::default()
     }
 }
+///`PaginatedBlockTradesResult`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct PaginatedBlockTradesResult {
+    pub block_trades: ::std::vec::Vec<BlockTradeHistoryResponse>,
+    pub pagination: Pagination,
+}
+impl PaginatedBlockTradesResult {
+    pub fn builder() -> builder::PaginatedBlockTradesResult {
+        Default::default()
+    }
+}
 ///`PaginatedOrdersResult`
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
 pub struct PaginatedOrdersResult {
@@ -4487,7 +4894,7 @@ impl Pagination {
 pub struct PendingDepositBridgeOrigin {
     ///Unique with `rail`; changes if a registered source tx is replaced, so key on `provider_transfer_id` when present.
     pub bridge_id: ::std::string::String,
-    ///`registered` (reported by the client, not yet confirmed by its rail) `submitted` (in flight) `delivered` (landed on the destination chain) `matched` (joined to the L1 deposit) `failed` (the bridge refunded or could not fill — nothing reached the escrow) `expired` (unresolved past `expires_at_ms`; check the source chain) `unmatched` (delivered, but not credited within 24h; contact support)
+    ///`registered` (reported by the client, not yet confirmed by its rail) `submitted` (in flight) `delivered` (landed on the destination chain) `matched` (joined to the L1 deposit) `failed` (the bridge could not fill - nothing reached the escrow) `refunded` (the bridge sent the funds back on the source chain - nothing reached the escrow) `expired` (unresolved past `expires_at_ms`; check the source chain) `unmatched` (delivered, but not credited within 24h; contact support)
     pub bridge_status: ::std::string::String,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub delivered_at_ms: ::std::option::Option<i64>,
@@ -4502,12 +4909,12 @@ pub struct PendingDepositBridgeOrigin {
     pub provider_transfer_id: ::std::option::Option<::std::string::String>,
     ///Bridge protocol: `lifi`, `layerzero` or `ccip`.
     pub rail: ::std::string::String,
-    ///What actually arrived, native units, as a decimal string.
+    ///What actually arrived, or was refunded, in `receiving_token`'s native units, as a decimal string.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub receiving_amount: ::std::option::Option<::std::string::String>,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub receiving_token: ::std::option::Option<::std::string::String>,
-    ///The bridge's delivery transaction on the destination chain.
+    ///The bridge's delivery transaction on the destination chain. When `refunded`, the refund transaction on the source chain.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub receiving_tx_hash: ::std::option::Option<::std::string::String>,
     ///Their wallet on that chain, lower-cased; absent when the rail gave none.
@@ -4535,10 +4942,12 @@ pub struct PendingDepositEntry {
     pub action_id: ::std::option::Option<u64>,
     ///`Deposit` (existing subaccount) or `DepositToNewSubaccount`
     pub action_type: ::std::string::String,
-    ///Amount in the asset's native ERC-20 units, as a decimal string. While `bridging`, the estimated `bridge_to_l1.expected_amount` until the bridge delivers, then what it delivered.
+    ///Amount in the asset's native ERC-20 units, as a decimal string. While `bridging`, the estimated `bridge_to_l1.expected_amount` until the bridge delivers, then what it delivered. A refunded bridge keeps the estimate.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub amount: ::std::option::Option<::std::string::String>,
     pub asset: ::std::string::String,
+    ///Below the asset's minimum deposit: the whole amount went to the security module and nothing was credited.
+    pub below_min_deposit: bool,
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub block_number: ::std::option::Option<u64>,
     ///Where a bridged deposit came from; absent for a plain L1 deposit or a bridge sent without Derive's integrator code.
@@ -4550,7 +4959,7 @@ pub struct PendingDepositEntry {
     pub log_index: ::std::option::Option<u64>,
     ///Manager of the new subaccount; `0` for existing-subaccount deposits.
     pub manager_id: u32,
-    ///`bridging` (a bridge not yet recorded on L1; its detail is `bridge_to_l1.bridge_status`) `detected` (transfer seen at the tip, pre-confirmation) `pending` (escrow swept, awaiting confirmation) `confirmed` (sweep tx past the confirmation range) `reverted` (the sweep reorged out — or uncreditable: no valid destination exists)
+    ///`bridging` (a bridge not yet recorded on L1; its detail is `bridge_to_l1.bridge_status`) `detected` (transfer seen at the tip, pre-confirmation) `below_min` (not swept yet: the deposit address holds less than the asset's minimum deposit; swept once a later deposit brings it over the minimum) `pending` (escrow swept, awaiting confirmation) `confirmed` (sweep tx past the confirmation range) `reverted` (the sweep reorged out — or uncreditable: no valid destination exists)
     pub status: ::std::string::String,
     ///Credited subaccount; `0` for new-subaccount deposits.
     pub subaccount_id: i64,
@@ -4998,7 +5407,7 @@ pub struct PrivateTransferSpotExternalRequest {
     ///Manager id for the new subaccount when `to_subaccount_id == 0`.
     pub new_subaccount_manager: u32,
     pub nonce: ::std::string::String,
-    ///Owner of the destination account/subaccount.
+    ///Owner of the destination account/subaccount. Must not be the sender's own wallet; use `private/transfer_spot` for that.
     pub recipient_address: ::std::string::String,
     pub signature: ::std::string::String,
     pub signature_expiry_sec: u64,
@@ -5070,7 +5479,7 @@ pub struct PrivateWithdrawRequest {
     pub nonce: ::std::string::String,
     /**L1 address the funds are paid out to. Defaults to the subaccount's owner wallet when omitted.
 
-A non-owner signer (session key) may only pay out to an address on the owner's `whitelisted_recipients`, unless the key holds `Admin`.*/
+Owners and all-subaccount admin keys may withdraw to any recipient. All other session keys may only withdraw to: - owner wallet, or - address in `whitelisted_recipients`*/
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub recipient: ::std::option::Option<::std::string::String>,
     pub signature: ::std::string::String,
@@ -5150,6 +5559,29 @@ pub struct PublicExecuteQuoteDebugRequest {
 }
 impl PublicExecuteQuoteDebugRequest {
     pub fn builder() -> builder::PublicExecuteQuoteDebugRequest {
+        Default::default()
+    }
+}
+///`PublicGetBlockProposalRequest`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct PublicGetBlockProposalRequest {
+    ///UUID v4 string
+    pub proposal_id: ::uuid::Uuid,
+}
+impl PublicGetBlockProposalRequest {
+    pub fn builder() -> builder::PublicGetBlockProposalRequest {
+        Default::default()
+    }
+}
+///`PublicGetBlockProposalsRequest`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug, Default)]
+pub struct PublicGetBlockProposalsRequest {
+    ///Returns only the proposals of this currency (e.g. `ETH`).
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub currency: ::std::option::Option<::std::string::String>,
+}
+impl PublicGetBlockProposalsRequest {
+    pub fn builder() -> builder::PublicGetBlockProposalsRequest {
         Default::default()
     }
 }
@@ -5367,6 +5799,8 @@ impl PublicSendQuoteDebugRequest {
 ///`PublicTrade`
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
 pub struct PublicTrade {
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub block_trade_id: ::std::option::Option<::std::string::String>,
     pub direction: Direction,
     pub expected_rebate: ::std::string::String,
     pub extra_fee: ::std::string::String,
@@ -6459,6 +6893,30 @@ impl SecurityModuleDetails {
         Default::default()
     }
 }
+///The caller's maker side of a block trade, signed as for `private/execute_block_trade`, and who can accept it.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct SendBlockProposalRequest {
+    pub direction: Direction,
+    pub legs: ::std::vec::Vec<PricedLegParamsAndResponse>,
+    ///Whether the proposal is on the public list.
+    #[serde(default)]
+    pub listed: bool,
+    ///Highest total fee this side pays, in USD.
+    pub max_fee: ::bigdecimal::BigDecimal,
+    pub nonce: ::std::string::String,
+    ///The only wallet that can see and accept the proposal. Not allowed with `listed`.
+    #[serde(skip_serializing_if = "::std::option::Option::is_none")]
+    pub recipient_wallet: ::std::option::Option<Address>,
+    pub signature: ::std::string::String,
+    pub signature_expiry_sec: i64,
+    pub signer: Address,
+    pub subaccount_id: i64,
+}
+impl SendBlockProposalRequest {
+    pub fn builder() -> builder::SendBlockProposalRequest {
+        Default::default()
+    }
+}
 ///`SendQuoteRequest`
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
 pub struct SendQuoteRequest {
@@ -6755,6 +7213,9 @@ impl SetSessionKeyRequest {
 pub struct SettledTrade {
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub batch_status: ::std::option::Option<BatchStatus>,
+    ///Optional UUID v4 string
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub block_trade_id: ::std::option::Option<::uuid::Uuid>,
     pub direction: Direction,
     ///Decimal string of the human value (e.g. `"1.5"`), up to 12 fractional digits; a string or JSON number is accepted
     pub expected_rebate: ::bigdecimal::BigDecimal,
@@ -6865,6 +7326,33 @@ impl SignedAction {
         Default::default()
     }
 }
+///One party's side of a block trade, signed by that party.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct SignedBlockTradeSideRequest {
+    #[serde(default)]
+    pub client: ::std::string::String,
+    pub direction: Direction,
+    ///Broker fee for this side, in USD, paid to the owner of `referral_code`. It is not signed. The side's `max_fee` caps the total fee.
+    #[serde(default = "defaults::signed_block_trade_side_request_extra_fee")]
+    pub extra_fee: ::bigdecimal::BigDecimal,
+    #[serde(default)]
+    pub label: ::std::string::String,
+    pub legs: ::std::vec::Vec<PricedLegParamsAndResponse>,
+    ///Highest total fee this side pays, in USD, including `extra_fee`.
+    pub max_fee: ::bigdecimal::BigDecimal,
+    pub nonce: ::std::string::String,
+    #[serde(default)]
+    pub referral_code: ::std::string::String,
+    pub signature: ::std::string::String,
+    pub signature_expiry_sec: i64,
+    pub signer: Address,
+    pub subaccount_id: i64,
+}
+impl SignedBlockTradeSideRequest {
+    pub fn builder() -> builder::SignedBlockTradeSideRequest {
+        Default::default()
+    }
+}
 ///Action info that needs to be signed by quoter or RFQ executor for a transfer. The quoter signs the legs hash + max fee; the executor signs the same legs hash + their own max fee.
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
 pub struct SignedTransferQuoteRequest {
@@ -6880,6 +7368,23 @@ pub struct SignedTransferQuoteRequest {
 }
 impl SignedTransferQuoteRequest {
     pub fn builder() -> builder::SignedTransferQuoteRequest {
+        Default::default()
+    }
+}
+///`SimulateBlockTradeRequest`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct SimulateBlockTradeRequest {
+    ///This side's direction. The taker side trades opposite the maker side.
+    pub direction: Direction,
+    ///Broker fee for this side, in USD.
+    #[serde(default = "defaults::simulate_block_trade_request_extra_fee")]
+    pub extra_fee: ::bigdecimal::BigDecimal,
+    ///The agreed priced legs, the same on both sides.
+    pub legs: ::std::vec::Vec<PricedLegParamsAndResponse>,
+    pub subaccount_id: i64,
+}
+impl SimulateBlockTradeRequest {
+    pub fn builder() -> builder::SimulateBlockTradeRequest {
         Default::default()
     }
 }
@@ -7072,7 +7577,7 @@ pub struct Subaccount {
     pub maintenance_margin: ::std::string::String,
     pub manager_id: u32,
     pub margin_type: ::std::string::String,
-    ///MM credit from universe loss-socialization events: the socialized USDC debit lands on cash in full, and `debit × (1 − write_down)` is added back to maintenance margin while the 15-minute write-down runs. Events this subaccount has not yet realized contribute their expected credit, with the current subaccount value standing in for the MtM at realization. Zero while under auction — the credit is cleared when liquidation starts.
+    ///MM credit from universe loss-socialization events: the socialized USDC debit lands on cash in full, and `debit × (1 − write_down)` is added back to maintenance margin while the 6-hour write-down runs. Events this subaccount has not yet realized contribute their expected credit, with the current subaccount value standing in for the MtM at realization. Zero while under auction — the credit is cleared when liquidation starts.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub mm_credits: ::std::option::Option<::std::string::String>,
     pub open_orders: ::std::vec::Vec<Order>,
@@ -7378,6 +7883,9 @@ pub struct Trade {
     ///Settlement batch status; `null` if processed by sequencer.
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub batch_status: ::std::option::Option<BatchStatus>,
+    ///Optional UUID v4 string
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub block_trade_id: ::std::option::Option<::uuid::Uuid>,
     pub direction: Direction,
     ///Decimal string of the human value (e.g. `"1.5"`), up to 12 fractional digits; a string or JSON number is accepted
     pub expected_rebate: ::bigdecimal::BigDecimal,
@@ -7426,6 +7934,9 @@ impl Trade {
 pub struct TradeHistoryResponse {
     #[serde(skip_serializing_if = "::std::option::Option::is_none")]
     pub batch_status: ::std::option::Option<BatchStatus>,
+    ///Optional UUID v4 string
+    #[serde(deserialize_with = "::std::option::Option::deserialize")]
+    pub block_trade_id: ::std::option::Option<::uuid::Uuid>,
     pub direction: Direction,
     ///Decimal string of the human value (e.g. `"1.5"`), up to 12 fractional digits; a string or JSON number is accepted
     pub expected_rebate: ::bigdecimal::BigDecimal,
@@ -8372,6 +8883,35 @@ impl VaultsResponse {
         Default::default()
     }
 }
+///A signed side, as `private/execute_block_trade` takes it, and its role.
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+pub struct VerifyBlockTradeRequest {
+    #[serde(default)]
+    pub client: ::std::string::String,
+    pub direction: Direction,
+    ///Broker fee for this side, in USD, paid to the owner of `referral_code`. It is not signed. The side's `max_fee` caps the total fee.
+    #[serde(default = "defaults::verify_block_trade_request_extra_fee")]
+    pub extra_fee: ::bigdecimal::BigDecimal,
+    #[serde(default)]
+    pub label: ::std::string::String,
+    pub legs: ::std::vec::Vec<PricedLegParamsAndResponse>,
+    ///Highest total fee this side pays, in USD, including `extra_fee`.
+    pub max_fee: ::bigdecimal::BigDecimal,
+    pub nonce: ::std::string::String,
+    #[serde(default)]
+    pub referral_code: ::std::string::String,
+    ///The payload this side signed: `maker` (a quote) or `taker` (an execution).
+    pub role: LiquidityRole,
+    pub signature: ::std::string::String,
+    pub signature_expiry_sec: i64,
+    pub signer: Address,
+    pub subaccount_id: i64,
+}
+impl VerifyBlockTradeRequest {
+    pub fn builder() -> builder::VerifyBlockTradeRequest {
+        Default::default()
+    }
+}
 ///`VolFeedDataResponse`
 #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
 pub struct VolFeedDataResponse {
@@ -8409,6 +8949,28 @@ pub struct VolSviParamDataResponse {
 impl VolSviParamDataResponse {
     pub fn builder() -> builder::VolSviParamDataResponse {
         Default::default()
+    }
+}
+///`WalletBlockProposalsNotification`
+#[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+#[serde(transparent)]
+pub struct WalletBlockProposalsNotification(pub BlockProposalPrivateResponse);
+impl ::std::ops::Deref for WalletBlockProposalsNotification {
+    type Target = BlockProposalPrivateResponse;
+    fn deref(&self) -> &BlockProposalPrivateResponse {
+        &self.0
+    }
+}
+impl ::std::convert::From<WalletBlockProposalsNotification>
+for BlockProposalPrivateResponse {
+    fn from(value: WalletBlockProposalsNotification) -> Self {
+        value.0
+    }
+}
+impl ::std::convert::From<BlockProposalPrivateResponse>
+for WalletBlockProposalsNotification {
+    fn from(value: BlockProposalPrivateResponse) -> Self {
+        Self(value)
     }
 }
 ///`WalletRfqsNotification`
@@ -8602,6 +9164,146 @@ impl WithdrawalHistoryResult {
 }
 /// Types for composing complex structures.
 pub mod builder {
+    #[derive(Clone, Debug)]
+    pub struct AcceptBlockProposalRequest {
+        max_fee: ::std::result::Result<::bigdecimal::BigDecimal, ::std::string::String>,
+        nonce: ::std::result::Result<::std::string::String, ::std::string::String>,
+        proposal_id: ::std::result::Result<::uuid::Uuid, ::std::string::String>,
+        signature: ::std::result::Result<::std::string::String, ::std::string::String>,
+        signature_expiry_sec: ::std::result::Result<i64, ::std::string::String>,
+        signer: ::std::result::Result<super::Address, ::std::string::String>,
+        subaccount_id: ::std::result::Result<i64, ::std::string::String>,
+    }
+    impl ::std::default::Default for AcceptBlockProposalRequest {
+        fn default() -> Self {
+            Self {
+                max_fee: Err("no value supplied for max_fee".to_string()),
+                nonce: Err("no value supplied for nonce".to_string()),
+                proposal_id: Err("no value supplied for proposal_id".to_string()),
+                signature: Err("no value supplied for signature".to_string()),
+                signature_expiry_sec: Err(
+                    "no value supplied for signature_expiry_sec".to_string(),
+                ),
+                signer: Err("no value supplied for signer".to_string()),
+                subaccount_id: Err("no value supplied for subaccount_id".to_string()),
+            }
+        }
+    }
+    impl AcceptBlockProposalRequest {
+        pub fn max_fee<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::bigdecimal::BigDecimal>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.max_fee = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for max_fee: {e}")
+                });
+            self
+        }
+        pub fn nonce<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.nonce = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for nonce: {e}"));
+            self
+        }
+        pub fn proposal_id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::uuid::Uuid>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.proposal_id = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for proposal_id: {e}")
+                });
+            self
+        }
+        pub fn signature<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.signature = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for signature: {e}")
+                });
+            self
+        }
+        pub fn signature_expiry_sec<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<i64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.signature_expiry_sec = value
+                .try_into()
+                .map_err(|e| {
+                    format!(
+                        "error converting supplied value for signature_expiry_sec: {e}"
+                    )
+                });
+            self
+        }
+        pub fn signer<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::Address>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.signer = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for signer: {e}"));
+            self
+        }
+        pub fn subaccount_id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<i64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.subaccount_id = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for subaccount_id: {e}")
+                });
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<AcceptBlockProposalRequest>
+    for super::AcceptBlockProposalRequest {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: AcceptBlockProposalRequest,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                max_fee: value.max_fee?,
+                nonce: value.nonce?,
+                proposal_id: value.proposal_id?,
+                signature: value.signature?,
+                signature_expiry_sec: value.signature_expiry_sec?,
+                signer: value.signer?,
+                subaccount_id: value.subaccount_id?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::AcceptBlockProposalRequest>
+    for AcceptBlockProposalRequest {
+        fn from(value: super::AcceptBlockProposalRequest) -> Self {
+            Self {
+                max_fee: Ok(value.max_fee),
+                nonce: Ok(value.nonce),
+                proposal_id: Ok(value.proposal_id),
+                signature: Ok(value.signature),
+                signature_expiry_sec: Ok(value.signature_expiry_sec),
+                signer: Ok(value.signer),
+                subaccount_id: Ok(value.subaccount_id),
+            }
+        }
+    }
     #[derive(Clone, Debug)]
     pub struct AccountFeeInfo {
         base_fee_discount: ::std::result::Result<
@@ -10260,6 +10962,961 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
+    pub struct BlockProposalGetPublicResponse {
+        proposals: ::std::result::Result<
+            ::std::vec::Vec<super::BlockProposalResultPublic>,
+            ::std::string::String,
+        >,
+    }
+    impl ::std::default::Default for BlockProposalGetPublicResponse {
+        fn default() -> Self {
+            Self {
+                proposals: Err("no value supplied for proposals".to_string()),
+            }
+        }
+    }
+    impl BlockProposalGetPublicResponse {
+        pub fn proposals<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<
+                ::std::vec::Vec<super::BlockProposalResultPublic>,
+            >,
+            T::Error: ::std::fmt::Display,
+        {
+            self.proposals = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for proposals: {e}")
+                });
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<BlockProposalGetPublicResponse>
+    for super::BlockProposalGetPublicResponse {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: BlockProposalGetPublicResponse,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                proposals: value.proposals?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::BlockProposalGetPublicResponse>
+    for BlockProposalGetPublicResponse {
+        fn from(value: super::BlockProposalGetPublicResponse) -> Self {
+            Self {
+                proposals: Ok(value.proposals),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct BlockProposalGetResponse {
+        proposals: ::std::result::Result<
+            ::std::vec::Vec<super::BlockProposalPrivateResponse>,
+            ::std::string::String,
+        >,
+    }
+    impl ::std::default::Default for BlockProposalGetResponse {
+        fn default() -> Self {
+            Self {
+                proposals: Err("no value supplied for proposals".to_string()),
+            }
+        }
+    }
+    impl BlockProposalGetResponse {
+        pub fn proposals<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<
+                ::std::vec::Vec<super::BlockProposalPrivateResponse>,
+            >,
+            T::Error: ::std::fmt::Display,
+        {
+            self.proposals = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for proposals: {e}")
+                });
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<BlockProposalGetResponse>
+    for super::BlockProposalGetResponse {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: BlockProposalGetResponse,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                proposals: value.proposals?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::BlockProposalGetResponse>
+    for BlockProposalGetResponse {
+        fn from(value: super::BlockProposalGetResponse) -> Self {
+            Self {
+                proposals: Ok(value.proposals),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct BlockProposalPrivateResponse {
+        block_trade_id: ::std::result::Result<
+            ::std::option::Option<::uuid::Uuid>,
+            ::std::string::String,
+        >,
+        creation_timestamp: ::std::result::Result<i64, ::std::string::String>,
+        currency: ::std::result::Result<::std::string::String, ::std::string::String>,
+        direction: ::std::result::Result<super::Direction, ::std::string::String>,
+        expires_at_sec: ::std::result::Result<i64, ::std::string::String>,
+        last_update_timestamp: ::std::result::Result<i64, ::std::string::String>,
+        legs: ::std::result::Result<
+            ::std::vec::Vec<super::PricedLegParamsAndResponse>,
+            ::std::string::String,
+        >,
+        listed: ::std::result::Result<bool, ::std::string::String>,
+        maker_wallet: ::std::result::Result<super::Address, ::std::string::String>,
+        proposal_id: ::std::result::Result<::uuid::Uuid, ::std::string::String>,
+        recipient_wallet: ::std::result::Result<
+            ::std::option::Option<super::Address>,
+            ::std::string::String,
+        >,
+        risk_universe_id: ::std::result::Result<u32, ::std::string::String>,
+        status: ::std::result::Result<super::BlockProposalStatus, ::std::string::String>,
+    }
+    impl ::std::default::Default for BlockProposalPrivateResponse {
+        fn default() -> Self {
+            Self {
+                block_trade_id: Err("no value supplied for block_trade_id".to_string()),
+                creation_timestamp: Err(
+                    "no value supplied for creation_timestamp".to_string(),
+                ),
+                currency: Err("no value supplied for currency".to_string()),
+                direction: Err("no value supplied for direction".to_string()),
+                expires_at_sec: Err("no value supplied for expires_at_sec".to_string()),
+                last_update_timestamp: Err(
+                    "no value supplied for last_update_timestamp".to_string(),
+                ),
+                legs: Err("no value supplied for legs".to_string()),
+                listed: Err("no value supplied for listed".to_string()),
+                maker_wallet: Err("no value supplied for maker_wallet".to_string()),
+                proposal_id: Err("no value supplied for proposal_id".to_string()),
+                recipient_wallet: Ok(Default::default()),
+                risk_universe_id: Err(
+                    "no value supplied for risk_universe_id".to_string(),
+                ),
+                status: Err("no value supplied for status".to_string()),
+            }
+        }
+    }
+    impl BlockProposalPrivateResponse {
+        pub fn block_trade_id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<::uuid::Uuid>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.block_trade_id = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for block_trade_id: {e}")
+                });
+            self
+        }
+        pub fn creation_timestamp<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<i64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.creation_timestamp = value
+                .try_into()
+                .map_err(|e| {
+                    format!(
+                        "error converting supplied value for creation_timestamp: {e}"
+                    )
+                });
+            self
+        }
+        pub fn currency<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.currency = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for currency: {e}")
+                });
+            self
+        }
+        pub fn direction<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::Direction>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.direction = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for direction: {e}")
+                });
+            self
+        }
+        pub fn expires_at_sec<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<i64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.expires_at_sec = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for expires_at_sec: {e}")
+                });
+            self
+        }
+        pub fn last_update_timestamp<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<i64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.last_update_timestamp = value
+                .try_into()
+                .map_err(|e| {
+                    format!(
+                        "error converting supplied value for last_update_timestamp: {e}"
+                    )
+                });
+            self
+        }
+        pub fn legs<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<
+                ::std::vec::Vec<super::PricedLegParamsAndResponse>,
+            >,
+            T::Error: ::std::fmt::Display,
+        {
+            self.legs = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for legs: {e}"));
+            self
+        }
+        pub fn listed<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<bool>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.listed = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for listed: {e}"));
+            self
+        }
+        pub fn maker_wallet<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::Address>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.maker_wallet = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for maker_wallet: {e}")
+                });
+            self
+        }
+        pub fn proposal_id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::uuid::Uuid>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.proposal_id = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for proposal_id: {e}")
+                });
+            self
+        }
+        pub fn recipient_wallet<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<super::Address>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.recipient_wallet = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for recipient_wallet: {e}")
+                });
+            self
+        }
+        pub fn risk_universe_id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<u32>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.risk_universe_id = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for risk_universe_id: {e}")
+                });
+            self
+        }
+        pub fn status<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::BlockProposalStatus>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.status = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for status: {e}"));
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<BlockProposalPrivateResponse>
+    for super::BlockProposalPrivateResponse {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: BlockProposalPrivateResponse,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                block_trade_id: value.block_trade_id?,
+                creation_timestamp: value.creation_timestamp?,
+                currency: value.currency?,
+                direction: value.direction?,
+                expires_at_sec: value.expires_at_sec?,
+                last_update_timestamp: value.last_update_timestamp?,
+                legs: value.legs?,
+                listed: value.listed?,
+                maker_wallet: value.maker_wallet?,
+                proposal_id: value.proposal_id?,
+                recipient_wallet: value.recipient_wallet?,
+                risk_universe_id: value.risk_universe_id?,
+                status: value.status?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::BlockProposalPrivateResponse>
+    for BlockProposalPrivateResponse {
+        fn from(value: super::BlockProposalPrivateResponse) -> Self {
+            Self {
+                block_trade_id: Ok(value.block_trade_id),
+                creation_timestamp: Ok(value.creation_timestamp),
+                currency: Ok(value.currency),
+                direction: Ok(value.direction),
+                expires_at_sec: Ok(value.expires_at_sec),
+                last_update_timestamp: Ok(value.last_update_timestamp),
+                legs: Ok(value.legs),
+                listed: Ok(value.listed),
+                maker_wallet: Ok(value.maker_wallet),
+                proposal_id: Ok(value.proposal_id),
+                recipient_wallet: Ok(value.recipient_wallet),
+                risk_universe_id: Ok(value.risk_universe_id),
+                status: Ok(value.status),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct BlockProposalResultPublic {
+        block_trade_id: ::std::result::Result<
+            ::std::option::Option<::uuid::Uuid>,
+            ::std::string::String,
+        >,
+        creation_timestamp: ::std::result::Result<i64, ::std::string::String>,
+        currency: ::std::result::Result<::std::string::String, ::std::string::String>,
+        direction: ::std::result::Result<super::Direction, ::std::string::String>,
+        expires_at_sec: ::std::result::Result<i64, ::std::string::String>,
+        last_update_timestamp: ::std::result::Result<i64, ::std::string::String>,
+        legs: ::std::result::Result<
+            ::std::vec::Vec<super::PricedLegParamsAndResponse>,
+            ::std::string::String,
+        >,
+        listed: ::std::result::Result<bool, ::std::string::String>,
+        proposal_id: ::std::result::Result<::uuid::Uuid, ::std::string::String>,
+        risk_universe_id: ::std::result::Result<u32, ::std::string::String>,
+        status: ::std::result::Result<super::BlockProposalStatus, ::std::string::String>,
+    }
+    impl ::std::default::Default for BlockProposalResultPublic {
+        fn default() -> Self {
+            Self {
+                block_trade_id: Err("no value supplied for block_trade_id".to_string()),
+                creation_timestamp: Err(
+                    "no value supplied for creation_timestamp".to_string(),
+                ),
+                currency: Err("no value supplied for currency".to_string()),
+                direction: Err("no value supplied for direction".to_string()),
+                expires_at_sec: Err("no value supplied for expires_at_sec".to_string()),
+                last_update_timestamp: Err(
+                    "no value supplied for last_update_timestamp".to_string(),
+                ),
+                legs: Err("no value supplied for legs".to_string()),
+                listed: Err("no value supplied for listed".to_string()),
+                proposal_id: Err("no value supplied for proposal_id".to_string()),
+                risk_universe_id: Err(
+                    "no value supplied for risk_universe_id".to_string(),
+                ),
+                status: Err("no value supplied for status".to_string()),
+            }
+        }
+    }
+    impl BlockProposalResultPublic {
+        pub fn block_trade_id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<::uuid::Uuid>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.block_trade_id = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for block_trade_id: {e}")
+                });
+            self
+        }
+        pub fn creation_timestamp<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<i64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.creation_timestamp = value
+                .try_into()
+                .map_err(|e| {
+                    format!(
+                        "error converting supplied value for creation_timestamp: {e}"
+                    )
+                });
+            self
+        }
+        pub fn currency<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.currency = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for currency: {e}")
+                });
+            self
+        }
+        pub fn direction<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::Direction>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.direction = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for direction: {e}")
+                });
+            self
+        }
+        pub fn expires_at_sec<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<i64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.expires_at_sec = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for expires_at_sec: {e}")
+                });
+            self
+        }
+        pub fn last_update_timestamp<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<i64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.last_update_timestamp = value
+                .try_into()
+                .map_err(|e| {
+                    format!(
+                        "error converting supplied value for last_update_timestamp: {e}"
+                    )
+                });
+            self
+        }
+        pub fn legs<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<
+                ::std::vec::Vec<super::PricedLegParamsAndResponse>,
+            >,
+            T::Error: ::std::fmt::Display,
+        {
+            self.legs = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for legs: {e}"));
+            self
+        }
+        pub fn listed<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<bool>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.listed = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for listed: {e}"));
+            self
+        }
+        pub fn proposal_id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::uuid::Uuid>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.proposal_id = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for proposal_id: {e}")
+                });
+            self
+        }
+        pub fn risk_universe_id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<u32>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.risk_universe_id = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for risk_universe_id: {e}")
+                });
+            self
+        }
+        pub fn status<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::BlockProposalStatus>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.status = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for status: {e}"));
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<BlockProposalResultPublic>
+    for super::BlockProposalResultPublic {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: BlockProposalResultPublic,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                block_trade_id: value.block_trade_id?,
+                creation_timestamp: value.creation_timestamp?,
+                currency: value.currency?,
+                direction: value.direction?,
+                expires_at_sec: value.expires_at_sec?,
+                last_update_timestamp: value.last_update_timestamp?,
+                legs: value.legs?,
+                listed: value.listed?,
+                proposal_id: value.proposal_id?,
+                risk_universe_id: value.risk_universe_id?,
+                status: value.status?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::BlockProposalResultPublic>
+    for BlockProposalResultPublic {
+        fn from(value: super::BlockProposalResultPublic) -> Self {
+            Self {
+                block_trade_id: Ok(value.block_trade_id),
+                creation_timestamp: Ok(value.creation_timestamp),
+                currency: Ok(value.currency),
+                direction: Ok(value.direction),
+                expires_at_sec: Ok(value.expires_at_sec),
+                last_update_timestamp: Ok(value.last_update_timestamp),
+                legs: Ok(value.legs),
+                listed: Ok(value.listed),
+                proposal_id: Ok(value.proposal_id),
+                risk_universe_id: Ok(value.risk_universe_id),
+                status: Ok(value.status),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct BlockTradeExecuteResponse {
+        block_trade_id: ::std::result::Result<::uuid::Uuid, ::std::string::String>,
+        maker_trades: ::std::result::Result<
+            ::std::vec::Vec<super::Trade>,
+            ::std::string::String,
+        >,
+        taker_trades: ::std::result::Result<
+            ::std::vec::Vec<super::Trade>,
+            ::std::string::String,
+        >,
+    }
+    impl ::std::default::Default for BlockTradeExecuteResponse {
+        fn default() -> Self {
+            Self {
+                block_trade_id: Err("no value supplied for block_trade_id".to_string()),
+                maker_trades: Err("no value supplied for maker_trades".to_string()),
+                taker_trades: Err("no value supplied for taker_trades".to_string()),
+            }
+        }
+    }
+    impl BlockTradeExecuteResponse {
+        pub fn block_trade_id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::uuid::Uuid>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.block_trade_id = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for block_trade_id: {e}")
+                });
+            self
+        }
+        pub fn maker_trades<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::vec::Vec<super::Trade>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.maker_trades = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for maker_trades: {e}")
+                });
+            self
+        }
+        pub fn taker_trades<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::vec::Vec<super::Trade>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.taker_trades = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for taker_trades: {e}")
+                });
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<BlockTradeExecuteResponse>
+    for super::BlockTradeExecuteResponse {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: BlockTradeExecuteResponse,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                block_trade_id: value.block_trade_id?,
+                maker_trades: value.maker_trades?,
+                taker_trades: value.taker_trades?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::BlockTradeExecuteResponse>
+    for BlockTradeExecuteResponse {
+        fn from(value: super::BlockTradeExecuteResponse) -> Self {
+            Self {
+                block_trade_id: Ok(value.block_trade_id),
+                maker_trades: Ok(value.maker_trades),
+                taker_trades: Ok(value.taker_trades),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct BlockTradeHistoryResponse {
+        block_trade_id: ::std::result::Result<::uuid::Uuid, ::std::string::String>,
+        liquidity_role: ::std::result::Result<
+            super::LiquidityRole,
+            ::std::string::String,
+        >,
+        timestamp: ::std::result::Result<i64, ::std::string::String>,
+        trades: ::std::result::Result<
+            ::std::vec::Vec<super::TradeHistoryResponse>,
+            ::std::string::String,
+        >,
+    }
+    impl ::std::default::Default for BlockTradeHistoryResponse {
+        fn default() -> Self {
+            Self {
+                block_trade_id: Err("no value supplied for block_trade_id".to_string()),
+                liquidity_role: Err("no value supplied for liquidity_role".to_string()),
+                timestamp: Err("no value supplied for timestamp".to_string()),
+                trades: Err("no value supplied for trades".to_string()),
+            }
+        }
+    }
+    impl BlockTradeHistoryResponse {
+        pub fn block_trade_id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::uuid::Uuid>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.block_trade_id = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for block_trade_id: {e}")
+                });
+            self
+        }
+        pub fn liquidity_role<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::LiquidityRole>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.liquidity_role = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for liquidity_role: {e}")
+                });
+            self
+        }
+        pub fn timestamp<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<i64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.timestamp = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for timestamp: {e}")
+                });
+            self
+        }
+        pub fn trades<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::vec::Vec<super::TradeHistoryResponse>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.trades = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for trades: {e}"));
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<BlockTradeHistoryResponse>
+    for super::BlockTradeHistoryResponse {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: BlockTradeHistoryResponse,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                block_trade_id: value.block_trade_id?,
+                liquidity_role: value.liquidity_role?,
+                timestamp: value.timestamp?,
+                trades: value.trades?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::BlockTradeHistoryResponse>
+    for BlockTradeHistoryResponse {
+        fn from(value: super::BlockTradeHistoryResponse) -> Self {
+            Self {
+                block_trade_id: Ok(value.block_trade_id),
+                liquidity_role: Ok(value.liquidity_role),
+                timestamp: Ok(value.timestamp),
+                trades: Ok(value.trades),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct BlockTradeSideCheckResponse {
+        estimated_fee: ::std::result::Result<
+            ::bigdecimal::BigDecimal,
+            ::std::string::String,
+        >,
+        expires_at_sec: ::std::result::Result<
+            ::std::option::Option<i64>,
+            ::std::string::String,
+        >,
+        invalid_reason: ::std::result::Result<
+            ::std::option::Option<::std::string::String>,
+            ::std::string::String,
+        >,
+        is_valid: ::std::result::Result<bool, ::std::string::String>,
+        post_initial_margin: ::std::result::Result<
+            ::bigdecimal::BigDecimal,
+            ::std::string::String,
+        >,
+        pre_initial_margin: ::std::result::Result<
+            ::bigdecimal::BigDecimal,
+            ::std::string::String,
+        >,
+        price_band_max_total_cost: ::std::result::Result<
+            ::std::option::Option<::bigdecimal::BigDecimal>,
+            ::std::string::String,
+        >,
+        price_band_min_total_cost: ::std::result::Result<
+            ::std::option::Option<::bigdecimal::BigDecimal>,
+            ::std::string::String,
+        >,
+        within_price_band: ::std::result::Result<
+            ::std::option::Option<bool>,
+            ::std::string::String,
+        >,
+    }
+    impl ::std::default::Default for BlockTradeSideCheckResponse {
+        fn default() -> Self {
+            Self {
+                estimated_fee: Err("no value supplied for estimated_fee".to_string()),
+                expires_at_sec: Ok(Default::default()),
+                invalid_reason: Ok(Default::default()),
+                is_valid: Err("no value supplied for is_valid".to_string()),
+                post_initial_margin: Err(
+                    "no value supplied for post_initial_margin".to_string(),
+                ),
+                pre_initial_margin: Err(
+                    "no value supplied for pre_initial_margin".to_string(),
+                ),
+                price_band_max_total_cost: Err(
+                    "no value supplied for price_band_max_total_cost".to_string(),
+                ),
+                price_band_min_total_cost: Err(
+                    "no value supplied for price_band_min_total_cost".to_string(),
+                ),
+                within_price_band: Ok(Default::default()),
+            }
+        }
+    }
+    impl BlockTradeSideCheckResponse {
+        pub fn estimated_fee<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::bigdecimal::BigDecimal>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.estimated_fee = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for estimated_fee: {e}")
+                });
+            self
+        }
+        pub fn expires_at_sec<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<i64>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.expires_at_sec = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for expires_at_sec: {e}")
+                });
+            self
+        }
+        pub fn invalid_reason<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.invalid_reason = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for invalid_reason: {e}")
+                });
+            self
+        }
+        pub fn is_valid<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<bool>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.is_valid = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for is_valid: {e}")
+                });
+            self
+        }
+        pub fn post_initial_margin<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::bigdecimal::BigDecimal>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.post_initial_margin = value
+                .try_into()
+                .map_err(|e| {
+                    format!(
+                        "error converting supplied value for post_initial_margin: {e}"
+                    )
+                });
+            self
+        }
+        pub fn pre_initial_margin<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::bigdecimal::BigDecimal>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.pre_initial_margin = value
+                .try_into()
+                .map_err(|e| {
+                    format!(
+                        "error converting supplied value for pre_initial_margin: {e}"
+                    )
+                });
+            self
+        }
+        pub fn price_band_max_total_cost<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<::bigdecimal::BigDecimal>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.price_band_max_total_cost = value
+                .try_into()
+                .map_err(|e| {
+                    format!(
+                        "error converting supplied value for price_band_max_total_cost: {e}"
+                    )
+                });
+            self
+        }
+        pub fn price_band_min_total_cost<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<::bigdecimal::BigDecimal>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.price_band_min_total_cost = value
+                .try_into()
+                .map_err(|e| {
+                    format!(
+                        "error converting supplied value for price_band_min_total_cost: {e}"
+                    )
+                });
+            self
+        }
+        pub fn within_price_band<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<bool>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.within_price_band = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for within_price_band: {e}")
+                });
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<BlockTradeSideCheckResponse>
+    for super::BlockTradeSideCheckResponse {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: BlockTradeSideCheckResponse,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                estimated_fee: value.estimated_fee?,
+                expires_at_sec: value.expires_at_sec?,
+                invalid_reason: value.invalid_reason?,
+                is_valid: value.is_valid?,
+                post_initial_margin: value.post_initial_margin?,
+                pre_initial_margin: value.pre_initial_margin?,
+                price_band_max_total_cost: value.price_band_max_total_cost?,
+                price_band_min_total_cost: value.price_band_min_total_cost?,
+                within_price_band: value.within_price_band?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::BlockTradeSideCheckResponse>
+    for BlockTradeSideCheckResponse {
+        fn from(value: super::BlockTradeSideCheckResponse) -> Self {
+            Self {
+                estimated_fee: Ok(value.estimated_fee),
+                expires_at_sec: Ok(value.expires_at_sec),
+                invalid_reason: Ok(value.invalid_reason),
+                is_valid: Ok(value.is_valid),
+                post_initial_margin: Ok(value.post_initial_margin),
+                pre_initial_margin: Ok(value.pre_initial_margin),
+                price_band_max_total_cost: Ok(value.price_band_max_total_cost),
+                price_band_min_total_cost: Ok(value.price_band_min_total_cost),
+                within_price_band: Ok(value.within_price_band),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
     pub struct BurnSharesRequest {
         nonce: ::std::result::Result<::std::string::String, ::std::string::String>,
         request_id: ::std::result::Result<super::VaultRequestId, ::std::string::String>,
@@ -10947,6 +12604,64 @@ pub mod builder {
         fn from(value: super::CancelBatchRfqsResponse) -> Self {
             Self {
                 cancelled_ids: Ok(value.cancelled_ids),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct CancelBlockProposalRequest {
+        proposal_id: ::std::result::Result<::uuid::Uuid, ::std::string::String>,
+        wallet: ::std::result::Result<super::Address, ::std::string::String>,
+    }
+    impl ::std::default::Default for CancelBlockProposalRequest {
+        fn default() -> Self {
+            Self {
+                proposal_id: Err("no value supplied for proposal_id".to_string()),
+                wallet: Err("no value supplied for wallet".to_string()),
+            }
+        }
+    }
+    impl CancelBlockProposalRequest {
+        pub fn proposal_id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::uuid::Uuid>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.proposal_id = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for proposal_id: {e}")
+                });
+            self
+        }
+        pub fn wallet<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::Address>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.wallet = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for wallet: {e}"));
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<CancelBlockProposalRequest>
+    for super::CancelBlockProposalRequest {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: CancelBlockProposalRequest,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                proposal_id: value.proposal_id?,
+                wallet: value.wallet?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::CancelBlockProposalRequest>
+    for CancelBlockProposalRequest {
+        fn from(value: super::CancelBlockProposalRequest) -> Self {
+            Self {
+                proposal_id: Ok(value.proposal_id),
+                wallet: Ok(value.wallet),
             }
         }
     }
@@ -14309,6 +16024,72 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
+    pub struct ExecuteBlockTradeRequest {
+        maker_params: ::std::result::Result<
+            super::SignedBlockTradeSideRequest,
+            ::std::string::String,
+        >,
+        taker_params: ::std::result::Result<
+            super::SignedBlockTradeSideRequest,
+            ::std::string::String,
+        >,
+    }
+    impl ::std::default::Default for ExecuteBlockTradeRequest {
+        fn default() -> Self {
+            Self {
+                maker_params: Err("no value supplied for maker_params".to_string()),
+                taker_params: Err("no value supplied for taker_params".to_string()),
+            }
+        }
+    }
+    impl ExecuteBlockTradeRequest {
+        pub fn maker_params<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::SignedBlockTradeSideRequest>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.maker_params = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for maker_params: {e}")
+                });
+            self
+        }
+        pub fn taker_params<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::SignedBlockTradeSideRequest>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.taker_params = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for taker_params: {e}")
+                });
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<ExecuteBlockTradeRequest>
+    for super::ExecuteBlockTradeRequest {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: ExecuteBlockTradeRequest,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                maker_params: value.maker_params?,
+                taker_params: value.taker_params?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::ExecuteBlockTradeRequest>
+    for ExecuteBlockTradeRequest {
+        fn from(value: super::ExecuteBlockTradeRequest) -> Self {
+            Self {
+                maker_params: Ok(value.maker_params),
+                taker_params: Ok(value.taker_params),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
     pub struct ExecuteQuoteRequest {
         client: ::std::result::Result<::std::string::String, ::std::string::String>,
         direction: ::std::result::Result<super::Direction, ::std::string::String>,
@@ -15803,6 +17584,294 @@ pub mod builder {
     for GetAllPortfoliosRequest {
         fn from(value: super::GetAllPortfoliosRequest) -> Self {
             Self { wallet: Ok(value.wallet) }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct GetBlockProposalsRequest {
+        wallet: ::std::result::Result<super::Address, ::std::string::String>,
+    }
+    impl ::std::default::Default for GetBlockProposalsRequest {
+        fn default() -> Self {
+            Self {
+                wallet: Err("no value supplied for wallet".to_string()),
+            }
+        }
+    }
+    impl GetBlockProposalsRequest {
+        pub fn wallet<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::Address>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.wallet = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for wallet: {e}"));
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<GetBlockProposalsRequest>
+    for super::GetBlockProposalsRequest {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: GetBlockProposalsRequest,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self { wallet: value.wallet? })
+        }
+    }
+    impl ::std::convert::From<super::GetBlockProposalsRequest>
+    for GetBlockProposalsRequest {
+        fn from(value: super::GetBlockProposalsRequest) -> Self {
+            Self { wallet: Ok(value.wallet) }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct GetBlockTradeRequest {
+        block_trade_id: ::std::result::Result<::uuid::Uuid, ::std::string::String>,
+        subaccount_id: ::std::result::Result<
+            ::std::option::Option<i64>,
+            ::std::string::String,
+        >,
+        wallet: ::std::result::Result<
+            ::std::option::Option<::std::string::String>,
+            ::std::string::String,
+        >,
+    }
+    impl ::std::default::Default for GetBlockTradeRequest {
+        fn default() -> Self {
+            Self {
+                block_trade_id: Err("no value supplied for block_trade_id".to_string()),
+                subaccount_id: Ok(Default::default()),
+                wallet: Ok(Default::default()),
+            }
+        }
+    }
+    impl GetBlockTradeRequest {
+        pub fn block_trade_id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::uuid::Uuid>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.block_trade_id = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for block_trade_id: {e}")
+                });
+            self
+        }
+        pub fn subaccount_id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<i64>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.subaccount_id = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for subaccount_id: {e}")
+                });
+            self
+        }
+        pub fn wallet<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.wallet = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for wallet: {e}"));
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<GetBlockTradeRequest> for super::GetBlockTradeRequest {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: GetBlockTradeRequest,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                block_trade_id: value.block_trade_id?,
+                subaccount_id: value.subaccount_id?,
+                wallet: value.wallet?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::GetBlockTradeRequest> for GetBlockTradeRequest {
+        fn from(value: super::GetBlockTradeRequest) -> Self {
+            Self {
+                block_trade_id: Ok(value.block_trade_id),
+                subaccount_id: Ok(value.subaccount_id),
+                wallet: Ok(value.wallet),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct GetBlockTradesRequest {
+        direction: ::std::result::Result<
+            ::std::option::Option<super::Direction>,
+            ::std::string::String,
+        >,
+        from_timestamp: ::std::result::Result<
+            ::std::option::Option<i64>,
+            ::std::string::String,
+        >,
+        instrument_name: ::std::result::Result<
+            ::std::option::Option<::std::string::String>,
+            ::std::string::String,
+        >,
+        page: ::std::result::Result<::std::option::Option<u32>, ::std::string::String>,
+        page_size: ::std::result::Result<
+            ::std::option::Option<u32>,
+            ::std::string::String,
+        >,
+        subaccount_id: ::std::result::Result<
+            ::std::option::Option<i64>,
+            ::std::string::String,
+        >,
+        to_timestamp: ::std::result::Result<
+            ::std::option::Option<i64>,
+            ::std::string::String,
+        >,
+        wallet: ::std::result::Result<
+            ::std::option::Option<::std::string::String>,
+            ::std::string::String,
+        >,
+    }
+    impl ::std::default::Default for GetBlockTradesRequest {
+        fn default() -> Self {
+            Self {
+                direction: Ok(Default::default()),
+                from_timestamp: Ok(Default::default()),
+                instrument_name: Ok(Default::default()),
+                page: Ok(Default::default()),
+                page_size: Ok(Default::default()),
+                subaccount_id: Ok(Default::default()),
+                to_timestamp: Ok(Default::default()),
+                wallet: Ok(Default::default()),
+            }
+        }
+    }
+    impl GetBlockTradesRequest {
+        pub fn direction<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<super::Direction>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.direction = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for direction: {e}")
+                });
+            self
+        }
+        pub fn from_timestamp<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<i64>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.from_timestamp = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for from_timestamp: {e}")
+                });
+            self
+        }
+        pub fn instrument_name<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.instrument_name = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for instrument_name: {e}")
+                });
+            self
+        }
+        pub fn page<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<u32>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.page = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for page: {e}"));
+            self
+        }
+        pub fn page_size<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<u32>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.page_size = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for page_size: {e}")
+                });
+            self
+        }
+        pub fn subaccount_id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<i64>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.subaccount_id = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for subaccount_id: {e}")
+                });
+            self
+        }
+        pub fn to_timestamp<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<i64>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.to_timestamp = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for to_timestamp: {e}")
+                });
+            self
+        }
+        pub fn wallet<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.wallet = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for wallet: {e}"));
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<GetBlockTradesRequest>
+    for super::GetBlockTradesRequest {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: GetBlockTradesRequest,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                direction: value.direction?,
+                from_timestamp: value.from_timestamp?,
+                instrument_name: value.instrument_name?,
+                page: value.page?,
+                page_size: value.page_size?,
+                subaccount_id: value.subaccount_id?,
+                to_timestamp: value.to_timestamp?,
+                wallet: value.wallet?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::GetBlockTradesRequest> for GetBlockTradesRequest {
+        fn from(value: super::GetBlockTradesRequest) -> Self {
+            Self {
+                direction: Ok(value.direction),
+                from_timestamp: Ok(value.from_timestamp),
+                instrument_name: Ok(value.instrument_name),
+                page: Ok(value.page),
+                page_size: Ok(value.page_size),
+                subaccount_id: Ok(value.subaccount_id),
+                to_timestamp: Ok(value.to_timestamp),
+                wallet: Ok(value.wallet),
+            }
         }
     }
     #[derive(Clone, Debug)]
@@ -21745,6 +23814,10 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct InterestPayment {
+        asset: ::std::result::Result<
+            ::std::option::Option<::std::string::String>,
+            ::std::string::String,
+        >,
         interest: ::std::result::Result<::std::string::String, ::std::string::String>,
         subaccount_id: ::std::result::Result<u64, ::std::string::String>,
         timestamp: ::std::result::Result<i64, ::std::string::String>,
@@ -21752,6 +23825,7 @@ pub mod builder {
     impl ::std::default::Default for InterestPayment {
         fn default() -> Self {
             Self {
+                asset: Ok(Default::default()),
                 interest: Err("no value supplied for interest".to_string()),
                 subaccount_id: Err("no value supplied for subaccount_id".to_string()),
                 timestamp: Err("no value supplied for timestamp".to_string()),
@@ -21759,6 +23833,16 @@ pub mod builder {
         }
     }
     impl InterestPayment {
+        pub fn asset<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.asset = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for asset: {e}"));
+            self
+        }
         pub fn interest<T>(mut self, value: T) -> Self
         where
             T: ::std::convert::TryInto<::std::string::String>,
@@ -21802,6 +23886,7 @@ pub mod builder {
             value: InterestPayment,
         ) -> ::std::result::Result<Self, super::error::ConversionError> {
             Ok(Self {
+                asset: value.asset?,
                 interest: value.interest?,
                 subaccount_id: value.subaccount_id?,
                 timestamp: value.timestamp?,
@@ -21811,6 +23896,7 @@ pub mod builder {
     impl ::std::convert::From<super::InterestPayment> for InterestPayment {
         fn from(value: super::InterestPayment) -> Self {
             Self {
+                asset: Ok(value.asset),
                 interest: Ok(value.interest),
                 subaccount_id: Ok(value.subaccount_id),
                 timestamp: Ok(value.timestamp),
@@ -21995,6 +24081,64 @@ pub mod builder {
         fn from(value: super::InterestRateHistoryResult) -> Self {
             Self {
                 interest_rate_history: Ok(value.interest_rate_history),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct InvalidateBlockTradeSignatureRequest {
+        nonce: ::std::result::Result<::std::string::String, ::std::string::String>,
+        subaccount_id: ::std::result::Result<u64, ::std::string::String>,
+    }
+    impl ::std::default::Default for InvalidateBlockTradeSignatureRequest {
+        fn default() -> Self {
+            Self {
+                nonce: Err("no value supplied for nonce".to_string()),
+                subaccount_id: Err("no value supplied for subaccount_id".to_string()),
+            }
+        }
+    }
+    impl InvalidateBlockTradeSignatureRequest {
+        pub fn nonce<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.nonce = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for nonce: {e}"));
+            self
+        }
+        pub fn subaccount_id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<u64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.subaccount_id = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for subaccount_id: {e}")
+                });
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<InvalidateBlockTradeSignatureRequest>
+    for super::InvalidateBlockTradeSignatureRequest {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: InvalidateBlockTradeSignatureRequest,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                nonce: value.nonce?,
+                subaccount_id: value.subaccount_id?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::InvalidateBlockTradeSignatureRequest>
+    for InvalidateBlockTradeSignatureRequest {
+        fn from(value: super::InvalidateBlockTradeSignatureRequest) -> Self {
+            Self {
+                nonce: Ok(value.nonce),
+                subaccount_id: Ok(value.subaccount_id),
             }
         }
     }
@@ -26645,6 +28789,71 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
+    pub struct PaginatedBlockTradesResult {
+        block_trades: ::std::result::Result<
+            ::std::vec::Vec<super::BlockTradeHistoryResponse>,
+            ::std::string::String,
+        >,
+        pagination: ::std::result::Result<super::Pagination, ::std::string::String>,
+    }
+    impl ::std::default::Default for PaginatedBlockTradesResult {
+        fn default() -> Self {
+            Self {
+                block_trades: Err("no value supplied for block_trades".to_string()),
+                pagination: Err("no value supplied for pagination".to_string()),
+            }
+        }
+    }
+    impl PaginatedBlockTradesResult {
+        pub fn block_trades<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<
+                ::std::vec::Vec<super::BlockTradeHistoryResponse>,
+            >,
+            T::Error: ::std::fmt::Display,
+        {
+            self.block_trades = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for block_trades: {e}")
+                });
+            self
+        }
+        pub fn pagination<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::Pagination>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.pagination = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for pagination: {e}")
+                });
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<PaginatedBlockTradesResult>
+    for super::PaginatedBlockTradesResult {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: PaginatedBlockTradesResult,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                block_trades: value.block_trades?,
+                pagination: value.pagination?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::PaginatedBlockTradesResult>
+    for PaginatedBlockTradesResult {
+        fn from(value: super::PaginatedBlockTradesResult) -> Self {
+            Self {
+                block_trades: Ok(value.block_trades),
+                pagination: Ok(value.pagination),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
     pub struct PaginatedOrdersResult {
         orders: ::std::result::Result<
             ::std::vec::Vec<super::Order>,
@@ -27338,6 +29547,7 @@ pub mod builder {
             ::std::string::String,
         >,
         asset: ::std::result::Result<::std::string::String, ::std::string::String>,
+        below_min_deposit: ::std::result::Result<bool, ::std::string::String>,
         block_number: ::std::result::Result<
             ::std::option::Option<u64>,
             ::std::string::String,
@@ -27371,6 +29581,9 @@ pub mod builder {
                 action_type: Err("no value supplied for action_type".to_string()),
                 amount: Ok(Default::default()),
                 asset: Err("no value supplied for asset".to_string()),
+                below_min_deposit: Err(
+                    "no value supplied for below_min_deposit".to_string(),
+                ),
                 block_number: Ok(Default::default()),
                 bridge_to_l1: Ok(Default::default()),
                 deposit_type: Err("no value supplied for deposit_type".to_string()),
@@ -27427,6 +29640,18 @@ pub mod builder {
             self.asset = value
                 .try_into()
                 .map_err(|e| format!("error converting supplied value for asset: {e}"));
+            self
+        }
+        pub fn below_min_deposit<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<bool>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.below_min_deposit = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for below_min_deposit: {e}")
+                });
             self
         }
         pub fn block_number<T>(mut self, value: T) -> Self
@@ -27560,6 +29785,7 @@ pub mod builder {
                 action_type: value.action_type?,
                 amount: value.amount?,
                 asset: value.asset?,
+                below_min_deposit: value.below_min_deposit?,
                 block_number: value.block_number?,
                 bridge_to_l1: value.bridge_to_l1?,
                 deposit_type: value.deposit_type?,
@@ -27580,6 +29806,7 @@ pub mod builder {
                 action_type: Ok(value.action_type),
                 amount: Ok(value.amount),
                 asset: Ok(value.asset),
+                below_min_deposit: Ok(value.below_min_deposit),
                 block_number: Ok(value.block_number),
                 bridge_to_l1: Ok(value.bridge_to_l1),
                 deposit_type: Ok(value.deposit_type),
@@ -31656,6 +33883,95 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
+    pub struct PublicGetBlockProposalRequest {
+        proposal_id: ::std::result::Result<::uuid::Uuid, ::std::string::String>,
+    }
+    impl ::std::default::Default for PublicGetBlockProposalRequest {
+        fn default() -> Self {
+            Self {
+                proposal_id: Err("no value supplied for proposal_id".to_string()),
+            }
+        }
+    }
+    impl PublicGetBlockProposalRequest {
+        pub fn proposal_id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::uuid::Uuid>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.proposal_id = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for proposal_id: {e}")
+                });
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<PublicGetBlockProposalRequest>
+    for super::PublicGetBlockProposalRequest {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: PublicGetBlockProposalRequest,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                proposal_id: value.proposal_id?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::PublicGetBlockProposalRequest>
+    for PublicGetBlockProposalRequest {
+        fn from(value: super::PublicGetBlockProposalRequest) -> Self {
+            Self {
+                proposal_id: Ok(value.proposal_id),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct PublicGetBlockProposalsRequest {
+        currency: ::std::result::Result<
+            ::std::option::Option<::std::string::String>,
+            ::std::string::String,
+        >,
+    }
+    impl ::std::default::Default for PublicGetBlockProposalsRequest {
+        fn default() -> Self {
+            Self {
+                currency: Ok(Default::default()),
+            }
+        }
+    }
+    impl PublicGetBlockProposalsRequest {
+        pub fn currency<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.currency = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for currency: {e}")
+                });
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<PublicGetBlockProposalsRequest>
+    for super::PublicGetBlockProposalsRequest {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: PublicGetBlockProposalsRequest,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self { currency: value.currency? })
+        }
+    }
+    impl ::std::convert::From<super::PublicGetBlockProposalsRequest>
+    for PublicGetBlockProposalsRequest {
+        fn from(value: super::PublicGetBlockProposalsRequest) -> Self {
+            Self {
+                currency: Ok(value.currency),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
     pub struct PublicGetLiveAuctionsResponse {
         auctions: ::std::result::Result<
             ::std::vec::Vec<super::LiveAuction>,
@@ -33122,6 +35438,10 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct PublicTrade {
+        block_trade_id: ::std::result::Result<
+            ::std::option::Option<::std::string::String>,
+            ::std::string::String,
+        >,
         direction: ::std::result::Result<super::Direction, ::std::string::String>,
         expected_rebate: ::std::result::Result<
             ::std::string::String,
@@ -33168,6 +35488,7 @@ pub mod builder {
     impl ::std::default::Default for PublicTrade {
         fn default() -> Self {
             Self {
+                block_trade_id: Ok(Default::default()),
                 direction: Err("no value supplied for direction".to_string()),
                 expected_rebate: Err(
                     "no value supplied for expected_rebate".to_string(),
@@ -33196,6 +35517,18 @@ pub mod builder {
         }
     }
     impl PublicTrade {
+        pub fn block_trade_id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.block_trade_id = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for block_trade_id: {e}")
+                });
+            self
+        }
         pub fn direction<T>(mut self, value: T) -> Self
         where
             T: ::std::convert::TryInto<super::Direction>,
@@ -33417,6 +35750,7 @@ pub mod builder {
             value: PublicTrade,
         ) -> ::std::result::Result<Self, super::error::ConversionError> {
             Ok(Self {
+                block_trade_id: value.block_trade_id?,
                 direction: value.direction?,
                 expected_rebate: value.expected_rebate?,
                 extra_fee: value.extra_fee?,
@@ -33441,6 +35775,7 @@ pub mod builder {
     impl ::std::convert::From<super::PublicTrade> for PublicTrade {
         fn from(value: super::PublicTrade) -> Self {
             Self {
+                block_trade_id: Ok(value.block_trade_id),
                 direction: Ok(value.direction),
                 expected_rebate: Ok(value.expected_rebate),
                 extra_fee: Ok(value.extra_fee),
@@ -39897,6 +42232,198 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
+    pub struct SendBlockProposalRequest {
+        direction: ::std::result::Result<super::Direction, ::std::string::String>,
+        legs: ::std::result::Result<
+            ::std::vec::Vec<super::PricedLegParamsAndResponse>,
+            ::std::string::String,
+        >,
+        listed: ::std::result::Result<bool, ::std::string::String>,
+        max_fee: ::std::result::Result<::bigdecimal::BigDecimal, ::std::string::String>,
+        nonce: ::std::result::Result<::std::string::String, ::std::string::String>,
+        recipient_wallet: ::std::result::Result<
+            ::std::option::Option<super::Address>,
+            ::std::string::String,
+        >,
+        signature: ::std::result::Result<::std::string::String, ::std::string::String>,
+        signature_expiry_sec: ::std::result::Result<i64, ::std::string::String>,
+        signer: ::std::result::Result<super::Address, ::std::string::String>,
+        subaccount_id: ::std::result::Result<i64, ::std::string::String>,
+    }
+    impl ::std::default::Default for SendBlockProposalRequest {
+        fn default() -> Self {
+            Self {
+                direction: Err("no value supplied for direction".to_string()),
+                legs: Err("no value supplied for legs".to_string()),
+                listed: Ok(Default::default()),
+                max_fee: Err("no value supplied for max_fee".to_string()),
+                nonce: Err("no value supplied for nonce".to_string()),
+                recipient_wallet: Ok(Default::default()),
+                signature: Err("no value supplied for signature".to_string()),
+                signature_expiry_sec: Err(
+                    "no value supplied for signature_expiry_sec".to_string(),
+                ),
+                signer: Err("no value supplied for signer".to_string()),
+                subaccount_id: Err("no value supplied for subaccount_id".to_string()),
+            }
+        }
+    }
+    impl SendBlockProposalRequest {
+        pub fn direction<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::Direction>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.direction = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for direction: {e}")
+                });
+            self
+        }
+        pub fn legs<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<
+                ::std::vec::Vec<super::PricedLegParamsAndResponse>,
+            >,
+            T::Error: ::std::fmt::Display,
+        {
+            self.legs = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for legs: {e}"));
+            self
+        }
+        pub fn listed<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<bool>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.listed = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for listed: {e}"));
+            self
+        }
+        pub fn max_fee<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::bigdecimal::BigDecimal>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.max_fee = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for max_fee: {e}")
+                });
+            self
+        }
+        pub fn nonce<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.nonce = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for nonce: {e}"));
+            self
+        }
+        pub fn recipient_wallet<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<super::Address>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.recipient_wallet = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for recipient_wallet: {e}")
+                });
+            self
+        }
+        pub fn signature<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.signature = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for signature: {e}")
+                });
+            self
+        }
+        pub fn signature_expiry_sec<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<i64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.signature_expiry_sec = value
+                .try_into()
+                .map_err(|e| {
+                    format!(
+                        "error converting supplied value for signature_expiry_sec: {e}"
+                    )
+                });
+            self
+        }
+        pub fn signer<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::Address>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.signer = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for signer: {e}"));
+            self
+        }
+        pub fn subaccount_id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<i64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.subaccount_id = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for subaccount_id: {e}")
+                });
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<SendBlockProposalRequest>
+    for super::SendBlockProposalRequest {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: SendBlockProposalRequest,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                direction: value.direction?,
+                legs: value.legs?,
+                listed: value.listed?,
+                max_fee: value.max_fee?,
+                nonce: value.nonce?,
+                recipient_wallet: value.recipient_wallet?,
+                signature: value.signature?,
+                signature_expiry_sec: value.signature_expiry_sec?,
+                signer: value.signer?,
+                subaccount_id: value.subaccount_id?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::SendBlockProposalRequest>
+    for SendBlockProposalRequest {
+        fn from(value: super::SendBlockProposalRequest) -> Self {
+            Self {
+                direction: Ok(value.direction),
+                legs: Ok(value.legs),
+                listed: Ok(value.listed),
+                max_fee: Ok(value.max_fee),
+                nonce: Ok(value.nonce),
+                recipient_wallet: Ok(value.recipient_wallet),
+                signature: Ok(value.signature),
+                signature_expiry_sec: Ok(value.signature_expiry_sec),
+                signer: Ok(value.signer),
+                subaccount_id: Ok(value.subaccount_id),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
     pub struct SendQuoteRequest {
         client: ::std::result::Result<::std::string::String, ::std::string::String>,
         direction: ::std::result::Result<super::Direction, ::std::string::String>,
@@ -41601,6 +44128,10 @@ pub mod builder {
             ::std::option::Option<super::BatchStatus>,
             ::std::string::String,
         >,
+        block_trade_id: ::std::result::Result<
+            ::std::option::Option<::uuid::Uuid>,
+            ::std::string::String,
+        >,
         direction: ::std::result::Result<super::Direction, ::std::string::String>,
         expected_rebate: ::std::result::Result<
             ::bigdecimal::BigDecimal,
@@ -41664,6 +44195,7 @@ pub mod builder {
         fn default() -> Self {
             Self {
                 batch_status: Ok(Default::default()),
+                block_trade_id: Err("no value supplied for block_trade_id".to_string()),
                 direction: Err("no value supplied for direction".to_string()),
                 expected_rebate: Err(
                     "no value supplied for expected_rebate".to_string(),
@@ -41702,6 +44234,18 @@ pub mod builder {
                 .try_into()
                 .map_err(|e| {
                     format!("error converting supplied value for batch_status: {e}")
+                });
+            self
+        }
+        pub fn block_trade_id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<::uuid::Uuid>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.block_trade_id = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for block_trade_id: {e}")
                 });
             self
         }
@@ -41939,6 +44483,7 @@ pub mod builder {
         ) -> ::std::result::Result<Self, super::error::ConversionError> {
             Ok(Self {
                 batch_status: value.batch_status?,
+                block_trade_id: value.block_trade_id?,
                 direction: value.direction?,
                 expected_rebate: value.expected_rebate?,
                 extra_fee: value.extra_fee?,
@@ -41965,6 +44510,7 @@ pub mod builder {
         fn from(value: super::SettledTrade) -> Self {
             Self {
                 batch_status: Ok(value.batch_status),
+                block_trade_id: Ok(value.block_trade_id),
                 direction: Ok(value.direction),
                 expected_rebate: Ok(value.expected_rebate),
                 extra_fee: Ok(value.extra_fee),
@@ -42040,6 +44586,233 @@ pub mod builder {
             Self {
                 action: Ok(value.action),
                 signature: Ok(value.signature),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct SignedBlockTradeSideRequest {
+        client: ::std::result::Result<::std::string::String, ::std::string::String>,
+        direction: ::std::result::Result<super::Direction, ::std::string::String>,
+        extra_fee: ::std::result::Result<
+            ::bigdecimal::BigDecimal,
+            ::std::string::String,
+        >,
+        label: ::std::result::Result<::std::string::String, ::std::string::String>,
+        legs: ::std::result::Result<
+            ::std::vec::Vec<super::PricedLegParamsAndResponse>,
+            ::std::string::String,
+        >,
+        max_fee: ::std::result::Result<::bigdecimal::BigDecimal, ::std::string::String>,
+        nonce: ::std::result::Result<::std::string::String, ::std::string::String>,
+        referral_code: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+        signature: ::std::result::Result<::std::string::String, ::std::string::String>,
+        signature_expiry_sec: ::std::result::Result<i64, ::std::string::String>,
+        signer: ::std::result::Result<super::Address, ::std::string::String>,
+        subaccount_id: ::std::result::Result<i64, ::std::string::String>,
+    }
+    impl ::std::default::Default for SignedBlockTradeSideRequest {
+        fn default() -> Self {
+            Self {
+                client: Ok(Default::default()),
+                direction: Err("no value supplied for direction".to_string()),
+                extra_fee: Ok(
+                    super::defaults::signed_block_trade_side_request_extra_fee(),
+                ),
+                label: Ok(Default::default()),
+                legs: Err("no value supplied for legs".to_string()),
+                max_fee: Err("no value supplied for max_fee".to_string()),
+                nonce: Err("no value supplied for nonce".to_string()),
+                referral_code: Ok(Default::default()),
+                signature: Err("no value supplied for signature".to_string()),
+                signature_expiry_sec: Err(
+                    "no value supplied for signature_expiry_sec".to_string(),
+                ),
+                signer: Err("no value supplied for signer".to_string()),
+                subaccount_id: Err("no value supplied for subaccount_id".to_string()),
+            }
+        }
+    }
+    impl SignedBlockTradeSideRequest {
+        pub fn client<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.client = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for client: {e}"));
+            self
+        }
+        pub fn direction<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::Direction>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.direction = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for direction: {e}")
+                });
+            self
+        }
+        pub fn extra_fee<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::bigdecimal::BigDecimal>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.extra_fee = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for extra_fee: {e}")
+                });
+            self
+        }
+        pub fn label<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.label = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for label: {e}"));
+            self
+        }
+        pub fn legs<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<
+                ::std::vec::Vec<super::PricedLegParamsAndResponse>,
+            >,
+            T::Error: ::std::fmt::Display,
+        {
+            self.legs = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for legs: {e}"));
+            self
+        }
+        pub fn max_fee<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::bigdecimal::BigDecimal>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.max_fee = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for max_fee: {e}")
+                });
+            self
+        }
+        pub fn nonce<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.nonce = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for nonce: {e}"));
+            self
+        }
+        pub fn referral_code<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.referral_code = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for referral_code: {e}")
+                });
+            self
+        }
+        pub fn signature<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.signature = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for signature: {e}")
+                });
+            self
+        }
+        pub fn signature_expiry_sec<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<i64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.signature_expiry_sec = value
+                .try_into()
+                .map_err(|e| {
+                    format!(
+                        "error converting supplied value for signature_expiry_sec: {e}"
+                    )
+                });
+            self
+        }
+        pub fn signer<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::Address>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.signer = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for signer: {e}"));
+            self
+        }
+        pub fn subaccount_id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<i64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.subaccount_id = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for subaccount_id: {e}")
+                });
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<SignedBlockTradeSideRequest>
+    for super::SignedBlockTradeSideRequest {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: SignedBlockTradeSideRequest,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                client: value.client?,
+                direction: value.direction?,
+                extra_fee: value.extra_fee?,
+                label: value.label?,
+                legs: value.legs?,
+                max_fee: value.max_fee?,
+                nonce: value.nonce?,
+                referral_code: value.referral_code?,
+                signature: value.signature?,
+                signature_expiry_sec: value.signature_expiry_sec?,
+                signer: value.signer?,
+                subaccount_id: value.subaccount_id?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::SignedBlockTradeSideRequest>
+    for SignedBlockTradeSideRequest {
+        fn from(value: super::SignedBlockTradeSideRequest) -> Self {
+            Self {
+                client: Ok(value.client),
+                direction: Ok(value.direction),
+                extra_fee: Ok(value.extra_fee),
+                label: Ok(value.label),
+                legs: Ok(value.legs),
+                max_fee: Ok(value.max_fee),
+                nonce: Ok(value.nonce),
+                referral_code: Ok(value.referral_code),
+                signature: Ok(value.signature),
+                signature_expiry_sec: Ok(value.signature_expiry_sec),
+                signer: Ok(value.signer),
+                subaccount_id: Ok(value.subaccount_id),
             }
         }
     }
@@ -42198,6 +44971,104 @@ pub mod builder {
                 signature: Ok(value.signature),
                 signature_expiry_sec: Ok(value.signature_expiry_sec),
                 signer: Ok(value.signer),
+                subaccount_id: Ok(value.subaccount_id),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct SimulateBlockTradeRequest {
+        direction: ::std::result::Result<super::Direction, ::std::string::String>,
+        extra_fee: ::std::result::Result<
+            ::bigdecimal::BigDecimal,
+            ::std::string::String,
+        >,
+        legs: ::std::result::Result<
+            ::std::vec::Vec<super::PricedLegParamsAndResponse>,
+            ::std::string::String,
+        >,
+        subaccount_id: ::std::result::Result<i64, ::std::string::String>,
+    }
+    impl ::std::default::Default for SimulateBlockTradeRequest {
+        fn default() -> Self {
+            Self {
+                direction: Err("no value supplied for direction".to_string()),
+                extra_fee: Ok(super::defaults::simulate_block_trade_request_extra_fee()),
+                legs: Err("no value supplied for legs".to_string()),
+                subaccount_id: Err("no value supplied for subaccount_id".to_string()),
+            }
+        }
+    }
+    impl SimulateBlockTradeRequest {
+        pub fn direction<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::Direction>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.direction = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for direction: {e}")
+                });
+            self
+        }
+        pub fn extra_fee<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::bigdecimal::BigDecimal>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.extra_fee = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for extra_fee: {e}")
+                });
+            self
+        }
+        pub fn legs<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<
+                ::std::vec::Vec<super::PricedLegParamsAndResponse>,
+            >,
+            T::Error: ::std::fmt::Display,
+        {
+            self.legs = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for legs: {e}"));
+            self
+        }
+        pub fn subaccount_id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<i64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.subaccount_id = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for subaccount_id: {e}")
+                });
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<SimulateBlockTradeRequest>
+    for super::SimulateBlockTradeRequest {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: SimulateBlockTradeRequest,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                direction: value.direction?,
+                extra_fee: value.extra_fee?,
+                legs: value.legs?,
+                subaccount_id: value.subaccount_id?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::SimulateBlockTradeRequest>
+    for SimulateBlockTradeRequest {
+        fn from(value: super::SimulateBlockTradeRequest) -> Self {
+            Self {
+                direction: Ok(value.direction),
+                extra_fee: Ok(value.extra_fee),
+                legs: Ok(value.legs),
                 subaccount_id: Ok(value.subaccount_id),
             }
         }
@@ -44171,6 +47042,10 @@ pub mod builder {
             ::std::option::Option<super::BatchStatus>,
             ::std::string::String,
         >,
+        block_trade_id: ::std::result::Result<
+            ::std::option::Option<::uuid::Uuid>,
+            ::std::string::String,
+        >,
         direction: ::std::result::Result<super::Direction, ::std::string::String>,
         expected_rebate: ::std::result::Result<
             ::bigdecimal::BigDecimal,
@@ -44240,6 +47115,7 @@ pub mod builder {
         fn default() -> Self {
             Self {
                 batch_status: Ok(Default::default()),
+                block_trade_id: Err("no value supplied for block_trade_id".to_string()),
                 direction: Err("no value supplied for direction".to_string()),
                 expected_rebate: Err(
                     "no value supplied for expected_rebate".to_string(),
@@ -44281,6 +47157,18 @@ pub mod builder {
                 .try_into()
                 .map_err(|e| {
                     format!("error converting supplied value for batch_status: {e}")
+                });
+            self
+        }
+        pub fn block_trade_id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<::uuid::Uuid>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.block_trade_id = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for block_trade_id: {e}")
                 });
             self
         }
@@ -44554,6 +47442,7 @@ pub mod builder {
         ) -> ::std::result::Result<Self, super::error::ConversionError> {
             Ok(Self {
                 batch_status: value.batch_status?,
+                block_trade_id: value.block_trade_id?,
                 direction: value.direction?,
                 expected_rebate: value.expected_rebate?,
                 extra_fee: value.extra_fee?,
@@ -44583,6 +47472,7 @@ pub mod builder {
         fn from(value: super::Trade) -> Self {
             Self {
                 batch_status: Ok(value.batch_status),
+                block_trade_id: Ok(value.block_trade_id),
                 direction: Ok(value.direction),
                 expected_rebate: Ok(value.expected_rebate),
                 extra_fee: Ok(value.extra_fee),
@@ -44612,6 +47502,10 @@ pub mod builder {
     pub struct TradeHistoryResponse {
         batch_status: ::std::result::Result<
             ::std::option::Option<super::BatchStatus>,
+            ::std::string::String,
+        >,
+        block_trade_id: ::std::result::Result<
+            ::std::option::Option<::uuid::Uuid>,
             ::std::string::String,
         >,
         direction: ::std::result::Result<super::Direction, ::std::string::String>,
@@ -44683,6 +47577,7 @@ pub mod builder {
         fn default() -> Self {
             Self {
                 batch_status: Ok(Default::default()),
+                block_trade_id: Err("no value supplied for block_trade_id".to_string()),
                 direction: Err("no value supplied for direction".to_string()),
                 expected_rebate: Err(
                     "no value supplied for expected_rebate".to_string(),
@@ -44724,6 +47619,18 @@ pub mod builder {
                 .try_into()
                 .map_err(|e| {
                     format!("error converting supplied value for batch_status: {e}")
+                });
+            self
+        }
+        pub fn block_trade_id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<::uuid::Uuid>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.block_trade_id = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for block_trade_id: {e}")
                 });
             self
         }
@@ -44997,6 +47904,7 @@ pub mod builder {
         ) -> ::std::result::Result<Self, super::error::ConversionError> {
             Ok(Self {
                 batch_status: value.batch_status?,
+                block_trade_id: value.block_trade_id?,
                 direction: value.direction?,
                 expected_rebate: value.expected_rebate?,
                 extra_fee: value.extra_fee?,
@@ -45026,6 +47934,7 @@ pub mod builder {
         fn from(value: super::TradeHistoryResponse) -> Self {
             Self {
                 batch_status: Ok(value.batch_status),
+                block_trade_id: Ok(value.block_trade_id),
                 direction: Ok(value.direction),
                 expected_rebate: Ok(value.expected_rebate),
                 extra_fee: Ok(value.extra_fee),
@@ -50134,6 +53043,245 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
+    pub struct VerifyBlockTradeRequest {
+        client: ::std::result::Result<::std::string::String, ::std::string::String>,
+        direction: ::std::result::Result<super::Direction, ::std::string::String>,
+        extra_fee: ::std::result::Result<
+            ::bigdecimal::BigDecimal,
+            ::std::string::String,
+        >,
+        label: ::std::result::Result<::std::string::String, ::std::string::String>,
+        legs: ::std::result::Result<
+            ::std::vec::Vec<super::PricedLegParamsAndResponse>,
+            ::std::string::String,
+        >,
+        max_fee: ::std::result::Result<::bigdecimal::BigDecimal, ::std::string::String>,
+        nonce: ::std::result::Result<::std::string::String, ::std::string::String>,
+        referral_code: ::std::result::Result<
+            ::std::string::String,
+            ::std::string::String,
+        >,
+        role: ::std::result::Result<super::LiquidityRole, ::std::string::String>,
+        signature: ::std::result::Result<::std::string::String, ::std::string::String>,
+        signature_expiry_sec: ::std::result::Result<i64, ::std::string::String>,
+        signer: ::std::result::Result<super::Address, ::std::string::String>,
+        subaccount_id: ::std::result::Result<i64, ::std::string::String>,
+    }
+    impl ::std::default::Default for VerifyBlockTradeRequest {
+        fn default() -> Self {
+            Self {
+                client: Ok(Default::default()),
+                direction: Err("no value supplied for direction".to_string()),
+                extra_fee: Ok(super::defaults::verify_block_trade_request_extra_fee()),
+                label: Ok(Default::default()),
+                legs: Err("no value supplied for legs".to_string()),
+                max_fee: Err("no value supplied for max_fee".to_string()),
+                nonce: Err("no value supplied for nonce".to_string()),
+                referral_code: Ok(Default::default()),
+                role: Err("no value supplied for role".to_string()),
+                signature: Err("no value supplied for signature".to_string()),
+                signature_expiry_sec: Err(
+                    "no value supplied for signature_expiry_sec".to_string(),
+                ),
+                signer: Err("no value supplied for signer".to_string()),
+                subaccount_id: Err("no value supplied for subaccount_id".to_string()),
+            }
+        }
+    }
+    impl VerifyBlockTradeRequest {
+        pub fn client<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.client = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for client: {e}"));
+            self
+        }
+        pub fn direction<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::Direction>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.direction = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for direction: {e}")
+                });
+            self
+        }
+        pub fn extra_fee<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::bigdecimal::BigDecimal>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.extra_fee = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for extra_fee: {e}")
+                });
+            self
+        }
+        pub fn label<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.label = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for label: {e}"));
+            self
+        }
+        pub fn legs<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<
+                ::std::vec::Vec<super::PricedLegParamsAndResponse>,
+            >,
+            T::Error: ::std::fmt::Display,
+        {
+            self.legs = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for legs: {e}"));
+            self
+        }
+        pub fn max_fee<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::bigdecimal::BigDecimal>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.max_fee = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for max_fee: {e}")
+                });
+            self
+        }
+        pub fn nonce<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.nonce = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for nonce: {e}"));
+            self
+        }
+        pub fn referral_code<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.referral_code = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for referral_code: {e}")
+                });
+            self
+        }
+        pub fn role<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::LiquidityRole>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.role = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for role: {e}"));
+            self
+        }
+        pub fn signature<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.signature = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for signature: {e}")
+                });
+            self
+        }
+        pub fn signature_expiry_sec<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<i64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.signature_expiry_sec = value
+                .try_into()
+                .map_err(|e| {
+                    format!(
+                        "error converting supplied value for signature_expiry_sec: {e}"
+                    )
+                });
+            self
+        }
+        pub fn signer<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::Address>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.signer = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for signer: {e}"));
+            self
+        }
+        pub fn subaccount_id<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<i64>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.subaccount_id = value
+                .try_into()
+                .map_err(|e| {
+                    format!("error converting supplied value for subaccount_id: {e}")
+                });
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<VerifyBlockTradeRequest>
+    for super::VerifyBlockTradeRequest {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: VerifyBlockTradeRequest,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                client: value.client?,
+                direction: value.direction?,
+                extra_fee: value.extra_fee?,
+                label: value.label?,
+                legs: value.legs?,
+                max_fee: value.max_fee?,
+                nonce: value.nonce?,
+                referral_code: value.referral_code?,
+                role: value.role?,
+                signature: value.signature?,
+                signature_expiry_sec: value.signature_expiry_sec?,
+                signer: value.signer?,
+                subaccount_id: value.subaccount_id?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::VerifyBlockTradeRequest>
+    for VerifyBlockTradeRequest {
+        fn from(value: super::VerifyBlockTradeRequest) -> Self {
+            Self {
+                client: Ok(value.client),
+                direction: Ok(value.direction),
+                extra_fee: Ok(value.extra_fee),
+                label: Ok(value.label),
+                legs: Ok(value.legs),
+                max_fee: Ok(value.max_fee),
+                nonce: Ok(value.nonce),
+                referral_code: Ok(value.referral_code),
+                role: Ok(value.role),
+                signature: Ok(value.signature),
+                signature_expiry_sec: Ok(value.signature_expiry_sec),
+                signer: Ok(value.signer),
+                subaccount_id: Ok(value.subaccount_id),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
     pub struct VolFeedDataResponse {
         confidence: ::std::result::Result<::std::string::String, ::std::string::String>,
         currency: ::std::result::Result<::std::string::String, ::std::string::String>,
@@ -51071,6 +54219,15 @@ pub mod defaults {
         ::serde_json::from_str::<::bigdecimal::BigDecimal>("\"0\"").unwrap()
     }
     pub(super) fn set_mmp_config_request_mmp_delta_limit() -> ::bigdecimal::BigDecimal {
+        ::serde_json::from_str::<::bigdecimal::BigDecimal>("\"0\"").unwrap()
+    }
+    pub(super) fn signed_block_trade_side_request_extra_fee() -> ::bigdecimal::BigDecimal {
+        ::serde_json::from_str::<::bigdecimal::BigDecimal>("\"0\"").unwrap()
+    }
+    pub(super) fn simulate_block_trade_request_extra_fee() -> ::bigdecimal::BigDecimal {
+        ::serde_json::from_str::<::bigdecimal::BigDecimal>("\"0\"").unwrap()
+    }
+    pub(super) fn verify_block_trade_request_extra_fee() -> ::bigdecimal::BigDecimal {
         ::serde_json::from_str::<::bigdecimal::BigDecimal>("\"0\"").unwrap()
     }
 }
