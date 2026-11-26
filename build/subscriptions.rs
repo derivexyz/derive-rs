@@ -38,6 +38,8 @@ fn channel_to_ns(channel: &str) -> String {
         "tradesByInstrumentTypeCurrency" => "market_data",
         "tradesByInstrumentTypeCurrencyTxStatus" => "market_data",
         "walletRfqs" => "rfqs",
+        "walletBlockProposals" => "block_proposals",
+        "blockProposals" => "block_proposals",
         _ => panic!("Unknown channel: {channel}"),
     }
     .to_string()
