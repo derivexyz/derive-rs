@@ -76,6 +76,7 @@ fn extract_endpoints_from_api_spec(api_spec: &Value) -> Vec<RpcEndpoint> {
     public_methods_to_rename.insert("order_quote", "public_order_quote");
     public_methods_to_rename.insert("get_margin", "public_get_margin");
     public_methods_to_rename.insert("get_subaccounts", "public_get_subaccounts");
+    public_methods_to_rename.insert("get_block_proposals", "public_get_block_proposals");
 
     let paths_to_skip = ["/public/withdraw_debug"];
 

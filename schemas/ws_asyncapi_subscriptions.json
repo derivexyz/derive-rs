@@ -36,6 +36,26 @@
         }
       ]
     },
+    "blockProposals": {
+      "address": "/v3/ws",
+      "description": "Channel name: `block_proposals`. Public channel that streams the listed block proposals. It sends a proposal when it is sent and when it ends: executed, cancelled or expired. It also sends it with status executing if the outcome of an accept is not known. An accept that fails and leaves the proposal open sends no event. Each event carries the whole proposal, in the public/get_block_proposals shape, and never shows a wallet, a subaccount or a signature. Takes no parameters.",
+      "messages": {
+        "blockProposalsNotification": {
+          "$ref": "#/components/messages/blockProposalsNotification"
+        },
+        "subscribeRequest": {
+          "$ref": "#/components/messages/subscribeRequest"
+        },
+        "unsubscribeRequest": {
+          "$ref": "#/components/messages/unsubscribeRequest"
+        }
+      },
+      "tags": [
+        {
+          "name": "Channels"
+        }
+      ]
+    },
     "marginWatch": {
       "address": "/v3/ws",
       "description": "Channel name: `margin.watch`. Public channel that streams margin and mark-to-market state for all accounts, letting you monitor collateralization and liquidation risk across the exchange. Takes no parameters.",
@@ -256,6 +276,26 @@
         }
       ]
     },
+    "walletBlockProposals": {
+      "address": "/v3/ws",
+      "description": "Channel name: `{wallet}.block_proposals`. Private channel (requires authentication) that streams the block proposals that you made or received as recipient_wallet, where {wallet} is your wallet address in EIP-55 checksummed form. The server does not normalize the case of the channel name, so a subscription with any other casing receives nothing. The maker and the recipient of a proposal receive it when it is sent and when it ends: executed, cancelled, declined or expired. They also receive it with status executing if the outcome of an accept is not known. An accept that fails and leaves the proposal open sends no event. Each event carries the whole proposal, in the private/get_block_proposals shape.",
+      "messages": {
+        "walletBlockProposalsNotification": {
+          "$ref": "#/components/messages/walletBlockProposalsNotification"
+        },
+        "subscribeRequest": {
+          "$ref": "#/components/messages/subscribeRequest"
+        },
+        "unsubscribeRequest": {
+          "$ref": "#/components/messages/unsubscribeRequest"
+        }
+      },
+      "tags": [
+        {
+          "name": "Channels"
+        }
+      ]
+    },
     "walletRfqs": {
       "address": "/v3/ws",
       "description": "Channel name: `{wallet}.rfqs`. Private channel (requires authentication) that streams RFQ (request-for-quote) updates for all subaccounts under a wallet, where {wallet} is your wallet address.",
@@ -286,6 +326,17 @@
       "messages": [
         {
           "$ref": "#/channels/auctionsWatch/messages/auctionsWatchNotification"
+        }
+      ]
+    },
+    "receive_blockProposals": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/blockProposals"
+      },
+      "messages": [
+        {
+          "$ref": "#/channels/blockProposals/messages/blockProposalsNotification"
         }
       ]
     },
@@ -410,6 +461,17 @@
         }
       ]
     },
+    "receive_walletBlockProposals": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/walletBlockProposals"
+      },
+      "messages": [
+        {
+          "$ref": "#/channels/walletBlockProposals/messages/walletBlockProposalsNotification"
+        }
+      ]
+    },
     "receive_walletRfqs": {
       "action": "send",
       "channel": {
@@ -432,6 +494,20 @@
         },
         {
           "$ref": "#/channels/auctionsWatch/messages/unsubscribeRequest"
+        }
+      ]
+    },
+    "send_subscribe_blockProposals": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/blockProposals"
+      },
+      "messages": [
+        {
+          "$ref": "#/channels/blockProposals/messages/subscribeRequest"
+        },
+        {
+          "$ref": "#/channels/blockProposals/messages/unsubscribeRequest"
         }
       ]
     },
@@ -589,6 +665,20 @@
         }
       ]
     },
+    "send_subscribe_walletBlockProposals": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/walletBlockProposals"
+      },
+      "messages": [
+        {
+          "$ref": "#/channels/walletBlockProposals/messages/subscribeRequest"
+        },
+        {
+          "$ref": "#/channels/walletBlockProposals/messages/unsubscribeRequest"
+        }
+      ]
+    },
     "send_subscribe_walletRfqs": {
       "action": "receive",
       "channel": {
@@ -612,6 +702,12 @@
           "$ref": "#/components/schemas/AuctionResult"
         },
         "summary": "Pushed as a JSON array; each element has the fields below."
+      },
+      "blockProposalsNotification": {
+        "name": "blockProposalsNotification",
+        "payload": {
+          "$ref": "#/components/schemas/BlockProposalResultPublic"
+        }
       },
       "marginWatchNotification": {
         "name": "marginWatchNotification",
@@ -686,6 +782,12 @@
           "$ref": "#/components/schemas/PublicTrade"
         },
         "summary": "Pushed as a JSON array; each element has the fields below."
+      },
+      "walletBlockProposalsNotification": {
+        "name": "walletBlockProposalsNotification",
+        "payload": {
+          "$ref": "#/components/schemas/BlockProposalPrivateResponse"
+        }
       },
       "walletRfqsNotification": {
         "name": "walletRfqsNotification",
@@ -973,6 +1075,184 @@
             "format": "uuid"
           }
         }
+      },
+      "BlockProposalPrivateResponse": {
+        "description": "A block proposal as its maker and its recipient see it.",
+        "type": "object",
+        "required": [
+          "block_trade_id",
+          "creation_timestamp",
+          "currency",
+          "direction",
+          "expires_at_sec",
+          "last_update_timestamp",
+          "legs",
+          "listed",
+          "maker_wallet",
+          "proposal_id",
+          "risk_universe_id",
+          "status"
+        ],
+        "properties": {
+          "block_trade_id": {
+            "description": "The block trade, once the proposal executes.",
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "creation_timestamp": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "direction": {
+            "description": "The maker's direction. The taker trades the opposite.",
+            "$ref": "#/components/schemas/Direction"
+          },
+          "expires_at_sec": {
+            "description": "The last second (UTC) at which the proposal can be accepted.",
+            "type": "integer",
+            "format": "int64"
+          },
+          "last_update_timestamp": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "legs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PricedLegParamsAndResponse"
+            }
+          },
+          "listed": {
+            "description": "Whether the proposal is on the public list.",
+            "type": "boolean"
+          },
+          "maker_wallet": {
+            "$ref": "#/components/schemas/Address"
+          },
+          "proposal_id": {
+            "description": "UUID v4 string",
+            "type": "string",
+            "format": "uuid"
+          },
+          "recipient_wallet": {
+            "description": "The only wallet that can accept the proposal. Null if any wallet can.",
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Address"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "risk_universe_id": {
+            "type": "integer",
+            "format": "uint32",
+            "minimum": 0.0
+          },
+          "status": {
+            "$ref": "#/components/schemas/BlockProposalStatus"
+          }
+        }
+      },
+      "BlockProposalResultPublic": {
+        "description": "A block proposal as every other wallet sees it.",
+        "type": "object",
+        "required": [
+          "block_trade_id",
+          "creation_timestamp",
+          "currency",
+          "direction",
+          "expires_at_sec",
+          "last_update_timestamp",
+          "legs",
+          "listed",
+          "proposal_id",
+          "risk_universe_id",
+          "status"
+        ],
+        "properties": {
+          "block_trade_id": {
+            "description": "The block trade, once the proposal executes.",
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "creation_timestamp": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "direction": {
+            "description": "The maker's direction. The taker trades the opposite.",
+            "$ref": "#/components/schemas/Direction"
+          },
+          "expires_at_sec": {
+            "description": "The last second (UTC) at which the proposal can be accepted.",
+            "type": "integer",
+            "format": "int64"
+          },
+          "last_update_timestamp": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "legs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PricedLegParamsAndResponse"
+            }
+          },
+          "listed": {
+            "description": "Whether the proposal is on the public list.",
+            "type": "boolean"
+          },
+          "proposal_id": {
+            "description": "UUID v4 string",
+            "type": "string",
+            "format": "uuid"
+          },
+          "risk_universe_id": {
+            "type": "integer",
+            "format": "uint32",
+            "minimum": 0.0
+          },
+          "status": {
+            "$ref": "#/components/schemas/BlockProposalStatus"
+          }
+        }
+      },
+      "BlockProposalStatus": {
+        "oneOf": [
+          {
+            "type": "string",
+            "enum": [
+              "open",
+              "executing",
+              "executed",
+              "expired"
+            ]
+          },
+          {
+            "description": "By the maker.",
+            "type": "string",
+            "enum": [
+              "cancelled"
+            ]
+          },
+          {
+            "description": "By the recipient.",
+            "type": "string",
+            "enum": [
+              "declined"
+            ]
+          }
+        ]
       },
       "CancelReason": {
         "type": "string",
@@ -1692,6 +1972,10 @@
           "wallet"
         ],
         "properties": {
+          "block_trade_id": {
+            "type": "string",
+            "nullable": true
+          },
           "direction": {
             "$ref": "#/components/schemas/Direction"
           },
@@ -2208,6 +2492,7 @@
         "description": "Info that the user expects to get delivered when requesting trade info.",
         "type": "object",
         "required": [
+          "block_trade_id",
           "direction",
           "expected_rebate",
           "extra_fee",
@@ -2240,6 +2525,12 @@
                 "type": "null"
               }
             ]
+          },
+          "block_trade_id": {
+            "description": "Optional UUID v4 string",
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
           },
           "direction": {
             "$ref": "#/components/schemas/Direction"
