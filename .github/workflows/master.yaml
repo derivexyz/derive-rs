@@ -1,50 +1,25 @@
-#  Workflow to perform a release on merge into main branch
-# pushes a new tag and creates a GitHub release
-
 name: Release
+
 on:
-  push:
-    branches:
-      - master
+  pull_request:
 
-# set permissions for the workflow
 permissions:
-  contents: write
-  packages: write
+  contents: read
   id-token: write
-
 
 jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-      - name: Configure git identity
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-      - name: Cache cargo
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-            target
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-cargo-
-
-      - name: Install Rust
-        uses: actions-rust-lang/setup-rust-toolchain@v1
+      - uses: actions/checkout@v3
       - uses: rust-lang/crates-io-auth-action@v1
         id: auth
-      - run: cargo publish
+      - name: Verify registry access
         env:
           CARGO_REGISTRY_TOKEN: ${{ steps.auth.outputs.token }}
-
-      - name: Create Release
-        env:
-          GH_TOKEN: ${{ github.token }}
         run: |
-          make release
+          echo "registry_token_length=${#CARGO_REGISTRY_TOKEN}"
+          http_code=$(curl -sS -o registry-me.json -w '%{http_code}' -H "Authorization: $CARGO_REGISTRY_TOKEN" https://crates.io/api/v1/me)
+          echo "registry_me_http=$http_code"
+          wc -c registry-me.json
+          head -c 500 registry-me.json
